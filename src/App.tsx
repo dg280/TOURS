@@ -61,6 +61,16 @@ function App() {
   const [bookingDate, setBookingDate] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showCookieConsent, setShowCookieConsent] = useState(false);
+  const [guidePhoto, setGuidePhoto] = useState('/guide-antoine.jpg');
+  const [customTours, setCustomTours] = useState<Tour[]>([]);
+
+  useEffect(() => {
+    const savedPhoto = localStorage.getItem('td-guide-photo');
+    if (savedPhoto) setGuidePhoto(savedPhoto);
+
+    const savedTours = localStorage.getItem('td-tours');
+    if (savedTours) setCustomTours(JSON.parse(savedTours));
+  }, []);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -132,6 +142,13 @@ function App() {
       setBookingStep(bookingStep + 1);
     }
   };
+
+  useEffect(() => {
+    const consent = localStorage.getItem('cookie-consent');
+    if (!consent) {
+      setShowCookieConsent(true);
+    }
+  }, []);
 
   const calculateTotal = () => {
     if (!selectedTour) return 0;
@@ -433,7 +450,7 @@ function App() {
             <div className="relative">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                 <img
-                  src="/guide-antoine.jpg"
+                  src={guidePhoto}
                   alt="Antoine Pilard - Votre guide"
                   className="w-full h-[500px] object-cover"
                 />
@@ -670,8 +687,8 @@ function App() {
 
       {/* Booking Modal */}
       <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
-        <DialogContent className="max-w-2xl p-0 overflow-hidden bg-white border-none shadow-2xl rounded-2xl">
-          <div className="flex flex-col md:flex-row h-full">
+        <DialogContent className="max-w-4xl p-0 overflow-hidden bg-white border-none shadow-2xl rounded-2xl max-h-[90vh] flex flex-col">
+          <div className="flex flex-col md:flex-row h-full overflow-y-auto">
             {/* Sidebar Summary */}
             <div className="w-full md:w-72 bg-gray-50 p-6 border-b md:border-b-0 md:border-r border-gray-100">
               <div className="mb-6">

@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { 
-  LayoutDashboard, 
-  Calendar, 
-  MapPin, 
-  Star, 
-  LogOut, 
+import { useState, useEffect } from 'react';
+import {
+  LayoutDashboard,
+  Calendar,
+  MapPin,
+  Star,
+  LogOut,
   Menu,
   X,
   User,
@@ -17,17 +17,17 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
   DialogTitle,
   DialogDescription,
   DialogFooter
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -348,7 +348,13 @@ function Login({ onLogin }: { onLogin: () => void }) {
 }
 
 // Dashboard Component
-function Dashboard({ reservations }: { reservations: Reservation[] }) {
+function Dashboard({
+  reservations,
+  setActiveTab
+}: {
+  reservations: Reservation[];
+  setActiveTab: (tab: string) => void;
+}) {
   const stats = {
     totalReservations: reservations.length,
     pendingReservations: reservations.filter(r => r.status === 'pending').length,
@@ -492,47 +498,45 @@ function Dashboard({ reservations }: { reservations: Reservation[] }) {
       </Card>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-gradient-to-br from-amber-500 to-orange-600 text-white">
-          <CardContent className="p-6">
-            <h3 className="font-semibold mb-2">Nouvelle réservation</h3>
-            <p className="text-white/80 text-sm mb-4">Ajouter manuellement une réservation</p>
-            <Button variant="secondary" className="w-full">
-              Créer une réservation
-            </Button>
-          </CardContent>
-        </Card>
+      <Card className="bg-gradient-to-br from-amber-500 to-orange-600 text-white">
+        <CardContent className="p-6">
+          <h3 className="font-semibold mb-2">Nouvelle réservation</h3>
+          <p className="text-white/80 text-sm mb-4">Ajouter manuellement une réservation</p>
+          <Button variant="secondary" className="w-full" onClick={() => setActiveTab('reservations')}>
+            Créer une réservation
+          </Button>
+        </CardContent>
+      </Card>
 
-        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-          <CardContent className="p-6">
-            <h3 className="font-semibold mb-2">Gérer les tours</h3>
-            <p className="text-white/80 text-sm mb-4">Modifier les prix et disponibilités</p>
-            <Button variant="secondary" className="w-full">
-              Voir les tours
-            </Button>
-          </CardContent>
-        </Card>
+      <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+        <CardContent className="p-6">
+          <h3 className="font-semibold mb-2">Gérer les tours</h3>
+          <p className="text-white/80 text-sm mb-4">Modifier les prix et disponibilités</p>
+          <Button variant="secondary" className="w-full" onClick={() => setActiveTab('tours')}>
+            Voir les tours
+          </Button>
+        </CardContent>
+      </Card>
 
-        <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white">
-          <CardContent className="p-6">
-            <h3 className="font-semibold mb-2">Avis clients</h3>
-            <p className="text-white/80 text-sm mb-4">Modérer les témoignages</p>
-            <Button variant="secondary" className="w-full">
-              Voir les avis
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+        <CardContent className="p-6">
+          <h3 className="font-semibold mb-2">Avis clients</h3>
+          <p className="text-white/80 text-sm mb-4">Modérer les témoignages</p>
+          <Button variant="secondary" className="w-full" onClick={() => setActiveTab('reviews')}>
+            Voir les avis
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
 // Reservations Component
-function Reservations({ 
-  reservations, 
-  setReservations 
-}: { 
-  reservations: Reservation[]; 
+function Reservations({
+  reservations,
+  setReservations
+}: {
+  reservations: Reservation[];
   setReservations: React.Dispatch<React.SetStateAction<Reservation[]>>;
 }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -541,7 +545,7 @@ function Reservations({
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const filteredReservations = reservations.filter(res => {
-    const matchesSearch = 
+    const matchesSearch =
       res.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       res.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       res.id.toLowerCase().includes(searchTerm.toLowerCase());
@@ -550,7 +554,7 @@ function Reservations({
   });
 
   const updateStatus = (id: string, newStatus: Reservation['status']) => {
-    setReservations(prev => prev.map(res => 
+    setReservations(prev => prev.map(res =>
       res.id === id ? { ...res, status: newStatus } : res
     ));
   };
@@ -715,8 +719,8 @@ function Reservations({
                       }}
                     >
                       {status === 'pending' ? 'En attente' :
-                       status === 'confirmed' ? 'Confirmer' :
-                       status === 'cancelled' ? 'Annuler' : 'Terminer'}
+                        status === 'confirmed' ? 'Confirmer' :
+                          status === 'cancelled' ? 'Annuler' : 'Terminer'}
                     </Button>
                   ))}
                 </div>
@@ -730,27 +734,32 @@ function Reservations({
 }
 
 // Tours Management Component
-function ToursManagement({ 
-  tours, 
-  setTours 
-}: { 
-  tours: Tour[]; 
+function ToursManagement({
+  tours,
+  setTours
+}: {
+  tours: Tour[];
   setTours: React.Dispatch<React.SetStateAction<Tour[]>>;
 }) {
   const [editingTour, setEditingTour] = useState<Tour | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
   const toggleActive = (id: string) => {
-    setTours(prev => prev.map(tour => 
+    setTours(prev => prev.map(tour =>
       tour.id === id ? { ...tour, isActive: !tour.isActive } : tour
     ));
   };
 
   const saveTour = () => {
     if (editingTour) {
-      setTours(prev => prev.map(tour => 
-        tour.id === editingTour.id ? editingTour : tour
-      ));
+      setTours(prev => {
+        const index = prev.findIndex(t => t.id === editingTour.id);
+        if (index > -1) {
+          return prev.map(tour => tour.id === editingTour.id ? editingTour : tour);
+        } else {
+          return [...prev, editingTour];
+        }
+      });
       setIsEditOpen(false);
       setEditingTour(null);
     }
@@ -763,7 +772,25 @@ function ToursManagement({
           <h2 className="text-2xl font-bold text-gray-900">Gestion des Tours</h2>
           <p className="text-gray-500">Modifiez vos offres de tours</p>
         </div>
-        <Button className="bg-amber-600 hover:bg-amber-700">
+        <Button
+          className="bg-amber-600 hover:bg-amber-700"
+          onClick={() => {
+            setEditingTour({
+              id: Math.random().toString(36).substr(2, 9),
+              title: '',
+              subtitle: '',
+              description: '',
+              duration: '',
+              groupSize: '',
+              price: 0,
+              image: '',
+              highlights: [],
+              category: '',
+              isActive: true
+            });
+            setIsEditOpen(true);
+          }}
+        >
           + Ajouter un tour
         </Button>
       </div>
@@ -772,8 +799,8 @@ function ToursManagement({
         {tours.map((tour) => (
           <Card key={tour.id} className={!tour.isActive ? 'opacity-60' : ''}>
             <div className="relative h-40 overflow-hidden rounded-t-lg">
-              <img 
-                src={tour.image} 
+              <img
+                src={tour.image}
                 alt={tour.title}
                 className="w-full h-full object-cover"
               />
@@ -792,7 +819,7 @@ function ToursManagement({
               <p className="text-xs text-amber-600 font-medium uppercase mb-1">{tour.subtitle}</p>
               <h3 className="text-base font-bold mb-1">{tour.title}</h3>
               <p className="text-gray-600 text-xs mb-3 line-clamp-2">{tour.description}</p>
-              
+
               <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
                 <span>{tour.duration}</span>
                 <span>•</span>
@@ -836,21 +863,21 @@ function ToursManagement({
             <div className="space-y-4">
               <div>
                 <Label>Titre</Label>
-                <Input 
+                <Input
                   value={editingTour.title}
                   onChange={(e) => setEditingTour({ ...editingTour, title: e.target.value })}
                 />
               </div>
               <div>
                 <Label>Sous-titre</Label>
-                <Input 
+                <Input
                   value={editingTour.subtitle}
                   onChange={(e) => setEditingTour({ ...editingTour, subtitle: e.target.value })}
                 />
               </div>
               <div>
                 <Label>Description</Label>
-                <Textarea 
+                <Textarea
                   value={editingTour.description}
                   onChange={(e) => setEditingTour({ ...editingTour, description: e.target.value })}
                 />
@@ -858,26 +885,49 @@ function ToursManagement({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Durée</Label>
-                  <Input 
+                  <Input
                     value={editingTour.duration}
                     onChange={(e) => setEditingTour({ ...editingTour, duration: e.target.value })}
                   />
                 </div>
                 <div>
                   <Label>Groupe max</Label>
-                  <Input 
+                  <Input
                     value={editingTour.groupSize}
                     onChange={(e) => setEditingTour({ ...editingTour, groupSize: e.target.value })}
                   />
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Prix (€)</Label>
+                  <Input
+                    type="number"
+                    value={editingTour.price}
+                    onChange={(e) => setEditingTour({ ...editingTour, price: parseInt(e.target.value) })}
+                  />
+                </div>
+                <div>
+                  <Label>Catégorie</Label>
+                  <Input
+                    value={editingTour.category}
+                    onChange={(e) => setEditingTour({ ...editingTour, category: e.target.value })}
+                  />
+                </div>
+              </div>
               <div>
-                <Label>Prix (€)</Label>
-                <Input 
-                  type="number"
-                  value={editingTour.price}
-                  onChange={(e) => setEditingTour({ ...editingTour, price: parseInt(e.target.value) })}
-                />
+                <Label>Lien de l'image (URL)</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={editingTour.image}
+                    onChange={(e) => setEditingTour({ ...editingTour, image: e.target.value })}
+                    placeholder="/tour-example.jpg"
+                    className="flex-1"
+                  />
+                  {editingTour.image && (
+                    <img src={editingTour.image} className="w-10 h-10 object-cover rounded border" alt="Preview" />
+                  )}
+                </div>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsEditOpen(false)}>Annuler</Button>
@@ -892,15 +942,15 @@ function ToursManagement({
 }
 
 // Reviews Component
-function Reviews({ 
-  reviews, 
-  setReviews 
-}: { 
-  reviews: Review[]; 
+function Reviews({
+  reviews,
+  setReviews
+}: {
+  reviews: Review[];
   setReviews: React.Dispatch<React.SetStateAction<Review[]>>;
 }) {
   const togglePublish = (id: string) => {
-    setReviews(prev => prev.map(review => 
+    setReviews(prev => prev.map(review =>
       review.id === id ? { ...review, isPublished: !review.isPublished } : review
     ));
   };
@@ -925,9 +975,9 @@ function Reviews({
 
         <TabsContent value="all" className="space-y-4">
           {reviews.map((review) => (
-            <ReviewCard 
-              key={review.id} 
-              review={review} 
+            <ReviewCard
+              key={review.id}
+              review={review}
               onToggle={() => togglePublish(review.id)}
               onDelete={() => deleteReview(review.id)}
             />
@@ -936,9 +986,9 @@ function Reviews({
 
         <TabsContent value="published" className="space-y-4">
           {reviews.filter(r => r.isPublished).map((review) => (
-            <ReviewCard 
-              key={review.id} 
-              review={review} 
+            <ReviewCard
+              key={review.id}
+              review={review}
               onToggle={() => togglePublish(review.id)}
               onDelete={() => deleteReview(review.id)}
             />
@@ -947,9 +997,9 @@ function Reviews({
 
         <TabsContent value="pending" className="space-y-4">
           {reviews.filter(r => !r.isPublished).map((review) => (
-            <ReviewCard 
-              key={review.id} 
-              review={review} 
+            <ReviewCard
+              key={review.id}
+              review={review}
               onToggle={() => togglePublish(review.id)}
               onDelete={() => deleteReview(review.id)}
             />
@@ -960,12 +1010,12 @@ function Reviews({
   );
 }
 
-function ReviewCard({ 
-  review, 
-  onToggle, 
-  onDelete 
-}: { 
-  review: Review; 
+function ReviewCard({
+  review,
+  onToggle,
+  onDelete
+}: {
+  review: Review;
   onToggle: () => void;
   onDelete: () => void;
 }) {
@@ -984,9 +1034,9 @@ function ReviewCard({
           </div>
           <div className="flex items-center gap-1">
             {[...Array(5)].map((_, i) => (
-              <Star 
-                key={i} 
-                className={`w-4 h-4 ${i < review.rating ? 'text-amber-500 fill-amber-500' : 'text-gray-300'}`} 
+              <Star
+                key={i}
+                className={`w-4 h-4 ${i < review.rating ? 'text-amber-500 fill-amber-500' : 'text-gray-300'}`}
               />
             ))}
           </div>
@@ -1023,11 +1073,26 @@ export default function AdminApp() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  
+
   // Data states
   const [reservations, setReservations] = useState<Reservation[]>(mockReservations);
-  const [tours, setTours] = useState<Tour[]>(mockTours);
+  const [tours, setTours] = useState<Tour[]>(() => {
+    const saved = localStorage.getItem('td-tours');
+    return saved ? JSON.parse(saved) : mockTours;
+  });
   const [reviews, setReviews] = useState<Review[]>(mockReviews);
+  const [guidePhoto, setGuidePhoto] = useState(() => {
+    return localStorage.getItem('td-guide-photo') || '/guide-antoine.jpg';
+  });
+
+  // Sync to localStorage
+  useEffect(() => {
+    localStorage.setItem('td-tours', JSON.stringify(tours));
+  }, [tours]);
+
+  useEffect(() => {
+    localStorage.setItem('td-guide-photo', guidePhoto);
+  }, [guidePhoto]);
 
   if (!isLoggedIn) {
     return <Login onLogin={() => setIsLoggedIn(true)} />;
@@ -1038,30 +1103,60 @@ export default function AdminApp() {
     { id: 'reservations', label: 'Réservations', icon: Calendar },
     { id: 'tours', label: 'Tours', icon: MapPin },
     { id: 'reviews', label: 'Avis', icon: Star },
+    { id: 'profile', label: 'Mon Profil', icon: User },
   ];
 
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard reservations={reservations} />;
+        return <Dashboard reservations={reservations} setActiveTab={setActiveTab} />;
       case 'reservations':
         return <Reservations reservations={reservations} setReservations={setReservations} />;
       case 'tours':
         return <ToursManagement tours={tours} setTours={setTours} />;
       case 'reviews':
         return <Reviews reviews={reviews} setReviews={setReviews} />;
+      case 'profile':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Profil du Guide</CardTitle>
+              <CardDescription>Gérez vos informations personnelles et votre photo</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex flex-col items-center gap-4 py-4">
+                <div className="relative">
+                  <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-amber-100 shadow-lg">
+                    <img src={guidePhoto} alt="Guide" className="w-full h-full object-cover" />
+                  </div>
+                  <Badge className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-amber-600">Antoine Pilard</Badge>
+                </div>
+                <div className="w-full max-w-md space-y-4">
+                  <div className="space-y-2">
+                    <Label>URL de la photo de profil</Label>
+                    <Input
+                      value={guidePhoto}
+                      onChange={(e) => setGuidePhoto(e.target.value)}
+                      placeholder="/guide-antoine.jpg"
+                    />
+                  </div>
+                  <Button className="w-full bg-amber-600 hover:bg-amber-700">Enregistrer les changements</Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
       default:
-        return <Dashboard reservations={reservations} />;
+        return <Dashboard reservations={reservations} setActiveTab={setActiveTab} />;
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
       {/* Sidebar */}
-      <aside 
-        className={`bg-gray-900 text-white transition-all duration-300 ${
-          isSidebarOpen ? 'w-64' : 'w-16'
-        }`}
+      <aside
+        className={`bg-gray-900 text-white transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-16'
+          }`}
       >
         <div className="p-4 flex items-center justify-between">
           {isSidebarOpen && (
@@ -1070,7 +1165,7 @@ export default function AdminApp() {
               <span className="font-serif font-semibold">T&D</span>
             </div>
           )}
-          <button 
+          <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="p-1 hover:bg-gray-800 rounded"
           >
@@ -1083,11 +1178,10 @@ export default function AdminApp() {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
-                activeTab === item.id 
-                  ? 'bg-amber-600 text-white' 
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-              }`}
+              className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${activeTab === item.id
+                ? 'bg-amber-600 text-white'
+                : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                }`}
             >
               <item.icon className="w-5 h-5" />
               {isSidebarOpen && <span>{item.label}</span>}
@@ -1123,8 +1217,8 @@ export default function AdminApp() {
               )}
             </button>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
-                <User className="w-4 h-4 text-amber-600" />
+              <div className="w-8 h-8 rounded-full overflow-hidden">
+                <img src={guidePhoto} className="w-full h-full object-cover" alt="Profile" />
               </div>
               {isSidebarOpen && (
                 <div className="hidden md:block">
