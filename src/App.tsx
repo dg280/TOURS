@@ -32,7 +32,7 @@ import {
   Minus,
   Plus
 } from 'lucide-react';
-import { translations, Language } from './lib/translations';
+import { translations, type Language } from './lib/translations';
 import './App.css';
 
 interface Tour {
@@ -305,10 +305,10 @@ function App() {
 
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 animate-fade-in-up delay-300">
             {[
-              { icon: Clock, label: '15+ ans', sublabel: 'd\'expérience' },
-              { icon: MapPin, label: 'Catalogne', sublabel: 'expert local' },
-              { icon: Star, label: '5.0', sublabel: 'sur TripAdvisor' },
-              { icon: Globe, label: '4', sublabel: 'langues' },
+              { icon: Clock, label: '15+', sublabel: t.stats.exp },
+              { icon: MapPin, label: 'Catalonia', sublabel: t.stats.local },
+              { icon: Star, label: '5.0', sublabel: t.stats.review },
+              { icon: Globe, label: '4', sublabel: t.stats.langs },
             ].map((stat, index) => (
               <div key={index} className="text-center">
                 <stat.icon className="w-8 h-8 mx-auto mb-2 text-amber-400" />
@@ -324,13 +324,12 @@ function App() {
       <section id="tours" className="section-padding bg-white">
         <div className="container-custom">
           <div className="text-center mb-16">
-            <p className="text-amber-600 font-medium mb-2">NOS EXPÉRIENCES</p>
+            <p className="text-amber-600 font-medium mb-2">{t.tours.section_tag}</p>
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
-              Excursions Guidées en Catalogne
+              {t.tours.section_title}
             </h2>
             <p className="text-gray-600 max-w-3xl mx-auto">
-              Chaque excursion est soigneusement conçue pour vous offrir une expérience authentique,
-              loin des sentiers battus. De Barcelone aux Pyrénées, découvrez la Catalogne comme un local.
+              {t.tours.section_desc}
             </p>
           </div>
 
@@ -373,7 +372,7 @@ function App() {
                   </div>
 
                   <div className="mb-4">
-                    <p className="text-xs text-gray-500 mb-2">Points forts :</p>
+                    <p className="text-xs text-gray-500 mb-2">{t.tours.learn_more} :</p>
                     <div className="flex flex-wrap gap-1">
                       {tour.highlights.map((highlight, i) => (
                         <span
@@ -392,7 +391,7 @@ function App() {
                         onClick={() => setSelectedTour(tour)}
                         className="w-full bg-gray-900 hover:bg-gray-800 text-white"
                       >
-                        En savoir plus
+                        {t.tours.learn_more}
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-lg">
@@ -406,9 +405,9 @@ function App() {
                       />
                       <p className="text-gray-600 mb-4">{tour.description}</p>
                       <div className="space-y-2 mb-4">
-                        <p className="text-sm"><strong>Durée:</strong> {tour.duration}</p>
-                        <p className="text-sm"><strong>Groupe:</strong> {tour.groupSize}</p>
-                        <p className="text-sm"><strong>Prix:</strong> {tour.price} par personne</p>
+                        <p className="text-sm"><strong>{t.tours.duration}:</strong> {tour.duration}</p>
+                        <p className="text-sm"><strong>{t.tours.group}:</strong> {tour.groupSize}</p>
+                        <p className="text-sm"><strong>{t.tours.price}:</strong> {tour.price} {t.tours.per_person}</p>
                       </div>
                       <Button
                         onClick={() => {
@@ -416,7 +415,7 @@ function App() {
                         }}
                         className="w-full bg-amber-600 hover:bg-amber-700"
                       >
-                        Réserver ce tour
+                        {t.tours.book_now}
                       </Button>
                     </DialogContent>
                   </Dialog>
@@ -446,38 +445,26 @@ function App() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-gray-900">5.0</p>
-                    <p className="text-sm text-gray-500">Note moyenne</p>
+                    <p className="text-sm text-gray-500">{t.nav.avis}</p>
                   </div>
                 </div>
               </div>
             </div>
 
             <div>
-              <p className="text-amber-600 font-medium mb-2">VOTRE GUIDE</p>
+              <p className="text-amber-600 font-medium mb-2">{t.guide.section_tag}</p>
               <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-                Bonjour, je suis <span className="text-amber-600">Antoine Pilard</span>
+                {t.guide.title.split('Antoine')[0]} <span className="text-amber-600">Antoine Pilard</span>
               </h2>
               <p className="text-gray-600 text-lg mb-6">
-                Guide expert local en Catalogne avec plus de 15 ans d'expérience en France et Andorre.
-                Ancien tour leader Intrepid sur le programme Andorra Hike, Bike & Raft (2018-2022),
-                je suis basé à Barcelone depuis 2022.
+                {t.guide.desc1}
               </p>
               <p className="text-gray-600 mb-8">
-                Je conçois et opère des expériences d'une journée et multi-jours à travers la Catalogne,
-                en privilégiant le voyage responsable, les routes à faible impact et la collaboration
-                avec des fournisseurs et restaurants locaux. Mon approche slow-travel vous fait découvrir
-                les histoires, la nourriture, les paysages et les communautés loin des routes surchargées.
+                {t.guide.desc2}
               </p>
 
               <div className="grid grid-cols-2 gap-4 mb-8">
-                {[
-                  'Expert local Catalogne',
-                  'Guide certifié Intrepid',
-                  'Passionné d\'histoire',
-                  'Spécialiste randonnée',
-                  'Voyage responsable',
-                  '4 langues parlées'
-                ].map((item, index) => (
+                {t.guide.features.map((item, index) => (
                   <div key={index} className="flex items-center gap-2">
                     <CheckCircle2 className="w-5 h-5 text-amber-600" />
                     <span className="text-gray-700">{item}</span>
@@ -490,14 +477,14 @@ function App() {
                   onClick={() => scrollToSection('contact')}
                   className="bg-amber-600 hover:bg-amber-700 text-white btn-hover"
                 >
-                  Me contacter
+                  {t.guide.cta_contact}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => scrollToSection('tours')}
                   className="border-gray-300"
                 >
-                  Voir les tours
+                  {t.guide.cta_tours}
                 </Button>
               </div>
             </div>
@@ -509,41 +496,25 @@ function App() {
       <section className="section-padding bg-white">
         <div className="container-custom">
           <div className="text-center mb-16">
-            <p className="text-amber-600 font-medium mb-2">POURQUOI NOUS CHOISIR</p>
+            <p className="text-amber-600 font-medium mb-2">{t.features.tag}</p>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Ce que j'apporte à chaque excursion
+              {t.features.title}
             </h2>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              {
-                icon: MapPin,
-                title: 'Expertise Locale',
-                description: 'Basé à Barcelone avec une connaissance approfondie de la culture, la nature et la logistique sur le terrain.'
-              },
-              {
-                icon: Mountain,
-                title: 'Activités Riches',
-                description: 'Des tours qui connectent les voyageurs avec les histoires locales, la nourriture et les communautés.'
-              },
-              {
-                icon: Compass,
-                title: 'Sécurité & Coordination',
-                description: 'Formé à la gestion de groupe et au leadership d\'activités outdoor : randonnée, kayak, culture.'
-              },
-              {
-                icon: Waves,
-                title: 'Voyage Responsable',
-                description: 'Chaque expérience privilégie la durabilité, les routes à faible impact et les fournisseurs locaux.'
-              }
+              { icon: MapPin, ...t.features.items[0] },
+              { icon: Mountain, ...t.features.items[1] },
+              { icon: Compass, ...t.features.items[2] },
+              { icon: Waves, ...t.features.items[3] },
             ].map((feature, index) => (
               <div key={index} className="text-center p-6">
                 <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <feature.icon className="w-8 h-8 text-amber-600" />
                 </div>
                 <h3 className="text-lg font-bold mb-2">{feature.title}</h3>
-                <p className="text-gray-600 text-sm">{feature.description}</p>
+                <p className="text-gray-600 text-sm">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -554,9 +525,9 @@ function App() {
       <section id="avis" className="section-padding bg-gray-50">
         <div className="container-custom">
           <div className="text-center mb-16">
-            <p className="text-amber-600 font-medium mb-2">TÉMOIGNAGES</p>
+            <p className="text-amber-600 font-medium mb-2">{t.testimonials.tag}</p>
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
-              Ce que disent nos voyageurs
+              {t.testimonials.title}
             </h2>
           </div>
 
@@ -578,7 +549,7 @@ function App() {
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">{testimonial.name}</p>
-                    <p className="text-sm text-gray-500">{testimonial.location}</p>
+                    <p className="text-sm text-gray-500">{testimonial.loc}</p>
                   </div>
                 </div>
               </div>
