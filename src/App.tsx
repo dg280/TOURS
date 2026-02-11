@@ -162,7 +162,7 @@ function App() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-6">
             {['tours', 'guide', 'avis', 'contact'].map((item) => (
               <button
                 key={item}
@@ -170,17 +170,41 @@ function App() {
                 className={`text-sm font-medium capitalize transition-colors hover:opacity-80 ${isScrolled ? 'text-gray-700' : 'text-white'
                   }`}
               >
-                {item === 'avis' ? 'Avis' : item === 'guide' ? 'Votre Guide' : item === 'contact' ? 'Contact' : 'Nos Tours'}
+                {item === 'avis' ? t.nav.avis : item === 'guide' ? t.nav.guide : item === 'contact' ? t.nav.contact : t.nav.tours}
               </button>
             ))}
+
+            {/* Language Switcher */}
+            <div className="flex items-center gap-2 ml-2 border-l border-gray-300 pl-4 h-6">
+              {(['fr', 'en', 'es'] as Language[]).map((l) => (
+                <button
+                  key={l}
+                  onClick={() => setLang(l)}
+                  className={`text-xs font-bold uppercase transition-all ${lang === l
+                    ? (isScrolled ? 'text-amber-600' : 'text-amber-400')
+                    : (isScrolled ? 'text-gray-400 hover:text-gray-600' : 'text-white/60 hover:text-white')
+                    }`}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-3">
+            <a
+              href={`https://wa.me/${t.contact.whatsapp.replace(/\s+/g, '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`p-2 rounded-full transition-all ${isScrolled ? 'bg-green-50 text-green-600' : 'bg-white/10 text-white hover:bg-white/20'}`}
+            >
+              <Phone className="w-5 h-5" />
+            </a>
             <Button
               onClick={() => handleBookingStart(tours[0])}
               className="bg-amber-600 hover:bg-amber-700 text-white btn-hover"
             >
-              Réserver
+              {t.nav.reserve}
             </Button>
           </div>
 
@@ -201,20 +225,36 @@ function App() {
         {isMobileMenuOpen && (
           <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg py-4">
             <div className="container-custom flex flex-col gap-4">
+              {/* Language switcher for mobile */}
+              <div className="flex gap-4 border-b border-gray-100 pb-2">
+                {(['fr', 'en', 'es'] as Language[]).map((l) => (
+                  <button
+                    key={l}
+                    onClick={() => {
+                      setLang(l);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`text-sm font-bold uppercase ${lang === l ? 'text-amber-600' : 'text-gray-400'}`}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+
               {['tours', 'guide', 'avis', 'contact'].map((item) => (
                 <button
                   key={item}
                   onClick={() => scrollToSection(item)}
                   className="text-left text-gray-700 py-2 font-medium capitalize"
                 >
-                  {item === 'avis' ? 'Avis' : item === 'guide' ? 'Votre Guide' : item === 'contact' ? 'Contact' : 'Nos Tours'}
+                  {item === 'avis' ? t.nav.avis : item === 'guide' ? t.nav.guide : item === 'contact' ? t.nav.contact : t.nav.tours}
                 </button>
               ))}
               <Button
                 onClick={() => handleBookingStart(tours[0])}
                 className="bg-amber-600 hover:bg-amber-700 text-white w-full mt-2"
               >
-                Réserver
+                {t.nav.reserve}
               </Button>
             </div>
           </div>
@@ -232,15 +272,16 @@ function App() {
         <div className="relative z-10 container-custom text-center text-white">
           <div className="animate-fade-in-up">
             <p className="text-lg md:text-xl mb-4 font-light tracking-wide">
-              Découvrez la Catalogne authentique
+              {t.hero.tagline}
             </p>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
               Tours<span className="text-amber-400">&</span>Detours<br />
-              <span className="text-2xl md:text-4xl font-normal">avec Antoine Pilard</span>
+              <span className="text-2xl md:text-4xl font-normal">
+                {lang === 'en' ? 'with Antoine Pilard' : lang === 'es' ? 'con Antoine Pilard' : 'avec Antoine Pilard'}
+              </span>
             </h1>
             <p className="text-lg md:text-xl max-w-2xl mx-auto mb-8 text-white/90">
-              Des excursions personnalisées pour découvrir les secrets de la Catalogne,
-              loin des foules touristiques — culture, nature et aventure
+              {t.hero.description}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
@@ -248,7 +289,7 @@ function App() {
                 onClick={() => scrollToSection('tours')}
                 className="bg-amber-600 hover:bg-amber-700 text-white btn-hover text-lg px-8"
               >
-                Découvrir les Tours
+                {t.hero.cta_discover}
                 <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
               <Button
@@ -257,7 +298,7 @@ function App() {
                 onClick={() => scrollToSection('contact')}
                 className="border-white text-white hover:bg-white/10 text-lg px-8"
               >
-                Contactez-moi
+                {t.hero.cta_contact}
               </Button>
             </div>
           </div>
