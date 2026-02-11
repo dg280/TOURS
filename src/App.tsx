@@ -563,13 +563,12 @@ function App() {
         <div className="container-custom">
           <div className="grid lg:grid-cols-2 gap-12">
             <div>
-              <p className="text-amber-400 font-medium mb-2">RÉSERVATION</p>
+              <p className="text-amber-400 font-medium mb-2">{t.contact.tag}</p>
               <h2 className="text-3xl md:text-5xl font-bold mb-6">
-                Prêt à découvrir la Catalogne ?
+                {t.contact.title}
               </h2>
               <p className="text-gray-400 text-lg mb-8">
-                Contactez-moi pour réserver votre excursion personnalisée ou pour toute question.
-                Je vous répondrai dans les 24 heures.
+                {t.contact.desc}
               </p>
 
               <div className="space-y-6">
@@ -578,8 +577,8 @@ function App() {
                     <Phone className="w-5 h-5 text-amber-400" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-400">Téléphone</p>
-                    <p className="text-lg">+34 612 345 678</p>
+                    <p className="text-sm text-gray-400">WhatsApp / Phone</p>
+                    <p className="text-lg">{t.contact.whatsapp}</p>
                   </div>
                 </div>
 
@@ -621,47 +620,47 @@ function App() {
             </div>
 
             <div className="bg-white rounded-2xl p-8 text-gray-900">
-              <h3 className="text-2xl font-bold mb-6">Envoyez un message</h3>
-              <form className="space-y-4">
+              <h3 className="text-2xl font-bold mb-6">{t.contact.form_title}</h3>
+              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="name">Nom</Label>
-                    <Input id="name" placeholder="Votre nom" className="mt-1" />
+                    <Label htmlFor="name">{t.contact.name}</Label>
+                    <Input id="name" placeholder={t.contact.name} className="mt-1" />
                   </div>
                   <div>
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t.contact.email}</Label>
                     <Input id="email" type="email" placeholder="votre@email.com" className="mt-1" />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="tour">Tour souhaité</Label>
+                  <Label htmlFor="tour">{t.contact.tour}</Label>
                   <select
                     id="tour"
                     className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
                   >
-                    <option value="">Sélectionnez un tour</option>
+                    <option value="">{t.contact.select_tour}</option>
                     {tours.map(tour => (
                       <option key={tour.id} value={tour.id}>{tour.title}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <Label htmlFor="date">Date préférée</Label>
+                  <Label htmlFor="date">{t.contact.date}</Label>
                   <div className="relative mt-1">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <Input id="date" type="date" className="pl-10" />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="message">Message</Label>
+                  <Label htmlFor="message">{t.contact.message}</Label>
                   <Textarea
                     id="message"
-                    placeholder="Dites-moi en plus sur vos attentes..."
+                    placeholder="..."
                     className="mt-1 min-h-[120px]"
                   />
                 </div>
                 <Button className="w-full bg-amber-600 hover:bg-amber-700 text-white btn-hover py-6 text-lg">
-                  Envoyer ma demande
+                  {t.contact.cta}
                 </Button>
               </form>
             </div>
@@ -676,7 +675,7 @@ function App() {
             {/* Sidebar Summary */}
             <div className="w-full md:w-72 bg-gray-50 p-6 border-b md:border-b-0 md:border-r border-gray-100">
               <div className="mb-6">
-                <Badge className="bg-amber-100 text-amber-800 border-none mb-2">Votre sélection</Badge>
+                <Badge className="bg-amber-100 text-amber-800 border-none mb-2">{t.booking.selection}</Badge>
                 <h3 className="text-xl font-bold text-gray-900">{selectedTour?.title}</h3>
                 <p className="text-sm text-gray-500">{selectedTour?.subtitle}</p>
               </div>
@@ -684,17 +683,17 @@ function App() {
               <div className="space-y-4">
                 <div className="flex items-center gap-3 text-sm text-gray-600">
                   <Calendar className="w-4 h-4 text-amber-600" />
-                  <span>{bookingDate ? new Date(bookingDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Sélectionnez une date'}</span>
+                  <span>{bookingDate ? new Date(bookingDate).toLocaleDateString(lang === 'fr' ? 'fr-FR' : lang === 'es' ? 'es-ES' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : t.contact.date}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-gray-600">
                   <Users className="w-4 h-4 text-amber-600" />
-                  <span>{participants} voyageur{participants > 1 ? 's' : ''}</span>
+                  <span>{participants} {participants > 1 ? t.booking.travelers : t.booking.traveler}</span>
                 </div>
               </div>
 
               <div className="mt-8 pt-6 border-t border-gray-200">
                 <div className="flex justify-between items-end">
-                  <span className="text-sm text-gray-500">Total</span>
+                  <span className="text-sm text-gray-500">{t.booking.total}</span>
                   <div className="text-right">
                     <p className="text-xs text-gray-400">{participants} x {selectedTour?.price}</p>
                     <p className="text-2xl font-bold text-amber-600">{calculateTotal()}€</p>
@@ -712,7 +711,7 @@ function App() {
                       />
                     ))}
                   </div>
-                  <p className="text-xs text-gray-400 text-center">Étape {bookingStep} sur 3</p>
+                  <p className="text-xs text-gray-400 text-center">{t.booking.step} {bookingStep} {t.booking.step_of} 3</p>
                 </div>
               )}
             </div>
@@ -722,12 +721,12 @@ function App() {
               {bookingStep === 1 && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                   <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold">Quand souhaitez-vous partir ?</DialogTitle>
+                    <DialogTitle className="text-2xl font-bold">{t.booking.date_title}</DialogTitle>
                   </DialogHeader>
 
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="booking-date" className="text-sm font-semibold uppercase tracking-wider text-gray-500">Date du tour</Label>
+                      <Label htmlFor="booking-date" className="text-sm font-semibold uppercase tracking-wider text-gray-500">{t.booking.date_label}</Label>
                       <div className="relative">
                         <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input
@@ -741,9 +740,9 @@ function App() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold uppercase tracking-wider text-gray-500">Nombre de participants</Label>
+                      <Label className="text-sm font-semibold uppercase tracking-wider text-gray-500">{t.booking.participants}</Label>
                       <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
-                        <div className="text-sm text-gray-600">Total voyageurs</div>
+                        <div className="text-sm text-gray-600">Total</div>
                         <div className="flex items-center gap-4">
                           <button
                             onClick={() => setParticipants(Math.max(1, participants - 1))}
@@ -768,7 +767,7 @@ function App() {
                       onClick={nextStep}
                       className="w-full bg-amber-600 hover:bg-amber-700 h-12 text-lg font-semibold shadow-lg shadow-amber-600/20"
                     >
-                      Continuer
+                      {t.booking.next}
                     </Button>
                   </div>
                 </div>
@@ -777,36 +776,36 @@ function App() {
               {bookingStep === 2 && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                   <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold">Vos coordonnées</DialogTitle>
+                    <DialogTitle className="text-2xl font-bold">{t.booking.info_title}</DialogTitle>
                   </DialogHeader>
 
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="bk-name">Nom complet</Label>
+                      <Label htmlFor="bk-name">{t.contact.name}</Label>
                       <Input
                         id="bk-name"
-                        placeholder="Jean Dupont"
+                        placeholder="..."
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         className="h-11"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="bk-email">Email</Label>
+                      <Label htmlFor="bk-email">{t.contact.email}</Label>
                       <Input
                         id="bk-email"
                         type="email"
-                        placeholder="jean.dupont@exemple.com"
+                        placeholder="votre@email.com"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         className="h-11"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="bk-phone">Téléphone</Label>
+                      <Label htmlFor="bk-phone">{t.contact.name === 'Nom' ? 'Téléphone' : 'Phone'}</Label>
                       <Input
                         id="bk-phone"
-                        placeholder="+33 6 12 34 56 78"
+                        placeholder="+33 6 ..."
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         className="h-11"
@@ -815,12 +814,12 @@ function App() {
                   </div>
 
                   <div className="flex gap-3 mt-auto pt-8">
-                    <Button variant="outline" onClick={() => setBookingStep(1)} className="h-12 px-6">Retour</Button>
+                    <Button variant="outline" onClick={() => setBookingStep(1)} className="h-12 px-6">{lang === 'fr' ? 'Retour' : lang === 'es' ? 'Volver' : 'Back'}</Button>
                     <Button
                       onClick={nextStep}
                       className="flex-1 bg-amber-600 hover:bg-amber-700 h-12 text-lg font-semibold shadow-lg shadow-amber-600/20"
                     >
-                      Vers le paiement
+                      {t.booking.next}
                     </Button>
                   </div>
                 </div>
@@ -829,7 +828,7 @@ function App() {
               {bookingStep === 3 && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                   <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold">Paiement sécurisé</DialogTitle>
+                    <DialogTitle className="text-2xl font-bold">{t.booking.payment_title}</DialogTitle>
                   </DialogHeader>
 
                   <div className="space-y-4">
@@ -846,12 +845,12 @@ function App() {
 
                     <div className="relative py-2">
                       <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-gray-100"></span></div>
-                      <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-gray-400 font-medium tracking-widest">Ou carte bancaire</span></div>
+                      <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-gray-400 font-medium tracking-widest">{lang === 'fr' ? 'Ou carte bancaire' : lang === 'es' ? 'O tarjeta' : 'Or card'}</span></div>
                     </div>
 
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="card-num">Numéro de carte</Label>
+                        <Label htmlFor="card-num">{lang === 'fr' ? 'Numéro de carte' : lang === 'es' ? 'Número de tarjeta' : 'Card number'}</Label>
                         <div className="relative">
                           <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                           <Input id="card-num" placeholder="0000 0000 0000 0000" className="pl-10 h-11" />
@@ -859,7 +858,7 @@ function App() {
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="card-exp">Expiration</Label>
+                          <Label htmlFor="card-exp">{lang === 'fr' ? 'Expiration' : lang === 'es' ? 'Expiración' : 'Expiry'}</Label>
                           <Input id="card-exp" placeholder="MM/YY" className="h-11" />
                         </div>
                         <div className="space-y-2">
@@ -871,7 +870,7 @@ function App() {
                   </div>
 
                   <div className="flex gap-3 mt-auto pt-8">
-                    <Button variant="outline" onClick={() => setBookingStep(2)} className="h-12 px-6" disabled={isProcessing}>Retour</Button>
+                    <Button variant="outline" onClick={() => setBookingStep(2)} className="h-12 px-6" disabled={isProcessing}>{lang === 'fr' ? 'Retour' : lang === 'es' ? 'Volver' : 'Back'}</Button>
                     <Button
                       onClick={nextStep}
                       disabled={isProcessing}
@@ -880,10 +879,10 @@ function App() {
                       {isProcessing ? (
                         <>
                           <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Traitement...
+                          ...
                         </>
                       ) : (
-                        `Payer ${calculateTotal()}€`
+                        `${t.booking.pay} (${calculateTotal()}€)`
                       )}
                     </Button>
                   </div>
@@ -896,15 +895,19 @@ function App() {
                     <CheckCircle2 className="w-10 h-10 text-green-600" />
                   </div>
                   <div className="space-y-2">
-                    <h2 className="text-3xl font-bold text-gray-900">Réservation confirmée !</h2>
+                    <h2 className="text-3xl font-bold text-gray-900">{t.booking.success_title}</h2>
                     <p className="text-gray-600 max-w-sm">
-                      Merci {formData.name.split(' ')[0]}, votre paiement a été accepté. Un email de confirmation a été envoyé à {formData.email}.
+                      {lang === 'fr'
+                        ? `Merci ${formData.name.split(' ')[0]}, votre réservation est confirmée.`
+                        : lang === 'es'
+                          ? `Gracias ${formData.name.split(' ')[0]}, su reserva está confirmada.`
+                          : `Thank you ${formData.name.split(' ')[0]}, your booking is confirmed.`}
                     </p>
                   </div>
 
                   <div className="bg-gray-50 p-4 rounded-xl w-full max-w-sm space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Référence</span>
+                      <span className="text-gray-500">Ref</span>
                       <span className="font-mono font-bold">TD-{Math.floor(Math.random() * 100000)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
@@ -913,7 +916,7 @@ function App() {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Date</span>
-                      <span className="font-medium">{new Date(bookingDate).toLocaleDateString('fr-FR')}</span>
+                      <span className="font-medium">{new Date(bookingDate).toLocaleDateString(lang === 'fr' ? 'fr-FR' : lang === 'es' ? 'es-ES' : 'en-US')}</span>
                     </div>
                   </div>
 
@@ -921,7 +924,7 @@ function App() {
                     onClick={() => setIsBookingOpen(false)}
                     className="w-full max-w-sm bg-gray-900 hover:bg-gray-800 h-12"
                   >
-                    Fermer
+                    {t.booking.finish}
                   </Button>
                 </div>
               )}
@@ -940,31 +943,34 @@ function App() {
                 </span>
               </div>
               <p className="text-sm">
-                Votre guide expert en Catalogne pour des expériences authentiques et responsables.
+                {lang === 'fr'
+                  ? 'Votre guide expert en Catalogne pour des expériences authentiques et responsables.'
+                  : lang === 'es'
+                    ? 'Tu guía experto en Cataluña para experiencias auténticas y responsables.'
+                    : 'Your expert guide in Catalonia for authentic and responsible experiences.'}
               </p>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">Liens rapides</h4>
+              <h4 className="text-white font-semibold mb-4">{t.nav.tours}</h4>
               <ul className="space-y-2 text-sm">
-                <li><button onClick={() => scrollToSection('tours')} className="hover:text-amber-400 transition-colors">Nos Tours</button></li>
-                <li><button onClick={() => scrollToSection('guide')} className="hover:text-amber-400 transition-colors">Votre Guide</button></li>
-                <li><button onClick={() => scrollToSection('avis')} className="hover:text-amber-400 transition-colors">Avis</button></li>
-                <li><button onClick={() => scrollToSection('contact')} className="hover:text-amber-400 transition-colors">Contact</button></li>
+                <li><button onClick={() => scrollToSection('tours')} className="hover:text-amber-400 transition-colors">{t.nav.tours}</button></li>
+                <li><button onClick={() => scrollToSection('guide')} className="hover:text-amber-400 transition-colors">{t.nav.guide}</button></li>
+                <li><button onClick={() => scrollToSection('avis')} className="hover:text-amber-400 transition-colors">{t.nav.avis}</button></li>
+                <li><button onClick={() => scrollToSection('contact')} className="hover:text-amber-400 transition-colors">{t.nav.contact}</button></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">Tours populaires</h4>
+              <h4 className="text-white font-semibold mb-4">{t.nav.tours}</h4>
               <ul className="space-y-2 text-sm">
-                <li><button onClick={() => scrollToSection('tours')} className="hover:text-amber-400 transition-colors">Girona & Costa Brava</button></li>
-                <li><button onClick={() => scrollToSection('tours')} className="hover:text-amber-400 transition-colors">Montserrat & Wine</button></li>
-                <li><button onClick={() => scrollToSection('tours')} className="hover:text-amber-400 transition-colors">Camí de Ronda</button></li>
-                <li><button onClick={() => scrollToSection('tours')} className="hover:text-amber-400 transition-colors">Kayak Costa Brava</button></li>
+                {tours.slice(0, 4).map(tour => (
+                  <li key={tour.id}><button onClick={() => scrollToSection('tours')} className="hover:text-amber-400 transition-colors">{tour.title}</button></li>
+                ))}
               </ul>
             </div>
             <div>
               <h4 className="text-white font-semibold mb-4">Contact</h4>
               <ul className="space-y-2 text-sm">
-                <li>+34 612 345 678</li>
+                <li>{t.contact.whatsapp}</li>
                 <li>antoine@toursanddetours.com</li>
                 <li>Barcelone, Catalogne</li>
               </ul>
@@ -972,7 +978,7 @@ function App() {
           </div>
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm">
-              © 2024 Tours&Detours. Tous droits réservés.
+              © 2024 Tours&Detours. {lang === 'fr' ? 'Tous droits réservés.' : lang === 'es' ? 'Todos los derechos reservados.' : 'All rights reserved.'}
             </p>
             <div className="flex gap-4">
               <a href="#" className="hover:text-amber-400 transition-colors"><Instagram className="w-5 h-5" /></a>
@@ -981,6 +987,30 @@ function App() {
           </div>
         </div>
       </footer>
+
+      {/* Cookie Consent Banner */}
+      {showCookieConsent && (
+        <div className="fixed bottom-0 left-0 right-0 z-[100] p-4 animate-in fade-in slide-in-from-bottom-10 duration-500">
+          <div className="container-custom max-w-4xl mx-auto">
+            <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{t.cookies.title}</h3>
+                <p className="text-sm text-gray-600">
+                  {t.cookies.desc}
+                </p>
+              </div>
+              <div className="flex gap-3 shrink-0">
+                <Button variant="outline" onClick={() => setShowCookieConsent(false)} className="px-6 h-11 border-gray-200">
+                  {t.cookies.decline}
+                </Button>
+                <Button onClick={handleAcceptCookies} className="px-8 h-11 bg-amber-600 hover:bg-amber-700">
+                  {t.cookies.accept}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
