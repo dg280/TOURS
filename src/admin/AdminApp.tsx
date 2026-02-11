@@ -286,9 +286,15 @@ function Login({ onLogin }: { onLogin: () => void }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  const ADMIN_CONFIG = {
+    email: 'antoine@toursanddetours.com',
+    password: 'admin123'
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email === 'antoine@toursanddetours.com' && password === 'admin123') {
+    if (email === ADMIN_CONFIG.email && password === ADMIN_CONFIG.password) {
+      localStorage.setItem('td-admin-session', Date.now().toString());
       onLogin();
     } else {
       setError('Email ou mot de passe incorrect');
@@ -1084,6 +1090,20 @@ export default function AdminApp() {
   const [guidePhoto, setGuidePhoto] = useState(() => {
     return localStorage.getItem('td-guide-photo') || '/guide-antoine.jpg';
   });
+
+  useEffect(() => {
+    const session = localStorage.getItem('td-admin-session');
+    if (session) {
+      const startTime = parseInt(session);
+      const eightHours = 8 * 60 * 60 * 1000;
+      if (Date.now() - startTime > eightHours) {
+        localStorage.removeItem('td-admin-session');
+        setIsLoggedIn(false);
+      } else {
+        setIsLoggedIn(true);
+      }
+    }
+  }, []);
 
   // Sync to localStorage
   useEffect(() => {

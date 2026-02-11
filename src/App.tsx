@@ -95,7 +95,7 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const tours: Tour[] = t.tour_data.map(tour => ({
+  const tours: Tour[] = customTours.length > 0 ? customTours : t.tour_data.map(tour => ({
     ...tour,
     image: tour.id === 1 ? '/tour-girona.jpg' :
       tour.id === 2 ? '/tour-barcelona-hidden.jpg' :
@@ -141,6 +141,24 @@ function App() {
     } else {
       setBookingStep(bookingStep + 1);
     }
+  };
+
+  const sanitize = (str: string) => {
+    return str.replace(/[&<>"']/g, (m) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[m] || m));
+  };
+
+  const validateEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validatePhone = (phone: string) => {
+    return /^\+?[0-9\s\-()]{7,20}$/.test(phone);
   };
 
   useEffect(() => {
@@ -803,8 +821,8 @@ function App() {
                         id="bk-name"
                         placeholder="..."
                         value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="h-11"
+                        onChange={(e) => setFormData({ ...formData, name: sanitize(e.target.value) })}
+                        className={`h-11 ${formData.name && formData.name.length < 2 ? 'border-red-500' : ''}`}
                       />
                     </div>
                     <div className="space-y-2">
@@ -814,8 +832,8 @@ function App() {
                         type="email"
                         placeholder="votre@email.com"
                         value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="h-11"
+                        onChange={(e) => setFormData({ ...formData, email: sanitize(e.target.value) })}
+                        className={`h-11 ${formData.email && !validateEmail(formData.email) ? 'border-red-500' : ''}`}
                       />
                     </div>
                     <div className="space-y-2">
@@ -998,8 +1016,8 @@ function App() {
               © 2024 Tours&Detours. {lang === 'fr' ? 'Tous droits réservés.' : lang === 'es' ? 'Todos los derechos reservados.' : 'All rights reserved.'}
             </p>
             <div className="flex gap-4">
-              <a href="#" className="hover:text-amber-400 transition-colors"><Instagram className="w-5 h-5" /></a>
-              <a href="#" className="hover:text-amber-400 transition-colors"><Facebook className="w-5 h-5" /></a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition-colors"><Instagram className="w-5 h-5" /></a>
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition-colors"><Facebook className="w-5 h-5" /></a>
             </div>
           </div>
         </div>
