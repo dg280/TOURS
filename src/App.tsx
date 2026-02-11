@@ -308,7 +308,7 @@ function App() {
               { icon: Clock, label: '15+', sublabel: t.stats.exp },
               { icon: MapPin, label: 'Catalonia', sublabel: t.stats.local },
               { icon: Star, label: '5.0', sublabel: t.stats.review },
-              { icon: Globe, label: '4', sublabel: t.stats.langs },
+              { icon: Globe, label: '3', sublabel: t.stats.langs },
             ].map((stat, index) => (
               <div key={index} className="text-center">
                 <stat.icon className="w-8 h-8 mx-auto mb-2 text-amber-400" />
