@@ -33,6 +33,7 @@ import {
   Plus
 } from 'lucide-react';
 import { translations, type Language } from './lib/translations';
+import { Toaster } from '@/components/ui/sonner';
 import './App.css';
 
 interface Tour {
@@ -331,7 +332,7 @@ function App() {
                 size="lg"
                 variant="outline"
                 onClick={() => scrollToSection('contact')}
-                className="border-white text-white hover:bg-white/10 text-lg px-8"
+                className="bg-transparent border-white text-white hover:bg-white/10 text-lg px-8"
               >
                 {t.hero.cta_contact}
               </Button>
@@ -842,8 +843,8 @@ function App() {
                         id="bk-phone"
                         placeholder="+33 6 ..."
                         value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="h-11"
+                        onChange={(e) => setFormData({ ...formData, phone: sanitize(e.target.value) })}
+                        className={`h-11 ${formData.phone && !validatePhone(formData.phone) ? 'border-red-500' : ''}`}
                       />
                     </div>
                   </div>
@@ -1046,6 +1047,7 @@ function App() {
           </div>
         </div>
       )}
+      <Toaster position="top-right" />
     </div>
   );
 }

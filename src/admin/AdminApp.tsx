@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   LayoutDashboard,
   Calendar,
@@ -10,19 +10,21 @@ import {
   User,
   Bell,
   Search,
-  TrendingUp,
   Euro,
   Compass,
-  CheckIcon
+  CheckIcon,
+  Upload,
+  Image as ImageIcon,
+  Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogFooter
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -35,8 +37,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 // Types
 interface Reservation {
@@ -79,7 +80,19 @@ interface Review {
   createdAt: string;
 }
 
-// Mock Data - Tours&Detours
+// Utility
+const sanitize = (str: string) => {
+  if (typeof str !== 'string') return str;
+  return str.replace(/[&<>"']/g, (m) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[m] || m));
+};
+
+// Mock Data
 const mockTours: Tour[] = [
   {
     id: '1',
@@ -119,58 +132,6 @@ const mockTours: Tour[] = [
     category: 'Randonnée',
     highlights: ['Criques cachées', 'Observation faune', 'Déjeuner marin', 'Vues panoramiques'],
     isActive: true
-  },
-  {
-    id: '4',
-    title: 'Medieval Villages Hike',
-    subtitle: 'Pre-Pyrenees Discovery',
-    description: 'Une randonnée immersive dans les villages médiévaux et chapelles romanes des Pré-Pyrénées.',
-    duration: '7 heures',
-    groupSize: '4-10 personnes',
-    price: 95,
-    image: '/tour-prepirinees.jpg',
-    category: 'Randonnée & Patrimoine',
-    highlights: ['Villages médiévaux', 'Chapelles romanes', 'Vallées forestières', 'Faune locale'],
-    isActive: true
-  },
-  {
-    id: '5',
-    title: 'Kayak Costa Brava',
-    subtitle: 'Sea Caves & Hidden Coves',
-    description: 'Une expérience en kayak guidée explorant grottes marines et falaises escarpées.',
-    duration: '4 heures',
-    groupSize: '4-12 personnes',
-    price: 75,
-    image: '/tour-kayak.jpg',
-    category: 'Aventure',
-    highlights: ['Grottes marines', 'Criques secrètes', 'Vie marine', 'Falaises escarpées'],
-    isActive: true
-  },
-  {
-    id: '6',
-    title: 'Montserrat & Wine Experience',
-    subtitle: 'Spirituality & Catalan Wines',
-    description: 'Une journée combinant Montserrat avec une visite de vignoble local et dégustation.',
-    duration: '8 heures',
-    groupSize: '4-14 personnes',
-    price: 125,
-    image: '/tour-montserrat.jpg',
-    category: 'Culture & Vin',
-    highlights: ['Monastère de Montserrat', 'Randonnée panoramique', 'Vignoble familial', 'Dégustation vins'],
-    isActive: true
-  },
-  {
-    id: '7',
-    title: 'Girona & Collioure',
-    subtitle: 'Cross-Border Experience',
-    description: 'Deux pays en une journée ! Explorez la culture catalane des deux côtés de la frontière.',
-    duration: '10 heures',
-    groupSize: '4-12 personnes',
-    price: 165,
-    image: '/tour-collioure.jpg',
-    category: 'Culture & Gastronomie',
-    highlights: ['Girona', 'Collioure France', 'Culture transfrontalière', 'Gastronomie'],
-    isActive: true
   }
 ];
 
@@ -188,62 +149,6 @@ const mockReservations: Reservation[] = [
     message: 'Nous sommes très excités de découvrir la Costa Brava !',
     createdAt: '2024-02-10',
     totalPrice: 290
-  },
-  {
-    id: 'RES-002',
-    name: 'John Smith',
-    email: 'john.smith@email.com',
-    phone: '+44 7 89 01 23 45',
-    tourId: '3',
-    tourName: 'Hike the Camí de Ronda',
-    date: '2024-03-18',
-    participants: 4,
-    status: 'pending',
-    message: 'First time hiking in Catalonia!',
-    createdAt: '2024-02-11',
-    totalPrice: 340
-  },
-  {
-    id: 'RES-003',
-    name: 'Hans Mueller',
-    email: 'hans.mueller@email.de',
-    phone: '+49 170 123 4567',
-    tourId: '6',
-    tourName: 'Montserrat & Wine Experience',
-    date: '2024-03-20',
-    participants: 2,
-    status: 'confirmed',
-    message: '',
-    createdAt: '2024-02-09',
-    totalPrice: 250
-  },
-  {
-    id: 'RES-004',
-    name: 'Sophie Laurent',
-    email: 'sophie@email.com',
-    phone: '+33 6 98 76 54 32',
-    tourId: '5',
-    tourName: 'Kayak Costa Brava',
-    date: '2024-03-22',
-    participants: 3,
-    status: 'pending',
-    message: 'Nous avons des enfants de 12 et 14 ans',
-    createdAt: '2024-02-12',
-    totalPrice: 225
-  },
-  {
-    id: 'RES-005',
-    name: 'Emma Johnson',
-    email: 'emma.j@email.com',
-    phone: '+1 555 123 4567',
-    tourId: '2',
-    tourName: 'Barcelona Hidden Corners',
-    date: '2024-03-10',
-    participants: 2,
-    status: 'completed',
-    message: 'Amazing experience!',
-    createdAt: '2024-02-05',
-    totalPrice: 110
   }
 ];
 
@@ -257,26 +162,6 @@ const mockReviews: Review[] = [
     tourId: '1',
     isPublished: true,
     createdAt: '2024-02-08'
-  },
-  {
-    id: 'REV-002',
-    name: 'Sarah Johnson',
-    location: 'London, UK',
-    rating: 5,
-    text: 'The Costa Brava hike was absolutely magical. Highly recommended!',
-    tourId: '3',
-    isPublished: true,
-    createdAt: '2024-02-10'
-  },
-  {
-    id: 'REV-003',
-    name: 'Hans & Lisa',
-    location: 'Berlin, Germany',
-    rating: 5,
-    text: 'Wir haben den Montserrat Tour gemacht und es war fantastisch!',
-    tourId: '6',
-    isPublished: false,
-    createdAt: '2024-02-11'
   }
 ];
 
@@ -394,12 +279,6 @@ function Dashboard({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">Tableau de bord</h2>
-        <p className="text-gray-500">Vue d'ensemble de votre activité - Tours&Detours</p>
-      </div>
-
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-6">
@@ -454,29 +333,21 @@ function Dashboard({
                 <Euro className="w-6 h-6 text-amber-600" />
               </div>
             </div>
-            <div className="flex items-center gap-1 mt-2 text-sm text-green-600">
-              <TrendingUp className="w-4 h-4" />
-              <span>+15% vs janvier</span>
-            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Recent Reservations */}
       <Card>
         <CardHeader>
           <CardTitle>Réservations récentes</CardTitle>
-          <CardDescription>Les 5 dernières demandes reçues</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full text-sm">
               <thead>
                 <tr className="border-b">
                   <th className="text-left py-3 px-4 font-medium text-gray-500">ID</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-500">Client</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">Tour</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-500">Statut</th>
                   <th className="text-right py-3 px-4 font-medium text-gray-500">Montant</th>
                 </tr>
@@ -484,17 +355,10 @@ function Dashboard({
               <tbody>
                 {recentReservations.map((res) => (
                   <tr key={res.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4 font-mono text-sm">{res.id}</td>
-                    <td className="py-3 px-4">
-                      <div>
-                        <p className="font-medium">{res.name}</p>
-                        <p className="text-sm text-gray-500">{res.email}</p>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">{res.tourName}</td>
-                    <td className="py-3 px-4">{new Date(res.date).toLocaleDateString('fr-FR')}</td>
+                    <td className="py-3 px-4">{res.id}</td>
+                    <td className="py-3 px-4">{res.name}</td>
                     <td className="py-3 px-4">{getStatusBadge(res.status)}</td>
-                    <td className="py-3 px-4 text-right font-medium">{res.totalPrice}€</td>
+                    <td className="py-3 px-4 text-right">{res.totalPrice}€</td>
                   </tr>
                 ))}
               </tbody>
@@ -503,36 +367,20 @@ function Dashboard({
         </CardContent>
       </Card>
 
-      {/* Quick Actions */}
-      <Card className="bg-gradient-to-br from-amber-500 to-orange-600 text-white">
-        <CardContent className="p-6">
-          <h3 className="font-semibold mb-2">Nouvelle réservation</h3>
-          <p className="text-white/80 text-sm mb-4">Ajouter manuellement une réservation</p>
-          <Button variant="secondary" className="w-full" onClick={() => setActiveTab('reservations')}>
-            Créer une réservation
-          </Button>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-        <CardContent className="p-6">
-          <h3 className="font-semibold mb-2">Gérer les tours</h3>
-          <p className="text-white/80 text-sm mb-4">Modifier les prix et disponibilités</p>
-          <Button variant="secondary" className="w-full" onClick={() => setActiveTab('tours')}>
-            Voir les tours
-          </Button>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white">
-        <CardContent className="p-6">
-          <h3 className="font-semibold mb-2">Avis clients</h3>
-          <p className="text-white/80 text-sm mb-4">Modérer les témoignages</p>
-          <Button variant="secondary" className="w-full" onClick={() => setActiveTab('reviews')}>
-            Voir les avis
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Button variant="outline" className="h-24 flex flex-col gap-2" onClick={() => setActiveTab('reservations')}>
+          <Calendar className="w-6 h-6 text-amber-600" />
+          Gérer les réservations
+        </Button>
+        <Button variant="outline" className="h-24 flex flex-col gap-2" onClick={() => setActiveTab('tours')}>
+          <MapPin className="w-6 h-6 text-amber-600" />
+          Gérer les tours
+        </Button>
+        <Button variant="outline" className="h-24 flex flex-col gap-2" onClick={() => setActiveTab('reviews')}>
+          <Star className="w-6 h-6 text-amber-600" />
+          Modérer les avis
+        </Button>
+      </div>
     </div>
   );
 }
@@ -547,23 +395,14 @@ function Reservations({
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+  const [selectedRes, setSelectedRes] = useState<Reservation | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  const filteredReservations = reservations.filter(res => {
-    const matchesSearch =
-      res.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      res.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      res.id.toLowerCase().includes(searchTerm.toLowerCase());
+  const filtered = reservations.filter(res => {
+    const matchesSearch = res.name.toLowerCase().includes(searchTerm.toLowerCase()) || res.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || res.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
-
-  const updateStatus = (id: string, newStatus: Reservation['status']) => {
-    setReservations(prev => prev.map(res =>
-      res.id === id ? { ...res, status: newStatus } : res
-    ));
-  };
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
@@ -572,164 +411,85 @@ function Reservations({
       cancelled: 'bg-red-100 text-red-800',
       completed: 'bg-blue-100 text-blue-800'
     };
-    const labels: Record<string, string> = {
-      pending: 'En attente',
-      confirmed: 'Confirmée',
-      cancelled: 'Annulée',
-      completed: 'Terminée'
-    };
-    return <Badge className={styles[status]}>{labels[status]}</Badge>;
+    return <Badge className={styles[status]}>{status}</Badge>;
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Réservations</h2>
-          <p className="text-gray-500">Gérez toutes vos réservations</p>
-        </div>
-        <Button className="bg-amber-600 hover:bg-amber-700">
-          + Nouvelle réservation
-        </Button>
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
+      <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
+        <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input
-            placeholder="Rechercher par nom, email ou ID..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+          <Input placeholder="Rechercher..." className="pl-10" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-full md:w-48">
-            <SelectValue placeholder="Filtrer par statut" />
+            <SelectValue placeholder="Statut" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tous les statuts</SelectItem>
+            <SelectItem value="all">Tous</SelectItem>
             <SelectItem value="pending">En attente</SelectItem>
             <SelectItem value="confirmed">Confirmées</SelectItem>
-            <SelectItem value="cancelled">Annulées</SelectItem>
             <SelectItem value="completed">Terminées</SelectItem>
+            <SelectItem value="cancelled">Annulées</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      {/* Reservations Table */}
       <Card>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">ID</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">Client</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">Tour</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">Date tour</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">Participants</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">Statut</th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="text-left py-3 px-4">Client</th>
+                <th className="text-left py-3 px-4">Date</th>
+                <th className="text-left py-3 px-4">Tour</th>
+                <th className="text-left py-3 px-4">Statut</th>
+                <th className="text-right py-3 px-4">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(res => (
+                <tr key={res.id} className="border-b hover:bg-gray-50">
+                  <td className="py-3 px-4">
+                    <div className="font-medium">{res.name}</div>
+                    <div className="text-gray-500 text-xs">{res.email}</div>
+                  </td>
+                  <td className="py-3 px-4">{res.date}</td>
+                  <td className="py-3 px-4">{res.tourName}</td>
+                  <td className="py-3 px-4">{getStatusBadge(res.status)}</td>
+                  <td className="py-3 px-4 text-right">
+                    <Button variant="ghost" size="sm" onClick={() => { setSelectedRes(res); setIsDetailOpen(true); }}>Voir</Button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredReservations.map((res) => (
-                  <tr key={res.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4 font-mono text-sm">{res.id}</td>
-                    <td className="py-3 px-4">
-                      <div>
-                        <p className="font-medium">{res.name}</p>
-                        <p className="text-sm text-gray-500">{res.email}</p>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 text-sm">{res.tourName}</td>
-                    <td className="py-3 px-4">{new Date(res.date).toLocaleDateString('fr-FR')}</td>
-                    <td className="py-3 px-4">{res.participants}</td>
-                    <td className="py-3 px-4">{getStatusBadge(res.status)}</td>
-                    <td className="py-3 px-4 text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedReservation(res);
-                          setIsDetailOpen(true);
-                        }}
-                      >
-                        Voir
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </CardContent>
       </Card>
 
-      {/* Detail Dialog */}
       <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Détails de la réservation</DialogTitle>
-            <DialogDescription>
-              Réservation {selectedReservation?.id}
-            </DialogDescription>
+            <DialogTitle>Détails Réservation</DialogTitle>
           </DialogHeader>
-          {selectedReservation && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-gray-500">Client</Label>
-                  <p className="font-medium">{selectedReservation.name}</p>
-                </div>
-                <div>
-                  <Label className="text-gray-500">Email</Label>
-                  <p className="font-medium">{selectedReservation.email}</p>
-                </div>
-                <div>
-                  <Label className="text-gray-500">Téléphone</Label>
-                  <p className="font-medium">{selectedReservation.phone}</p>
-                </div>
-                <div>
-                  <Label className="text-gray-500">Date du tour</Label>
-                  <p className="font-medium">{new Date(selectedReservation.date).toLocaleDateString('fr-FR')}</p>
-                </div>
-                <div>
-                  <Label className="text-gray-500">Participants</Label>
-                  <p className="font-medium">{selectedReservation.participants}</p>
-                </div>
-                <div>
-                  <Label className="text-gray-500">Montant total</Label>
-                  <p className="font-medium">{selectedReservation.totalPrice}€</p>
-                </div>
+          {selectedRes && (
+            <div className="space-y-4 py-4 text-sm">
+              <div className="grid grid-cols-2 gap-2">
+                <span className="text-gray-500">Client:</span> <span>{selectedRes.name}</span>
+                <span className="text-gray-500">Email:</span> <span>{selectedRes.email}</span>
+                <span className="text-gray-500">Téléphone:</span> <span>{selectedRes.phone}</span>
+                <span className="text-gray-500">Participants:</span> <span>{selectedRes.participants}</span>
+                <span className="text-gray-500">Montant:</span> <span className="font-bold">{selectedRes.totalPrice}€</span>
               </div>
-              {selectedReservation.message && (
-                <div>
-                  <Label className="text-gray-500">Message</Label>
-                  <p className="text-sm bg-gray-50 p-3 rounded-lg mt-1">{selectedReservation.message}</p>
-                </div>
-              )}
-              <div>
-                <Label className="text-gray-500">Changer le statut</Label>
-                <div className="flex gap-2 mt-2">
-                  {(['pending', 'confirmed', 'cancelled', 'completed'] as const).map((status) => (
-                    <Button
-                      key={status}
-                      size="sm"
-                      variant={selectedReservation.status === status ? 'default' : 'outline'}
-                      onClick={() => {
-                        updateStatus(selectedReservation.id, status);
-                        setSelectedReservation({ ...selectedReservation, status });
-                      }}
-                    >
-                      {status === 'pending' ? 'En attente' :
-                        status === 'confirmed' ? 'Confirmer' :
-                          status === 'cancelled' ? 'Annuler' : 'Terminer'}
-                    </Button>
-                  ))}
-                </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => {
+                  setReservations(prev => prev.map(r => r.id === selectedRes.id ? { ...r, status: 'confirmed' } : r));
+                  setIsDetailOpen(false);
+                }}>Confirmer</Button>
+                <Button size="sm" variant="destructive" onClick={() => {
+                  setReservations(prev => prev.map(r => r.id === selectedRes.id ? { ...r, status: 'cancelled' } : r));
+                  setIsDetailOpen(false);
+                }}>Annuler</Button>
               </div>
             </div>
           )}
@@ -739,205 +499,117 @@ function Reservations({
   );
 }
 
-// Tours Management Component
-function ToursManagement({
-  tours,
-  setTours
-}: {
-  tours: Tour[];
-  setTours: React.Dispatch<React.SetStateAction<Tour[]>>;
-}) {
+// Tours Management
+function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.Dispatch<React.SetStateAction<Tour[]>> }) {
   const [editingTour, setEditingTour] = useState<Tour | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const toggleActive = (id: string) => {
-    setTours(prev => prev.map(tour =>
-      tour.id === id ? { ...tour, isActive: !tour.isActive } : tour
-    ));
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, tourId?: string) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        if (tourId && editingTour && editingTour.id === tourId) {
+          setEditingTour({ ...editingTour, image: base64String });
+        } else if (!tourId && editingTour) {
+          setEditingTour({ ...editingTour, image: base64String });
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const saveTour = () => {
     if (editingTour) {
       setTours(prev => {
-        const index = prev.findIndex(t => t.id === editingTour.id);
-        if (index > -1) {
-          return prev.map(tour => tour.id === editingTour.id ? editingTour : tour);
-        } else {
-          return [...prev, editingTour];
-        }
+        const exists = prev.find(t => t.id === editingTour.id);
+        if (exists) return prev.map(t => t.id === editingTour.id ? editingTour : t);
+        return [...prev, editingTour];
       });
       setIsEditOpen(false);
-      setEditingTour(null);
     }
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Gestion des Tours</h2>
-          <p className="text-gray-500">Modifiez vos offres de tours</p>
-        </div>
-        <Button
-          className="bg-amber-600 hover:bg-amber-700"
-          onClick={() => {
-            setEditingTour({
-              id: Math.random().toString(36).substr(2, 9),
-              title: '',
-              subtitle: '',
-              description: '',
-              duration: '',
-              groupSize: '',
-              price: 0,
-              image: '',
-              highlights: [],
-              category: '',
-              isActive: true
-            });
-            setIsEditOpen(true);
-          }}
-        >
-          + Ajouter un tour
-        </Button>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Catalogue des Tours</h2>
+        <Button onClick={() => {
+          setEditingTour({
+            id: Math.random().toString(36).substr(2, 9),
+            title: '',
+            subtitle: '',
+            description: '',
+            duration: '',
+            groupSize: '',
+            price: 0,
+            image: '',
+            highlights: [],
+            category: 'Tour',
+            isActive: true
+          });
+          setIsEditOpen(true);
+        }}>+ Nouveau Tour</Button>
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {tours.map((tour) => (
-          <Card key={tour.id} className={!tour.isActive ? 'opacity-60' : ''}>
-            <div className="relative h-40 overflow-hidden rounded-t-lg">
-              <img
-                src={tour.image}
-                alt={tour.title}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute top-3 right-3">
-                <Badge className={tour.isActive ? 'bg-green-500' : 'bg-gray-500'}>
-                  {tour.isActive ? 'Actif' : 'Inactif'}
-                </Badge>
-              </div>
-              <div className="absolute top-3 left-3">
-                <Badge className="bg-white/90 text-gray-800">
-                  {tour.category}
-                </Badge>
-              </div>
-            </div>
-            <CardContent className="p-4">
-              <p className="text-xs text-amber-600 font-medium uppercase mb-1">{tour.subtitle}</p>
-              <h3 className="text-base font-bold mb-1">{tour.title}</h3>
-              <p className="text-gray-600 text-xs mb-3 line-clamp-2">{tour.description}</p>
-
-              <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
-                <span>{tour.duration}</span>
-                <span>•</span>
-                <span>{tour.groupSize}</span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <p className="text-xl font-bold text-amber-600">{tour.price}€</p>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setEditingTour(tour);
-                      setIsEditOpen(true);
-                    }}
-                  >
-                    Modifier
-                  </Button>
-                  <Button
-                    variant={tour.isActive ? 'destructive' : 'outline'}
-                    size="sm"
-                    onClick={() => toggleActive(tour.id)}
-                  >
-                    {tour.isActive ? 'Désactiver' : 'Activer'}
-                  </Button>
-                </div>
+        {tours.map(tour => (
+          <Card key={tour.id}>
+            <img src={tour.image} className="w-full h-40 object-cover rounded-t-lg" alt={tour.title} />
+            <CardContent className="p-4 space-y-2">
+              <h3 className="font-bold">{tour.title}</h3>
+              <p className="text-sm text-gray-500 line-clamp-2">{tour.description}</p>
+              <div className="flex justify-between items-center pt-2">
+                <span className="font-bold text-amber-600">{tour.price}€</span>
+                <Button size="sm" variant="outline" onClick={() => { setEditingTour(tour); setIsEditOpen(true); }}>Modifier</Button>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Edit Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Modifier le tour</DialogTitle>
+            <DialogTitle>Édition Tour</DialogTitle>
           </DialogHeader>
           {editingTour && (
-            <div className="space-y-4">
-              <div>
+            <div className="space-y-4 py-4 overflow-y-auto max-h-[70vh]">
+              <div className="space-y-2">
                 <Label>Titre</Label>
-                <Input
-                  value={editingTour.title}
-                  onChange={(e) => setEditingTour({ ...editingTour, title: e.target.value })}
-                />
+                <Input value={editingTour.title} onChange={(e) => setEditingTour({ ...editingTour, title: sanitize(e.target.value) })} />
               </div>
-              <div>
-                <Label>Sous-titre</Label>
-                <Input
-                  value={editingTour.subtitle}
-                  onChange={(e) => setEditingTour({ ...editingTour, subtitle: e.target.value })}
-                />
-              </div>
-              <div>
+              <div className="space-y-2">
                 <Label>Description</Label>
-                <Textarea
-                  value={editingTour.description}
-                  onChange={(e) => setEditingTour({ ...editingTour, description: e.target.value })}
-                />
+                <Textarea value={editingTour.description} onChange={(e) => setEditingTour({ ...editingTour, description: sanitize(e.target.value) })} />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Durée</Label>
-                  <Input
-                    value={editingTour.duration}
-                    onChange={(e) => setEditingTour({ ...editingTour, duration: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label>Groupe max</Label>
-                  <Input
-                    value={editingTour.groupSize}
-                    onChange={(e) => setEditingTour({ ...editingTour, groupSize: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
+                <div className="space-y-2">
                   <Label>Prix (€)</Label>
-                  <Input
-                    type="number"
-                    value={editingTour.price}
-                    onChange={(e) => setEditingTour({ ...editingTour, price: parseInt(e.target.value) })}
-                  />
+                  <Input type="number" value={editingTour.price} onChange={(e) => setEditingTour({ ...editingTour, price: parseInt(e.target.value) })} />
                 </div>
-                <div>
+                <div className="space-y-2">
                   <Label>Catégorie</Label>
-                  <Input
-                    value={editingTour.category}
-                    onChange={(e) => setEditingTour({ ...editingTour, category: e.target.value })}
-                  />
+                  <Input value={editingTour.category} onChange={(e) => setEditingTour({ ...editingTour, category: sanitize(e.target.value) })} />
                 </div>
               </div>
-              <div>
-                <Label>Lien de l'image (URL)</Label>
-                <div className="flex gap-2">
-                  <Input
-                    value={editingTour.image}
-                    onChange={(e) => setEditingTour({ ...editingTour, image: e.target.value })}
-                    placeholder="/tour-example.jpg"
-                    className="flex-1"
-                  />
-                  {editingTour.image && (
-                    <img src={editingTour.image} className="w-10 h-10 object-cover rounded border" alt="Preview" />
-                  )}
+              <div className="space-y-2">
+                <Label>Photo du tour</Label>
+                <div className="flex flex-col gap-3">
+                  <div className="flex gap-2">
+                    <Input placeholder="URL de l'image" value={editingTour.image} onChange={(e) => setEditingTour({ ...editingTour, image: e.target.value })} className="flex-1" />
+                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
+                    <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                      <Upload className="w-4 h-4 mr-2" /> Disque
+                    </Button>
+                  </div>
+                  {editingTour.image && <img src={editingTour.image} className="w-full h-32 object-cover rounded border" alt="Aperçu" />}
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsEditOpen(false)}>Annuler</Button>
-                <Button onClick={saveTour} className="bg-amber-600 hover:bg-amber-700">Enregistrer</Button>
+                <Button onClick={saveTour} className="w-full bg-amber-600">Enregistrer</Button>
               </DialogFooter>
             </div>
           )}
@@ -948,164 +620,55 @@ function ToursManagement({
 }
 
 // Reviews Component
-function Reviews({
-  reviews,
-  setReviews
-}: {
-  reviews: Review[];
-  setReviews: React.Dispatch<React.SetStateAction<Review[]>>;
-}) {
-  const togglePublish = (id: string) => {
-    setReviews(prev => prev.map(review =>
-      review.id === id ? { ...review, isPublished: !review.isPublished } : review
-    ));
-  };
-
-  const deleteReview = (id: string) => {
-    setReviews(prev => prev.filter(review => review.id !== id));
-  };
-
+function Reviews({ reviews, setReviews }: { reviews: Review[], setReviews: React.Dispatch<React.SetStateAction<Review[]>> }) {
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">Avis Clients</h2>
-        <p className="text-gray-500">Modérez les témoignages de vos clients</p>
-      </div>
-
-      <Tabs defaultValue="all">
-        <TabsList>
-          <TabsTrigger value="all">Tous ({reviews.length})</TabsTrigger>
-          <TabsTrigger value="published">Publiés ({reviews.filter(r => r.isPublished).length})</TabsTrigger>
-          <TabsTrigger value="pending">En attente ({reviews.filter(r => !r.isPublished).length})</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="all" className="space-y-4">
-          {reviews.map((review) => (
-            <ReviewCard
-              key={review.id}
-              review={review}
-              onToggle={() => togglePublish(review.id)}
-              onDelete={() => deleteReview(review.id)}
-            />
-          ))}
-        </TabsContent>
-
-        <TabsContent value="published" className="space-y-4">
-          {reviews.filter(r => r.isPublished).map((review) => (
-            <ReviewCard
-              key={review.id}
-              review={review}
-              onToggle={() => togglePublish(review.id)}
-              onDelete={() => deleteReview(review.id)}
-            />
-          ))}
-        </TabsContent>
-
-        <TabsContent value="pending" className="space-y-4">
-          {reviews.filter(r => !r.isPublished).map((review) => (
-            <ReviewCard
-              key={review.id}
-              review={review}
-              onToggle={() => togglePublish(review.id)}
-              onDelete={() => deleteReview(review.id)}
-            />
-          ))}
-        </TabsContent>
-      </Tabs>
+      <h2 className="text-2xl font-bold">Modération des Avis</h2>
+      {reviews.map(review => (
+        <Card key={review.id} className="p-4">
+          <div className="flex justify-between items-start">
+            <div>
+              <div className="font-bold">{review.name}</div>
+              <div className="flex gap-1 py-1">
+                {[...Array(5)].map((_, i) => <Star key={i} className={`w-3 h-3 ${i < review.rating ? 'fill-amber-500 text-amber-500' : 'text-gray-300'}`} />)}
+              </div>
+              <p className="text-sm italic text-gray-700">"{review.text}"</p>
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" variant={review.isPublished ? 'outline' : 'default'} onClick={() => setReviews(prev => prev.map(r => r.id === review.id ? { ...r, isPublished: !r.isPublished } : r))}>
+                {review.isPublished ? 'Cacher' : 'Publier'}
+              </Button>
+              <Button size="sm" variant="destructive" onClick={() => setReviews(prev => prev.filter(r => r.id !== review.id))}>Supprimer</Button>
+            </div>
+          </div>
+        </Card>
+      ))}
     </div>
   );
 }
 
-function ReviewCard({
-  review,
-  onToggle,
-  onDelete
-}: {
-  review: Review;
-  onToggle: () => void;
-  onDelete: () => void;
-}) {
-  return (
-    <Card>
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-700 font-semibold">
-              {review.name.split(' ').map(n => n[0]).join('')}
-            </div>
-            <div>
-              <p className="font-semibold">{review.name}</p>
-              <p className="text-sm text-gray-500">{review.location}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-1">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className={`w-4 h-4 ${i < review.rating ? 'text-amber-500 fill-amber-500' : 'text-gray-300'}`}
-              />
-            ))}
-          </div>
-        </div>
-        <p className="mt-4 text-gray-700">"{review.text}"</p>
-        <div className="mt-4 flex items-center justify-between">
-          <p className="text-sm text-gray-500">
-            {new Date(review.createdAt).toLocaleDateString('fr-FR')}
-          </p>
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant={review.isPublished ? 'outline' : 'default'}
-              onClick={onToggle}
-            >
-              {review.isPublished ? 'Dépublier' : 'Publier'}
-            </Button>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={onDelete}
-            >
-              Supprimer
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// Main Admin App Component
+// Main App
 export default function AdminApp() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-  // Data states
-  const [reservations, setReservations] = useState<Reservation[]>(mockReservations);
   const [tours, setTours] = useState<Tour[]>(() => {
     const saved = localStorage.getItem('td-tours');
     return saved ? JSON.parse(saved) : mockTours;
   });
+  const [reservations, setReservations] = useState<Reservation[]>(mockReservations);
   const [reviews, setReviews] = useState<Review[]>(mockReviews);
-  const [guidePhoto, setGuidePhoto] = useState(() => {
-    return localStorage.getItem('td-guide-photo') || '/guide-antoine.jpg';
-  });
+  const [guidePhoto, setGuidePhoto] = useState(() => localStorage.getItem('td-guide-photo') || '/guide-antoine.jpg');
+
+  const profileFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const session = localStorage.getItem('td-admin-session');
-    if (session) {
-      const startTime = parseInt(session);
-      const eightHours = 8 * 60 * 60 * 1000;
-      if (Date.now() - startTime > eightHours) {
-        localStorage.removeItem('td-admin-session');
-        setIsLoggedIn(false);
-      } else {
-        setIsLoggedIn(true);
-      }
+    if (session && Date.now() - parseInt(session) < 8 * 60 * 60 * 1000) {
+      setIsLoggedIn(true);
     }
   }, []);
 
-  // Sync to localStorage
   useEffect(() => {
     localStorage.setItem('td-tours', JSON.stringify(tours));
   }, [tours]);
@@ -1114,145 +677,171 @@ export default function AdminApp() {
     localStorage.setItem('td-guide-photo', guidePhoto);
   }, [guidePhoto]);
 
-  if (!isLoggedIn) {
-    return <Login onLogin={() => setIsLoggedIn(true)} />;
-  }
+  const handleProfileImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("L'image est trop volumineuse (max 5MB)");
+        return;
+      }
 
-  const menuItems = [
-    { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
-    { id: 'reservations', label: 'Réservations', icon: Calendar },
-    { id: 'tours', label: 'Tours', icon: MapPin },
-    { id: 'reviews', label: 'Avis', icon: Star },
-    { id: 'profile', label: 'Mon Profil', icon: User },
-  ];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 800;
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return <Dashboard reservations={reservations} setActiveTab={setActiveTab} />;
-      case 'reservations':
-        return <Reservations reservations={reservations} setReservations={setReservations} />;
-      case 'tours':
-        return <ToursManagement tours={tours} setTours={setTours} />;
-      case 'reviews':
-        return <Reviews reviews={reviews} setReviews={setReviews} />;
-      case 'profile':
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Profil du Guide</CardTitle>
-              <CardDescription>Gérez vos informations personnelles et votre photo</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex flex-col items-center gap-4 py-4">
-                <div className="relative">
-                  <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-amber-100 shadow-lg">
-                    <img src={guidePhoto} alt="Guide" className="w-full h-full object-cover" />
-                  </div>
-                  <Badge className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-amber-600">Antoine Pilard</Badge>
-                </div>
-                <div className="w-full max-w-md space-y-4">
-                  <div className="space-y-2">
-                    <Label>URL de la photo de profil</Label>
-                    <Input
-                      value={guidePhoto}
-                      onChange={(e) => setGuidePhoto(e.target.value)}
-                      placeholder="/guide-antoine.jpg"
-                    />
-                  </div>
-                  <Button className="w-full bg-amber-600 hover:bg-amber-700">Enregistrer les changements</Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        );
-      default:
-        return <Dashboard reservations={reservations} setActiveTab={setActiveTab} />;
+          if (width > height && width > maxDim) {
+            height *= maxDim / width;
+            width = maxDim;
+          } else if (height > maxDim) {
+            width *= maxDim / height;
+            height = maxDim;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+          setGuidePhoto(compressedBase64);
+          toast.success("Photo de profil prête à être enregistrée");
+        };
+        img.src = reader.result as string;
+      };
+      reader.readAsDataURL(file);
     }
   };
 
+  const saveProfile = () => {
+    try {
+      localStorage.setItem('td-guide-photo', guidePhoto);
+      toast.success("Profil mis à jour avec succès");
+    } catch (error) {
+      console.error('Storage error:', error);
+      toast.error("Erreur lors de la sauvegarde : le stockage est peut-être plein");
+    }
+  };
+
+  if (!isLoggedIn) return <Login onLogin={() => setIsLoggedIn(true)} />;
+
+  const menuItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'reservations', label: 'Réservations', icon: Calendar },
+    { id: 'tours', label: 'Catalogue', icon: MapPin },
+    { id: 'reviews', label: 'Avis clients', icon: Star },
+    { id: 'profile', label: 'Mon Profil', icon: User },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-100 flex">
+    <div className="flex h-screen bg-gray-100 overflow-hidden">
       {/* Sidebar */}
-      <aside
-        className={`bg-gray-900 text-white transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-16'
-          }`}
-      >
-        <div className="p-4 flex items-center justify-between">
-          {isSidebarOpen && (
-            <div className="flex items-center gap-2">
-              <Compass className="w-6 h-6 text-amber-500" />
-              <span className="font-serif font-semibold">T&D</span>
-            </div>
-          )}
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-1 hover:bg-gray-800 rounded"
-          >
-            {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+      <aside className={`bg-gray-900 border-r border-gray-800 transition-all duration-300 flex flex-col ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
+        <div className="p-6 flex items-center justify-between">
+          <div className={`flex items-center gap-3 transition-opacity ${isSidebarOpen ? 'opacity-100' : 'opacity-0 h-0 w-0'}`}>
+            <Compass className="w-8 h-8 text-amber-500" />
+            <span className="text-white font-bold text-lg">Admin</span>
+          </div>
+          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="text-gray-400 hover:text-white">
+            {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
-        <nav className="mt-6">
-          {menuItems.map((item) => (
+        <nav className="flex-1 mt-6 px-4 space-y-2">
+          {menuItems.map(item => (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${activeTab === item.id
-                ? 'bg-amber-600 text-white'
-                : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                }`}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${activeTab === item.id ? 'bg-amber-600 text-white shadow-lg shadow-amber-900/20' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}
             >
-              <item.icon className="w-5 h-5" />
-              {isSidebarOpen && <span>{item.label}</span>}
+              <item.icon className="w-5 h-5 flex-shrink-0" />
+              {isSidebarOpen && <span className="font-medium">{item.label}</span>}
             </button>
           ))}
         </nav>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <button
-            onClick={() => setIsLoggedIn(false)}
-            className="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded transition-colors"
-          >
+        <div className="p-4 border-t border-gray-800">
+          <button onClick={() => setIsLoggedIn(false)} className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
             <LogOut className="w-5 h-5" />
             {isSidebarOpen && <span>Déconnexion</span>}
           </button>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto">
-        {/* Header */}
-        <header className="bg-white shadow-sm px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900">
-              {menuItems.find(item => item.id === activeTab)?.label}
-            </h1>
-          </div>
+      {/* Main content */}
+      <main className="flex-1 flex flex-col overflow-hidden">
+        <header className="h-16 bg-white border-b border-gray-200 px-8 flex items-center justify-between flex-shrink-0">
+          <h2 className="text-xl font-bold text-gray-800">{menuItems.find(m => m.id === activeTab)?.label}</h2>
           <div className="flex items-center gap-4">
-            <button className="relative p-2 hover:bg-gray-100 rounded-full">
-              <Bell className="w-5 h-5 text-gray-600" />
-              {reservations.filter(r => r.status === 'pending').length > 0 && (
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              )}
-            </button>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full overflow-hidden">
-                <img src={guidePhoto} className="w-full h-full object-cover" alt="Profile" />
-              </div>
-              {isSidebarOpen && (
-                <div className="hidden md:block">
-                  <p className="text-sm font-medium">Antoine</p>
-                  <p className="text-xs text-gray-500">Guide</p>
-                </div>
-              )}
+            <div className="text-right hidden sm:block">
+              <p className="text-sm font-bold">Antoine Pilard</p>
+              <p className="text-xs text-gray-500">Administrateur</p>
+            </div>
+            <div className="w-10 h-10 rounded-full border border-gray-200 overflow-hidden shadow-sm hover:ring-2 hover:ring-amber-500 transition-all cursor-pointer">
+              <img src={guidePhoto} className="w-full h-full object-cover" alt="Profile" />
             </div>
           </div>
         </header>
 
-        {/* Content */}
-        <div className="p-6">
-          {renderContent()}
+        <div className="flex-1 overflow-y-auto p-8">
+          <div className="max-w-6xl mx-auto">
+            {activeTab === 'dashboard' && <Dashboard reservations={reservations} setActiveTab={setActiveTab} />}
+            {activeTab === 'reservations' && <Reservations reservations={reservations} setReservations={setReservations} />}
+            {activeTab === 'tours' && <ToursManagement tours={tours} setTours={setTours} />}
+            {activeTab === 'reviews' && <Reviews reviews={reviews} setReviews={setReviews} />}
+            {activeTab === 'profile' && (
+              <div className="max-w-2xl mx-auto">
+                <Card className="overflow-hidden">
+                  <div className="h-32 bg-gradient-to-r from-amber-500 to-orange-600"></div>
+                  <CardContent className="px-8 pb-8">
+                    <div className="relative -mt-16 mb-6 flex flex-col items-center">
+                      <div className="relative group">
+                        <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl overflow-hidden bg-gray-100">
+                          <img src={guidePhoto} className="w-full h-full object-cover" alt="Antoine" />
+                        </div>
+                        <button
+                          onClick={() => profileFileInputRef.current?.click()}
+                          className="absolute inset-0 bg-black/40 text-white rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <ImageIcon className="w-6 h-6 mb-1" />
+                          <span className="text-[10px] font-bold uppercase tracking-wider">Modifier</span>
+                        </button>
+                      </div>
+                      <h3 className="text-2xl font-bold mt-4 text-gray-900">Antoine Pilard</h3>
+                      <p className="text-gray-500">Guide Accompagnateur • Fondateur</p>
+                    </div>
+
+                    <div className="space-y-6">
+                      <div className="space-y-4">
+                        <h4 className="font-bold text-gray-900 border-b pb-2">Paramètres de photo</h4>
+                        <div className="space-y-2">
+                          <Label>Lien image de profil</Label>
+                          <div className="flex gap-2">
+                            <Input value={guidePhoto} onChange={(e) => setGuidePhoto(e.target.value)} placeholder="/guide-antoine.jpg" className="flex-1" />
+                            <input type="file" ref={profileFileInputRef} className="hidden" accept="image/*" onChange={handleProfileImageUpload} />
+                            <Button variant="outline" onClick={() => profileFileInputRef.current?.click()}>
+                              <Upload className="w-4 h-4 mr-2" /> Upload
+                            </Button>
+                          </div>
+                          <p className="text-xs text-gray-500">Vous pouvez soit entrer une URL, soit télécharger un fichier depuis votre disque.</p>
+                        </div>
+                      </div>
+
+                      <div className="pt-4 flex gap-3">
+                        <Button className="flex-1 bg-amber-600" onClick={saveProfile}>
+                          <Check className="w-4 h-4 mr-2" /> Enregistrer le profil
+                        </Button>
+                        <Button variant="outline" className="flex-1" onClick={() => setActiveTab('dashboard')}>Retour</Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </div>
         </div>
       </main>
     </div>
