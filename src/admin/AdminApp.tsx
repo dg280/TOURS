@@ -68,6 +68,10 @@ interface Tour {
   category: string;
   isActive: boolean;
   stripeLink?: string;
+  itinerary?: string[];
+  included?: string[];
+  notIncluded?: string[];
+  meetingPoint?: string;
 }
 
 interface Review {
@@ -623,7 +627,11 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
           category: editingTour.category,
           highlights: editingTour.highlights,
           is_active: editingTour.isActive,
-          stripe_link: editingTour.stripeLink || null
+          stripe_link: editingTour.stripeLink || null,
+          itinerary: editingTour.itinerary || null,
+          included: editingTour.included || null,
+          not_included: editingTour.notIncluded || null,
+          meeting_point: editingTour.meetingPoint || null
         };
 
         const { error } = await supabase.from('tours').upsert(dbTour);
@@ -663,7 +671,11 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
           category: tour.category,
           highlights: tour.highlights,
           is_active: tour.isActive,
-          stripe_link: tour.stripeLink || null
+          stripe_link: tour.stripeLink || null,
+          itinerary: tour.itinerary || null,
+          included: tour.included || null,
+          not_included: tour.notIncluded || null,
+          meeting_point: tour.meetingPoint || null
         };
         const { error } = await supabase.from('tours').upsert(dbTour);
         if (error) throw error;
@@ -767,6 +779,49 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                   onChange={(e) => setEditingTour({ ...editingTour, stripeLink: e.target.value })}
                 />
                 <p className="text-[10px] text-gray-400">Si vide, le site utilisera la simulation de paiement par défaut.</p>
+              </div>
+              <div className="space-y-2">
+                <Label>Points forts (un par ligne)</Label>
+                <Textarea
+                  className="text-xs"
+                  value={editingTour.highlights.join('\n')}
+                  onChange={(e) => setEditingTour({ ...editingTour, highlights: e.target.value.split('\n').filter(l => l.trim()) })}
+                  placeholder="Ex: Quartier Juif&#10;Village médiéval"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Itinéraire (un par ligne)</Label>
+                <Textarea
+                  className="text-xs"
+                  value={(editingTour.itinerary || []).join('\n')}
+                  onChange={(e) => setEditingTour({ ...editingTour, itinerary: e.target.value.split('\n').filter(l => l.trim()) })}
+                  placeholder="09:00 - Départ&#10;10:30 - Visite"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Inclus (un par ligne)</Label>
+                  <Textarea
+                    className="text-xs"
+                    value={(editingTour.included || []).join('\n')}
+                    onChange={(e) => setEditingTour({ ...editingTour, included: e.target.value.split('\n').filter(l => l.trim()) })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Non Inclus (un par ligne)</Label>
+                  <Textarea
+                    className="text-xs"
+                    value={(editingTour.notIncluded || []).join('\n')}
+                    onChange={(e) => setEditingTour({ ...editingTour, notIncluded: e.target.value.split('\n').filter(l => l.trim()) })}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Point de rencontre</Label>
+                <Input
+                  value={editingTour.meetingPoint || ''}
+                  onChange={(e) => setEditingTour({ ...editingTour, meetingPoint: sanitize(e.target.value) })}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Photo du tour</Label>
@@ -975,9 +1030,13 @@ export default function AdminApp() {
               category: t.category,
               highlights: t.highlights,
               isActive: t.is_active,
-              stripeLink: t.stripe_link || ''
+              stripeLink: t.stripe_link || '',
+              itinerary: t.itinerary,
+              included: t.included,
+              notIncluded: t.not_included,
+              meetingPoint: t.meeting_point
             }));
-            setTours(mapped);
+            setTours(mapped as Tour[]);
           }
         });
 

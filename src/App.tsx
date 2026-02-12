@@ -18,6 +18,7 @@ import {
   Loader2,
   Minus,
   Plus,
+  Compass,
   Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -118,20 +119,24 @@ function App() {
         .then(({ data, error }) => {
           if (!error && data && data.length > 0) {
             const mapped = data.map(t => ({
-              id: t.id,
+              id: Number(t.id) || t.id,
               title: t.title,
               subtitle: t.subtitle,
               description: t.description,
               duration: t.duration,
-              groupSize: t.group_size, // this field name from DB is group_size
+              groupSize: t.group_size,
               price: t.price,
               image: t.image,
               category: t.category,
               highlights: t.highlights,
               isActive: t.is_active,
-              stripeLink: t.stripe_link || ''
+              stripeLink: t.stripe_link || '',
+              itinerary: t.itinerary,
+              included: t.included,
+              notIncluded: t.not_included,
+              meetingPoint: t.meeting_point
             }));
-            setCustomTours(mapped);
+            setCustomTours(mapped as Tour[]);
           }
         });
       // Fetch Profile Photo from site_config
@@ -180,40 +185,50 @@ function App() {
     metaDesc.setAttribute('content', t.seo.description);
   }, [lang, t]);
 
-  const tours: Tour[] = customTours.length > 0 ? customTours : t.tour_data.map(tour => ({
-    ...tour,
-    image: tour.id === 1 ? '/tour-girona.jpg' :
-      tour.id === 2 ? '/tour-barcelona-hidden.jpg' :
-        tour.id === 3 ? '/tour-camironda.jpg' :
-          tour.id === 4 ? '/tour-prepirinees.jpg' :
-            tour.id === 5 ? '/tour-kayak.jpg' :
-              tour.id === 6 ? '/tour-montserrat.jpg' : '/tour-collioure.jpg',
-    category: tour.id === 1 ? 'Culture & Nature' :
-      tour.id === 2 ? 'Culture' :
-        tour.id === 3 ? 'Randonnée' :
-          tour.id === 4 ? 'Randonnée & Patrimoine' :
-            tour.id === 5 ? 'Aventure' :
-              tour.id === 6 ? 'Culture & Vin' : 'Culture & Gastronomie',
-    itinerary: (tour as any).itinerary || [
-      "09:00 - Départ de Barcelone",
-      "10:30 - Visite guidée du coeur historique",
-      "13:00 - Pause déjeuner traditionnelle",
-      "15:00 - Découverte des sites secrets",
-      "17:30 - Retour à Barcelone"
-    ],
-    included: (tour as any).included || [
-      "Guide privé expert",
-      "Transport climatisé",
-      "Toutes les entrées",
-      "Bouteilles d'eau"
-    ],
-    notIncluded: (tour as any).notIncluded || [
-      "Déjeuner",
-      "Dépenses personnelles",
-      "Pourboires"
-    ],
-    meetingPoint: (tour as any).meetingPoint || "23 Passeig de Gràcia, Eixample, 08007 Barcelone"
-  }));
+  const tours: Tour[] = t.tour_data.map((base: any) => {
+    // Look for a customization (DB) for this tour ID
+    const custom = customTours.find(c => c.id === base.id);
+    const tour = custom ? { ...base, ...custom } : base;
+
+    return {
+      ...tour,
+      image: tour.image || (
+        base.id === 1 ? '/tour-girona.jpg' :
+          base.id === 2 ? '/tour-barcelona-hidden.jpg' :
+            base.id === 3 ? '/tour-camironda.jpg' :
+              base.id === 4 ? '/tour-prepirinees.jpg' :
+                base.id === 5 ? '/tour-kayak.jpg' :
+                  base.id === 6 ? '/tour-montserrat.jpg' : '/tour-collioure.jpg'
+      ),
+      category: tour.category || (
+        base.id === 1 ? 'Culture & Nature' :
+          base.id === 2 ? 'Culture' :
+            base.id === 3 ? 'Randonnée' :
+              base.id === 4 ? 'Randonnée & Patrimoine' :
+                base.id === 5 ? 'Aventure' :
+                  base.id === 6 ? 'Culture & Vin' : 'Culture & Gastronomie'
+      ),
+      itinerary: tour.itinerary || [
+        "09:00 - Départ de Barcelone",
+        "10:30 - Visite guidée du coeur historique",
+        "13:00 - Pause déjeuner traditionnelle",
+        "15:00 - Découverte des sites secrets",
+        "17:30 - Retour à Barcelone"
+      ],
+      included: tour.included || [
+        "Guide privé expert",
+        "Transport climatisé",
+        "Toutes les entrées",
+        "Bouteilles d'eau"
+      ],
+      notIncluded: tour.notIncluded || [
+        "Déjeuner",
+        "Dépenses personnelles",
+        "Pourboires"
+      ],
+      meetingPoint: tour.meetingPoint || "23 Passeig de Gràcia, Eixample, 08007 Barcelone"
+    } as Tour;
+  });
 
   const testimonials = t.testimonials_data;
 
@@ -557,187 +572,189 @@ function App() {
                     </div>
                   </div>
                 </DialogTrigger>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle className="text-3xl font-serif mb-2">{tour.title}</DialogTitle>
-                    <p className="text-amber-600 font-medium uppercase tracking-wider text-sm">{tour.subtitle}</p>
-                  </DialogHeader>
+                <DialogContent className="w-[95vw] sm:max-w-5xl h-[90vh] p-0 rounded-2xl border-none shadow-2xl overflow-hidden flex flex-col bg-white">
+                  <div className="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-10">
+                    <DialogHeader className="mb-8">
+                      <DialogTitle className="text-3xl sm:text-4xl font-serif mb-2 text-gray-900">{tour.title}</DialogTitle>
+                      <p className="text-amber-600 font-semibold uppercase tracking-widest text-sm">{tour.subtitle}</p>
+                    </DialogHeader>
 
-                  <div className="grid lg:grid-cols-3 gap-8 mt-6">
-                    {/* Left Column: Media & Tabs */}
-                    <div className="lg:col-span-2 space-y-6">
-                      <div className="aspect-video rounded-xl overflow-hidden shadow-md">
-                        <img
-                          src={tour.image}
-                          alt={tour.title}
-                          className="w-full h-full object-cover"
-                        />
+                    <div className="grid lg:grid-cols-3 gap-10">
+                      {/* Left Column: Media & Tabs */}
+                      <div className="lg:col-span-2 space-y-6">
+                        <div className="aspect-video rounded-xl overflow-hidden shadow-md">
+                          <img
+                            src={tour.image}
+                            alt={tour.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+
+                        <Tabs defaultValue="desc" className="w-full">
+                          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto p-1 bg-amber-50/50 border border-amber-100 rounded-xl">
+                            <TabsTrigger value="desc" className="py-2.5 text-xs sm:text-sm">{t.tours.tabs.desc}</TabsTrigger>
+                            <TabsTrigger value="itin" className="py-2.5 text-xs sm:text-sm">{t.tours.tabs.itin}</TabsTrigger>
+                            <TabsTrigger value="incl" className="py-2.5 text-xs sm:text-sm">{t.tours.tabs.incl}</TabsTrigger>
+                            <TabsTrigger value="meet" className="py-2.5 text-xs sm:text-sm">{t.tours.tabs.meet}</TabsTrigger>
+                          </TabsList>
+
+                          <TabsContent value="desc" className="mt-4 prose prose-amber">
+                            <p className="text-gray-600 leading-relaxed text-lg">
+                              {tour.description}
+                            </p>
+                            <div className="mt-6">
+                              <h4 className="font-bold text-gray-900 mb-4">Points forts :</h4>
+                              <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                {tour.highlights.map((h, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-gray-600">
+                                    <CheckCircle2 className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                                    <span>{h}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </TabsContent>
+
+                          <TabsContent value="itin" className="mt-4">
+                            <div className="space-y-4">
+                              {tour.itinerary?.map((step, i) => (
+                                <div key={i} className="flex gap-4 items-start">
+                                  <div className="w-px h-full bg-amber-200 relative">
+                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-amber-500" />
+                                  </div>
+                                  <div className="pb-4">
+                                    <p className="text-gray-700 font-medium">{step}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </TabsContent>
+
+                          <TabsContent value="incl" className="mt-4 grid md:grid-cols-2 gap-8">
+                            <div>
+                              <h4 className="font-bold text-green-700 mb-3 flex items-center gap-2">
+                                <Check className="w-5 h-5" /> Inclus
+                              </h4>
+                              <ul className="space-y-2">
+                                {tour.included?.map((item, i) => (
+                                  <li key={i} className="text-sm text-gray-600 flex gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5" />
+                                    {item}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-red-700 mb-3 flex items-center gap-2">
+                                <X className="w-5 h-5" /> Non Inclus
+                              </h4>
+                              <ul className="space-y-2">
+                                {tour.notIncluded?.map((item, i) => (
+                                  <li key={i} className="text-sm text-gray-600 flex gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5" />
+                                    {item}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </TabsContent>
+
+                          <TabsContent value="meet" className="mt-4">
+                            <div className="bg-gray-50 p-6 rounded-xl border border-gray-100">
+                              <div className="flex items-start gap-3 mb-4">
+                                <MapPin className="w-6 h-6 text-amber-600 shrink-0" />
+                                <p className="text-gray-700 font-medium">{tour.meetingPoint}</p>
+                              </div>
+                              <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 italic">
+                                [Carte Interactive Google Maps]
+                              </div>
+                            </div>
+                          </TabsContent>
+                        </Tabs>
                       </div>
 
-                      <Tabs defaultValue="desc" className="w-full">
-                        <TabsList className="grid w-full grid-cols-4">
-                          <TabsTrigger value="desc">{t.tours.tabs.desc}</TabsTrigger>
-                          <TabsTrigger value="itin">{t.tours.tabs.itin}</TabsTrigger>
-                          <TabsTrigger value="incl">{t.tours.tabs.incl}</TabsTrigger>
-                          <TabsTrigger value="meet">{t.tours.tabs.meet}</TabsTrigger>
-                        </TabsList>
-
-                        <TabsContent value="desc" className="mt-4 prose prose-amber">
-                          <p className="text-gray-600 leading-relaxed text-lg">
-                            {tour.description}
-                          </p>
-                          <div className="mt-6">
-                            <h4 className="font-bold text-gray-900 mb-4">Points forts :</h4>
-                            <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                              {tour.highlights.map((h, i) => (
-                                <li key={i} className="flex items-start gap-2 text-gray-600">
-                                  <CheckCircle2 className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                                  <span>{h}</span>
-                                </li>
-                              ))}
-                            </ul>
+                      {/* Right Column: Sticky Booking Widget */}
+                      <div className="lg:col-span-1">
+                        <div className="sticky top-0 bg-white border border-amber-100 rounded-2xl p-6 shadow-xl ring-1 ring-amber-500/10">
+                          <div className="mb-6 pb-6 border-b border-gray-100">
+                            <div className="flex items-baseline gap-2 mb-1">
+                              <span className="text-3xl font-bold text-gray-900">{tour.price}€</span>
+                              <span className="text-gray-500 text-sm">/ {t.tours.per_person}</span>
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-gray-400">
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-4 h-4" /> {tour.duration}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Users className="w-4 h-4" /> {tour.groupSize}
+                              </span>
+                            </div>
                           </div>
-                        </TabsContent>
 
-                        <TabsContent value="itin" className="mt-4">
-                          <div className="space-y-4">
-                            {tour.itinerary?.map((step, i) => (
-                              <div key={i} className="flex gap-4 items-start">
-                                <div className="w-px h-full bg-amber-200 relative">
-                                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-amber-500" />
-                                </div>
-                                <div className="pb-4">
-                                  <p className="text-gray-700 font-medium">{step}</p>
-                                </div>
+                          <div className="space-y-4 mb-6">
+                            <div className="space-y-2">
+                              <Label className="text-xs font-bold uppercase text-gray-500">{t.booking.date_label}</Label>
+                              <Input
+                                type="date"
+                                value={bookingDate}
+                                onChange={(e) => setBookingDate(e.target.value)}
+                                className="w-full h-11 border-gray-200"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-xs font-bold uppercase text-gray-500">{t.booking.participants}</Label>
+                              <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg border border-gray-100">
+                                <button
+                                  onClick={() => setParticipants(Math.max(1, participants - 1))}
+                                  className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-white transition-colors"
+                                >
+                                  <Minus className="w-4 h-4" />
+                                </button>
+                                <span className="font-bold">{participants}</span>
+                                <button
+                                  onClick={() => setParticipants(Math.min(16, participants + 1))}
+                                  className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-white transition-colors"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </button>
                               </div>
-                            ))}
-                          </div>
-                        </TabsContent>
-
-                        <TabsContent value="incl" className="mt-4 grid md:grid-cols-2 gap-8">
-                          <div>
-                            <h4 className="font-bold text-green-700 mb-3 flex items-center gap-2">
-                              <Check className="w-5 h-5" /> Inclus
-                            </h4>
-                            <ul className="space-y-2">
-                              {tour.included?.map((item, i) => (
-                                <li key={i} className="text-sm text-gray-600 flex gap-2">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5" />
-                                  {item}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-red-700 mb-3 flex items-center gap-2">
-                              <X className="w-5 h-5" /> Non Inclus
-                            </h4>
-                            <ul className="space-y-2">
-                              {tour.notIncluded?.map((item, i) => (
-                                <li key={i} className="text-sm text-gray-600 flex gap-2">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5" />
-                                  {item}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </TabsContent>
-
-                        <TabsContent value="meet" className="mt-4">
-                          <div className="bg-gray-50 p-6 rounded-xl border border-gray-100">
-                            <div className="flex items-start gap-3 mb-4">
-                              <MapPin className="w-6 h-6 text-amber-600 shrink-0" />
-                              <p className="text-gray-700 font-medium">{tour.meetingPoint}</p>
                             </div>
-                            <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 italic">
-                              [Carte Interactive Google Maps]
+                            <div className="pt-2 flex justify-between items-center text-lg font-bold text-gray-900">
+                              <span>Total</span>
+                              <span className="text-amber-600">{participants * tour.price}€</span>
                             </div>
                           </div>
-                        </TabsContent>
-                      </Tabs>
-                    </div>
 
-                    {/* Right Column: Sticky Booking Widget */}
-                    <div className="lg:col-span-1">
-                      <div className="sticky top-0 bg-white border border-amber-100 rounded-2xl p-6 shadow-xl ring-1 ring-amber-500/10">
-                        <div className="mb-6 pb-6 border-b border-gray-100">
-                          <div className="flex items-baseline gap-2 mb-1">
-                            <span className="text-3xl font-bold text-gray-900">{tour.price}€</span>
-                            <span className="text-gray-500 text-sm">/ {t.tours.per_person}</span>
+                          <div className="space-y-4">
+                            <Button
+                              onClick={() => {
+                                setSelectedTour(tour);
+                                setBookingStep(2); // Skip Step 1 (Date/Participants)
+                                setIsBookingOpen(true);
+                              }}
+                              className="w-full bg-amber-600 hover:bg-amber-700 text-white py-6 text-lg font-bold shadow-lg shadow-amber-200"
+                            >
+                              {t.tours.book_now}
+                            </Button>
+                            <p className="text-center text-xs text-gray-400">
+                              Paiement sécurisé via Stripe
+                            </p>
                           </div>
-                          <div className="flex items-center gap-4 text-sm text-gray-400">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" /> {tour.duration}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Users className="w-4 h-4" /> {tour.groupSize}
-                            </span>
-                          </div>
-                        </div>
 
-                        <div className="space-y-4 mb-6">
-                          <div className="space-y-2">
-                            <Label className="text-xs font-bold uppercase text-gray-500">{t.booking.date_label}</Label>
-                            <Input
-                              type="date"
-                              value={bookingDate}
-                              onChange={(e) => setBookingDate(e.target.value)}
-                              className="w-full h-11 border-gray-200"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="text-xs font-bold uppercase text-gray-500">{t.booking.participants}</Label>
-                            <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg border border-gray-100">
-                              <button
-                                onClick={() => setParticipants(Math.max(1, participants - 1))}
-                                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-white transition-colors"
-                              >
-                                <Minus className="w-4 h-4" />
-                              </button>
-                              <span className="font-bold">{participants}</span>
-                              <button
-                                onClick={() => setParticipants(Math.min(16, participants + 1))}
-                                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-white transition-colors"
-                              >
-                                <Plus className="w-4 h-4" />
-                              </button>
+                          <div className="mt-8 pt-6 border-t border-gray-100 space-y-4">
+                            <div className="flex items-start gap-3">
+                              <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
+                              <div>
+                                <p className="text-sm font-bold">Confirmation instantanée</p>
+                                <p className="text-xs text-gray-500">Recevez vos billets par email immédiatement.</p>
+                              </div>
                             </div>
-                          </div>
-                          <div className="pt-2 flex justify-between items-center text-lg font-bold text-gray-900">
-                            <span>Total</span>
-                            <span className="text-amber-600">{participants * tour.price}€</span>
-                          </div>
-                        </div>
-
-                        <div className="space-y-4">
-                          <Button
-                            onClick={() => {
-                              setSelectedTour(tour);
-                              setBookingStep(2); // Skip Step 1 (Date/Participants)
-                              setIsBookingOpen(true);
-                            }}
-                            className="w-full bg-amber-600 hover:bg-amber-700 text-white py-6 text-lg font-bold shadow-lg shadow-amber-200"
-                          >
-                            {t.tours.book_now}
-                          </Button>
-                          <p className="text-center text-xs text-gray-400">
-                            Paiement sécurisé via Stripe
-                          </p>
-                        </div>
-
-                        <div className="mt-8 pt-6 border-t border-gray-100 space-y-4">
-                          <div className="flex items-start gap-3">
-                            <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
-                            <div>
-                              <p className="text-sm font-bold">Confirmation instantanée</p>
-                              <p className="text-xs text-gray-500">Recevez vos billets par email immédiatement.</p>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-3">
-                            <Info className="w-5 h-5 text-amber-600 mt-0.5" />
-                            <div>
-                              <p className="text-sm font-bold">Annulation flexible</p>
-                              <p className="text-xs text-gray-500">Annulation gratuite jusqu'à 24h avant.</p>
+                            <div className="flex items-start gap-3">
+                              <Info className="w-5 h-5 text-amber-600 mt-0.5" />
+                              <div>
+                                <p className="text-sm font-bold">Annulation flexible</p>
+                                <p className="text-xs text-gray-500">Annulation gratuite jusqu'à 24h avant.</p>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1142,6 +1159,22 @@ function App() {
                         className={`h-11 ${formData.phone && !validatePhone(formData.phone) ? 'border-red-500' : ''}`}
                       />
                     </div>
+                    <div className="pt-4 border-t border-gray-100 flex items-start gap-3 p-3 bg-amber-50/30 rounded-lg">
+                      <input
+                        type="checkbox"
+                        id="gdpr"
+                        required
+                        className="w-4 h-4 mt-0.5 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                      />
+                      <Label htmlFor="gdpr" className="text-[10px] sm:text-xs text-gray-600 leading-tight">
+                        {lang === 'fr'
+                          ? "J'accepte que mes données soient traitées pour la gestion de ma réservation conformément à la politique de confidentialité."
+                          : lang === 'es'
+                            ? "Acepto que mis datos sean procesados para la gestión de mi reserva de acuerdo con la política de privacidad."
+                            : "I agree to my data being processed for the management of my reservation in accordance with the privacy policy."
+                        }
+                      </Label>
+                    </div>
                   </div>
 
                   <div className="flex gap-3 mt-auto pt-8">
@@ -1246,57 +1279,104 @@ function App() {
           </div>
         </DialogContent>
       </Dialog>
-      <footer className="bg-gray-950 text-gray-400 py-12">
-        <div className="container-custom">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <MapPin className="w-6 h-6 text-amber-600" />
-                <span className="text-xl font-semibold font-serif text-white">
+      <footer className="bg-gray-950 text-gray-400 py-20 relative overflow-hidden">
+        {/* Subtle radial glow */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-600/5 rounded-full blur-[120px] -mr-64 -mt-64" />
+
+        <div className="container-custom relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 rounded-xl bg-amber-600 flex items-center justify-center">
+                  <MapPin className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-2xl font-bold font-serif text-white tracking-tight">
                   Tours<span className="text-amber-500">&</span>Detours
                 </span>
               </div>
-              <p className="text-sm">
+              <p className="text-sm leading-relaxed max-w-xs">
                 {lang === 'fr'
-                  ? 'Votre guide expert en Catalogne pour des expériences authentiques et responsables.'
+                  ? 'Expert en Catalogne, nous créons des expériences privées authentiques et responsables pour voyageurs exigeants.'
                   : lang === 'es'
-                    ? 'Tu guía experto en Cataluña para experiencias auténticas y responsables.'
-                    : 'Your expert guide in Catalonia for authentic and responsible experiences.'}
+                    ? 'Expertos en Cataluña, creamos experiencias privadas auténticas y responsables para viajeros exigentes.'
+                    : 'Experts in Catalonia, we create authentic and responsible private experiences for discerning travelers.'}
               </p>
+              <div className="flex gap-4">
+                <a href="https://www.instagram.com/tours_and_detours_bcn/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-amber-600/20 hover:border-amber-600/50 hover:text-amber-500 transition-all">
+                  <Instagram className="w-5 h-5" />
+                </a>
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-amber-600/20 hover:border-amber-600/50 hover:text-amber-500 transition-all">
+                  <Facebook className="w-5 h-5" />
+                </a>
+              </div>
             </div>
+
             <div>
-              <h4 className="text-white font-semibold mb-4">{t.nav.tours}</h4>
-              <ul className="space-y-2 text-sm">
-                <li><button onClick={() => scrollToSection('tours')} className="hover:text-amber-400 transition-colors">{t.nav.tours}</button></li>
-                <li><button onClick={() => scrollToSection('guide')} className="hover:text-amber-400 transition-colors">{t.nav.guide}</button></li>
-                <li><button onClick={() => scrollToSection('avis')} className="hover:text-amber-400 transition-colors">{t.nav.avis}</button></li>
-                <li><button onClick={() => scrollToSection('contact')} className="hover:text-amber-400 transition-colors">{t.nav.contact}</button></li>
+              <h4 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
+                <span className="w-1.5 h-6 bg-amber-600 rounded-full" />
+                Navigation
+              </h4>
+              <ul className="space-y-4 text-sm">
+                <li><button onClick={() => scrollToSection('tours')} className="hover:text-amber-500 transition-colors inline-flex items-center gap-2 group"><ChevronRight className="w-4 h-4 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" /> {t.nav.tours}</button></li>
+                <li><button onClick={() => scrollToSection('guide')} className="hover:text-amber-500 transition-colors inline-flex items-center gap-2 group"><ChevronRight className="w-4 h-4 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" /> {t.nav.guide}</button></li>
+                <li><button onClick={() => scrollToSection('avis')} className="hover:text-amber-500 transition-colors inline-flex items-center gap-2 group"><ChevronRight className="w-4 h-4 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" /> {t.nav.avis}</button></li>
+                <li><button onClick={() => scrollToSection('contact')} className="hover:text-amber-500 transition-colors inline-flex items-center gap-2 group"><ChevronRight className="w-4 h-4 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" /> {t.nav.contact}</button></li>
               </ul>
             </div>
+
             <div>
-              <h4 className="text-white font-semibold mb-4">{t.nav.tours}</h4>
-              <ul className="space-y-2 text-sm">
+              <h4 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
+                <span className="w-1.5 h-6 bg-amber-600 rounded-full" />
+                Tours Populaires
+              </h4>
+              <ul className="space-y-4 text-sm">
                 {tours.slice(0, 4).map(tour => (
-                  <li key={tour.id}><button onClick={() => scrollToSection('tours')} className="hover:text-amber-400 transition-colors">{tour.title}</button></li>
+                  <li key={tour.id}>
+                    <button onClick={() => scrollToSection('tours')} className="hover:text-amber-500 transition-colors text-left line-clamp-1 group flex items-center gap-2">
+                      <ChevronRight className="w-4 h-4 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all shrink-0" />
+                      {tour.title}
+                    </button>
+                  </li>
                 ))}
               </ul>
             </div>
+
             <div>
-              <h4 className="text-white font-semibold mb-4">Contact</h4>
-              <ul className="space-y-2 text-sm">
-                <li>{t.contact.whatsapp}</li>
-                <li>antoine@toursanddetours.com</li>
-                <li>Barcelone, Catalogne</li>
+              <h4 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
+                <span className="w-1.5 h-6 bg-amber-600 rounded-full" />
+                Contact Direct
+              </h4>
+              <ul className="space-y-4 text-sm">
+                <li className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                    <Phone className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <span>{t.contact.whatsapp}</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                    <Star className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <span>antoine@toursanddetours.com</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                    <Compass className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <span>Barcelone, Catalogne</span>
+                </li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm">
+
+          <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
+            <p className="text-xs tracking-wide">
               © 2026 Tours&Detours. {lang === 'fr' ? 'Tous droits réservés.' : lang === 'es' ? 'Todos los derechos reservados.' : 'All rights reserved.'}
             </p>
-            <div className="flex gap-4">
-              <a href="https://www.instagram.com/tours_and_detours_bcn/" target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition-colors"><Instagram className="w-5 h-5" /></a>
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition-colors"><Facebook className="w-5 h-5" /></a>
+            <div className="flex gap-8 text-xs font-medium">
+              <button className="hover:text-white transition-colors">{lang === 'fr' ? 'Mentions Légales' : 'Legal Notice'}</button>
+              <button className="hover:text-white transition-colors">{lang === 'fr' ? 'Confidentialité' : 'Privacy'}</button>
+              <button className="hover:text-white transition-colors">Cookies</button>
             </div>
           </div>
         </div>
