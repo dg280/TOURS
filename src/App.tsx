@@ -46,8 +46,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { toast } from 'sonner';
 import './App.css';
 
-// const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
-const stripePromise = Promise.resolve(null);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 
 interface Tour {
   id: number;
