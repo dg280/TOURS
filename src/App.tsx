@@ -122,6 +122,14 @@ function App() {
             setCustomTours(mapped);
           }
         });
+      // Fetch Profile Photo from site_config
+      supabase.from('site_config').select('value').eq('key', 'guide_profile').single()
+        .then(({ data, error }) => {
+          if (!error && data && data.value) {
+            const val = data.value as { photo: string };
+            if (val.photo) setGuidePhoto(val.photo);
+          }
+        });
     }
   }, []);
   const [formData, setFormData] = useState({

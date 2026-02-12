@@ -647,27 +647,38 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
   const pushAllToDb = async () => {
     if (!supabase) return;
     setIsEditOpen(false);
-    toast.loading("Synchronisation...");
+    const loadingToast = toast.loading("Synchronisation du catalogue...");
 
-    for (const tour of tours) {
-      const dbTour = {
-        id: tour.id,
-        title: tour.title,
-        subtitle: tour.subtitle,
-        description: tour.description,
-        duration: tour.duration,
-        group_size: tour.groupSize,
-        price: tour.price,
-        image: tour.image,
-        category: tour.category,
-        highlights: tour.highlights,
-        is_active: tour.isActive,
-        stripe_link: tour.stripeLink || null
-      };
-      await supabase.from('tours').upsert(dbTour);
+    try {
+      for (const tour of tours) {
+        const dbTour = {
+          id: tour.id,
+          title: tour.title,
+          subtitle: tour.subtitle,
+          description: tour.description,
+          duration: tour.duration,
+          group_size: tour.groupSize,
+          price: tour.price,
+          image: tour.image,
+          category: tour.category,
+          highlights: tour.highlights,
+          is_active: tour.isActive,
+          stripe_link: tour.stripeLink || null
+        };
+        const { error } = await supabase.from('tours').upsert(dbTour);
+        if (error) throw error;
+      }
+      toast.dismiss(loadingToast);
+      toast.success("Tout le catalogue est synchronisé sur Supabase !");
+    } catch (err: any) {
+      console.error('Sync error:', err);
+      toast.dismiss(loadingToast);
+      if (err.code === '42P01') {
+        toast.error("La table 'tours' n'existe pas. Avez-vous exécuté le SQL dans Supabase ?");
+      } else {
+        toast.error("Échec de la synchronisation : " + err.message);
+      }
     }
-    toast.dismiss();
-    toast.success("Tout le catalogue est synchronisé sur Supabase !");
   };
 
   return (
@@ -969,6 +980,15 @@ export default function AdminApp() {
             setTours(mapped);
           }
         });
+
+      // Fetch Profile Photo from site_config
+      supabase.from('site_config').select('value').eq('key', 'guide_profile').single()
+        .then(({ data, error }) => {
+          if (!error && data && data.value) {
+            const val = data.value as { photo: string };
+            if (val.photo) setGuidePhoto(val.photo);
+          }
+        });
     } else {
       console.warn('Supabase client not initialized. Skipping data fetch.');
     }
@@ -1021,10 +1041,26 @@ export default function AdminApp() {
     }
   };
 
-  const saveProfile = () => {
+  const saveProfile = async () => {
     try {
       localStorage.setItem('td-guide-photo', guidePhoto);
-      toast.success("Profil mis à jour avec succès");
+
+      if (supabase) {
+        const { error } = await supabase.from('site_config').upsert({
+          key: 'guide_profile',
+          value: { photo: guidePhoto },
+          updated_at: new Date().toISOString()
+        });
+
+        if (error) {
+          console.error('Profile save error:', error);
+          toast.error("Sauvegarde cloud échouée (Table site_config manquante ?)");
+        } else {
+          toast.success("Profil mis à jour (Cloud & Local)");
+        }
+      } else {
+        toast.success("Profil mis à jour localement");
+      }
     } catch (error) {
       console.error('Storage error:', error);
       toast.error("Erreur lors de la sauvegarde : le stockage est peut-être plein");

@@ -60,3 +60,15 @@ CREATE POLICY "Public Select Tours" ON tours FOR SELECT USING (true);
 CREATE POLICY "Public Insert Tours" ON tours FOR INSERT WITH CHECK (true);
 CREATE POLICY "Public Update Tours" ON tours FOR UPDATE USING (true);
 CREATE POLICY "Public Delete Tours" ON tours FOR DELETE USING (true);
+-- Create site_config table for global settings
+CREATE TABLE IF NOT EXISTS site_config (
+    key TEXT PRIMARY KEY,
+    value JSONB NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE site_config ENABLE RLS;
+CREATE POLICY "Public Select Config" ON site_config FOR SELECT USING (true);
+CREATE POLICY "Public Update Config" ON site_config FOR UPDATE USING (true);
+CREATE POLICY "Public Insert Config" ON site_config FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public Delete Config" ON site_config FOR DELETE USING (true);
