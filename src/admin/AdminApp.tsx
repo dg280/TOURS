@@ -26,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
+import { supabase } from '@/lib/supabase';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -135,35 +136,39 @@ const mockTours: Tour[] = [
   }
 ];
 
+/*
 const mockReservations: Reservation[] = [
   {
     id: 'RES-001',
     name: 'Marie Dupont',
-    email: 'marie.dupont@email.com',
+    email: 'marie.dupont@example.com',
     phone: '+33 6 12 34 56 78',
     tourId: '1',
     tourName: 'Girona & Costa Brava',
-    date: '2024-03-15',
+    date: '2024-06-15',
     participants: 2,
+    totalPrice: 290,
     status: 'confirmed',
-    message: 'Nous sommes très excités de découvrir la Costa Brava !',
-    createdAt: '2024-02-10',
-    totalPrice: 290
+    message: 'Hâte de voir les quartiers médiévaux !',
+    createdAt: '2024-05-10T14:30:00Z'
   }
 ];
+*/
 
+/*
 const mockReviews: Review[] = [
   {
     id: 'REV-001',
     name: 'Marie & Pierre',
-    location: 'Paris, France',
+    location: 'Lyon, France',
     rating: 5,
-    text: 'Une expérience inoubliable ! Antoine connaît chaque recoin de la Catalogne.',
+    text: 'Une expérience inoubliable ! Antoine est un guide passionné qui nous a fait découvrir des endroits magnifiques hors des sentiers battus.',
     tourId: '1',
     isPublished: true,
-    createdAt: '2024-02-08'
+    createdAt: '2024-04-20T10:00:00Z'
   }
 ];
+*/
 
 // Login Component
 function Login({ onLogin }: { onLogin: () => void }) {
@@ -695,8 +700,8 @@ export default function AdminApp() {
     const saved = localStorage.getItem('td-tours');
     return saved ? JSON.parse(saved) : mockTours;
   });
-  const [reservations, setReservations] = useState<Reservation[]>(mockReservations);
-  const [reviews, setReviews] = useState<Review[]>(mockReviews);
+  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [guidePhoto, setGuidePhoto] = useState(() => localStorage.getItem('td-guide-photo') || '/guide-antoine.jpg');
 
   const profileFileInputRef = useRef<HTMLInputElement>(null);
@@ -706,6 +711,47 @@ export default function AdminApp() {
     if (session && Date.now() - parseInt(session) < 8 * 60 * 60 * 1000) {
       setIsLoggedIn(true);
     }
+
+    // Fetch reservations
+    supabase.from('reservations').select('*').order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (!error && data) {
+          // Map DB fields to interface if needed (snake_case to camelCase)
+          const mapped = data.map(r => ({
+            id: r.id,
+            name: r.name,
+            email: r.email,
+            phone: r.phone,
+            tourId: r.tour_id,
+            tourName: r.tour_name,
+            date: r.date,
+            participants: r.participants,
+            status: r.status,
+            message: r.message || '',
+            createdAt: r.created_at,
+            totalPrice: r.total_price
+          }));
+          setReservations(mapped);
+        }
+      });
+
+    // Fetch reviews
+    supabase.from('reviews').select('*').order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (!error && data) {
+          const mapped = data.map(r => ({
+            id: r.id,
+            name: r.name,
+            location: r.location,
+            rating: r.rating,
+            text: r.text,
+            tourId: r.tour_id,
+            isPublished: r.is_published,
+            createdAt: r.created_at
+          }));
+          setReviews(mapped);
+        }
+      });
   }, []);
 
   useEffect(() => {

@@ -40,17 +40,17 @@ export const translations = {
         guide: {
             section_tag: 'VOTRE GUIDE',
             title: 'Bonjour, je suis Antoine Pilard',
-            desc1: "Guide expert local en Catalogne avec plus de 15 ans d'expérience en France et Andorre.",
-            desc2: "Je conçois et opère des expériences d'une journée et multi-jours à travers la Catalogne, en privilégiant le voyage responsable.",
+            desc1: "Antoine Pilard, Tours and detours. Je conçois et dirige personnellement des expériences privées à travers la Catalogne pour des voyageurs en quête de profondeur culturelle, de rythme calme et de connexions locales significatives — loin des foules et des clichés.",
+            desc2: "Avec plus de 15 ans d'expérience en tant que guide en France, en Andorre et en Espagne, et ancien chef de tour Intrepid Travel (2018-2022), je combine des normes opérationnelles solides avec une approche humaine et discrète du guidage. Basé à Barcelone depuis 2022, je travaille en étroite collaboration avec des partenaires locaux de confiance pour proposer des journées guidées privées et des expériences de plusieurs jours adaptées aux intérêts, au rythme et aux attentes de chaque client.",
             cta_contact: 'Me contacter',
-            cta_tours: 'Voir les tours',
+            cta_tours: 'Voir le portfolio',
             features: [
-                'Expert local Catalogne',
-                'Guide certifié Intrepid',
-                'Passionné d\'histoire',
-                'Spécialiste randonnée',
-                'Voyage responsable',
-                '4 langues parlées'
+                'Sobre & Précis',
+                'Ancré dans le Territoire',
+                '15+ Ans d\'Expérience',
+                'Privé & Sur Mesure',
+                'Responsable par Nature',
+                'Exécution Fluide'
             ]
         },
         features: {
@@ -107,73 +107,73 @@ export const translations = {
         tour_data: [
             {
                 id: 1,
-                title: 'Girona & Costa Brava',
-                subtitle: 'Sur les traces médiévales',
-                description: 'Un voyage immersif du Quartier Juif médiéval de Girona aux villages pittoresques de la Costa Brava.',
-                highlights: ['Quartier Juif', 'Peratallada & Pals', 'Camí de Ronda', 'Dégustation turrón'],
-                duration: '9.5h',
-                groupSize: '2-16',
-                price: 145
-            },
-            {
-                id: 2,
-                title: 'Coins Secrets de Barcelone',
-                subtitle: 'Tour à pied de la vieille ville',
-                description: 'Une exploration slow-travel des quartiers Gothique et Born, dévoilant l\'histoire et les lieux secrets.',
-                highlights: ['Quartier Gothique', 'El Born', 'Histoires locales', 'Routes authentiques'],
-                duration: '3h',
-                groupSize: '2-12',
-                price: 55
-            },
-            {
-                id: 3,
-                title: 'Randonnée Camí de Ronda',
-                subtitle: 'Sentier côtier de la Costa Brava',
-                description: 'Une randonnée spectaculaire sur l\'un des sentiers les plus emblématiques de Catalogne.',
-                highlights: ['Criques cachées', 'Observation faune', 'Déjeuner marin', 'Vues panoramiques'],
-                duration: '6h',
-                groupSize: '4-12',
-                price: 85
+                title: 'Costa Brava & Girona : sentiers médiévaux et beauté côtière',
+                subtitle: 'Profondeur culturelle et paysages marquants',
+                description: 'Un voyage d\'une journée entière, guidé privativement, combinant l\'héritage juif et médiéval de Gérone avec les villages côtiers raffinés de la Costa Brava.',
+                highlights: ['Quartier Juif (El Call)', 'Village médiéval de Pals', 'Calella de Palafrugell & Llafranc', 'Randonnée Camí de Ronda optionnelle', 'Déjeuner méditerranéen'],
+                duration: 'Journée entière',
+                groupSize: '1-8',
+                price: 760
             },
             {
                 id: 4,
-                title: 'Villages Médiévaux',
-                subtitle: 'Découverte des Pré-Pyrénées',
-                description: 'Une randonnée immersive dans les villages médiévaux et chapelles romanes.',
-                highlights: ['Villages médiévaux', 'Chapelles romanes', 'Vallées forestières', 'Faune locale'],
-                duration: '7h',
-                groupSize: '4-10',
-                price: 95
+                title: 'Randonnée Villages Médiévaux — Pré-Pyrénées',
+                subtitle: 'Marche, Nature & Patrimoine',
+                description: 'Une randonnée immersive à faible impact (6km) commençant dans une ville médiévale, avec des chapelles romanes et des vallées forestières. Idéal pour le calme.',
+                highlights: ['Départ village médiéval', 'Chapelles romanes', 'Vallées forestières', 'Paysages paisibles', 'Marche immersive 6km'],
+                duration: 'Journée entière',
+                groupSize: '1-8',
+                price: 520
             },
             {
                 id: 5,
-                title: 'Kayak Costa Brava',
-                subtitle: 'Grottes et criques cachées',
-                description: 'Une expérience en kayak guidée explorant grottes marines et falaises escarpées.',
-                highlights: ['Grottes marines', 'Criques secrètes', 'Vie marine', 'Falaises escarpées'],
-                duration: '4h',
-                groupSize: '4-12',
-                price: 75
+                title: 'Kayak Costa Brava — Grottes Marines & Criques Cachées',
+                subtitle: 'Aventure, Nature & Activités Nautiques',
+                description: 'Une expérience guidée en kayak explorant grottes marines, vie marine et falaises escarpées. Opéré avec des partenaires locaux audités.',
+                highlights: ['Exploration de grottes', 'Falaises escarpées', 'Vie marine', 'Sécurité auditée', 'Demi ou Journée entière'],
+                duration: 'Demi/Journée entière',
+                groupSize: '1-8',
+                price: 450
             },
             {
                 id: 6,
-                title: 'Montserrat & Vin',
-                subtitle: 'Spiritualité et Vins Catalans',
-                description: 'Une journée combinant le paysage de Montserrat avec une visite de vignoble local.',
-                highlights: ['Monastère', 'Randonnée panoramique', 'Vignoble familial', 'Dégustation'],
-                duration: '8h',
-                groupSize: '4-14',
-                price: 125
+                title: 'Expérience Montserrat & Vin',
+                subtitle: 'Culture, Décors & Gastronomie',
+                description: 'Une journée combinant le paysage majestueux et la spiritualité de Montserrat avec la visite d\'une bodega familiale et une dégustation.',
+                highlights: ['Exploration du monastère', 'Vues panoramiques', 'Visite cave locale', 'Dégustation', 'Bodega familiale'],
+                duration: 'Demi/Journée entière',
+                groupSize: '1-8',
+                price: 680
             },
             {
                 id: 7,
-                title: 'Girona & Collioure',
-                subtitle: 'Expérience transfrontalière',
-                description: 'Deux pays en une journée ! Explorez la culture catalane des deux côtés de la frontière.',
-                highlights: ['Girona', 'Collioure France', 'Culture transfrontalière', 'Gastronomie'],
-                duration: '10h',
-                groupSize: '4-12',
-                price: 165
+                title: 'Gérone et Collioure : un voyage méditerranéen transfrontalier',
+                subtitle: 'Histoire, paysages, gastronomie et architecture',
+                description: 'Une journée complète reliant la profondeur médiévale de la Catalogne au charme côtier du sud de la France.',
+                highlights: ['Cathédrale de Gérone & El Call', 'Traversée des Pyrénées', 'Port & Forteresse de Collioure', 'Dégustation d\'anchois boutique', 'Déjeuner méditerranéen complet'],
+                duration: 'Journée entière',
+                groupSize: '1-8',
+                price: 760
+            },
+            {
+                id: 2,
+                title: 'Tour à pied de Barcelone — Coins secrets de la vieille ville',
+                subtitle: 'Culturel, Voyage Responsable',
+                description: 'Une exploration slow-travel des quartiers Gothique et Born, dévoilant l\'histoire, les légendes et les histoires de quartier loin des circuits bondés.',
+                highlights: ['Quartiers Gothique & Born', 'Histoire cachée', 'Légendes & récits locaux', 'Loin des foules'],
+                duration: 'Demi-journée',
+                groupSize: '1-8',
+                price: 350
+            },
+            {
+                id: 3,
+                title: 'Randonnée sur le sentier côtier — Costa Brava “Camí de Ronda”',
+                subtitle: 'Marche & Trekking',
+                description: 'Une randonnée côtière spectaculaire (6km) sur l\'un des sentiers les plus emblématiques de Catalogne. Forêts de pins et criques turquoises.',
+                highlights: ['Randonnée côtière 6km', 'Criques turquoises', 'Déjeuner de la mer', 'Possibilité de baignade'],
+                duration: 'Journée entière',
+                groupSize: '1-8',
+                price: 580
             }
         ],
         testimonials_data: [
@@ -221,17 +221,17 @@ export const translations = {
         guide: {
             section_tag: 'YOUR GUIDE',
             title: 'Hello, I am Antoine Pilard',
-            desc1: "Local expert guide in Catalonia with over 15 years of experience in France and Andorra.",
-            desc2: "I design and operate day and multi-day experiences across Catalonia, prioritizing responsible travel.",
+            desc1: "Antoine Pilard, Tours and detours. I design and personally lead private experiences across Catalonia for well-traveled guests seeking cultural depth, calm pacing, and meaningful local connections — away from crowds and clichés.",
+            desc2: "With over 15 years of guiding experience in France, Andorra, and Spain, and as a former Intrepid Travel tour leader (2018–2022), I combine strong operational standards with a discreet, human approach to guiding. Based in Barcelona since 2022, I work closely with trusted local partners to deliver seamless, privately guided days and multi-day experiences tailored to each client’s interests, pace, and expectations.",
             cta_contact: 'Contact Me',
-            cta_tours: 'View Tours',
+            cta_tours: 'View Portfolio',
             features: [
-                'Catalonia local expert',
-                'Intrepid certified guide',
-                'History enthusiast',
-                'Hiking specialist',
-                'Responsible travel',
-                '4 languages spoken'
+                'Understated & Precise',
+                'Deeply Rooted in Place',
+                '15+ Years Experience',
+                'Private & Customizable',
+                'Responsible by Nature',
+                'Seamless Execution'
             ]
         },
         features: {
@@ -288,73 +288,73 @@ export const translations = {
         tour_data: [
             {
                 id: 1,
-                title: 'Girona & Costa Brava',
-                subtitle: 'In Medieval Footsteps',
-                description: 'An immersive journey from the medieval Jewish Quarter of Girona to the picturesque villages of Costa Brava.',
-                highlights: ['Jewish Quarter', 'Peratallada & Pals', 'Camí de Ronda', 'Turrón tasting'],
-                duration: '9.5h',
-                groupSize: '2-16',
-                price: 145
-            },
-            {
-                id: 2,
-                title: 'Barcelona Hidden Corners',
-                subtitle: 'Old City Walking Tour',
-                description: 'A slow-travel exploration of the Gothic and Born quarters, revealing history and secret places.',
-                highlights: ['Gothic Quarter', 'El Born', 'Local stories', 'Authentic routes'],
-                duration: '3h',
-                groupSize: '2-12',
-                price: 55
-            },
-            {
-                id: 3,
-                title: 'Hike the Camí de Ronda',
-                subtitle: 'Costa Brava Coastal Trail',
-                description: 'A spectacular hike on one of the most emblematic trails in Catalonia.',
-                highlights: ['Hidden coves', 'Wildlife watching', 'Seafood lunch', 'Panoramic views'],
-                duration: '6h',
-                groupSize: '4-12',
-                price: 85
+                title: 'Costa Brava & Girona: Medieval paths and coastal beauty',
+                subtitle: 'Significant cultural depth and scenery',
+                description: 'A privately guided, full-day journey combining Girona’s Jewish and medieval heritage with the refined coastal villages of the Costa Brava.',
+                highlights: ["Girona's Jewish Quarter (El Call)", 'Medieval village of Pals', 'Calella de Palafrugell & Llafranc', 'Optional Camí de Ronda coastal walk', 'Mediterranean lunch'],
+                duration: 'Full Day',
+                groupSize: '1-8',
+                price: 760
             },
             {
                 id: 4,
-                title: 'Medieval Villages Hike',
-                subtitle: 'Pre-Pyrenees Discovery',
-                description: 'An immersive hike through medieval villages and Romanesque chapels.',
-                highlights: ['Medieval villages', 'Romanesque chapels', 'Forest valleys', 'Local wildlife'],
-                duration: '7h',
-                groupSize: '4-10',
-                price: 95
+                title: 'Medieval Villages Hike — Pre-Pyrenees',
+                subtitle: 'Walking, Nature & Heritage',
+                description: 'A low-impact, immersive hike (6km) starting in a medieval town, featuring Romanesque chapels and forested valleys. Perfect for travellers seeking quiet landscapes.',
+                highlights: ['Medieval town start', 'Romanesque chapels', 'Forested valleys', 'Quiet landscapes', '6km immersive walk'],
+                duration: 'Full Day',
+                groupSize: '1-8',
+                price: 520
             },
             {
                 id: 5,
-                title: 'Kayak Costa Brava',
-                subtitle: 'Sea Caves & Hidden Coves',
-                description: 'A guided kayak experience exploring sea caves and steep cliffs.',
-                highlights: ['Sea caves', 'Secret coves', 'Marine life', 'Steep cliffs'],
-                duration: '4h',
-                groupSize: '4-12',
-                price: 75
+                title: 'Kayak the Costa Brava — Sea Caves & Hidden Coves',
+                subtitle: 'Adventure, Nature & Water Activity',
+                description: 'A guided kayaking experience exploring sea caves, marine life and rugged cliffs. Operated with audited local partners for safety standards.',
+                highlights: ['Sea caves exploration', 'Rugged cliffs', 'Marine life', 'Safety-audited gear', 'Half or Full Day'],
+                duration: 'Half/Full Day',
+                groupSize: '1-8',
+                price: 450
             },
             {
                 id: 6,
-                title: 'Montserrat & Wine',
-                subtitle: 'Spirituality & Catalan Wines',
-                description: 'A day combining the landscape of Montserrat with a local vineyard visit.',
-                highlights: ['Monastery', 'Panoramic hike', 'Family vineyard', 'Wine tasting'],
-                duration: '8h',
-                groupSize: '4-14',
-                price: 125
+                title: 'Montserrat & Wine Experience',
+                subtitle: 'Cultural, Scenic & Food & Wine',
+                description: 'A day combining the majestic landscape and spirituality of Montserrat with a family-run bodega visit and tasting session.',
+                highlights: ['Monastery exploration', 'Panoramic views', 'Local winery visit', 'Tasting session', 'Family-run bodega'],
+                duration: 'Half/Full Day',
+                groupSize: '1-8',
+                price: 680
             },
             {
                 id: 7,
-                title: 'Girona & Collioure',
-                subtitle: 'Cross-Border Experience',
-                description: 'Two countries in one day! Explore Catalan culture on both sides of the border.',
-                highlights: ['Girona', 'Collioure France', 'Cross-border culture', 'Gastronomy'],
-                duration: '10h',
-                groupSize: '4-12',
-                price: 165
+                title: 'Girona and Collioure: a crossborder Mediterranean journey',
+                subtitle: 'History, scenery, gastronomy and architecture',
+                description: 'A full-day journey connecting the medieval depth of Catalonia with the refined coastal charm of southern France.',
+                highlights: ["Girona's Jewish Quarter & Gothic cathedral", 'Scenic Pyrenees crossing', 'Collioure harbor & fortress', 'Boutique anchovy tasting', '3-course Mediterranean lunch'],
+                duration: 'Full Day',
+                groupSize: '1-8',
+                price: 760
+            },
+            {
+                id: 2,
+                title: 'Barcelona Walking Tour — Hidden Corners of the Old City',
+                subtitle: 'Cultural, Responsible Travel',
+                description: 'A slow-travel exploration of the Gothic and Born neighbourhoods, uncovering history, legends, community stories, and lesser-known locations.',
+                highlights: ['Gothic & Born quarters', 'Hidden history', 'Legends & community stories', 'Away from crowds'],
+                duration: 'Half Day',
+                groupSize: '1-8',
+                price: 350
+            },
+            {
+                id: 3,
+                title: 'Hike the Coastal Path — Costa Brava “Camí de Ronda”',
+                subtitle: 'Walking & Trekking',
+                description: 'A spectacular coastal hike (6km) on one of Catalonia’s most iconic trails. Pine forests, turquoise coves, and panoramic viewpoints.',
+                highlights: ['6km coastal hike', 'Turquoise coves', 'Seafood lunch', 'Swim opportunities'],
+                duration: 'Full Day',
+                groupSize: '1-8',
+                price: 580
             }
         ],
         testimonials_data: [
@@ -402,17 +402,17 @@ export const translations = {
         guide: {
             section_tag: 'TU GUÍA',
             title: 'Hola, soy Antoine Pilard',
-            desc1: "Guía experto local en Cataluña con más de 15 años de experiencia en Francia y Andorra.",
-            desc2: "Diseño y opero experiencias de uno o varios días en Cataluña, priorizando el viaje responsable.",
+            desc1: "Antoine Pilard, Tours and detours. Diseño y dirijo personalmente experiencias privadas en Cataluña para viajeros que buscan profundidad cultural, un ritmo pausado y conexiones locales significativas, lejos de las multitudes y los clichés.",
+            desc2: "Con más de 15 años de experiencia como guía en Francia, Andorra y España, y ex jefe de tour de Intrepid Travel (2018-2022), combino estándares operativos sólidos con un enfoque humano y discreto del guía. Basado en Barcelona desde 2022, trabajo estrechamente con socios locales de confianza para ofrecer días guiados privados y experiencias de varios días adaptadas a los intereses, el ritmo y las expectativas de cada cliente.",
             cta_contact: 'Contactar',
-            cta_tours: 'Ver tours',
+            cta_tours: 'Ver portfolio',
             features: [
-                'Experto local Cataluña',
-                'Guía certificado Intrepid',
-                'Apasionado de la historia',
-                'Especialista en senderismo',
-                'Viaje responsable',
-                'Hablo 4 idiomas'
+                'Sobrio y Preciso',
+                'Arraigado en el Lugar',
+                '15+ Años de Experiencia',
+                'Privado y Personalizable',
+                'Responsable por Naturaleza',
+                'Ejecución Impecable'
             ]
         },
         features: {
@@ -469,73 +469,73 @@ export const translations = {
         tour_data: [
             {
                 id: 1,
-                title: 'Girona y Costa Brava',
-                subtitle: 'Huellas Medievales',
-                description: 'Un viaje inmersivo por el barrio judío medieval de Girona y los pintorescos pueblos de la Costa Brava.',
-                highlights: ['Barrio Judío', 'Peratallada y Pals', 'Camí de Ronda', 'Degustación de turrón'],
-                duration: '9.5h',
-                groupSize: '2-16',
-                price: 145
-            },
-            {
-                id: 2,
-                title: 'Rincones Ocultos de Barcelona',
-                subtitle: 'Tour a pie por el casco antiguo',
-                description: 'Una exploración slow-travel por los barrios Gótico y Born, descubriendo historia y lugares secretos.',
-                highlights: ['Barrio Gótico', 'El Born', 'Historias locales', 'Rutas auténticas'],
-                duration: '3h',
-                groupSize: '2-12',
-                price: 55
-            },
-            {
-                id: 3,
-                title: 'Senderismo Camí de Ronda',
-                subtitle: 'Sendero costero de la Costa Brava',
-                description: 'Una caminata espectacular por uno de los senderos más emblemáticos de Cataluña.',
-                highlights: ['Calas escondidas', 'Observación de fauna', 'Comida marinera', 'Vistas panorámicas'],
-                duration: '6h',
-                groupSize: '4-12',
-                price: 85
+                title: 'Costa Brava y Girona: senderos medievales y belleza costera',
+                subtitle: 'Profundidad cultural y paisajes espectaculares',
+                description: 'Un viaje de un día completo, guiado privadamente, que combina el legado judío y medieval de Girona con los refinados pueblos costeros de la Costa Brava.',
+                highlights: ['Barrio Judío (El Call)', 'Pueblo medieval de Pals', 'Calella de Palafrugell y Llafranc', 'Caminata Camí de Ronda opcional', 'Almuerzo mediterráneo'],
+                duration: 'Día completo',
+                groupSize: '1-8',
+                price: 760
             },
             {
                 id: 4,
-                title: 'Pueblos Medievales',
-                subtitle: 'Descubrimiento del Prepirineo',
-                description: 'Una caminata inmersiva por pueblos medievales y capillas románicas.',
-                highlights: ['Pueblos medievales', 'Capillas románicas', 'Valles forestales', 'Fauna local'],
-                duration: '7h',
-                groupSize: '4-10',
-                price: 95
+                title: 'Senderismo por Pueblos Medievales — Prepirineo',
+                subtitle: 'Caminata, Naturaleza y Patrimonio',
+                description: 'Una caminata inmersiva de bajo impacto (6km) que comienza en un pueblo medieval, con capillas románicas y valles boscosos. Perfecto para viajeros que buscan paz.',
+                highlights: ['Inicio en pueblo medieval', 'Capillas románicas', 'Valles boscosos', 'Paisajes tranquilos', 'Caminata de 6km'],
+                duration: 'Día completo',
+                groupSize: '1-8',
+                price: 520
             },
             {
                 id: 5,
-                title: 'Kayak Costa Brava',
-                subtitle: 'Cuevas y calas escondidas',
-                description: 'Una experiencia guiada en kayak explorando cuevas marinas y acantilados escarpados.',
-                highlights: ['Cuevas marinas', 'Calas secretas', 'Vida marina', 'Acantilados escarpados'],
-                duration: '4h',
-                groupSize: '4-12',
-                price: 75
+                title: 'Kayak en la Costa Brava — Cuevas Marinas y Calas Ocultas',
+                subtitle: 'Aventura, Naturaleza y Actividad Acuática',
+                description: 'Una experiencia guiada en kayak explorando cuevas marinas, vida marina y acantilados escarpados. En colaboración con socios locales auditados.',
+                highlights: ['Exploración de cuevas', 'Acantilados escarpados', 'Vida marina', 'Seguridad auditada', 'Medio día o completo'],
+                duration: 'Medio/Día completo',
+                groupSize: '1-8',
+                price: 450
             },
             {
                 id: 6,
-                title: 'Montserrat y Vino',
-                subtitle: 'Espiritualidad y Vinos Catalans',
-                description: 'Un día combinando el paisaje de Montserrat con una visita a un viñedo local.',
-                highlights: ['Monasterio', 'Caminata panorámica', 'Viñedo familiar', 'Degustación'],
-                duration: '8h',
-                groupSize: '4-14',
-                price: 125
+                title: 'Experiencia Montserrat y Vino',
+                subtitle: 'Cultura, Paisaje, Gastronomía y Vino',
+                description: 'Un día que combina el majestuoso paisaje y la espiritualidad de Montserrat con la visita a una bodega familiar y sesión de degustación.',
+                highlights: ['Monasterio de Montserrat', 'Vistas panorámicas', 'Bodega local familiar', 'Sesión de cata', 'Entorno auténtico'],
+                duration: 'Medio/Día completo',
+                groupSize: '1-8',
+                price: 680
             },
             {
                 id: 7,
-                title: 'Girona y Collioure',
-                subtitle: 'Experiencia Transfronteriza',
-                description: '¡Dos países en un día! Explore la cultura catalana a ambos lados de la frontera.',
-                highlights: ['Girona', 'Collioure Francia', 'Cultura transfronteriza', 'Gastronomía'],
-                duration: '10h',
-                groupSize: '4-12',
-                price: 165
+                title: 'Girona y Collioure: un viaje mediterráneo transfronterizo',
+                subtitle: 'Historia, paisajes, gastronomía y arquitectura',
+                description: 'Un viaje de un día completo que conecta la profundidad medieval de Cataluña con el refinado encanto costero del sur de Francia.',
+                highlights: ['Catedral de Girona y El Call', 'Cruce de los Pirineos', 'Puerto y fortaleza de Collioure', 'Degustación de anchoas boutique', 'Almuerzo mediterráneo de 3 platos'],
+                duration: 'Día completo',
+                groupSize: '1-8',
+                price: 760
+            },
+            {
+                id: 2,
+                title: 'Tour a pie por Barcelona — Rincones ocultos de la ciudad vieja',
+                subtitle: 'Cultural, Viaje Responsable',
+                description: 'Una exploración de slow-travel por los barrios Gótico y Born, descubriendo historia, leyendas e historias comunitarias lejos de las rutas concurridas.',
+                highlights: ['Barrios Gótico y Born', 'Historia oculta', 'Leyendas y relatos locales', 'Lejos de las multitudes'],
+                duration: 'Medio día',
+                groupSize: '1-8',
+                price: 350
+            },
+            {
+                id: 3,
+                title: 'Senderismo por el camino de ronda — Costa Brava “Camí de Ronda”',
+                subtitle: 'Caminata y Trekking',
+                description: 'Una caminata costera espectacular (6km) por uno de los senderos más emblemáticos de Cataluña. Bosques de pinos y calas turquesas.',
+                highlights: ['Caminata costera 6km', 'Calas turquesas', 'Almuerzo marinero', 'Oportunidad de baño'],
+                duration: 'Día completo',
+                groupSize: '1-8',
+                price: 580
             }
         ],
         testimonials_data: [
