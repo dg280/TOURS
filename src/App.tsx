@@ -437,92 +437,91 @@ function App() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {tours.map((tour, index) => (
-              <div
-                key={tour.id}
-                className="tour-card bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={tour.image}
-                    alt={tour.title}
-                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                  />
-                  <div className="absolute top-3 left-3">
-                    <Badge className="bg-white/90 text-gray-800">
-                      {tour.category}
-                    </Badge>
-                  </div>
-                  <div className="absolute top-3 right-3 bg-amber-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                    {tour.price}€
-                  </div>
-                </div>
-                <div className="p-5">
-                  <p className="text-xs text-amber-600 font-medium uppercase tracking-wide mb-1">{tour.subtitle}</p>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">{tour.title}</h3>
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">{tour.description}</p>
-
-                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {tour.duration}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Users className="w-4 h-4" />
-                      {tour.groupSize}
-                    </span>
-                  </div>
-
-                  <div className="mb-4">
-                    <p className="text-xs text-gray-500 mb-2">{t.tours.learn_more} :</p>
-                    <div className="flex flex-wrap gap-1">
-                      {tour.highlights.map((highlight, i) => (
-                        <span
-                          key={i}
-                          className="text-xs bg-amber-50 text-amber-700 px-2 py-1 rounded"
-                        >
-                          {highlight}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        onClick={() => setSelectedTour(tour)}
-                        className="w-full bg-gray-900 hover:bg-gray-800 text-white"
-                      >
-                        {t.tours.learn_more}
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-lg">
-                      <DialogHeader>
-                        <DialogTitle className="text-2xl font-serif">{tour.title}</DialogTitle>
-                      </DialogHeader>
+              <Dialog key={tour.id}>
+                <DialogTrigger asChild>
+                  <div
+                    onClick={() => setSelectedTour(tour)}
+                    className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col cursor-pointer"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <div className="relative h-64 overflow-hidden">
                       <img
                         src={tour.image}
                         alt={tour.title}
-                        className="w-full h-48 object-cover rounded-lg mb-4"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
-                      <p className="text-gray-600 mb-4">{tour.description}</p>
-                      <div className="space-y-2 mb-4">
-                        <p className="text-sm"><strong>{t.tours.duration}:</strong> {tour.duration}</p>
-                        <p className="text-sm"><strong>{t.tours.group}:</strong> {tour.groupSize}</p>
-                        <p className="text-sm"><strong>{t.tours.price}:</strong> {tour.price}€ {t.tours.per_person}</p>
+                      <div className="absolute top-3 left-3">
+                        <Badge className="bg-white/90 text-gray-800">
+                          {tour.category}
+                        </Badge>
                       </div>
+                      <div className="absolute top-3 right-3 bg-amber-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                        {tour.price}€
+                      </div>
+                    </div>
+                    <div className="p-5 flex-1 flex flex-col">
+                      <p className="text-xs text-amber-600 font-medium uppercase tracking-wide mb-1">{tour.subtitle}</p>
+                      <h3 className="text-lg font-bold text-gray-900 mb-2">{tour.title}</h3>
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">{tour.description}</p>
+
+                      <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          {tour.duration}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Users className="w-4 h-4" />
+                          {tour.groupSize}
+                        </span>
+                      </div>
+
+                      <div className="mb-4">
+                        <p className="text-xs text-gray-500 mb-2">{t.tours.learn_more} :</p>
+                        <div className="flex flex-wrap gap-1">
+                          {tour.highlights.map((highlight, i) => (
+                            <span
+                              key={i}
+                              className="text-xs bg-amber-50 text-amber-700 px-2 py-1 rounded"
+                            >
+                              {highlight}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
                       <Button
-                        onClick={() => {
-                          handleBookingStart(tour);
-                        }}
-                        className="w-full bg-amber-600 hover:bg-amber-700"
+                        className="w-full mt-auto bg-gray-900 hover:bg-gray-800 text-white"
                       >
-                        {t.tours.book_now}
+                        {t.tours.learn_more}
                       </Button>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </div>
+                    </div>
+                  </div>
+                </DialogTrigger>
+                <DialogContent className="max-w-lg">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl font-serif">{tour.title}</DialogTitle>
+                  </DialogHeader>
+                  <img
+                    src={tour.image}
+                    alt={tour.title}
+                    className="w-full h-48 object-cover rounded-lg mb-4"
+                  />
+                  <p className="text-gray-600 mb-4">{tour.description}</p>
+                  <div className="space-y-2 mb-4">
+                    <p className="text-sm"><strong>{t.tours.duration}:</strong> {tour.duration}</p>
+                    <p className="text-sm"><strong>{t.tours.group}:</strong> {tour.groupSize}</p>
+                    <p className="text-sm"><strong>{t.tours.price}:</strong> {tour.price}€ {t.tours.per_person}</p>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      handleBookingStart(tour);
+                    }}
+                    className="w-full bg-amber-600 hover:bg-amber-700"
+                  >
+                    {t.tours.book_now}
+                  </Button>
+                </DialogContent>
+              </Dialog>
             ))}
           </div>
         </div>
