@@ -100,6 +100,29 @@ function App() {
 
     const savedTours = localStorage.getItem('td-tours');
     if (savedTours) setCustomTours(JSON.parse(savedTours));
+
+    if (supabase) {
+      supabase.from('tours').select('*')
+        .then(({ data, error }) => {
+          if (!error && data && data.length > 0) {
+            const mapped = data.map(t => ({
+              id: t.id,
+              title: t.title,
+              subtitle: t.subtitle,
+              description: t.description,
+              duration: t.duration,
+              groupSize: t.group_size, // this field name from DB is group_size
+              price: t.price,
+              image: t.image,
+              category: t.category,
+              highlights: t.highlights,
+              isActive: t.is_active,
+              stripeLink: t.stripe_link || ''
+            }));
+            setCustomTours(mapped);
+          }
+        });
+    }
   }, []);
   const [formData, setFormData] = useState({
     name: '',

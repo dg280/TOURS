@@ -37,4 +37,26 @@ CREATE POLICY "Public Update" ON reservations FOR UPDATE USING (true);
 
 CREATE POLICY "Public Select" ON reviews FOR SELECT USING (true);
 CREATE POLICY "Public Insert" ON reviews FOR INSERT WITH CHECK (true);
-CREATE POLICY "Public Update" ON reviews FOR UPDATE USING (true);
+
+-- Create tours table
+CREATE TABLE IF NOT EXISTS tours (
+    id TEXT PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    title TEXT NOT NULL,
+    subtitle TEXT NOT NULL,
+    description TEXT NOT NULL,
+    duration TEXT NOT NULL,
+    group_size TEXT NOT NULL,
+    price NUMERIC NOT NULL,
+    image TEXT NOT NULL,
+    category TEXT NOT NULL,
+    highlights TEXT[] NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    stripe_link TEXT
+);
+
+ALTER TABLE tours ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public Select Tours" ON tours FOR SELECT USING (true);
+CREATE POLICY "Public Insert Tours" ON tours FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public Update Tours" ON tours FOR UPDATE USING (true);
+CREATE POLICY "Public Delete Tours" ON tours FOR DELETE USING (true);

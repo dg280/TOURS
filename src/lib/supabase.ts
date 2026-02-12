@@ -66,6 +66,38 @@ export type Database = {
                     is_published?: boolean;
                 };
             };
+            tours: {
+                Row: {
+                    id: string;
+                    created_at: string;
+                    title: string;
+                    subtitle: string;
+                    description: string;
+                    duration: string;
+                    group_size: string;
+                    price: number;
+                    image: string;
+                    category: string;
+                    highlights: string[];
+                    is_active: boolean;
+                    stripe_link: string | null;
+                };
+                Insert: {
+                    id: string;
+                    created_at?: string;
+                    title: string;
+                    subtitle: string;
+                    description: string;
+                    duration: string;
+                    group_size: string;
+                    price: number;
+                    image: string;
+                    category: string;
+                    highlights: string[];
+                    is_active?: boolean;
+                    stripe_link?: string | null;
+                };
+            };
         };
     };
 };

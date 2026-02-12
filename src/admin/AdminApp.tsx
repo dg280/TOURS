@@ -94,44 +94,97 @@ const sanitize = (str: string) => {
 };
 
 // Mock Data
+// Mock Data from translations.ts
 const mockTours: Tour[] = [
   {
     id: '1',
-    title: 'Girona & Costa Brava',
-    subtitle: 'Medieval Footsteps and Coastal Paths',
-    description: 'Un voyage immersif du Quartier Juif médiéval de Girona aux villages pittoresques de la Costa Brava.',
-    duration: '9.5 heures',
-    groupSize: '2-16 personnes',
-    price: 145,
+    title: 'Costa Brava & Girona : sentiers médiévaux et beauté côtière',
+    subtitle: 'Profondeur culturelle et paysages marquants',
+    description: 'Un voyage d\'une journée entière, guidé privativement, combinant l\'héritage juif et médiéval de Gérone avec les villages côtiers raffinés de la Costa Brava.',
+    duration: 'Journée entière',
+    groupSize: '1-8',
+    price: 760,
     image: '/tour-girona.jpg',
     category: 'Culture & Nature',
-    highlights: ['Girona Jewish Quarter', 'Peratallada & Pals', 'Camí de Ronda', 'Dégustation turrón'],
+    highlights: ['Quartier Juif (El Call)', 'Village médiéval de Pals', 'Calella de Palafrugell & Llafranc', 'Randonnée Camí de Ronda optionnelle', 'Déjeuner méditerranéen'],
+    isActive: true
+  },
+  {
+    id: '4',
+    title: 'Randonnée Villages Médiévaux — Pré-Pyrénées',
+    subtitle: 'Marche, Nature & Patrimoine',
+    description: 'Une randonnée immersive à faible impact (6km) commençant dans une ville médiévale, avec des chapelles romanes et des vallées forestières. Idéal pour le calme.',
+    duration: 'Journée entière',
+    groupSize: '1-8',
+    price: 520,
+    image: '/tour-prepirinees.jpg',
+    category: 'Randonnée & Patrimoine',
+    highlights: ['Départ village médiéval', 'Chapelles romanes', 'Vallées forestières', 'Paysages paisibles', 'Marche immersive 6km'],
+    isActive: true
+  },
+  {
+    id: '5',
+    title: 'Kayak Costa Brava — Grottes Marines & Criques Cachées',
+    subtitle: 'Aventure, Nature & Activités Nautiques',
+    description: 'Une expérience guidée en kayak explorant grottes marines, vie marine et falaises escarpées. Opéré avec des partenaires locaux audités.',
+    duration: 'Demi/Journée entière',
+    groupSize: '1-8',
+    price: 450,
+    image: '/tour-kayak.jpg',
+    category: 'Aventure',
+    highlights: ['Exploration de grottes', 'Falaises escarpées', 'Vie marine', 'Sécurité auditée', 'Demi ou Journée entière'],
+    isActive: true
+  },
+  {
+    id: '6',
+    title: 'Expérience Montserrat & Vin',
+    subtitle: 'Culture, Décors & Gastronomie',
+    description: 'Une journée combinant le paysage majestueux et la spiritualité de Montserrat avec la visite d\'une bodega familiale et une dégustation.',
+    duration: 'Demi/Journée entière',
+    groupSize: '1-8',
+    price: 680,
+    image: '/tour-montserrat.jpg',
+    category: 'Culture & Vin',
+    highlights: ['Exploration du monastère', 'Vues panoramiques', 'Visite cave locale', 'Dégustation', 'Bodega familiale'],
+    isActive: true
+  },
+  {
+    id: '7',
+    title: 'Gérone et Collioure : un voyage méditerranéen transfrontalier',
+    subtitle: 'Histoire, paysages, gastronomie et architecture',
+    description: 'Une journée complète reliant la profondeur médiévale de la Catalogne au charme côtier du sud de la France.',
+    duration: 'Journée entière',
+    groupSize: '1-8',
+    price: 760,
+    image: '/tour-collioure.jpg',
+    category: 'Culture & Gastronomie',
+    highlights: ['Cathédrale de Gérone & El Call', 'Traversée des Pyrénées', 'Port & Forteresse de Collioure', 'Dégustation d\'anchois boutique', 'Déjeuner méditerranéen complet'],
     isActive: true
   },
   {
     id: '2',
-    title: 'Barcelona Hidden Corners',
-    subtitle: 'Old City Walking Tour',
-    description: 'Une exploration slow-travel des quartiers Gothique et Born, dévoilant l\'histoire et les légendes.',
-    duration: '3 heures',
-    groupSize: '2-12 personnes',
-    price: 55,
+    title: 'Tour à pied de Barcelone — Coins secrets de la vieille ville',
+    subtitle: 'Culturel, Voyage Responsable',
+    description: 'Une exploration slow-travel des quartiers Gothique et Born, dévoilant l\'histoire, les légendes et les histoires de quartier loin des circuits bondés.',
+    duration: 'Demi-journée',
+    groupSize: '1-8',
+    price: 350,
     image: '/tour-barcelona-hidden.jpg',
     category: 'Culture',
-    highlights: ['Gothic Quarter', 'El Born', 'Histoires locales', 'Routes authentiques'],
+    highlights: ['Quartiers Gothique & Born', 'Histoire cachée', 'Légendes & récits locaux', 'Loin des foules'],
     isActive: true
   },
   {
     id: '3',
-    title: 'Hike the Camí de Ronda',
-    subtitle: 'Costa Brava Coastal Trail',
-    description: 'Une randonnée spectaculaire sur l\'un des sentiers les plus emblématiques de Catalogne.',
-    duration: '6 heures',
-    groupSize: '4-12 personnes',
-    price: 85,
+    title: 'Randonnée sur le sentier côtier — Costa Brava “Camí de Ronda”',
+    subtitle: 'Marche & Trekking',
+    description: 'Une randonnée côtière spectaculaire (6km) sur l\'un des sentiers les plus emblématiques de Catalogne. Forêts de pins et criques turquoises.',
+    duration: 'Journée entière',
+    groupSize: '1-8',
+    price: 580,
     image: '/tour-camironda.jpg',
     category: 'Randonnée',
-    highlights: ['Criques cachées', 'Observation faune', 'Déjeuner marin', 'Vues panoramiques'],
+    highlights: ['Randonnée côtière 6km', 'Criques turquoises', 'Déjeuner de la mer', 'Possibilité de baignade'],
     isActive: true
   }
 ];
@@ -555,38 +608,103 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
     }
   };
 
-  const saveTour = () => {
+  const saveTour = async () => {
     if (editingTour) {
+      if (supabase) {
+        const dbTour = {
+          id: editingTour.id,
+          title: editingTour.title,
+          subtitle: editingTour.subtitle,
+          description: editingTour.description,
+          duration: editingTour.duration,
+          group_size: editingTour.groupSize,
+          price: editingTour.price,
+          image: editingTour.image,
+          category: editingTour.category,
+          highlights: editingTour.highlights,
+          is_active: editingTour.isActive,
+          stripe_link: editingTour.stripeLink || null
+        };
+
+        const { error } = await supabase.from('tours').upsert(dbTour);
+        if (error) {
+          console.error('Save error:', error);
+          toast.error("Erreur lors de la sauvegarde sur Supabase");
+          return;
+        }
+      }
+
       setTours(prev => {
         const exists = prev.find(t => t.id === editingTour.id);
         if (exists) return prev.map(t => t.id === editingTour.id ? editingTour : t);
         return [...prev, editingTour];
       });
       setIsEditOpen(false);
+      toast.success("Tour enregistré !");
     }
+  };
+
+  const pushAllToDb = async () => {
+    if (!supabase) return;
+    setIsEditOpen(false);
+    toast.loading("Synchronisation...");
+
+    for (const tour of tours) {
+      const dbTour = {
+        id: tour.id,
+        title: tour.title,
+        subtitle: tour.subtitle,
+        description: tour.description,
+        duration: tour.duration,
+        group_size: tour.groupSize,
+        price: tour.price,
+        image: tour.image,
+        category: tour.category,
+        highlights: tour.highlights,
+        is_active: tour.isActive,
+        stripe_link: tour.stripeLink || null
+      };
+      await supabase.from('tours').upsert(dbTour);
+    }
+    toast.dismiss();
+    toast.success("Tout le catalogue est synchronisé sur Supabase !");
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold">Catalogue des Tours</h2>
-        <Button onClick={() => {
-          setEditingTour({
-            id: Math.random().toString(36).substr(2, 9),
-            title: '',
-            subtitle: '',
-            description: '',
-            duration: '',
-            groupSize: '',
-            price: 0,
-            image: '',
-            stripeLink: '',
-            highlights: [],
-            category: 'Tour',
-            isActive: true
-          });
-          setIsEditOpen(true);
-        }}>+ Nouveau Tour</Button>
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          {supabase && (
+            <Button variant="outline" onClick={pushAllToDb} className="border-amber-600 text-amber-600">
+              <Upload className="w-4 h-4 mr-2" /> Synchro Database
+            </Button>
+          )}
+          <Button variant="outline" onClick={() => {
+            if (confirm('Voulez-vous restaurer les 7 tours par défaut ? Cela écrasera vos modifications locales.')) {
+              setTours(mockTours);
+              localStorage.setItem('td-tours', JSON.stringify(mockTours));
+              toast.success('Catalogue restauré aux 7 tours par défaut');
+            }
+          }}>Réinitialiser</Button>
+          <Button className="bg-amber-600" onClick={() => {
+            setEditingTour({
+              id: Math.random().toString(36).substr(2, 9),
+              title: '',
+              subtitle: '',
+              description: '',
+              duration: '',
+              groupSize: '',
+              price: 0,
+              image: '',
+              stripeLink: '',
+              highlights: [],
+              category: 'Tour',
+              isActive: true
+            });
+            setIsEditOpen(true);
+          }}>+ Nouveau Tour</Button>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -679,14 +797,90 @@ function Reviews({ reviews, setReviews }: { reviews: Review[], setReviews: React
               <p className="text-sm italic text-gray-700">"{review.text}"</p>
             </div>
             <div className="flex gap-2">
-              <Button size="sm" variant={review.isPublished ? 'outline' : 'default'} onClick={() => setReviews(prev => prev.map(r => r.id === review.id ? { ...r, isPublished: !r.isPublished } : r))}>
+              <Button size="sm" variant={review.isPublished ? 'outline' : 'default'} onClick={() => {
+                const newStatus = !review.isPublished;
+                if (supabase) {
+                  supabase.from('reviews').update({ is_published: newStatus }).eq('id', review.id)
+                    .then(({ error }) => {
+                      if (!error) toast.success(newStatus ? 'Avis publié !' : 'Avis masqué');
+                    });
+                }
+                setReviews(prev => prev.map(r => r.id === review.id ? { ...r, isPublished: newStatus } : r));
+              }}>
                 {review.isPublished ? 'Cacher' : 'Publier'}
               </Button>
-              <Button size="sm" variant="destructive" onClick={() => setReviews(prev => prev.filter(r => r.id !== review.id))}>Supprimer</Button>
+              <Button size="sm" variant="destructive" onClick={() => {
+                if (confirm('Supprimer cet avis ?')) {
+                  if (supabase) {
+                    supabase.from('reviews').delete().eq('id', review.id);
+                  }
+                  setReviews(prev => prev.filter(r => r.id !== review.id));
+                }
+              }}>Supprimer</Button>
             </div>
           </div>
         </Card>
       ))}
+    </div>
+  );
+}
+
+// Config Component
+function Config() {
+  return (
+    <div className="max-w-4xl mx-auto space-y-8">
+      <header className="space-y-2">
+        <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Configuration Technique</h2>
+        <p className="text-gray-500">Gérez vos connexions Stripe et Supabase pour la production.</p>
+      </header>
+
+      <div className="grid md:grid-cols-2 gap-8">
+        {/* Stripe Section */}
+        <Card className="flex flex-col border-amber-200">
+          <CardHeader className="bg-amber-50 border-b border-amber-100">
+            <CardTitle className="flex items-center gap-2 text-amber-800">
+              <Euro className="w-5 h-5" /> Paiements Stripe
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6 flex-1 space-y-4">
+            <p className="text-sm text-gray-600">
+              Pour encaisser des paiements, utilisez les <strong>Stripe Payment Links</strong> (plus simple que l'API complète pour un catalogue fixe).
+            </p>
+            <div className="bg-gray-100 p-4 rounded-lg text-[13px] font-mono whitespace-pre-wrap">
+              1. Allez sur Stripe -> Paiements -> Liens de paiement.
+              2. Créez un lien pour chaque tour.
+              3. Copiez le lien (ex: buy.stripe.com/abc).
+              4. Dans le "Catalogue" ici, éditez le tour et collez ce lien.
+            </div>
+            <p className="text-xs text-amber-700 italic">
+              Note: Si aucun lien n'est renseigné, le site simulera un paiement réussi pour permettre la validation.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Supabase Section */}
+        <Card className="flex flex-col border-blue-200">
+          <CardHeader className="bg-blue-50 border-b border-blue-100">
+            <CardTitle className="flex items-center gap-2 text-blue-800">
+              <Upload className="w-5 h-5" /> Base de données (Supabase)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6 flex-1 space-y-4">
+            <div className="flex items-center gap-2 py-2">
+              <div className={`w-3 h-3 rounded-full ${supabase ? 'bg-green-500 shadow-lg shadow-green-200' : 'bg-red-500'}`}></div>
+              <span className="font-bold text-sm">{supabase ? 'Connecté à Supabase' : 'Déconnecté (Vérifiez Vercel Envs)'}</span>
+            </div>
+            <p className="text-sm text-gray-600">
+              <strong>Synchronisation du catalogue :</strong> Les tours sont stockés localement par défaut. Utilisez le bouton "Synchro Database" dans le catalogue pour les monter sur le cloud.
+            </p>
+            <div className="bg-blue-900 p-4 rounded-lg text-white text-[11px] font-mono">
+              # SQL requis pour le catalogue tours
+              CREATE TABLE tours (...);
+              ALTER TABLE tours ENABLE RLS;
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
@@ -751,6 +945,28 @@ export default function AdminApp() {
               createdAt: r.created_at
             }));
             setReviews(mapped);
+          }
+        });
+
+      // Fetch tours
+      supabase.from('tours').select('*')
+        .then(({ data, error }) => {
+          if (!error && data && data.length > 0) {
+            const mapped = data.map(t => ({
+              id: t.id,
+              title: t.title,
+              subtitle: t.subtitle,
+              description: t.description,
+              duration: t.duration,
+              groupSize: t.group_size,
+              price: t.price,
+              image: t.image,
+              category: t.category,
+              highlights: t.highlights,
+              is_active: t.is_active,
+              stripeLink: t.stripe_link || ''
+            }));
+            setTours(mapped);
           }
         });
     } else {
@@ -823,6 +1039,7 @@ export default function AdminApp() {
     { id: 'tours', label: 'Catalogue', icon: MapPin },
     { id: 'reviews', label: 'Avis clients', icon: Star },
     { id: 'profile', label: 'Mon Profil', icon: User },
+    { id: 'config', label: 'Configuration', icon: Bell },
   ];
 
   return (
@@ -912,6 +1129,7 @@ export default function AdminApp() {
             {activeTab === 'reservations' && <Reservations reservations={reservations} setReservations={setReservations} />}
             {activeTab === 'tours' && <ToursManagement tours={tours} setTours={setTours} />}
             {activeTab === 'reviews' && <Reviews reviews={reviews} setReviews={setReviews} />}
+            {activeTab === 'config' && <Config />}
             {activeTab === 'profile' && (
               <div className="max-w-2xl mx-auto">
                 <Card className="overflow-hidden">
