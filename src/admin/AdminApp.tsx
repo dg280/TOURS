@@ -279,58 +279,58 @@ function Dashboard({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Réservations totales</p>
-                <p className="text-3xl font-bold">{stats.totalReservations}</p>
+                <p className="text-xs sm:text-sm text-gray-500">Réservations totales</p>
+                <p className="text-2xl sm:text-3xl font-bold">{stats.totalReservations}</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-blue-600" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">En attente</p>
-                <p className="text-3xl font-bold">{stats.pendingReservations}</p>
+                <p className="text-xs sm:text-sm text-gray-500">En attente</p>
+                <p className="text-2xl sm:text-3xl font-bold">{stats.pendingReservations}</p>
               </div>
-              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                <Bell className="w-6 h-6 text-yellow-600" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Confirmées</p>
-                <p className="text-3xl font-bold">{stats.confirmedReservations}</p>
+                <p className="text-xs sm:text-sm text-gray-500">Confirmées</p>
+                <p className="text-2xl sm:text-3xl font-bold">{stats.confirmedReservations}</p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckIcon className="w-6 h-6 text-green-600" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <CheckIcon className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Revenus (février)</p>
-                <p className="text-3xl font-bold">{stats.thisMonthRevenue}€</p>
+                <p className="text-xs sm:text-sm text-gray-500">Revenus (février)</p>
+                <p className="text-2xl sm:text-3xl font-bold">{stats.thisMonthRevenue}€</p>
               </div>
-              <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
-                <Euro className="w-6 h-6 text-amber-600" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 rounded-full flex items-center justify-center">
+                <Euro className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />
               </div>
             </div>
           </CardContent>
@@ -338,15 +338,15 @@ function Dashboard({
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Réservations récentes</CardTitle>
+        <CardHeader className="px-4 sm:px-6">
+          <CardTitle className="text-lg sm:text-xl">Réservations récentes</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-0 sm:px-6">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">ID</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500 hidden sm:table-cell">ID</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-500">Client</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-500">Statut</th>
                   <th className="text-right py-3 px-4 font-medium text-gray-500">Montant</th>
@@ -355,10 +355,10 @@ function Dashboard({
               <tbody>
                 {recentReservations.map((res) => (
                   <tr key={res.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4">{res.id}</td>
-                    <td className="py-3 px-4">{res.name}</td>
+                    <td className="py-3 px-4 hidden sm:table-cell text-gray-500">{res.id}</td>
+                    <td className="py-3 px-4 font-medium sm:font-normal">{res.name}</td>
                     <td className="py-3 px-4">{getStatusBadge(res.status)}</td>
-                    <td className="py-3 px-4 text-right">{res.totalPrice}€</td>
+                    <td className="py-3 px-4 text-right font-bold sm:font-normal">{res.totalPrice}€</td>
                   </tr>
                 ))}
               </tbody>
@@ -367,18 +367,18 @@ function Dashboard({
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Button variant="outline" className="h-24 flex flex-col gap-2" onClick={() => setActiveTab('reservations')}>
-          <Calendar className="w-6 h-6 text-amber-600" />
-          Gérer les réservations
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Button variant="outline" className="h-16 sm:h-24 flex flex-row sm:flex-col items-center justify-center gap-3 sm:gap-2" onClick={() => setActiveTab('reservations')}>
+          <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />
+          <span className="sm:text-sm">Gérer les réservations</span>
         </Button>
-        <Button variant="outline" className="h-24 flex flex-col gap-2" onClick={() => setActiveTab('tours')}>
-          <MapPin className="w-6 h-6 text-amber-600" />
-          Gérer les tours
+        <Button variant="outline" className="h-16 sm:h-24 flex flex-row sm:flex-col items-center justify-center gap-3 sm:gap-2" onClick={() => setActiveTab('tours')}>
+          <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />
+          <span className="sm:text-sm">Gérer les tours</span>
         </Button>
-        <Button variant="outline" className="h-24 flex flex-col gap-2" onClick={() => setActiveTab('reviews')}>
-          <Star className="w-6 h-6 text-amber-600" />
-          Modérer les avis
+        <Button variant="outline" className="h-16 sm:h-24 flex flex-row sm:flex-col items-center justify-center gap-3 sm:gap-2" onClick={() => setActiveTab('reviews')}>
+          <Star className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />
+          <span className="sm:text-sm">Modérer les avis</span>
         </Button>
       </div>
     </div>
@@ -437,38 +437,67 @@ function Reservations({
 
       <Card>
         <CardContent className="p-0">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="text-left py-3 px-4">Client</th>
-                <th className="text-left py-3 px-4">Date</th>
-                <th className="text-left py-3 px-4">Tour</th>
-                <th className="text-left py-3 px-4">Statut</th>
-                <th className="text-right py-3 px-4">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(res => (
-                <tr key={res.id} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4">
-                    <div className="font-medium">{res.name}</div>
-                    <div className="text-gray-500 text-xs">{res.email}</div>
-                  </td>
-                  <td className="py-3 px-4">{res.date}</td>
-                  <td className="py-3 px-4">{res.tourName}</td>
-                  <td className="py-3 px-4">{getStatusBadge(res.status)}</td>
-                  <td className="py-3 px-4 text-right">
-                    <Button variant="ghost" size="sm" onClick={() => { setSelectedRes(res); setIsDetailOpen(true); }}>Voir</Button>
-                  </td>
+          <div className="overflow-x-auto hidden sm:block">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b">
+                <tr>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">Client</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500 lg:table-cell hidden">Tour</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">Statut</th>
+                  <th className="text-right py-3 px-4 font-medium text-gray-500">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map(res => (
+                  <tr key={res.id} className="border-b hover:bg-gray-50">
+                    <td className="py-3 px-4">
+                      <div className="font-medium text-gray-900">{res.name}</div>
+                      <div className="text-gray-500 text-xs hidden sm:block">{res.email}</div>
+                    </td>
+                    <td className="py-3 px-4 text-gray-600">{res.date}</td>
+                    <td className="py-3 px-4 text-gray-600 lg:table-cell hidden">{res.tourName}</td>
+                    <td className="py-3 px-4">{getStatusBadge(res.status)}</td>
+                    <td className="py-3 px-4 text-right">
+                      <Button variant="ghost" size="sm" className="text-amber-600 hover:text-amber-700 hover:bg-amber-50" onClick={() => { setSelectedRes(res); setIsDetailOpen(true); }}>Voir</Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="sm:hidden divide-y divide-gray-100">
+            {filtered.map(res => (
+              <div key={res.id} className="p-4 space-y-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="font-bold text-gray-900">{res.name}</div>
+                    <div className="text-gray-500 text-xs">{res.date}</div>
+                  </div>
+                  {getStatusBadge(res.status)}
+                </div>
+                <div className="text-sm text-gray-600 italic">"{res.tourName}"</div>
+                <div className="flex justify-between items-center pt-1">
+                  <span className="font-bold text-amber-600">{res.totalPrice}€</span>
+                  <Button size="sm" variant="outline" className="h-8" onClick={() => { setSelectedRes(res); setIsDetailOpen(true); }}>
+                    Détails
+                  </Button>
+                </div>
+              </div>
+            ))}
+            {filtered.length === 0 && (
+              <div className="p-8 text-center text-gray-500 text-sm italic">
+                Aucune réservation trouvée
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
 
       <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Détails Réservation</DialogTitle>
           </DialogHeader>
@@ -571,12 +600,12 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
       </div>
 
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-lg w-[95vw] max-h-[95vh] flex flex-col p-0 overflow-hidden">
+          <DialogHeader className="p-6 pb-0">
             <DialogTitle>Édition Tour</DialogTitle>
           </DialogHeader>
           {editingTour && (
-            <div className="space-y-4 py-4 overflow-y-auto max-h-[70vh]">
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
               <div className="space-y-2">
                 <Label>Titre</Label>
                 <Input value={editingTour.title} onChange={(e) => setEditingTour({ ...editingTour, title: sanitize(e.target.value) })} />
@@ -608,9 +637,9 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                   {editingTour.image && <img src={editingTour.image} className="w-full h-32 object-cover rounded border" alt="Aperçu" />}
                 </div>
               </div>
-              <DialogFooter>
+              <div className="pt-2 sticky bottom-0 bg-white">
                 <Button onClick={saveTour} className="w-full bg-amber-600">Enregistrer</Button>
-              </DialogFooter>
+              </div>
             </div>
           )}
         </DialogContent>
@@ -737,56 +766,87 @@ export default function AdminApp() {
   ];
 
   return (
-    <div className="flex h-screen bg-gray-100 overflow-hidden">
+    <div className="flex flex-col lg:flex-row h-screen bg-gray-100 overflow-hidden">
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm transition-opacity"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className={`bg-gray-900 border-r border-gray-800 transition-all duration-300 flex flex-col ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
-        <div className="p-6 flex items-center justify-between">
-          <div className={`flex items-center gap-3 transition-opacity ${isSidebarOpen ? 'opacity-100' : 'opacity-0 h-0 w-0'}`}>
+      <aside className={`
+        fixed inset-y-0 left-0 z-50 lg:static
+        bg-gray-900 border-r border-gray-800 transition-all duration-300 flex flex-col
+        ${isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0 lg:w-20'}
+      `}>
+        <div className="p-4 sm:p-6 flex items-center justify-between">
+          <div className={`flex items-center gap-3 transition-opacity ${isSidebarOpen ? 'opacity-100' : 'lg:opacity-0 h-0 w-0'}`}>
             <Compass className="w-8 h-8 text-amber-500" />
             <span className="text-white font-bold text-lg">Admin</span>
           </div>
-          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="text-gray-400 hover:text-white">
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-800 transition-colors"
+          >
             {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
-        <nav className="flex-1 mt-6 px-4 space-y-2">
+        <nav className="flex-1 mt-4 px-4 space-y-1">
           {menuItems.map(item => (
             <button
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => {
+                setActiveTab(item.id);
+                if (window.innerWidth < 1024) setIsSidebarOpen(false);
+              }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${activeTab === item.id ? 'bg-amber-600 text-white shadow-lg shadow-amber-900/20' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}
             >
               <item.icon className="w-5 h-5 flex-shrink-0" />
-              {isSidebarOpen && <span className="font-medium">{item.label}</span>}
+              {(isSidebarOpen || window.innerWidth < 1024) && <span className="font-medium whitespace-nowrap">{item.label}</span>}
             </button>
           ))}
         </nav>
 
         <div className="p-4 border-t border-gray-800">
           <button onClick={() => setIsLoggedIn(false)} className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
-            <LogOut className="w-5 h-5" />
-            {isSidebarOpen && <span>Déconnexion</span>}
+            <LogOut className="w-5 h-5 flex-shrink-0" />
+            {(isSidebarOpen || window.innerWidth < 1024) && <span>Déconnexion</span>}
           </button>
         </div>
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-16 bg-white border-b border-gray-200 px-8 flex items-center justify-between flex-shrink-0">
-          <h2 className="text-xl font-bold text-gray-800">{menuItems.find(m => m.id === activeTab)?.label}</h2>
+      <main className="flex-1 flex flex-col overflow-hidden w-full">
+        <header className="h-16 bg-white border-b border-gray-200 px-4 sm:px-8 flex items-center justify-between flex-shrink-0 sticky top-0 z-30">
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="lg:hidden text-gray-500 p-1 hover:bg-gray-100 rounded-lg"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <h2 className="text-lg sm:text-xl font-bold text-gray-800 truncate">
+              {menuItems.find(m => m.id === activeTab)?.label}
+            </h2>
+          </div>
+          <div className="flex items-center gap-2 sm:gap-4">
             <div className="text-right hidden sm:block">
-              <p className="text-sm font-bold">Antoine Pilard</p>
+              <p className="text-sm font-bold truncate max-w-[150px]">Antoine Pilard</p>
               <p className="text-xs text-gray-500">Administrateur</p>
             </div>
-            <div className="w-10 h-10 rounded-full border border-gray-200 overflow-hidden shadow-sm hover:ring-2 hover:ring-amber-500 transition-all cursor-pointer">
+            <div
+              className="w-10 h-10 rounded-full border border-gray-200 overflow-hidden shadow-sm hover:ring-2 hover:ring-amber-500 transition-all cursor-pointer flex-shrink-0"
+              onClick={() => setActiveTab('profile')}
+            >
               <img src={guidePhoto} className="w-full h-full object-cover" alt="Profile" />
             </div>
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8">
           <div className="max-w-6xl mx-auto">
             {activeTab === 'dashboard' && <Dashboard reservations={reservations} setActiveTab={setActiveTab} />}
             {activeTab === 'reservations' && <Reservations reservations={reservations} setReservations={setReservations} />}
