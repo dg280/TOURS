@@ -1060,10 +1060,10 @@ function App() {
           </div>
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm">
-              © 2024 Tours&Detours. {lang === 'fr' ? 'Tous droits réservés.' : lang === 'es' ? 'Todos los derechos reservados.' : 'All rights reserved.'}
+              © 2026 Tours&Detours. {lang === 'fr' ? 'Tous droits réservés.' : lang === 'es' ? 'Todos los derechos reservados.' : 'All rights reserved.'}
             </p>
             <div className="flex gap-4">
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition-colors"><Instagram className="w-5 h-5" /></a>
+              <a href="https://www.instagram.com/tours_and_detours_bcn/" target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition-colors"><Instagram className="w-5 h-5" /></a>
               <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition-colors"><Facebook className="w-5 h-5" /></a>
             </div>
           </div>
