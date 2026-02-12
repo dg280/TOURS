@@ -847,7 +847,7 @@ function Config() {
               Pour encaisser des paiements, utilisez les <strong>Stripe Payment Links</strong> (plus simple que l'API complète pour un catalogue fixe).
             </p>
             <div className="bg-gray-100 p-4 rounded-lg text-[13px] font-mono whitespace-pre-wrap">
-              1. Allez sur Stripe -> Paiements -> Liens de paiement.
+              1. Allez sur Stripe {'→'} Paiements {'→'} Liens de paiement.
               2. Créez un lien pour chaque tour.
               3. Copiez le lien (ex: buy.stripe.com/abc).
               4. Dans le "Catalogue" ici, éditez le tour et collez ce lien.
@@ -963,7 +963,7 @@ export default function AdminApp() {
               image: t.image,
               category: t.category,
               highlights: t.highlights,
-              is_active: t.is_active,
+              isActive: t.is_active,
               stripeLink: t.stripe_link || ''
             }));
             setTours(mapped);
