@@ -11,31 +11,42 @@ export const translations = {
         },
         hero: {
             tagline: 'Découvrez la Catalogne authentique',
-            title: 'Tours & Detours avec Antoine Pilard',
+            title: 'Tours et Expériences Uniques à Barcelone et ses Environs',
+            subtitle: 'Petits groupes, guide local passionné',
             description: 'Des excursions personnalisées pour découvrir les secrets de la Catalogne, loin des foules touristiques — culture, nature et aventure',
-            cta_discover: 'Découvrir les Tours',
+            cta_discover: 'Voir Tous les Tours',
             cta_contact: 'Contactez-moi'
         },
         seo: {
-            title: 'Tours & Detours - Découvrez la Catalogne Authentique avec Antoine Pilard',
+            title: 'Tours & Detours - Tours et Expériences Uniques à Barcelone',
             description: 'Excursions personnalisées et tours guidés en Catalogne. Découvrez Girona, Costa Brava, Montserrat et plus encore avec un expert local.'
         },
         stats: {
             exp: "ans d'expérience",
             local: 'expert local',
             review: 'sur TripAdvisor',
-            langs: 'langues'
+            langs: 'langues',
+            groups: 'Petits Groupes',
+            guides: 'Guides 100% Locaux',
+            authentic: 'Expériences Authentiques'
         },
         tours: {
             section_tag: 'NOS EXPÉRIENCES',
             section_title: 'Excursions Guidées en Catalogne',
             section_desc: 'Chaque excursion est soigneusement conçue pour vous offrir une expérience authentique, loin des sentiers battus.',
-            learn_more: 'En savoir plus',
-            book_now: 'Réserver ce tour',
+            learn_more: 'Plus d\'Informations',
+            book_now: 'Réserver Maintenant',
             duration: 'Durée',
             group: 'Groupe',
             price: 'Prix',
-            per_person: 'par personne'
+            from_price: 'À partir de',
+            per_person: 'par personne',
+            tabs: {
+                desc: 'Description',
+                itin: 'Itinéraire',
+                incl: 'Inclus / Non Inclus',
+                meet: 'Point de Rencontre'
+            }
         },
         guide: {
             section_tag: 'VOTRE GUIDE',
@@ -192,31 +203,42 @@ export const translations = {
         },
         hero: {
             tagline: 'Discover authentic Catalonia',
-            title: 'Tours & Detours with Antoine Pilard',
+            title: 'Unique Tours and Experiences in Barcelona and Environs',
+            subtitle: 'Small groups, passionate local guide',
             description: 'Personalized excursions to discover the secrets of Catalonia, away from the tourist crowds — culture, nature, and adventure',
-            cta_discover: 'Discover Tours',
+            cta_discover: 'See All Tours',
             cta_contact: 'Contact Me'
         },
         seo: {
-            title: 'Tours & Detours - Discover Authentic Catalonia with Antoine Pilard',
+            title: 'Tours & Detours - Unique Tours and Experiences in Barcelona',
             description: 'Personalized excursions and guided tours in Catalonia. Discover Girona, Costa Brava, Montserrat and more with a local expert.'
         },
         stats: {
             exp: 'years experience',
             local: 'local expert',
             review: 'on TripAdvisor',
-            langs: 'languages'
+            langs: 'languages',
+            groups: 'Small Groups',
+            guides: '100% Local Guides',
+            authentic: 'Authentic Experiences'
         },
         tours: {
             section_tag: 'OUR EXPERIENCES',
             section_title: 'Guided Excursions in Catalonia',
             section_desc: 'Each excursion is carefully designed to offer you an authentic experience, off the beaten path.',
-            learn_more: 'Learn More',
-            book_now: 'Book this tour',
+            learn_more: 'More Information',
+            book_now: 'Book Now',
             duration: 'Duration',
             group: 'Group',
             price: 'Price',
-            per_person: 'per person'
+            from_price: 'From',
+            per_person: 'per person',
+            tabs: {
+                desc: 'Description',
+                itin: 'Itinerary',
+                incl: 'Included / Not Included',
+                meet: 'Meeting Point'
+            }
         },
         guide: {
             section_tag: 'YOUR GUIDE',
@@ -373,31 +395,42 @@ export const translations = {
         },
         hero: {
             tagline: 'Descubre la Cataluña auténtica',
-            title: 'Tours & Detours con Antoine Pilard',
+            title: 'Tours y Experiencias Únicas en Barcelona y Alrededores',
+            subtitle: 'Grupos pequeños, guía local apasionado',
             description: 'Excursiones personalizadas para descubrir los secretos de Cataluña, lejos de las multitudes — cultura, naturaleza y aventura',
-            cta_discover: 'Descubrir Tours',
+            cta_discover: 'Ver Todos los Tours',
             cta_contact: 'Contáctame'
         },
         seo: {
-            title: 'Tours & Detours - Descubre la Cataluña Auténtica con Antoine Pilard',
+            title: 'Tours & Detours - Tours y Experiencias Únicas en Barcelona',
             description: 'Excursiones personalizadas y tours guiados en Cataluña. Descubre Girona, Costa Brava, Montserrat y mucho más con un experto local.'
         },
         stats: {
             exp: 'años de experiencia',
             local: 'experto local',
             review: 'en TripAdvisor',
-            langs: 'idiomas'
+            langs: 'idiomas',
+            groups: 'Grupos Pequeños',
+            guides: 'Guías 100% Locales',
+            authentic: 'Experiencias Auténticas'
         },
         tours: {
             section_tag: 'NUESTRAS EXPERIENCIAS',
             section_title: 'Excursions Guidées en Cataluña',
             section_desc: 'Cada excursión está cuidadosamente diseñada para ofrecerte una experiencia auténtica, fuera de las rutas comunes.',
-            learn_more: 'Saber más',
-            book_now: 'Reservar este tour',
+            learn_more: 'Más Información',
+            book_now: 'Reservar Ahora',
             duration: 'Duración',
             group: 'Grupo',
             price: 'Precio',
-            per_person: 'por persona'
+            from_price: 'Desde',
+            per_person: 'por persona',
+            tabs: {
+                desc: 'Descripción',
+                itin: 'Itinerario',
+                incl: 'Incluido / No Incluido',
+                meet: 'Punto de Encuentro'
+            }
         },
         guide: {
             section_tag: 'TU GUÍA',
