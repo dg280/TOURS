@@ -19,15 +19,19 @@ import {
   Waves
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import {
   CreditCard,
-  Apple,
-  Smartphone,
   Loader2,
   Minus,
   Plus
@@ -47,6 +51,7 @@ interface Tour {
   image: string;
   category: string;
   highlights: string[];
+  stripeLink?: string;
 }
 
 function App() {
@@ -135,10 +140,16 @@ function App() {
   const nextStep = () => {
     if (bookingStep === 3) {
       setIsProcessing(true);
-      setTimeout(() => {
+      if (selectedTour?.stripeLink) {
+        window.open(selectedTour.stripeLink, '_blank');
         setIsProcessing(false);
-        setBookingStep(4);
-      }, 2000);
+        setBookingStep(4); // Or a specific "Redirecting" step
+      } else {
+        setTimeout(() => {
+          setIsProcessing(false);
+          setBookingStep(4);
+        }, 2000);
+      }
     } else {
       setBookingStep(bookingStep + 1);
     }
@@ -706,14 +717,14 @@ function App() {
 
       {/* Booking Modal */}
       <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
-        <DialogContent className="max-w-4xl p-0 overflow-hidden bg-white border-none shadow-2xl rounded-2xl max-h-[90vh] flex flex-col">
-          <div className="flex flex-col md:flex-row h-full overflow-y-auto">
+        <DialogContent className="sm:max-w-4xl w-[95vw] p-0 overflow-hidden bg-white border-none shadow-2xl rounded-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col">
+          <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
             {/* Sidebar Summary */}
-            <div className="w-full md:w-72 bg-gray-50 p-6 border-b md:border-b-0 md:border-r border-gray-100">
-              <div className="mb-6">
+            <div className="w-full md:w-72 bg-gray-50 p-4 sm:p-6 border-b md:border-b-0 md:border-r border-gray-100 shrink-0">
+              <div className="mb-4 sm:mb-6">
                 <Badge className="bg-amber-100 text-amber-800 border-none mb-2">{t.booking.selection}</Badge>
-                <h3 className="text-xl font-bold text-gray-900">{selectedTour?.title}</h3>
-                <p className="text-sm text-gray-500">{selectedTour?.subtitle}</p>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight">{selectedTour?.title}</h3>
+                <p className="text-xs sm:text-sm text-gray-500">{selectedTour?.subtitle}</p>
               </div>
 
               <div className="space-y-4">
@@ -738,7 +749,7 @@ function App() {
               </div>
 
               {bookingStep < 4 && (
-                <div className="mt-8">
+                <div className="mt-6 sm:mt-8">
                   <div className="flex gap-1 mb-2">
                     {[1, 2, 3].map(step => (
                       <div
@@ -747,13 +758,13 @@ function App() {
                       />
                     ))}
                   </div>
-                  <p className="text-xs text-gray-400 text-center">{t.booking.step} {bookingStep} {t.booking.step_of} 3</p>
+                  <p className="text-[10px] text-gray-400 text-center">{t.booking.step} {bookingStep} {t.booking.step_of} 3</p>
                 </div>
               )}
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 p-8 bg-white min-h-[450px] flex flex-col">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-white flex flex-col">
               {bookingStep === 1 && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                   <DialogHeader>
@@ -867,59 +878,71 @@ function App() {
                     <DialogTitle className="text-2xl font-bold">{t.booking.payment_title}</DialogTitle>
                   </DialogHeader>
 
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-3 mb-2">
-                      <Button variant="outline" className="h-12 border-gray-200">
-                        <Apple className="w-5 h-5 mr-2" />
-                        Apple Pay
-                      </Button>
-                      <Button variant="outline" className="h-12 border-gray-200">
-                        <Smartphone className="w-5 h-5 mr-2" />
-                        G Pay
-                      </Button>
+                  <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4 flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                      <CreditCard className="w-6 h-6 text-blue-600" />
                     </div>
-
-                    <div className="relative py-2">
-                      <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-gray-100"></span></div>
-                      <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-gray-400 font-medium tracking-widest">{lang === 'fr' ? 'Ou carte bancaire' : lang === 'es' ? 'O tarjeta' : 'Or card'}</span></div>
+                    <div className="flex-1">
+                      <p className="text-xs text-blue-800 font-semibold uppercase tracking-wider">
+                        {lang === 'fr' ? 'Paiement sécurisé' : lang === 'es' ? 'Pago seguro' : 'Secure payment'}
+                      </p>
+                      <p className="text-[10px] text-blue-600/80">
+                        {lang === 'fr' ? 'Cryptage SSL 256-bits par Stripe' : lang === 'es' ? 'Cifrado SSL de 256 bits por Stripe' : '256-bit SSL encryption by Stripe'}
+                      </p>
                     </div>
-
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="card-num">{lang === 'fr' ? 'Numéro de carte' : lang === 'es' ? 'Número de tarjeta' : 'Card number'}</Label>
-                        <div className="relative">
-                          <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                          <Input id="card-num" placeholder="0000 0000 0000 0000" className="pl-10 h-11" />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="card-exp">{lang === 'fr' ? 'Expiration' : lang === 'es' ? 'Expiración' : 'Expiry'}</Label>
-                          <Input id="card-exp" placeholder="MM/YY" className="h-11" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="card-cvc">CVC</Label>
-                          <Input id="card-cvc" placeholder="123" className="h-11" />
-                        </div>
-                      </div>
+                    <div className="h-4 w-12 flex items-center justify-center grayscale opacity-50">
+                      <svg viewBox="0 0 60 25" className="h-full">
+                        <path fill="currentColor" d="M59.64 14.28c0-2.08-1.56-3.73-3.72-3.73-2.32 0-3.86 1.61-3.86 3.73 0 2.15 1.54 3.76 3.86 3.76 2.15 0 3.72-1.61 3.72-3.76zm-5.42 0c0-1.22.84-1.89 1.7-1.89.84 0 1.7.67 1.7 1.89 0 1.25-.86 1.92-1.7 1.92-.86 0-1.7-.67-1.7-1.92zm-5.46 3.12l-1.93-8.85h-2.1l-1.92 8.85h-2.1l-1.93-8.85h-2.12l-1.92 8.85h-2.13l1.83-9.53a1.4 1.4 0 011.37-1.12h1.45l1.93 8.85 1.92-8.85h2.1l1.93 8.85 1.92-8.85h2.1l1.83-9.53a1.4 1.4 0 011.37 1.12h1.45L51.8 17.4h-2.22l-1.92-8.85-1.93 8.85h-2.1l-1.92-8.85h-2.1l1.83-9.53a1.4 1.4 0 011.37-1.12h1.45L40.06 17.4h-2.1l-1.93-8.85-1.92 8.85h-2.12l-1.93-8.85-1.92 8.85H26.05L24.23 7.87a1.4 1.4 0 00-1.37-1.12h-1.45L19.5 17.4h2.1l1.93-8.85 1.92 8.85h2.1l1.93-8.85 1.92 8.85h2.1l1.83-9.53a1.4 1.4 0 011.37-1.12h1.45l1.93 8.85 1.92-8.85h2.1l1.93 8.85 1.92-8.85h2.1l1.83-9.53a1.4 1.4 0 011.37-1.12h1.45L45.4 17.4zM10.84 12.3c0-3.3-2.15-4.8-5.32-4.8C2.5 7.5.83 8.78.83 11l2 0c0-1.1.75-1.63 2.6-1.63 1.9 0 2.7.67 2.7 1.83v.17c-.5-.27-1.36-.5-2.25-.5-2.23 0-4.04 1.1-4.04 3.08 0 1.95 1.54 3.1 3.5 3.1 1.4 0 2.37-.53 2.87-1.16v.93h1.63v-4.6zm-1.63 2.1c0 1-.8 1.63-1.8 1.63s-1.7-.58-1.7-1.58c0-1 .9-1.5 2.1-1.5.56 0 1 .1 1.4.28zM14.28 17.4V10.7h-1.33v-1.6h1.33V6.62l2.03-.6v3.08h1.63v1.6H16.3v4.6c0 .87.35 1.12 1 1.12.24 0 .47-.04.6-.12v1.63a3 3 0 01-1.1.2c-1.6 0-2.55-1.1-2.55-2.73zM25.4 14.12c0-2.13-1.46-3.73-3.6-3.73-1.5 0-2.43.76-2.9 1.4V5h2.04l0-1.5H16.7L16.4 5h1.94v12.4H20.4l0-5.8c.4-.6 1.35-1.16 2.37-1.16 1.22 0 1.6.85 1.6 1.95V17.4h2.04v-3.28z" />
+                      </svg>
                     </div>
                   </div>
 
-                  <div className="flex gap-3 mt-auto pt-8">
-                    <Button variant="outline" onClick={() => setBookingStep(2)} className="h-12 px-6" disabled={isProcessing}>{lang === 'fr' ? 'Retour' : lang === 'es' ? 'Volver' : 'Back'}</Button>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="card-num" className="text-gray-600 text-[11px] uppercase tracking-wider font-semibold">
+                        {lang === 'fr' ? 'Informations de carte' : lang === 'es' ? 'Información de tarjeta' : 'Card details'}
+                      </Label>
+                      <div className="relative group">
+                        <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-amber-600 transition-colors" />
+                        <Input
+                          id="card-num"
+                          placeholder="4242 4242 4242 4242"
+                          className="pl-10 h-12 bg-white border-gray-200 focus:border-amber-600 focus:ring-amber-600/20 rounded-xl"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Input id="card-exp" placeholder="MM / YY" className="h-12 bg-white border-gray-200 focus:border-amber-600 focus:ring-amber-600/20 rounded-xl" />
+                      <Input id="card-cvc" placeholder="CVC" className="h-12 bg-white border-gray-200 focus:border-amber-600 focus:ring-amber-600/20 rounded-xl" />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-2 pt-2 text-[10px] text-gray-400">
+                    <CheckCircle2 className="w-3 h-3 text-green-500" />
+                    {lang === 'fr' ? 'Paiement crypté de bout en bout' : lang === 'es' ? 'Pago cifrado de extremo a extremo' : 'End-to-end encrypted payment'}
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 mt-auto pt-8">
+                    <Button variant="ghost" onClick={() => setBookingStep(2)} className="h-12 px-6 hover:bg-gray-100 order-2 sm:order-1" disabled={isProcessing}>
+                      {lang === 'fr' ? 'Retour' : lang === 'es' ? 'Volver' : 'Back'}
+                    </Button>
                     <Button
                       onClick={nextStep}
                       disabled={isProcessing}
-                      className="flex-1 bg-amber-600 hover:bg-amber-700 h-12 text-lg font-semibold shadow-lg shadow-amber-600/20"
+                      className="flex-1 bg-gray-900 hover:bg-black h-12 text-lg font-semibold shadow-xl shadow-gray-200 rounded-xl relative overflow-hidden group order-1 sm:order-2"
                     >
                       {isProcessing ? (
-                        <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          ...
-                        </>
+                        <div className="flex items-center justify-center">
+                          <Loader2 className="w-5 h-5 mr-3 animate-spin text-amber-500" />
+                          <span className="animate-pulse">{lang === 'fr' ? 'Traitement...' : lang === 'es' ? 'Procesando...' : 'Processing...'}</span>
+                        </div>
                       ) : (
-                        `${t.booking.pay} (${calculateTotal()}€)`
+                        <div className="flex items-center justify-center gap-2">
+                          <span>{selectedTour?.stripeLink ? (lang === 'fr' ? 'Continuer vers Stripe' : lang === 'es' ? 'Ir a Stripe' : 'Continue to Stripe') : t.booking.pay}</span>
+                          <span className="px-2 py-0.5 bg-white/10 rounded-md text-xs">{calculateTotal()}€</span>
+                        </div>
                       )}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                     </Button>
                   </div>
                 </div>
@@ -1025,30 +1048,32 @@ function App() {
       </footer>
 
       {/* Cookie Consent Banner */}
-      {showCookieConsent && (
-        <div className="fixed bottom-0 left-0 right-0 z-[100] p-4 animate-in fade-in slide-in-from-bottom-10 duration-500">
-          <div className="container-custom max-w-4xl mx-auto">
-            <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">{t.cookies.title}</h3>
-                <p className="text-sm text-gray-600">
-                  {t.cookies.desc}
-                </p>
-              </div>
-              <div className="flex gap-3 shrink-0">
-                <Button variant="outline" onClick={() => setShowCookieConsent(false)} className="px-6 h-11 border-gray-200">
-                  {t.cookies.decline}
-                </Button>
-                <Button onClick={handleAcceptCookies} className="px-8 h-11 bg-amber-600 hover:bg-amber-700">
-                  {t.cookies.accept}
-                </Button>
+      {
+        showCookieConsent && (
+          <div className="fixed bottom-0 left-0 right-0 z-[100] p-4 animate-in fade-in slide-in-from-bottom-10 duration-500">
+            <div className="container-custom max-w-4xl mx-auto">
+              <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{t.cookies.title}</h3>
+                  <p className="text-sm text-gray-600">
+                    {t.cookies.desc}
+                  </p>
+                </div>
+                <div className="flex gap-3 shrink-0">
+                  <Button variant="outline" onClick={() => setShowCookieConsent(false)} className="px-6 h-11 border-gray-200">
+                    {t.cookies.decline}
+                  </Button>
+                  <Button onClick={handleAcceptCookies} className="px-8 h-11 bg-amber-600 hover:bg-amber-700">
+                    {t.cookies.accept}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
       <Toaster position="top-right" />
-    </div>
+    </div >
   );
 }
 

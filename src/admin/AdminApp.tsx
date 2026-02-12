@@ -24,8 +24,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-  DialogFooter
+  DialogTitle
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -67,6 +66,7 @@ interface Tour {
   highlights: string[];
   category: string;
   isActive: boolean;
+  stripeLink?: string;
 }
 
 interface Review {
@@ -575,6 +575,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
             groupSize: '',
             price: 0,
             image: '',
+            stripeLink: '',
             highlights: [],
             category: 'Tour',
             isActive: true
@@ -623,6 +624,15 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                   <Label>Catégorie</Label>
                   <Input value={editingTour.category} onChange={(e) => setEditingTour({ ...editingTour, category: sanitize(e.target.value) })} />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Lien de Paiement Stripe (Optionnel)</Label>
+                <Input
+                  placeholder="https://buy.stripe.com/..."
+                  value={editingTour.stripeLink || ''}
+                  onChange={(e) => setEditingTour({ ...editingTour, stripeLink: e.target.value })}
+                />
+                <p className="text-[10px] text-gray-400">Si vide, le site utilisera la simulation de paiement par défaut.</p>
               </div>
               <div className="space-y-2">
                 <Label>Photo du tour</Label>
