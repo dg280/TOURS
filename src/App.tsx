@@ -63,6 +63,7 @@ interface Tour {
 }
 
 function App() {
+  console.log('App component rendering...');
   const [lang, setLang] = useState<Language>('fr');
   const t = translations[lang];
 
