@@ -101,6 +101,18 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Update document title and meta tags when language changes
+  useEffect(() => {
+    document.title = t.seo.title;
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement('meta');
+      metaDesc.setAttribute('name', 'description');
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute('content', t.seo.description);
+  }, [lang, t]);
+
   const tours: Tour[] = customTours.length > 0 ? customTours : t.tour_data.map(tour => ({
     ...tour,
     image: tour.id === 1 ? '/tour-girona.jpg' :

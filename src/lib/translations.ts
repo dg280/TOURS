@@ -16,6 +16,10 @@ export const translations = {
             cta_discover: 'Découvrir les Tours',
             cta_contact: 'Contactez-moi'
         },
+        seo: {
+            title: 'Tours & Detours - Découvrez la Catalogne Authentique avec Antoine Pilard',
+            description: 'Excursions personnalisées et tours guidés en Catalogne. Découvrez Girona, Costa Brava, Montserrat et plus encore avec un expert local.'
+        },
         stats: {
             exp: "ans d'expérience",
             local: 'expert local',
@@ -193,6 +197,10 @@ export const translations = {
             cta_discover: 'Discover Tours',
             cta_contact: 'Contact Me'
         },
+        seo: {
+            title: 'Tours & Detours - Discover Authentic Catalonia with Antoine Pilard',
+            description: 'Personalized excursions and guided tours in Catalonia. Discover Girona, Costa Brava, Montserrat and more with a local expert.'
+        },
         stats: {
             exp: 'years experience',
             local: 'local expert',
@@ -369,6 +377,10 @@ export const translations = {
             description: 'Excursiones personalizadas para descubrir los secretos de Cataluña, lejos de las multitudes — cultura, naturaleza y aventura',
             cta_discover: 'Descubrir Tours',
             cta_contact: 'Contáctame'
+        },
+        seo: {
+            title: 'Tours & Detours - Descubre la Cataluña Auténtica con Antoine Pilard',
+            description: 'Excursiones personalizadas y tours guiados en Cataluña. Descubre Girona, Costa Brava, Montserrat y mucho más con un experto local.'
         },
         stats: {
             exp: 'años de experiencia',
