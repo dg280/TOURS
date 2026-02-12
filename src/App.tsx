@@ -47,7 +47,7 @@ interface Tour {
   description: string;
   duration: string;
   groupSize: string;
-  price: string;
+  price: number;
   image: string;
   category: string;
   highlights: string[];
@@ -182,8 +182,7 @@ function App() {
 
   const calculateTotal = () => {
     if (!selectedTour) return 0;
-    const priceStr = selectedTour.price.replace('€', '');
-    return parseInt(priceStr) * participants;
+    return (typeof selectedTour.price === 'number' ? selectedTour.price : parseInt(selectedTour.price)) * participants;
   };
 
   const handleAcceptCookies = () => {
@@ -399,7 +398,7 @@ function App() {
                     </Badge>
                   </div>
                   <div className="absolute top-3 right-3 bg-amber-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                    {tour.price}
+                    {tour.price}€
                   </div>
                 </div>
                 <div className="p-5">
@@ -454,7 +453,7 @@ function App() {
                       <div className="space-y-2 mb-4">
                         <p className="text-sm"><strong>{t.tours.duration}:</strong> {tour.duration}</p>
                         <p className="text-sm"><strong>{t.tours.group}:</strong> {tour.groupSize}</p>
-                        <p className="text-sm"><strong>{t.tours.price}:</strong> {tour.price} {t.tours.per_person}</p>
+                        <p className="text-sm"><strong>{t.tours.price}:</strong> {tour.price}€ {t.tours.per_person}</p>
                       </div>
                       <Button
                         onClick={() => {

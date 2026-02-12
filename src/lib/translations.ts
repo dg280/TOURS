@@ -109,7 +109,7 @@ export const translations = {
                 highlights: ['Quartier Juif', 'Peratallada & Pals', 'Camí de Ronda', 'Dégustation turrón'],
                 duration: '9.5h',
                 groupSize: '2-16',
-                price: '145€'
+                price: 145
             },
             {
                 id: 2,
@@ -119,7 +119,7 @@ export const translations = {
                 highlights: ['Quartier Gothique', 'El Born', 'Histoires locales', 'Routes authentiques'],
                 duration: '3h',
                 groupSize: '2-12',
-                price: '55€'
+                price: 55
             },
             {
                 id: 3,
@@ -129,7 +129,7 @@ export const translations = {
                 highlights: ['Criques cachées', 'Observation faune', 'Déjeuner marin', 'Vues panoramiques'],
                 duration: '6h',
                 groupSize: '4-12',
-                price: '85€'
+                price: 85
             },
             {
                 id: 4,
@@ -139,7 +139,7 @@ export const translations = {
                 highlights: ['Villages médiévaux', 'Chapelles romanes', 'Vallées forestières', 'Faune locale'],
                 duration: '7h',
                 groupSize: '4-10',
-                price: '95€'
+                price: 95
             },
             {
                 id: 5,
@@ -149,7 +149,7 @@ export const translations = {
                 highlights: ['Grottes marines', 'Criques secrètes', 'Vie marine', 'Falaises escarpées'],
                 duration: '4h',
                 groupSize: '4-12',
-                price: '75€'
+                price: 75
             },
             {
                 id: 6,
@@ -159,7 +159,7 @@ export const translations = {
                 highlights: ['Monastère', 'Randonnée panoramique', 'Vignoble familial', 'Dégustation'],
                 duration: '8h',
                 groupSize: '4-14',
-                price: '125€'
+                price: 125
             },
             {
                 id: 7,
@@ -169,7 +169,7 @@ export const translations = {
                 highlights: ['Girona', 'Collioure France', 'Culture transfrontalière', 'Gastronomie'],
                 duration: '10h',
                 groupSize: '4-12',
-                price: '165€'
+                price: 165
             }
         ],
         testimonials_data: [
@@ -286,7 +286,7 @@ export const translations = {
                 highlights: ['Jewish Quarter', 'Peratallada & Pals', 'Camí de Ronda', 'Turrón tasting'],
                 duration: '9.5h',
                 groupSize: '2-16',
-                price: '145€'
+                price: 145
             },
             {
                 id: 2,
@@ -296,7 +296,7 @@ export const translations = {
                 highlights: ['Gothic Quarter', 'El Born', 'Local stories', 'Authentic routes'],
                 duration: '3h',
                 groupSize: '2-12',
-                price: '55€'
+                price: 55
             },
             {
                 id: 3,
@@ -306,7 +306,7 @@ export const translations = {
                 highlights: ['Hidden coves', 'Wildlife watching', 'Seafood lunch', 'Panoramic views'],
                 duration: '6h',
                 groupSize: '4-12',
-                price: '85€'
+                price: 85
             },
             {
                 id: 4,
@@ -316,7 +316,7 @@ export const translations = {
                 highlights: ['Medieval villages', 'Romanesque chapels', 'Forest valleys', 'Local wildlife'],
                 duration: '7h',
                 groupSize: '4-10',
-                price: '95€'
+                price: 95
             },
             {
                 id: 5,
@@ -326,7 +326,7 @@ export const translations = {
                 highlights: ['Sea caves', 'Secret coves', 'Marine life', 'Steep cliffs'],
                 duration: '4h',
                 groupSize: '4-12',
-                price: '75€'
+                price: 75
             },
             {
                 id: 6,
@@ -336,7 +336,7 @@ export const translations = {
                 highlights: ['Monastery', 'Panoramic hike', 'Family vineyard', 'Wine tasting'],
                 duration: '8h',
                 groupSize: '4-14',
-                price: '125€'
+                price: 125
             },
             {
                 id: 7,
@@ -346,7 +346,7 @@ export const translations = {
                 highlights: ['Girona', 'Collioure France', 'Cross-border culture', 'Gastronomy'],
                 duration: '10h',
                 groupSize: '4-12',
-                price: '165€'
+                price: 165
             }
         ],
         testimonials_data: [
@@ -463,7 +463,7 @@ export const translations = {
                 highlights: ['Barrio Judío', 'Peratallada y Pals', 'Camí de Ronda', 'Degustación de turrón'],
                 duration: '9.5h',
                 groupSize: '2-16',
-                price: '145€'
+                price: 145
             },
             {
                 id: 2,
@@ -473,7 +473,7 @@ export const translations = {
                 highlights: ['Barrio Gótico', 'El Born', 'Historias locales', 'Rutas auténticas'],
                 duration: '3h',
                 groupSize: '2-12',
-                price: '55€'
+                price: 55
             },
             {
                 id: 3,
@@ -483,7 +483,7 @@ export const translations = {
                 highlights: ['Calas escondidas', 'Observación de fauna', 'Comida marinera', 'Vistas panorámicas'],
                 duration: '6h',
                 groupSize: '4-12',
-                price: '85€'
+                price: 85
             },
             {
                 id: 4,
@@ -493,7 +493,7 @@ export const translations = {
                 highlights: ['Pueblos medievales', 'Capillas románicas', 'Valles forestales', 'Fauna local'],
                 duration: '7h',
                 groupSize: '4-10',
-                price: '95€'
+                price: 95
             },
             {
                 id: 5,
@@ -503,7 +503,7 @@ export const translations = {
                 highlights: ['Cuevas marinas', 'Calas secretas', 'Vida marina', 'Acantilados escarpados'],
                 duration: '4h',
                 groupSize: '4-12',
-                price: '75€'
+                price: 75
             },
             {
                 id: 6,
@@ -513,7 +513,7 @@ export const translations = {
                 highlights: ['Monasterio', 'Caminata panorámica', 'Viñedo familiar', 'Degustación'],
                 duration: '8h',
                 groupSize: '4-14',
-                price: '125€'
+                price: 125
             },
             {
                 id: 7,
@@ -523,7 +523,7 @@ export const translations = {
                 highlights: ['Girona', 'Collioure Francia', 'Cultura transfronteriza', 'Gastronomía'],
                 duration: '10h',
                 groupSize: '4-12',
-                price: '165€'
+                price: 165
             }
         ],
         testimonials_data: [
