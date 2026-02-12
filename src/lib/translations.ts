@@ -113,7 +113,7 @@ export const translations = {
                 highlights: ['Quartier Juif (El Call)', 'Village médiéval de Pals', 'Calella de Palafrugell & Llafranc', 'Randonnée Camí de Ronda optionnelle', 'Déjeuner méditerranéen'],
                 duration: 'Journée entière',
                 groupSize: '1-8',
-                price: 760
+                price: 145
             },
             {
                 id: 4,
@@ -123,7 +123,7 @@ export const translations = {
                 highlights: ['Départ village médiéval', 'Chapelles romanes', 'Vallées forestières', 'Paysages paisibles', 'Marche immersive 6km'],
                 duration: 'Journée entière',
                 groupSize: '1-8',
-                price: 520
+                price: 95
             },
             {
                 id: 5,
@@ -133,7 +133,7 @@ export const translations = {
                 highlights: ['Exploration de grottes', 'Falaises escarpées', 'Vie marine', 'Sécurité auditée', 'Demi ou Journée entière'],
                 duration: 'Demi/Journée entière',
                 groupSize: '1-8',
-                price: 450
+                price: 75
             },
             {
                 id: 6,
@@ -143,7 +143,7 @@ export const translations = {
                 highlights: ['Exploration du monastère', 'Vues panoramiques', 'Visite cave locale', 'Dégustation', 'Bodega familiale'],
                 duration: 'Demi/Journée entière',
                 groupSize: '1-8',
-                price: 680
+                price: 125
             },
             {
                 id: 7,
@@ -153,7 +153,7 @@ export const translations = {
                 highlights: ['Cathédrale de Gérone & El Call', 'Traversée des Pyrénées', 'Port & Forteresse de Collioure', 'Dégustation d\'anchois boutique', 'Déjeuner méditerranéen complet'],
                 duration: 'Journée entière',
                 groupSize: '1-8',
-                price: 760
+                price: 165
             },
             {
                 id: 2,
@@ -163,7 +163,7 @@ export const translations = {
                 highlights: ['Quartiers Gothique & Born', 'Histoire cachée', 'Légendes & récits locaux', 'Loin des foules'],
                 duration: 'Demi-journée',
                 groupSize: '1-8',
-                price: 350
+                price: 55
             },
             {
                 id: 3,
@@ -173,7 +173,7 @@ export const translations = {
                 highlights: ['Randonnée côtière 6km', 'Criques turquoises', 'Déjeuner de la mer', 'Possibilité de baignade'],
                 duration: 'Journée entière',
                 groupSize: '1-8',
-                price: 580
+                price: 85
             }
         ],
         testimonials_data: [
@@ -294,7 +294,7 @@ export const translations = {
                 highlights: ["Girona's Jewish Quarter (El Call)", 'Medieval village of Pals', 'Calella de Palafrugell & Llafranc', 'Optional Camí de Ronda coastal walk', 'Mediterranean lunch'],
                 duration: 'Full Day',
                 groupSize: '1-8',
-                price: 760
+                price: 145
             },
             {
                 id: 4,
@@ -304,7 +304,7 @@ export const translations = {
                 highlights: ['Medieval town start', 'Romanesque chapels', 'Forested valleys', 'Quiet landscapes', '6km immersive walk'],
                 duration: 'Full Day',
                 groupSize: '1-8',
-                price: 520
+                price: 95
             },
             {
                 id: 5,
@@ -314,7 +314,7 @@ export const translations = {
                 highlights: ['Sea caves exploration', 'Rugged cliffs', 'Marine life', 'Safety-audited gear', 'Half or Full Day'],
                 duration: 'Half/Full Day',
                 groupSize: '1-8',
-                price: 450
+                price: 75
             },
             {
                 id: 6,
@@ -324,7 +324,7 @@ export const translations = {
                 highlights: ['Monastery exploration', 'Panoramic views', 'Local winery visit', 'Tasting session', 'Family-run bodega'],
                 duration: 'Half/Full Day',
                 groupSize: '1-8',
-                price: 680
+                price: 125
             },
             {
                 id: 7,
@@ -334,7 +334,7 @@ export const translations = {
                 highlights: ["Girona's Jewish Quarter & Gothic cathedral", 'Scenic Pyrenees crossing', 'Collioure harbor & fortress', 'Boutique anchovy tasting', '3-course Mediterranean lunch'],
                 duration: 'Full Day',
                 groupSize: '1-8',
-                price: 760
+                price: 165
             },
             {
                 id: 2,
@@ -344,7 +344,7 @@ export const translations = {
                 highlights: ['Gothic & Born quarters', 'Hidden history', 'Legends & community stories', 'Away from crowds'],
                 duration: 'Half Day',
                 groupSize: '1-8',
-                price: 350
+                price: 55
             },
             {
                 id: 3,
@@ -354,7 +354,7 @@ export const translations = {
                 highlights: ['6km coastal hike', 'Turquoise coves', 'Seafood lunch', 'Swim opportunities'],
                 duration: 'Full Day',
                 groupSize: '1-8',
-                price: 580
+                price: 85
             }
         ],
         testimonials_data: [
@@ -475,7 +475,7 @@ export const translations = {
                 highlights: ['Barrio Judío (El Call)', 'Pueblo medieval de Pals', 'Calella de Palafrugell y Llafranc', 'Caminata Camí de Ronda opcional', 'Almuerzo mediterráneo'],
                 duration: 'Día completo',
                 groupSize: '1-8',
-                price: 760
+                price: 145
             },
             {
                 id: 4,
@@ -485,7 +485,7 @@ export const translations = {
                 highlights: ['Inicio en pueblo medieval', 'Capillas románicas', 'Valles boscosos', 'Paisajes tranquilos', 'Caminata de 6km'],
                 duration: 'Día completo',
                 groupSize: '1-8',
-                price: 520
+                price: 95
             },
             {
                 id: 5,
@@ -495,7 +495,7 @@ export const translations = {
                 highlights: ['Exploración de cuevas', 'Acantilados escarpados', 'Vida marina', 'Seguridad auditada', 'Medio día o completo'],
                 duration: 'Medio/Día completo',
                 groupSize: '1-8',
-                price: 450
+                price: 75
             },
             {
                 id: 6,
@@ -505,7 +505,7 @@ export const translations = {
                 highlights: ['Monasterio de Montserrat', 'Vistas panorámicas', 'Bodega local familiar', 'Sesión de cata', 'Entorno auténtico'],
                 duration: 'Medio/Día completo',
                 groupSize: '1-8',
-                price: 680
+                price: 125
             },
             {
                 id: 7,
@@ -515,7 +515,7 @@ export const translations = {
                 highlights: ['Catedral de Girona y El Call', 'Cruce de los Pirineos', 'Puerto y fortaleza de Collioure', 'Degustación de anchoas boutique', 'Almuerzo mediterráneo de 3 platos'],
                 duration: 'Día completo',
                 groupSize: '1-8',
-                price: 760
+                price: 165
             },
             {
                 id: 2,
@@ -525,7 +525,7 @@ export const translations = {
                 highlights: ['Barrios Gótico y Born', 'Historia oculta', 'Leyendas y relatos locales', 'Lejos de las multitudes'],
                 duration: 'Medio día',
                 groupSize: '1-8',
-                price: 350
+                price: 55
             },
             {
                 id: 3,
@@ -535,7 +535,7 @@ export const translations = {
                 highlights: ['Caminata costera 6km', 'Calas turquesas', 'Almuerzo marinero', 'Oportunidad de baño'],
                 duration: 'Día completo',
                 groupSize: '1-8',
-                price: 580
+                price: 85
             }
         ],
         testimonials_data: [

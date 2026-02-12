@@ -1,4 +1,5 @@
 {
+    "name": "tours",
     "headers": [
         {
             "source": "/(.*)",
