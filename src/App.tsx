@@ -665,9 +665,30 @@ function App() {
                                 <MapPin className="w-6 h-6 text-amber-600 shrink-0" />
                                 <p className="text-gray-700 font-medium">{tour.meetingPoint}</p>
                               </div>
-                              <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 italic">
-                                [Carte Interactive Google Maps]
-                              </div>
+                              {tour.meetingPoint?.includes('google.com/maps') ? (
+                                <div className="aspect-video rounded-lg overflow-hidden border border-gray-200">
+                                  <iframe
+                                    src={tour.meetingPoint.includes('embed') ? tour.meetingPoint : `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${encodeURIComponent(tour.meetingPoint)}`}
+                                    width="100%"
+                                    height="100%"
+                                    style={{ border: 0 }}
+                                    allowFullScreen
+                                    loading="lazy"
+                                    referrerPolicy="no-referrer-when-downgrade"
+                                  ></iframe>
+                                </div>
+                              ) : (
+                                <div className="aspect-video bg-gray-200 rounded-lg flex flex-col items-center justify-center text-gray-400 p-8 text-center">
+                                  <MapPin className="w-10 h-10 mb-3 opacity-20" />
+                                  <p className="italic text-sm">
+                                    {lang === 'fr'
+                                      ? "Localisation disponible sur demande ou via le lien reçu après réservation."
+                                      : lang === 'es'
+                                        ? "Ubicación disponible bajo petición o mediante el enlace recibido tras la reserva."
+                                        : "Location available on request or via the link received after booking."}
+                                  </p>
+                                </div>
+                              )}
                             </div>
                           </TabsContent>
                         </Tabs>
@@ -936,7 +957,7 @@ function App() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-400">Email</p>
-                    <p className="text-lg">antoine@toursanddetours.com</p>
+                    <p className="text-lg">antoine@toursandetours.com</p>
                   </div>
                 </div>
 
@@ -1357,7 +1378,7 @@ function App() {
                   <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
                     <Star className="w-4 h-4 text-amber-600" />
                   </div>
-                  <span>antoine@toursanddetours.com</span>
+                  <span>antoine@toursandetours.com</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">

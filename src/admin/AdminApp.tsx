@@ -234,7 +234,7 @@ function Login({ onLogin }: { onLogin: () => void }) {
   const [error, setError] = useState('');
 
   const ADMIN_CONFIG = {
-    email: 'antoine@toursanddetours.com',
+    email: 'antoine@toursandetours.com',
     password: 'admin123'
   };
 
@@ -272,7 +272,7 @@ function Login({ onLogin }: { onLogin: () => void }) {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="antoine@toursanddetours.com"
+              placeholder="antoine@toursandetours.com"
               className="mt-1"
             />
           </div>
@@ -293,7 +293,7 @@ function Login({ onLogin }: { onLogin: () => void }) {
         </form>
 
         <div className="mt-6 text-center text-sm text-gray-500">
-          <p>Demo: antoine@toursanddetours.com / admin123</p>
+          <p>Demo: antoine@toursandetours.com / admin123</p>
         </div>
       </div>
     </div>
@@ -783,7 +783,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
               <div className="space-y-2">
                 <Label>Points forts (un par ligne)</Label>
                 <Textarea
-                  className="text-xs"
+                  className="text-xs min-h-[100px]"
                   value={editingTour.highlights.join('\n')}
                   onChange={(e) => setEditingTour({ ...editingTour, highlights: e.target.value.split('\n').filter(l => l.trim()) })}
                   placeholder="Ex: Quartier Juif&#10;Village médiéval"
@@ -798,11 +798,11 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                   placeholder="09:00 - Départ&#10;10:30 - Visite"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
                   <Label>Inclus (un par ligne)</Label>
                   <Textarea
-                    className="text-xs"
+                    className="text-xs min-h-[80px]"
                     value={(editingTour.included || []).join('\n')}
                     onChange={(e) => setEditingTour({ ...editingTour, included: e.target.value.split('\n').filter(l => l.trim()) })}
                   />
@@ -810,18 +810,20 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                 <div className="space-y-2">
                   <Label>Non Inclus (un par ligne)</Label>
                   <Textarea
-                    className="text-xs"
+                    className="text-xs min-h-[80px]"
                     value={(editingTour.notIncluded || []).join('\n')}
                     onChange={(e) => setEditingTour({ ...editingTour, notIncluded: e.target.value.split('\n').filter(l => l.trim()) })}
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Point de rencontre</Label>
+                <Label>Point de rencontre (Texte ou Lien Google Maps Embed)</Label>
                 <Input
+                  placeholder="Ex: Plaza Catalunya ou lien iframe src 'https://www.google.com/maps/embed/...'"
                   value={editingTour.meetingPoint || ''}
-                  onChange={(e) => setEditingTour({ ...editingTour, meetingPoint: sanitize(e.target.value) })}
+                  onChange={(e) => setEditingTour({ ...editingTour, meetingPoint: e.target.value })}
                 />
+                <p className="text-[10px] text-gray-400">Pour afficher un plan, collez l'URL 'src' de l'iframe de partage Google Maps.</p>
               </div>
               <div className="space-y-2">
                 <Label>Photo du tour</Label>
@@ -956,10 +958,7 @@ export default function AdminApp() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [tours, setTours] = useState<Tour[]>(() => {
-    const saved = localStorage.getItem('td-tours');
-    return saved ? JSON.parse(saved) : mockTours;
-  });
+  const [tours, setTours] = useState<Tour[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [guidePhoto, setGuidePhoto] = useState(() => localStorage.getItem('td-guide-photo') || '/guide-antoine.jpg');
