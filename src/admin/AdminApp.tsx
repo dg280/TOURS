@@ -713,45 +713,49 @@ export default function AdminApp() {
     }
 
     // Fetch reservations
-    supabase.from('reservations').select('*').order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (!error && data) {
-          // Map DB fields to interface if needed (snake_case to camelCase)
-          const mapped = data.map(r => ({
-            id: r.id,
-            name: r.name,
-            email: r.email,
-            phone: r.phone,
-            tourId: r.tour_id,
-            tourName: r.tour_name,
-            date: r.date,
-            participants: r.participants,
-            status: r.status,
-            message: r.message || '',
-            createdAt: r.created_at,
-            totalPrice: r.total_price
-          }));
-          setReservations(mapped);
-        }
-      });
+    if (supabase) {
+      supabase.from('reservations').select('*').order('created_at', { ascending: false })
+        .then(({ data, error }) => {
+          if (!error && data) {
+            // Map DB fields to interface if needed (snake_case to camelCase)
+            const mapped = data.map(r => ({
+              id: r.id,
+              name: r.name,
+              email: r.email,
+              phone: r.phone,
+              tourId: r.tour_id,
+              tourName: r.tour_name,
+              date: r.date,
+              participants: r.participants,
+              status: r.status,
+              message: r.message || '',
+              createdAt: r.created_at,
+              totalPrice: r.total_price
+            }));
+            setReservations(mapped);
+          }
+        });
 
-    // Fetch reviews
-    supabase.from('reviews').select('*').order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (!error && data) {
-          const mapped = data.map(r => ({
-            id: r.id,
-            name: r.name,
-            location: r.location,
-            rating: r.rating,
-            text: r.text,
-            tourId: r.tour_id,
-            isPublished: r.is_published,
-            createdAt: r.created_at
-          }));
-          setReviews(mapped);
-        }
-      });
+      // Fetch reviews
+      supabase.from('reviews').select('*').order('created_at', { ascending: false })
+        .then(({ data, error }) => {
+          if (!error && data) {
+            const mapped = data.map(r => ({
+              id: r.id,
+              name: r.name,
+              location: r.location,
+              rating: r.rating,
+              text: r.text,
+              tourId: r.tour_id,
+              isPublished: r.is_published,
+              createdAt: r.created_at
+            }));
+            setReviews(mapped);
+          }
+        });
+    } else {
+      console.warn('Supabase client not initialized. Skipping data fetch.');
+    }
   }, []);
 
   useEffect(() => {

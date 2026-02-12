@@ -63,7 +63,6 @@ interface Tour {
 }
 
 function App() {
-  console.log('App component rendering...');
   const [lang, setLang] = useState<Language>('fr');
   const t = translations[lang];
 
@@ -198,12 +197,16 @@ function App() {
       };
 
       // Save to Supabase
-      supabase.from('reservations').insert(newReservation).then(({ error }) => {
-        if (error) {
-          console.error('Supabase error:', error);
-          toast.error("Erreur d'enregistrement sur le serveur.");
-        }
-      });
+      if (supabase) {
+        supabase.from('reservations').insert(newReservation).then(({ error }) => {
+          if (error) {
+            console.error('Supabase error:', error);
+            toast.error("Erreur d'enregistrement sur le serveur.");
+          }
+        });
+      } else {
+        console.warn('Supabase client not initialized. Skipping remote reservation save.');
+      }
 
       // Maintain localStorage for redundancy
       const savedReservations = JSON.parse(localStorage.getItem('td-reservations') || '[]');

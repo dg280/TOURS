@@ -8,20 +8,6 @@
 </head>
 
 <body>
-  <div id="debug-log"
-    style="position:fixed;top:0;left:0;background:rgba(0,0,0,0.8);color:white;z-index:9999;padding:10px;font-family:monospace;max-height:100px;overflow:auto;">
-    Debug Log: Waiting for JS...
-  </div>
-  <script>
-    const log = (msg) => {
-      console.log('PAGE LOG:', msg);
-      const div = document.getElementById('debug-log');
-      if (div) div.innerHTML += '<br/>' + msg;
-    };
-    log('Inline script executing...');
-    window.onload = () => log('Window loaded');
-    window.onerror = (m, u, l) => log('ERR: ' + m + ' at ' + l);
-  </script>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
 </body>
