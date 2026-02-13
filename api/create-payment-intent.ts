@@ -32,6 +32,10 @@ export default async function handler(req: any, res: any) {
             console.error('Missing STRIPE_SECRET_KEY');
             return res.status(500).json({ error: 'Configuration Stripe manquante (Secret Key)' });
         }
+        if (!process.env.VITE_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+            console.error('Missing Supabase Config');
+            return res.status(500).json({ error: 'Configuration Supabase manquante (URL ou Service Role Key)' });
+        }
 
         const { tourId, participants, currency = 'eur' } = req.body;
         console.log('Payment request for tour:', tourId, 'participants:', participants);
