@@ -319,7 +319,10 @@ function App() {
       localStorage.setItem('td-reservations', JSON.stringify([...savedReservations, { ...newReservation, id: `TD-${Math.floor(Math.random() * 100000)}`, createdAt: new Date().toISOString() }]));
 
       if (selectedTour?.stripeLink) {
-        window.open(selectedTour.stripeLink, '_blank');
+        let finalLink = selectedTour.stripeLink;
+        const separator = finalLink.includes('?') ? '&' : '?';
+        finalLink += `${separator}quantity=${participants}&prefilled_email=${encodeURIComponent(formData.email)}`;
+        window.open(finalLink, '_blank');
         setIsProcessing(false);
         setBookingStep(4);
       } else {

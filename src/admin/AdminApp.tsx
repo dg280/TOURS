@@ -16,7 +16,8 @@ import {
   Upload,
   Image as ImageIcon,
   Check,
-  Loader2
+  Loader2,
+  Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Toaster, toast } from 'sonner';
@@ -708,6 +709,25 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
     }
   };
 
+  const deleteTour = async (id: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce tour ?')) return;
+
+    try {
+      if (supabase) {
+        const { error } = await supabase.from('tours').delete().eq('id', id);
+        if (error) throw error;
+      }
+
+      const updatedTours = tours.filter(t => t.id !== id);
+      setTours(updatedTours);
+      localStorage.setItem('td-tours', JSON.stringify(updatedTours));
+      toast.success("Tour supprimé avec succès.");
+    } catch (err: any) {
+      console.error('Delete error:', err);
+      toast.error("Erreur lors de la suppression : " + err.message);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -779,7 +799,12 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
               <p className="text-sm text-gray-500 line-clamp-2">{tour.description}</p>
               <div className="flex justify-between items-center pt-2">
                 <span className="font-bold text-amber-600">{tour.price}€</span>
-                <Button size="sm" variant="outline" onClick={() => { setEditingTour(tour); setIsEditOpen(true); }}>Modifier</Button>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => { setEditingTour(tour); setIsEditOpen(true); }}>Modifier</Button>
+                  <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300" onClick={() => deleteTour(tour.id)}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
