@@ -109,10 +109,18 @@ function App() {
         .then((data) => {
           if (data.clientSecret) {
             setClientSecret(data.clientSecret);
+          } else if (data.error) {
+            toast.error(lang === 'fr' ? "Erreur Stripe: " + data.error : "Stripe Error: " + data.error);
+            setBookingStep(2); // Go back to info step
           }
+        })
+        .catch(err => {
+          console.error('Fetch error:', err);
+          toast.error(lang === 'fr' ? "Erreur de connexion au service de paiement" : "Payment service connection error");
+          setBookingStep(2);
         });
     }
-  }, [selectedTour, bookingStep, clientSecret, participants]);
+  }, [selectedTour, bookingStep, clientSecret, participants, lang]);
 
   // Reset clientSecret if critical booking info changes
   useEffect(() => {

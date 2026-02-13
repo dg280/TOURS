@@ -12,6 +12,10 @@ export default async function handler(req: any, res: any) {
     }
 
     try {
+        if (!process.env.STRIPE_SECRET_KEY) {
+            return res.status(500).json({ error: 'Stripe Secret Key is not configured in environment variables' });
+        }
+
         const { tourId, participants, currency = 'eur' } = req.body;
 
         if (!tourId || !participants) {
