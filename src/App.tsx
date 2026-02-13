@@ -97,26 +97,39 @@ function App() {
   useEffect(() => {
     if (selectedTour && bookingStep === 3 && !clientSecret) {
       // Create PaymentIntent as soon as the step is reached
-      fetch("/api/create-payment-intent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      fetch('/api/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tourId: selectedTour.id.toString(),
-          participants
+          tourId: selectedTour.id,
+          participants: participants
         }),
       })
-        .then((res) => res.json())
+        .then(async (res) => {
+          const contentType = res.headers.get("content-type");
+          if (!res.ok) {
+            if (contentType && contentType.includes("application/json")) {
+              const errorData = await res.json();
+              throw new Error(errorData.error || "Erreur serveur");
+            } else {
+              throw new Error(`Erreur serveur (${res.status})`);
+            }
+          }
+          if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("Réponse serveur invalide (Non-JSON)");
+          }
+          return res.json();
+        })
         .then((data) => {
           if (data.clientSecret) {
             setClientSecret(data.clientSecret);
-          } else if (data.error) {
-            toast.error(lang === 'fr' ? "Erreur Stripe: " + data.error : "Stripe Error: " + data.error);
-            setBookingStep(2); // Go back to info step
           }
         })
         .catch(err => {
-          console.error('Fetch error:', err);
-          toast.error(lang === 'fr' ? "Erreur de connexion au service de paiement" : "Payment service connection error");
+          console.error('Payment Init Error:', err);
+          toast.error(lang === 'fr'
+            ? "Impossible d'initialiser le paiement : " + err.message
+            : "Could not initialize payment: " + err.message);
           setBookingStep(2);
         });
     }

@@ -1,10 +1,24 @@
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
-const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''; // Use service role for backend
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Initialisation lazy pour éviter les crashs au démarrage si les variables sont absentes
+let stripe: Stripe | null = null;
+let supabase: any = null;
+
+function getClients() {
+    if (!stripe) {
+        stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+            apiVersion: '2023-10-16' as any,
+        });
+    }
+    if (!supabase) {
+        supabase = createClient(
+            process.env.VITE_SUPABASE_URL || '',
+            process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+        );
+    }
+    return { stripe, supabase };
+}
 
 export default async function handler(req: any, res: any) {
     if (req.method !== 'POST') {
@@ -12,17 +26,20 @@ export default async function handler(req: any, res: any) {
     }
 
     try {
+        const { stripe, supabase } = getClients();
+
         if (!process.env.STRIPE_SECRET_KEY) {
-            return res.status(500).json({ error: 'Stripe Secret Key is not configured in environment variables' });
+            console.error('Missing STRIPE_SECRET_KEY');
+            return res.status(500).json({ error: 'Configuration Stripe manquante (Secret Key)' });
         }
 
         const { tourId, participants, currency = 'eur' } = req.body;
+        console.log('Payment request for tour:', tourId, 'participants:', participants);
 
         if (!tourId || !participants) {
-            return res.status(400).json({ error: 'Missing tourId or participants' });
+            return res.status(400).json({ error: 'Données manquantes (tourId ou participants)' });
         }
 
-        // Fetch tour price from Supabase to prevent client-side manipulation
         const { data: tour, error: fetchError } = await supabase
             .from('tours')
             .select('price')
@@ -30,7 +47,8 @@ export default async function handler(req: any, res: any) {
             .single();
 
         if (fetchError || !tour) {
-            return res.status(404).json({ error: 'Tour not found' });
+            console.error('Tour fetch error:', fetchError);
+            return res.status(404).json({ error: 'Tour non trouvé en base de données' });
         }
 
         const amount = Math.round(tour.price * participants * 100);
@@ -49,9 +67,10 @@ export default async function handler(req: any, res: any) {
 
         res.status(200).json({
             clientSecret: paymentIntent.client_secret,
-            amount: tour.price * participants // Return for display confirmation
+            amount: tour.price * participants
         });
     } catch (err: any) {
-        res.status(500).json({ error: err.message });
+        console.error('Global API Error:', err);
+        res.status(500).json({ error: err.message || 'Erreur interne du serveur' });
     }
 }
