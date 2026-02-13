@@ -1211,6 +1211,7 @@ function App() {
                         <Input
                           id="booking-date"
                           type="date"
+                          min={new Date().toISOString().split('T')[0]}
                           value={bookingDate}
                           onChange={(e) => setBookingDate(e.target.value)}
                           className="pl-10 h-12 border-gray-200 focus:ring-amber-500 bg-gray-50/50"
