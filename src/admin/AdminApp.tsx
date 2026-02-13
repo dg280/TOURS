@@ -74,6 +74,7 @@ interface Tour {
   included?: string[];
   notIncluded?: string[];
   meetingPoint?: string;
+  meetingPointMapUrl?: string;
 }
 
 interface Review {
@@ -542,7 +543,8 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
           itinerary: editingTour.itinerary || null,
           included: editingTour.included || null,
           not_included: editingTour.notIncluded || null,
-          meeting_point: editingTour.meetingPoint || null
+          meeting_point: editingTour.meetingPoint || null,
+          meeting_point_map_url: editingTour.meetingPointMapUrl || null
         };
 
         const { error } = await supabase.from('tours').upsert(dbTour);
@@ -587,7 +589,8 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
           itinerary: t.itinerary,
           included: t.included,
           notIncluded: t.not_included,
-          meetingPoint: t.meeting_point
+          meetingPoint: t.meeting_point,
+          meetingPointMapUrl: t.meeting_point_map_url
         }));
         setTours(mapped as Tour[]);
         localStorage.setItem('td-tours', JSON.stringify(mapped));
@@ -882,13 +885,21 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Point de rencontre (Texte ou Lien Google Maps Embed)</Label>
+                <Label>Point de rencontre (Texte)</Label>
                 <Input
-                  placeholder="Ex: Plaza Catalunya ou lien iframe src 'https://www.google.com/maps/embed/...'"
+                  placeholder="Ex: Plaza Catalunya"
                   value={editingTour.meetingPoint || ''}
                   onChange={(e) => setEditingTour({ ...editingTour, meetingPoint: e.target.value })}
                 />
-                <p className="text-[10px] text-gray-400">Pour afficher un plan, collez l'URL 'src' de l'iframe de partage Google Maps.</p>
+              </div>
+              <div className="space-y-2">
+                <Label>Lien Google Maps (Embed)</Label>
+                <Input
+                  placeholder="https://www.google.com/maps/embed?pb=..."
+                  value={editingTour.meetingPointMapUrl || ''}
+                  onChange={(e) => setEditingTour({ ...editingTour, meetingPointMapUrl: e.target.value })}
+                />
+                <p className="text-[10px] text-gray-400">Pour afficher une carte, collez l'URL 'src' de l'iframe de partage Google Maps (Embed).</p>
               </div>
               <div className="space-y-2">
                 <Label>Photo du tour</Label>

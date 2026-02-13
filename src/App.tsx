@@ -72,6 +72,7 @@ interface Tour {
   included?: string[];
   notIncluded?: string[];
   meetingPoint?: string;
+  meetingPointMapUrl?: string;
 }
 
 function App() {
@@ -718,7 +719,19 @@ function App() {
                                 <MapPin className="w-6 h-6 text-amber-600 shrink-0" />
                                 <p className="text-gray-700 font-medium">{tour.meetingPoint}</p>
                               </div>
-                              {tour.meetingPoint?.startsWith('https://www.google.com/maps/embed') ? (
+                              {tour.meetingPointMapUrl ? (
+                                <div className="aspect-video rounded-lg overflow-hidden border border-gray-200">
+                                  <iframe
+                                    src={tour.meetingPointMapUrl}
+                                    width="100%"
+                                    height="100%"
+                                    style={{ border: 0 }}
+                                    allowFullScreen
+                                    loading="lazy"
+                                    referrerPolicy="no-referrer-when-downgrade"
+                                  ></iframe>
+                                </div>
+                              ) : tour.meetingPoint?.startsWith('https://www.google.com/maps/embed') ? (
                                 <div className="aspect-video rounded-lg overflow-hidden border border-gray-200">
                                   <iframe
                                     src={tour.meetingPoint}

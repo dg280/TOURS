@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS tours (
     not_included TEXT[] NOT NULL DEFAULT '{}',
     itinerary TEXT[] NOT NULL DEFAULT '{}',
     meeting_point TEXT,
+    meeting_point_map_url TEXT,
     is_active BOOLEAN DEFAULT TRUE,
     stripe_link TEXT
 );
