@@ -15,10 +15,11 @@ import {
   CheckIcon,
   Upload,
   Image as ImageIcon,
-  Check
+  Check,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+import { Toaster, toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import {
   Dialog,
@@ -61,7 +62,7 @@ interface Tour {
   subtitle: string;
   description: string;
   duration: string;
-  groupSize: string;
+  group_size: string;
   price: number;
   image: string;
   highlights: string[];
@@ -98,100 +99,8 @@ const sanitize = (str: string) => {
 };
 
 // Mock Data
-// Mock Data from translations.ts
-const mockTours: Tour[] = [
-  {
-    id: '1',
-    title: 'Costa Brava & Girona : sentiers médiévaux et beauté côtière',
-    subtitle: 'Profondeur culturelle et paysages marquants',
-    description: 'Un voyage d\'une journée entière, guidé privativement, combinant l\'héritage juif et médiéval de Gérone avec les villages côtiers raffinés de la Costa Brava.',
-    duration: 'Journée entière',
-    groupSize: '1-8',
-    price: 145,
-    image: '/tour-girona.jpg',
-    category: 'Culture & Nature',
-    highlights: ['Quartier Juif (El Call)', 'Village médiéval de Pals', 'Calella de Palafrugell & Llafranc', 'Randonnée Camí de Ronda optionnelle', 'Déjeuner méditerranéen'],
-    isActive: true
-  },
-  {
-    id: '4',
-    title: 'Randonnée Villages Médiévaux — Pré-Pyrénées',
-    subtitle: 'Marche, Nature & Patrimoine',
-    description: 'Une randonnée immersive à faible impact (6km) commençant dans une ville médiévale, avec des chapelles romanes et des vallées forestières. Idéal pour le calme.',
-    duration: 'Journée entière',
-    groupSize: '1-8',
-    price: 95,
-    image: '/tour-prepirinees.jpg',
-    category: 'Randonnée & Patrimoine',
-    highlights: ['Départ village médiéval', 'Chapelles romanes', 'Vallées forestières', 'Paysages paisibles', 'Marche immersive 6km'],
-    isActive: true
-  },
-  {
-    id: '5',
-    title: 'Kayak Costa Brava — Grottes Marines & Criques Cachées',
-    subtitle: 'Aventure, Nature & Activités Nautiques',
-    description: 'Une expérience guidée en kayak explorant grottes marines, vie marine et falaises escarpées. Opéré avec des partenaires locaux audités.',
-    duration: 'Demi/Journée entière',
-    groupSize: '1-8',
-    price: 75,
-    image: '/tour-kayak.jpg',
-    category: 'Aventure',
-    highlights: ['Exploration de grottes', 'Falaises escarpées', 'Vie marine', 'Sécurité auditée', 'Demi ou Journée entière'],
-    isActive: true
-  },
-  {
-    id: '6',
-    title: 'Expérience Montserrat & Vin',
-    subtitle: 'Culture, Décors & Gastronomie',
-    description: 'Une journée combinant le paysage majestueux et la spiritualité de Montserrat avec la visite d\'une bodega familiale et une dégustation.',
-    duration: 'Demi/Journée entière',
-    groupSize: '1-8',
-    price: 125,
-    image: '/tour-montserrat.jpg',
-    category: 'Culture & Vin',
-    highlights: ['Exploration du monastère', 'Vues panoramiques', 'Visite cave locale', 'Dégustation', 'Bodega familiale'],
-    isActive: true
-  },
-  {
-    id: '7',
-    title: 'Gérone et Collioure : un voyage méditerranéen transfrontalier',
-    subtitle: 'Histoire, paysages, gastronomie et architecture',
-    description: 'Une journée complète reliant la profondeur médiévale de la Catalogne au charme côtier du sud de la France.',
-    duration: 'Journée entière',
-    groupSize: '1-8',
-    price: 165,
-    image: '/tour-collioure.jpg',
-    category: 'Culture & Gastronomie',
-    highlights: ['Cathédrale de Gérone & El Call', 'Traversée des Pyrénées', 'Port & Forteresse de Collioure', 'Dégustation d\'anchois boutique', 'Déjeuner méditerranéen complet'],
-    isActive: true
-  },
-  {
-    id: '2',
-    title: 'Tour à pied de Barcelone — Coins secrets de la vieille ville',
-    subtitle: 'Culturel, Voyage Responsable',
-    description: 'Une exploration slow-travel des quartiers Gothique et Born, dévoilant l\'histoire, les légendes et les histoires de quartier loin des circuits bondés.',
-    duration: 'Demi-journée',
-    groupSize: '1-8',
-    price: 55,
-    image: '/tour-walking.jpg',
-    category: 'Ville & Culture',
-    highlights: ['Quartiers Gothique & Born', 'Histoire cachée', 'Légendes & récits locaux', 'Loin des foules'],
-    isActive: true
-  },
-  {
-    id: '3',
-    title: 'Randonnée sur le sentier côtier — Costa Brava “Camí de Ronda”',
-    subtitle: 'Marche & Trekking',
-    description: 'Une randonnée côtière spectaculaire (6km) sur l\'un des sentiers les plus emblématiques de Catalogne. Forêts de pins et criques turquoises.',
-    duration: 'Journée entière',
-    groupSize: '1-8',
-    price: 85,
-    image: '/tour-cami.jpg',
-    category: 'Nature & Marche',
-    highlights: ['Randonnée côtière 6km', 'Criques turquoises', 'Déjeuner de la mer', 'Possibilité de baignade'],
-    isActive: true
-  }
-];
+// Mock Data is now handled via the database (default_tours table)
+// No longer using hardcoded mockTours in this file.
 
 /*
 const mockReservations: Reservation[] = [
@@ -594,6 +503,7 @@ function Reservations({
 function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.Dispatch<React.SetStateAction<Tour[]>> }) {
   const [editingTour, setEditingTour] = useState<Tour | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, tourId?: string) => {
@@ -621,7 +531,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
           subtitle: editingTour.subtitle,
           description: editingTour.description,
           duration: editingTour.duration,
-          group_size: editingTour.groupSize,
+          group_size: editingTour.group_size,
           price: editingTour.price,
           image: editingTour.image,
           category: editingTour.category,
@@ -652,9 +562,50 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
     }
   };
 
+  const pullFromDb = async () => {
+    if (!supabase) return;
+    setIsSyncing(true);
+    const loadingToast = toast.loading("Récupération des données du cloud...");
+    try {
+      const { data, error } = await supabase.from('tours').select('*').order('id');
+      if (error) throw error;
+      if (data && data.length > 0) {
+        const mapped = data.map(t => ({
+          id: t.id,
+          title: t.title,
+          subtitle: t.subtitle,
+          description: t.description,
+          duration: t.duration,
+          group_size: t.group_size,
+          price: t.price,
+          image: t.image,
+          category: t.category,
+          highlights: t.highlights,
+          isActive: t.is_active,
+          stripeLink: t.stripe_link || '',
+          itinerary: t.itinerary,
+          included: t.included,
+          notIncluded: t.not_included,
+          meetingPoint: t.meeting_point
+        }));
+        setTours(mapped as Tour[]);
+        localStorage.setItem('td-tours', JSON.stringify(mapped));
+        toast.success(`${data.length} tours récupérés avec succès.`, { id: loadingToast });
+      } else {
+        toast.info("Aucun tour trouvé en base de données.", { id: loadingToast });
+      }
+    } catch (err) {
+      console.error('Pull error:', err);
+      toast.error("Erreur lors de la récupération : " + (err as Error).message, { id: loadingToast });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   const pushAllToDb = async () => {
     if (!supabase) return;
     setIsEditOpen(false);
+    setIsSyncing(true);
     const loadingToast = toast.loading("Synchronisation du catalogue...");
 
     try {
@@ -665,31 +616,95 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
           subtitle: tour.subtitle,
           description: tour.description,
           duration: tour.duration,
-          group_size: tour.groupSize,
+          group_size: tour.group_size,
           price: tour.price,
           image: tour.image,
           category: tour.category,
           highlights: tour.highlights,
           is_active: tour.isActive,
           stripe_link: tour.stripeLink || null,
-          itinerary: tour.itinerary || null,
-          included: tour.included || null,
-          not_included: tour.notIncluded || null,
+          itinerary: tour.itinerary || [],
+          included: tour.included || [],
+          not_included: tour.notIncluded || [],
           meeting_point: tour.meetingPoint || null
         };
         const { error } = await supabase.from('tours').upsert(dbTour);
         if (error) throw error;
       }
-      toast.dismiss(loadingToast);
-      toast.success("Tout le catalogue est synchronisé sur Supabase !");
+      toast.success("Tout le catalogue est synchronisé sur Supabase !", { id: loadingToast });
     } catch (err: any) {
       console.error('Sync error:', err);
-      toast.dismiss(loadingToast);
       if (err.code === '42P01') {
-        toast.error("La table 'tours' n'existe pas. Avez-vous exécuté le SQL dans Supabase ?");
+        toast.error("La table 'tours' n'existe pas. Avez-vous exécuté le SQL dans Supabase ?", { id: loadingToast });
       } else {
-        toast.error("Échec de la synchronisation : " + err.message);
+        toast.error("Échec de la synchronisation : " + err.message, { id: loadingToast });
       }
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const resetFromMaster = async () => {
+    if (!supabase) return;
+    if (!confirm('ATTENTION: Cela va écraser vos tours LOCAUX par les tours standards de la base de données. Continuer ?')) return;
+
+    setIsSyncing(true);
+    const loadingToast = toast.loading("Récupération du catalogue standard...");
+    try {
+      const { data, error } = await supabase.from('default_tours').select('*').order('id');
+      if (error) throw error;
+      if (data && data.length > 0) {
+        const mapped = data.map(t => ({
+          id: t.id,
+          title: t.title,
+          subtitle: t.subtitle,
+          description: t.description,
+          duration: t.duration,
+          group_size: t.group_size,
+          price: t.price,
+          image: t.image,
+          category: t.category,
+          highlights: t.highlights,
+          isActive: t.is_active,
+          stripeLink: t.stripe_link || '',
+          itinerary: t.itinerary,
+          included: t.included,
+          notIncluded: t.not_included,
+          meetingPoint: t.meeting_point
+        }));
+        setTours(mapped as Tour[]);
+        localStorage.setItem('td-tours', JSON.stringify(mapped));
+        toast.success(`${data.length} tours standards chargés. Cliquez sur "Push vers DB" pour mettre à jour le site public.`, { id: loadingToast });
+      } else {
+        toast.error("Aucun tour standard trouvé en base de données.", { id: loadingToast });
+      }
+    } catch (err) {
+      console.error('Reset error:', err);
+      toast.error("Erreur lors du reset : " + (err as Error).message, { id: loadingToast });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const fixImagePaths = () => {
+    let fixCount = 0;
+    const fixedTours = tours.map(t => {
+      let updatedImage = t.image;
+      if (t.image === '/tour-walking.jpg') {
+        updatedImage = '/tour-barcelona-hidden.jpg';
+        fixCount++;
+      } else if (t.image === '/tour-cami.jpg') {
+        updatedImage = '/tour-camironda.jpg';
+        fixCount++;
+      }
+      return { ...t, image: updatedImage };
+    });
+
+    if (fixCount > 0) {
+      setTours(fixedTours);
+      toast.success(`${fixCount} chemin(s) d'image(s) réparé(s) localement. N'oubliez pas de faire "Push vers DB" !`);
+    } else {
+      toast.info("Aucun chemin d'image erroné détecté.");
     }
   };
 
@@ -699,17 +714,42 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
         <h2 className="text-2xl font-bold">Catalogue des Tours</h2>
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           {supabase && (
-            <Button variant="outline" onClick={pushAllToDb} className="border-amber-600 text-amber-600">
-              <Upload className="w-4 h-4 mr-2" /> Synchro Database
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                onClick={pushAllToDb}
+                className="border-amber-600 text-amber-600"
+                disabled={isSyncing}
+              >
+                {isSyncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                Push vers DB
+              </Button>
+              <Button
+                variant="outline"
+                onClick={pullFromDb}
+                className="border-blue-600 text-blue-600"
+                disabled={isSyncing}
+              >
+                {isSyncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Compass className="w-4 h-4 mr-2" />}
+                Pull de DB
+              </Button>
+            </>
           )}
-          <Button variant="outline" onClick={() => {
-            if (confirm('Voulez-vous restaurer les 7 tours par défaut ? Cela écrasera vos modifications locales.')) {
-              setTours(mockTours);
-              localStorage.setItem('td-tours', JSON.stringify(mockTours));
-              toast.success('Catalogue restauré aux 7 tours par défaut');
-            }
-          }}>Réinitialiser</Button>
+          <Button
+            variant="outline"
+            className="border-green-600 text-green-600"
+            onClick={fixImagePaths}
+          >
+            <Check className="w-4 h-4 mr-2" /> Réparer Images
+          </Button>
+          <Button
+            variant="outline"
+            onClick={resetFromMaster}
+            disabled={isSyncing}
+          >
+            {isSyncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Compass className="w-4 h-4 mr-2" />}
+            Réinitialiser Défaut
+          </Button>
           <Button className="bg-amber-600" onClick={() => {
             setEditingTour({
               id: Math.random().toString(36).substr(2, 9),
@@ -717,7 +757,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
               subtitle: '',
               description: '',
               duration: '',
-              groupSize: '',
+              group_size: '',
               price: 0,
               image: '',
               stripeLink: '',
@@ -962,6 +1002,7 @@ export default function AdminApp() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [guidePhoto, setGuidePhoto] = useState(() => localStorage.getItem('td-guide-photo') || '/guide-antoine.jpg');
+  const [instagramUrl, setInstagramUrl] = useState(() => localStorage.getItem('td-instagram-url') || 'https://www.instagram.com/tours_and_detours_bcn/');
 
   const profileFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -973,6 +1014,7 @@ export default function AdminApp() {
 
     // Fetch reservations
     if (supabase) {
+      const loadingToast = toast.loading("Chargement des données...");
       supabase.from('reservations').select('*').order('created_at', { ascending: false })
         .then(({ data, error }) => {
           if (!error && data) {
@@ -1014,8 +1056,9 @@ export default function AdminApp() {
         });
 
       // Fetch tours
-      supabase.from('tours').select('*')
+      supabase.from('tours').select('*').order('id')
         .then(({ data, error }) => {
+          toast.dismiss(loadingToast);
           if (!error && data && data.length > 0) {
             const mapped = data.map(t => ({
               id: t.id,
@@ -1023,7 +1066,7 @@ export default function AdminApp() {
               subtitle: t.subtitle,
               description: t.description,
               duration: t.duration,
-              groupSize: t.group_size,
+              group_size: t.group_size,
               price: t.price,
               image: t.image,
               category: t.category,
@@ -1036,6 +1079,12 @@ export default function AdminApp() {
               meetingPoint: t.meeting_point
             }));
             setTours(mapped as Tour[]);
+            toast.success(`${data.length} tours chargés depuis la base.`);
+          } else if (error) {
+            console.error('Fetch tours error:', error);
+            toast.error("Erreur de chargement des tours (Cloud). Utilisation des données locales.");
+          } else if (data && data.length === 0) {
+            toast.info("Base vide. Vous pouvez synchroniser vos tours locaux.");
           }
         });
 
@@ -1043,8 +1092,9 @@ export default function AdminApp() {
       supabase.from('site_config').select('value').eq('key', 'guide_profile').single()
         .then(({ data, error }) => {
           if (!error && data && data.value) {
-            const val = data.value as { photo: string };
+            const val = data.value as { photo?: string; instagram?: string };
             if (val.photo) setGuidePhoto(val.photo);
+            if (val.instagram) setInstagramUrl(val.instagram);
           }
         });
     } else {
@@ -1053,12 +1103,16 @@ export default function AdminApp() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('td-tours', JSON.stringify(tours));
+    // Synchronisation désactivée vers localStorage pour forcer la DB
   }, [tours]);
 
   useEffect(() => {
     localStorage.setItem('td-guide-photo', guidePhoto);
   }, [guidePhoto]);
+
+  useEffect(() => {
+    localStorage.setItem('td-instagram-url', instagramUrl);
+  }, [instagramUrl]);
 
   const handleProfileImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1106,7 +1160,7 @@ export default function AdminApp() {
       if (supabase) {
         const { error } = await supabase.from('site_config').upsert({
           key: 'guide_profile',
-          value: { photo: guidePhoto },
+          value: { photo: guidePhoto, instagram: instagramUrl },
           updated_at: new Date().toISOString()
         });
 
@@ -1138,6 +1192,7 @@ export default function AdminApp() {
 
   return (
     <div className="flex flex-col lg:flex-row h-screen bg-gray-100 overflow-hidden">
+      <Toaster richColors position="top-right" />
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div
@@ -1260,6 +1315,15 @@ export default function AdminApp() {
                           </div>
                           <p className="text-xs text-gray-500">Vous pouvez soit entrer une URL, soit télécharger un fichier depuis votre disque.</p>
                         </div>
+                        <div className="space-y-2">
+                          <Label>Lien Instagram</Label>
+                          <Input
+                            value={instagramUrl}
+                            onChange={(e) => setInstagramUrl(e.target.value)}
+                            placeholder="https://www.instagram.com/votre_compte"
+                          />
+                          <p className="text-xs text-gray-500">Ce lien sera utilisé pour l'icône Instagram dans le pied de page du site.</p>
+                        </div>
                       </div>
 
                       <div className="pt-4 flex gap-3">
@@ -1276,6 +1340,7 @@ export default function AdminApp() {
           </div>
         </div>
       </main>
+      <Toaster position="top-right" richColors />
     </div>
   );
 }

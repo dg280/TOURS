@@ -98,6 +98,18 @@ export type Database = {
                     stripe_link?: string | null;
                 };
             };
+            site_config: {
+                Row: {
+                    key: string;
+                    value: any;
+                    updated_at: string;
+                };
+                Insert: {
+                    key: string;
+                    value: any;
+                    updated_at?: string;
+                };
+            };
         };
     };
 };

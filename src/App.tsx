@@ -7,7 +7,6 @@ import {
   Phone,
   Mail,
   Instagram,
-  Facebook,
   Menu,
   X,
   ChevronRight,
@@ -91,21 +90,34 @@ function App() {
   console.log('Processing state:', isProcessing);
   const [showCookieConsent, setShowCookieConsent] = useState(false);
   const [guidePhoto, setGuidePhoto] = useState('/guide-antoine.jpg');
+  const [instagramUrl, setInstagramUrl] = useState('https://www.instagram.com/tours_and_detours_bcn/');
   const [customTours, setCustomTours] = useState<Tour[]>([]);
   const [clientSecret, setClientSecret] = useState('');
 
   useEffect(() => {
     if (selectedTour && bookingStep === 3 && !clientSecret) {
-      // Create PaymentIntent as soon as the page loads
+      // Create PaymentIntent as soon as the step is reached
       fetch("/api/create-payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: calculateTotal() * 100 }), // Amount in cents
+        body: JSON.stringify({
+          tourId: selectedTour.id.toString(),
+          participants
+        }),
       })
         .then((res) => res.json())
-        .then((data) => setClientSecret(data.clientSecret));
+        .then((data) => {
+          if (data.clientSecret) {
+            setClientSecret(data.clientSecret);
+          }
+        });
     }
-  }, [selectedTour, bookingStep, clientSecret]);
+  }, [selectedTour, bookingStep, clientSecret, participants]);
+
+  // Reset clientSecret if critical booking info changes
+  useEffect(() => {
+    setClientSecret('');
+  }, [selectedTour, participants]);
 
   useEffect(() => {
     const savedPhoto = localStorage.getItem('td-guide-photo');
@@ -143,8 +155,9 @@ function App() {
       supabase.from('site_config').select('value').eq('key', 'guide_profile').single()
         .then(({ data, error }) => {
           if (!error && data && data.value) {
-            const val = data.value as { photo: string };
+            const val = data.value as { photo?: string; instagram?: string };
             if (val.photo) setGuidePhoto(val.photo);
+            if (val.instagram) setInstagramUrl(val.instagram);
           }
         });
     }
@@ -257,7 +270,23 @@ function App() {
   };
 
   const nextStep = () => {
-    if (bookingStep === 3) {
+    if (bookingStep === 1) {
+      if (!bookingDate) {
+        toast.error(lang === 'fr' ? 'Veuillez choisir une date' : 'Please select a date');
+        return;
+      }
+      setBookingStep(2);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (bookingStep === 2) {
+      if (!formData.name || !formData.email) {
+        toast.error(lang === 'fr' ? 'Veuillez remplir vos coordonnées' : 'Please fill your contact details');
+        return;
+      }
+      // Trigger Payment Intent creation when moving to step 3
+      setClientSecret('');
+      setBookingStep(3);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (bookingStep === 3) {
       setIsProcessing(true);
 
       const newReservation = {
@@ -665,10 +694,10 @@ function App() {
                                 <MapPin className="w-6 h-6 text-amber-600 shrink-0" />
                                 <p className="text-gray-700 font-medium">{tour.meetingPoint}</p>
                               </div>
-                              {tour.meetingPoint?.includes('google.com/maps') ? (
+                              {tour.meetingPoint?.startsWith('https://www.google.com/maps/embed') ? (
                                 <div className="aspect-video rounded-lg overflow-hidden border border-gray-200">
                                   <iframe
-                                    src={tour.meetingPoint.includes('embed') ? tour.meetingPoint : `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${encodeURIComponent(tour.meetingPoint)}`}
+                                    src={tour.meetingPoint}
                                     width="100%"
                                     height="100%"
                                     style={{ border: 0 }}
@@ -677,15 +706,27 @@ function App() {
                                     referrerPolicy="no-referrer-when-downgrade"
                                   ></iframe>
                                 </div>
+                              ) : tour.meetingPoint?.includes('google.com/maps') ? (
+                                <div className="aspect-video bg-gray-100 rounded-lg flex flex-col items-center justify-center text-gray-600 p-8 text-center border">
+                                  <MapPin className="w-10 h-10 mb-3 text-amber-600 opacity-50" />
+                                  <p className="font-medium mb-4">{tour.meetingPoint}</p>
+                                  <Button
+                                    variant="outline"
+                                    className="border-amber-600 text-amber-600 hover:bg-amber-50"
+                                    onClick={() => window.open(tour.meetingPoint, '_blank')}
+                                  >
+                                    Ouvrir dans Google Maps
+                                  </Button>
+                                </div>
                               ) : (
-                                <div className="aspect-video bg-gray-200 rounded-lg flex flex-col items-center justify-center text-gray-400 p-8 text-center">
+                                <div className="aspect-video bg-gray-50 rounded-lg flex flex-col items-center justify-center text-gray-400 p-8 text-center">
                                   <MapPin className="w-10 h-10 mb-3 opacity-20" />
                                   <p className="italic text-sm">
                                     {lang === 'fr'
-                                      ? "Localisation disponible sur demande ou via le lien reçu après réservation."
+                                      ? "Localisation précise disponible après réservation."
                                       : lang === 'es'
-                                        ? "Ubicación disponible bajo petición o mediante el enlace recibido tras la reserva."
-                                        : "Location available on request or via the link received after booking."}
+                                        ? "Ubicación precisa disponible después de la reserva."
+                                        : "Precise location available after booking."}
                                   </p>
                                 </div>
                               )}
@@ -973,38 +1014,81 @@ function App() {
 
                 <div className="flex gap-4 pt-4">
                   <a
-                    href="#"
+                    href={instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-amber-600 transition-colors"
                   >
                     <Instagram className="w-5 h-5" />
-                  </a>
-                  <a
-                    href="#"
-                    className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-amber-600 transition-colors"
-                  >
-                    <Facebook className="w-5 h-5" />
                   </a>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-8 text-gray-900">
+            <div className="bg-white rounded-2xl p-8 text-gray-900 border border-gray-100 shadow-xl">
               <h3 className="text-2xl font-bold mb-6">{t.contact.form_title}</h3>
-              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+              <form
+                className="space-y-4"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const form = e.currentTarget;
+                  const name = (form.elements.namedItem('name') as HTMLInputElement).value;
+                  const email = (form.elements.namedItem('email') as HTMLInputElement).value;
+                  const tour = (form.elements.namedItem('tour') as HTMLSelectElement).value;
+                  const date = (form.elements.namedItem('date') as HTMLInputElement).value;
+                  const message = (form.elements.namedItem('message') as HTMLTextAreaElement).value;
+
+                  if (!name || !email || !message) {
+                    toast.error(lang === 'fr' ? "Veuillez remplir les champs obligatoires." : "Please fill in the required fields.");
+                    return;
+                  }
+
+                  const loadingToast = toast.loading(lang === 'fr' ? "Envoi en cours..." : "Sending...");
+
+                  if (supabase) {
+                    const { error } = await supabase.from('reservations').insert({
+                      name,
+                      email,
+                      phone: 'Contact Form',
+                      tour_id: tour || 'General Inquiry',
+                      tour_name: tours.find(t => String(t.id) === String(tour))?.title || 'Demande Générale',
+                      date: date || new Date().toISOString().split('T')[0],
+                      participants: 1,
+                      total_price: 0,
+                      status: 'pending',
+                      message
+                    });
+
+                    toast.dismiss(loadingToast);
+                    if (error) {
+                      console.error('Submission error:', error);
+                      toast.error(lang === 'fr' ? "Erreur lors de l'envoi. Veuillez réessayer." : "Error sending message. Please try again.");
+                    } else {
+                      toast.success(lang === 'fr' ? "Message envoyé avec succès ! Je vous répondrai très vite." : "Message sent successfully! I will get back to you soon.");
+                      form.reset();
+                    }
+                  } else {
+                    toast.dismiss(loadingToast);
+                    toast.success("Simulation: Message envoyé ! (Supabase non connecté)");
+                    form.reset();
+                  }
+                }}
+              >
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="name">{t.contact.name}</Label>
-                    <Input id="name" placeholder={t.contact.name} className="mt-1" />
+                    <Input id="name" name="name" placeholder={t.contact.name} className="mt-1" required />
                   </div>
                   <div>
                     <Label htmlFor="email">{t.contact.email}</Label>
-                    <Input id="email" type="email" placeholder="votre@email.com" className="mt-1" />
+                    <Input id="email" name="email" type="email" placeholder="votre@email.com" className="mt-1" required />
                   </div>
                 </div>
                 <div>
                   <Label htmlFor="tour">{t.contact.tour}</Label>
                   <select
                     id="tour"
+                    name="tour"
                     className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
                   >
                     <option value="">{t.contact.select_tour}</option>
@@ -1017,18 +1101,20 @@ function App() {
                   <Label htmlFor="date">{t.contact.date}</Label>
                   <div className="relative mt-1">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <Input id="date" type="date" className="pl-10" />
+                    <Input id="date" name="date" type="date" className="pl-10" />
                   </div>
                 </div>
                 <div>
                   <Label htmlFor="message">{t.contact.message}</Label>
                   <Textarea
                     id="message"
+                    name="message"
                     placeholder="..."
                     className="mt-1 min-h-[120px]"
+                    required
                   />
                 </div>
-                <Button className="w-full bg-amber-600 hover:bg-amber-700 text-white btn-hover py-6 text-lg">
+                <Button type="submit" className="w-full bg-amber-600 hover:bg-amber-700 text-white btn-hover py-6 text-lg transition-all shadow-lg active:scale-95">
                   {t.contact.cta}
                 </Button>
               </form>
@@ -1323,11 +1409,8 @@ function App() {
                     : 'Experts in Catalonia, we create authentic and responsible private experiences for discerning travelers.'}
               </p>
               <div className="flex gap-4">
-                <a href="https://www.instagram.com/tours_and_detours_bcn/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-amber-600/20 hover:border-amber-600/50 hover:text-amber-500 transition-all">
+                <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-amber-600/20 hover:border-amber-600/50 hover:text-amber-500 transition-all">
                   <Instagram className="w-5 h-5" />
-                </a>
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-amber-600/20 hover:border-amber-600/50 hover:text-amber-500 transition-all">
-                  <Facebook className="w-5 h-5" />
                 </a>
               </div>
             </div>
