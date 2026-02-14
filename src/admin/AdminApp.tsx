@@ -164,7 +164,7 @@ const mockReviews: Review[] = [
 */
 
 // Login Component
-function Login({ onLogin }: { onLogin: () => void }) {
+function Login() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
@@ -1623,7 +1623,7 @@ export default function AdminApp() {
     }
   };
 
-  if (!isLoggedIn) return <Login onLogin={() => setIsLoggedIn(true)} />;
+  if (!isLoggedIn) return <Login />;
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
