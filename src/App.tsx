@@ -255,24 +255,24 @@ function App() {
     const tour = custom ? { ...base, ...custom } : base;
 
     // Use specific language fields from DB if we are in EN or ES mode and those fields exist in the DB override
-    const finalTitle = lang === 'en' && custom?.title_en ? custom.title_en :
-      lang === 'es' && custom?.title_es ? custom.title_es :
+    const finalTitle = lang === 'en' ? (custom?.title_en || base.title) :
+      lang === 'es' ? (custom?.title_es || base.title) :
         (custom ? custom.title : base.title);
 
-    const finalSubtitle = lang === 'en' && custom?.subtitle_en ? custom.subtitle_en :
-      lang === 'es' && custom?.subtitle_es ? custom.subtitle_es :
+    const finalSubtitle = lang === 'en' ? (custom?.subtitle_en || base.subtitle) :
+      lang === 'es' ? (custom?.subtitle_es || base.subtitle) :
         (custom ? custom.subtitle : base.subtitle);
 
-    const finalDesc = lang === 'en' && custom?.description_en ? custom.description_en :
-      lang === 'es' && custom?.description_es ? custom.description_es :
+    const finalDesc = lang === 'en' ? (custom?.description_en || base.description) :
+      lang === 'es' ? (custom?.description_es || base.description) :
         (custom ? custom.description : base.description);
 
-    const finalHighlights = lang === 'en' && custom?.highlights_en ? custom.highlights_en :
-      lang === 'es' && custom?.highlights_es ? custom.highlights_es :
+    const finalHighlights = lang === 'en' ? (custom?.highlights_en || base.highlights) :
+      lang === 'es' ? (custom?.highlights_es || base.highlights) :
         (custom ? custom.highlights : base.highlights);
 
-    const finalItinerary = lang === 'en' && custom?.itinerary_en ? custom.itinerary_en :
-      lang === 'es' && custom?.itinerary_es ? custom.itinerary_es :
+    const finalItinerary = lang === 'en' ? (custom?.itinerary_en || base.itinerary) :
+      lang === 'es' ? (custom?.itinerary_es || base.itinerary) :
         (custom ? custom.itinerary : (base.itinerary || [
           "09:00 - Départ de Barcelone",
           "10:30 - Visite guidée du coeur historique",
