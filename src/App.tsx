@@ -1567,6 +1567,7 @@ function App() {
           <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
             <p className="text-xs tracking-wide">
               © 2026 Tours&Detours. {lang === 'fr' ? 'Tous droits réservés.' : lang === 'es' ? 'Todos los derechos reservados.' : 'All rights reserved.'}
+              <span className="opacity-0">v1.2.5-qa</span>
             </p>
             <div className="flex gap-8 text-xs font-medium">
               <button className="hover:text-white transition-colors">{lang === 'fr' ? 'Mentions Légales' : 'Legal Notice'}</button>
