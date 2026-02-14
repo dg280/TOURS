@@ -60,18 +60,32 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 
 interface Tour {
   id: number;
   title: string;
+  title_en?: string;
+  title_es?: string;
   subtitle: string;
+  subtitle_en?: string;
+  subtitle_es?: string;
   description: string;
+  description_en?: string;
+  description_es?: string;
   duration: string;
   groupSize: string;
   price: number;
   image: string;
   category: string;
   highlights: string[];
+  highlights_en?: string[];
+  highlights_es?: string[];
   stripeLink?: string;
   itinerary?: string[];
+  itinerary_en?: string[];
+  itinerary_es?: string[];
   included?: string[];
+  included_en?: string[];
+  included_es?: string[];
   notIncluded?: string[];
+  notIncluded_en?: string[];
+  notIncluded_es?: string[];
   meetingPoint?: string;
   meetingPointMapUrl?: string;
 }
@@ -156,19 +170,33 @@ function App() {
             const mapped = data.map(t => ({
               id: Number(t.id) || t.id,
               title: t.title,
+              title_en: t.title_en,
+              title_es: t.title_es,
               subtitle: t.subtitle,
+              subtitle_en: t.subtitle_en,
+              subtitle_es: t.subtitle_es,
               description: t.description,
+              description_en: t.description_en,
+              description_es: t.description_es,
               duration: t.duration,
               groupSize: t.group_size,
               price: t.price,
               image: t.image,
               category: t.category,
               highlights: t.highlights,
+              highlights_en: t.highlights_en,
+              highlights_es: t.highlights_es,
               isActive: t.is_active,
               stripeLink: t.stripe_link || '',
               itinerary: t.itinerary,
+              itinerary_en: t.itinerary_en,
+              itinerary_es: t.itinerary_es,
               included: t.included,
+              included_en: t.included_en,
+              included_es: t.included_es,
               notIncluded: t.not_included,
+              notIncluded_en: t.not_included_en,
+              notIncluded_es: t.not_included_es,
               meetingPoint: t.meeting_point
             }));
             setCustomTours(mapped as Tour[]);
@@ -226,8 +254,40 @@ function App() {
     const custom = customTours.find(c => c.id === base.id);
     const tour = custom ? { ...base, ...custom } : base;
 
+    // Use specific language fields from DB if we are in EN or ES mode and those fields exist in the DB override
+    const finalTitle = lang === 'en' && custom?.title_en ? custom.title_en :
+      lang === 'es' && custom?.title_es ? custom.title_es :
+        (custom ? custom.title : base.title);
+
+    const finalSubtitle = lang === 'en' && custom?.subtitle_en ? custom.subtitle_en :
+      lang === 'es' && custom?.subtitle_es ? custom.subtitle_es :
+        (custom ? custom.subtitle : base.subtitle);
+
+    const finalDesc = lang === 'en' && custom?.description_en ? custom.description_en :
+      lang === 'es' && custom?.description_es ? custom.description_es :
+        (custom ? custom.description : base.description);
+
+    const finalHighlights = lang === 'en' && custom?.highlights_en ? custom.highlights_en :
+      lang === 'es' && custom?.highlights_es ? custom.highlights_es :
+        (custom ? custom.highlights : base.highlights);
+
+    const finalItinerary = lang === 'en' && custom?.itinerary_en ? custom.itinerary_en :
+      lang === 'es' && custom?.itinerary_es ? custom.itinerary_es :
+        (custom ? custom.itinerary : (base.itinerary || [
+          "09:00 - Départ de Barcelone",
+          "10:30 - Visite guidée du coeur historique",
+          "13:00 - Pause déjeuner traditionnelle",
+          "15:00 - Découverte des sites secrets",
+          "17:30 - Retour à Barcelone"
+        ]));
+
     return {
       ...tour,
+      title: finalTitle,
+      subtitle: finalSubtitle,
+      description: finalDesc,
+      highlights: finalHighlights,
+      itinerary: finalItinerary,
       image: tour.image || (
         base.id === 1 ? '/tour-girona.jpg' :
           base.id === 2 ? '/tour-barcelona-hidden.jpg' :
@@ -244,13 +304,6 @@ function App() {
                 base.id === 5 ? 'Aventure' :
                   base.id === 6 ? 'Culture & Vin' : 'Culture & Gastronomie'
       ),
-      itinerary: tour.itinerary || [
-        "09:00 - Départ de Barcelone",
-        "10:30 - Visite guidée du coeur historique",
-        "13:00 - Pause déjeuner traditionnelle",
-        "15:00 - Découverte des sites secrets",
-        "17:30 - Retour à Barcelone"
-      ],
       included: tour.included || [
         "Guide privé expert",
         "Transport climatisé",
