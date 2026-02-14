@@ -17,7 +17,11 @@ import {
   Image as ImageIcon,
   Check,
   Loader2,
-  Trash2
+  Trash2,
+  Activity,
+  Plus,
+  Globe,
+  ShieldCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Toaster, toast } from 'sonner';
@@ -38,6 +42,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -60,20 +70,35 @@ interface Reservation {
 interface Tour {
   id: string;
   title: string;
+  title_en?: string;
+  title_es?: string;
   subtitle: string;
+  subtitle_en?: string;
+  subtitle_es?: string;
   description: string;
+  description_en?: string;
+  description_es?: string;
   duration: string;
   group_size: string;
   price: number;
   image: string;
   highlights: string[];
+  highlights_en?: string[];
+  highlights_es?: string[];
   category: string;
   isActive: boolean;
-  stripeLink?: string;
   itinerary?: string[];
+  itinerary_en?: string[];
+  itinerary_es?: string[];
   included?: string[];
+  included_en?: string[];
+  included_es?: string[];
   notIncluded?: string[];
+  notIncluded_en?: string[];
+  notIncluded_es?: string[];
   meetingPoint?: string;
+  meetingPoint_en?: string;
+  meetingPoint_es?: string;
   meetingPointMapUrl?: string;
 }
 
@@ -141,21 +166,52 @@ const mockReviews: Review[] = [
 // Login Component
 function Login({ onLogin }: { onLogin: () => void }) {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const ADMIN_CONFIG = {
-    email: 'antoine@toursandetours.com',
-    password: 'admin123'
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email === ADMIN_CONFIG.email && password === ADMIN_CONFIG.password) {
-      localStorage.setItem('td-admin-session', Date.now().toString());
-      onLogin();
-    } else {
-      setError('Email ou mot de passe incorrect');
+    if (!supabase) {
+      setError('Erreur de configuration de la base de données');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+    setMessage('');
+
+    try {
+      // 1. Check if email is in authorized_admins
+      const { data: admin, error: adminError } = await supabase
+        .from('authorized_admins')
+        .select('*')
+        .eq('email', email.toLowerCase().trim())
+        .single();
+
+      if (adminError || !admin) {
+        setError("Cet email n'est pas autorisé à accéder à l'interface d'administration.");
+        setIsLoading(false);
+        return;
+      }
+
+      // 2. Send Magic Link
+      const { error: authError } = await supabase.auth.signInWithOtp({
+        email: email.toLowerCase().trim(),
+        options: {
+          emailRedirectTo: window.location.origin + '/admin',
+        }
+      });
+
+      if (authError) {
+        setError('Une erreur est survenue lors de l\'envoi du lien magique : ' + authError.message);
+      } else {
+        setMessage('Lien magique envoyé ! Vérifiez votre boîte mail.');
+      }
+    } catch (err: any) {
+      setError('Une erreur est survenue lors de la connexion');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -167,44 +223,46 @@ function Login({ onLogin }: { onLogin: () => void }) {
             <Compass className="w-8 h-8 text-amber-600" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Tours<span className="text-amber-600">&</span>Detours</h1>
-          <p className="text-gray-500">Interface d'administration</p>
+          <p className="text-gray-500">Accès Administrateur</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm font-medium">
               {error}
             </div>
           )}
+          {message && (
+            <div className="bg-green-50 text-green-600 p-3 rounded-lg text-sm font-medium">
+              {message}
+            </div>
+          )}
           <div>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Email professionnel</Label>
             <Input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="antoine@toursandetours.com"
-              className="mt-1"
+              className="mt-1 h-12"
+              disabled={isLoading || !!message}
+              required
             />
           </div>
-          <div>
-            <Label htmlFor="password">Mot de passe</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="mt-1"
-            />
-          </div>
-          <Button type="submit" className="w-full bg-amber-600 hover:bg-amber-700">
-            Se connecter
+          <Button
+            type="submit"
+            className="w-full bg-amber-600 hover:bg-amber-700 h-12 rounded-xl font-bold text-lg shadow-lg shadow-amber-600/20 transition-all hover:-translate-y-0.5"
+            disabled={isLoading || !!message}
+          >
+            {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Recevoir un lien magique'}
           </Button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-500">
-          <p>Demo: antoine@toursandetours.com / admin123</p>
+        <div className="mt-8 pt-6 border-t border-gray-100 text-center">
+          <p className="text-xs text-gray-400 leading-relaxed uppercase tracking-widest font-bold">
+            Uniquement pour le personnel autorisé
+          </p>
         </div>
       </div>
     </div>
@@ -506,62 +564,68 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
   const [editingTour, setEditingTour] = useState<Tour | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, tourId?: string) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        if (tourId && editingTour && editingTour.id === tourId) {
-          setEditingTour({ ...editingTour, image: base64String });
-        } else if (!tourId && editingTour) {
-          setEditingTour({ ...editingTour, image: base64String });
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const saveTour = async () => {
     if (editingTour) {
-      if (supabase) {
-        const dbTour = {
-          id: editingTour.id,
-          title: editingTour.title,
-          subtitle: editingTour.subtitle,
-          description: editingTour.description,
-          duration: editingTour.duration,
-          group_size: editingTour.group_size,
-          price: editingTour.price,
-          image: editingTour.image,
-          category: editingTour.category,
-          highlights: editingTour.highlights,
-          is_active: editingTour.isActive,
-          stripe_link: editingTour.stripeLink || null,
-          itinerary: editingTour.itinerary || null,
-          included: editingTour.included || null,
-          not_included: editingTour.notIncluded || null,
-          meeting_point: editingTour.meetingPoint || null,
-          meeting_point_map_url: editingTour.meetingPointMapUrl || null
-        };
+      try {
+        if (supabase) {
+          const payload = {
+            title: editingTour.title,
+            title_en: editingTour.title_en,
+            title_es: editingTour.title_es,
+            subtitle: editingTour.subtitle,
+            subtitle_en: editingTour.subtitle_en,
+            subtitle_es: editingTour.subtitle_es,
+            description: editingTour.description,
+            description_en: editingTour.description_en,
+            description_es: editingTour.description_es,
+            duration: editingTour.duration,
+            group_size: editingTour.group_size,
+            price: editingTour.price,
+            image: editingTour.image,
+            category: editingTour.category,
+            highlights: editingTour.highlights,
+            highlights_en: editingTour.highlights_en,
+            highlights_es: editingTour.highlights_es,
+            is_active: editingTour.isActive,
+            itinerary: editingTour.itinerary,
+            itinerary_en: editingTour.itinerary_en,
+            itinerary_es: editingTour.itinerary_es,
+            included: editingTour.included,
+            included_en: editingTour.included_en,
+            included_es: editingTour.included_es,
+            not_included: editingTour.notIncluded,
+            not_included_en: editingTour.notIncluded_en,
+            not_included_es: editingTour.notIncluded_es,
+            meeting_point: editingTour.meetingPoint,
+            meeting_point_en: editingTour.meetingPoint_en,
+            meeting_point_es: editingTour.meetingPoint_es,
+            meeting_point_map_url: editingTour.meetingPointMapUrl
+          };
 
-        const { error } = await supabase.from('tours').upsert(dbTour);
-        if (error) {
-          console.error('Save error:', error);
-          toast.error("Erreur lors de la sauvegarde sur Supabase");
-          return;
+          const { error } = await supabase.from('tours').upsert({
+            id: editingTour.id,
+            ...payload
+          });
+          if (error) throw error;
         }
-      }
 
-      setTours(prev => {
-        const exists = prev.find(t => t.id === editingTour.id);
-        if (exists) return prev.map(t => t.id === editingTour.id ? editingTour : t);
-        return [...prev, editingTour];
-      });
-      setIsEditOpen(false);
-      toast.success("Tour enregistré !");
+        const tourExists = tours.find(t => t.id === editingTour.id);
+        let updatedTours;
+        if (tourExists) {
+          updatedTours = tours.map(t => t.id === editingTour.id ? editingTour : t);
+        } else {
+          updatedTours = [...tours, editingTour];
+        }
+        setTours(updatedTours);
+        localStorage.setItem('td-tours', JSON.stringify(updatedTours));
+
+        toast.success("Tour enregistré avec succès.");
+        setIsEditOpen(false);
+      } catch (err: any) {
+        console.error('Save error:', err);
+        toast.error("Erreur d'enregistrement : " + err.message);
+      }
     }
   };
 
@@ -585,7 +649,6 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
           category: t.category,
           highlights: t.highlights,
           isActive: t.is_active,
-          stripeLink: t.stripe_link || '',
           itinerary: t.itinerary,
           included: t.included,
           notIncluded: t.not_included,
@@ -626,7 +689,6 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
           category: tour.category,
           highlights: tour.highlights,
           is_active: tour.isActive,
-          stripe_link: tour.stripeLink || null,
           itinerary: tour.itinerary || [],
           included: tour.included || [],
           not_included: tour.notIncluded || [],
@@ -670,7 +732,6 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
           category: t.category,
           highlights: t.highlights,
           isActive: t.is_active,
-          stripeLink: t.stripe_link || '',
           itinerary: t.itinerary,
           included: t.included,
           notIncluded: t.not_included,
@@ -783,7 +844,6 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
               group_size: '',
               price: 0,
               image: '',
-              stripeLink: '',
               highlights: [],
               category: 'Tour',
               isActive: true
@@ -815,110 +875,171 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
       </div>
 
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="sm:max-w-lg w-[95vw] max-h-[95vh] flex flex-col p-0 overflow-hidden">
+        <DialogContent className="sm:max-w-3xl w-[95vw] max-h-[95vh] flex flex-col p-0 overflow-hidden">
           <DialogHeader className="p-6 pb-0">
             <DialogTitle>Édition Tour</DialogTitle>
           </DialogHeader>
           {editingTour && (
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              <div className="space-y-2">
-                <Label>Titre</Label>
-                <Input value={editingTour.title} onChange={(e) => setEditingTour({ ...editingTour, title: sanitize(e.target.value) })} />
-              </div>
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea value={editingTour.description} onChange={(e) => setEditingTour({ ...editingTour, description: sanitize(e.target.value) })} />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Prix (€)</Label>
-                  <Input type="number" value={editingTour.price} onChange={(e) => setEditingTour({ ...editingTour, price: parseInt(e.target.value) })} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Catégorie</Label>
-                  <Input value={editingTour.category} onChange={(e) => setEditingTour({ ...editingTour, category: sanitize(e.target.value) })} />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Lien de Paiement Stripe (Optionnel)</Label>
-                <Input
-                  placeholder="https://buy.stripe.com/..."
-                  value={editingTour.stripeLink || ''}
-                  onChange={(e) => setEditingTour({ ...editingTour, stripeLink: e.target.value })}
-                />
-                <p className="text-[10px] text-gray-400">Si vide, le site utilisera la simulation de paiement par défaut.</p>
-              </div>
-              <div className="space-y-2">
-                <Label>Points forts (un par ligne)</Label>
-                <Textarea
-                  className="text-xs min-h-[100px]"
-                  value={editingTour.highlights.join('\n')}
-                  onChange={(e) => setEditingTour({ ...editingTour, highlights: e.target.value.split('\n').filter(l => l.trim()) })}
-                  placeholder="Ex: Quartier Juif&#10;Village médiéval"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Itinéraire (un par ligne)</Label>
-                <Textarea
-                  className="text-xs"
-                  value={(editingTour.itinerary || []).join('\n')}
-                  onChange={(e) => setEditingTour({ ...editingTour, itinerary: e.target.value.split('\n').filter(l => l.trim()) })}
-                  placeholder="09:00 - Départ&#10;10:30 - Visite"
-                />
-              </div>
-              <div className="grid grid-cols-1 gap-4">
-                <div className="space-y-2">
-                  <Label>Inclus (un par ligne)</Label>
-                  <Textarea
-                    className="text-xs min-h-[80px]"
-                    value={(editingTour.included || []).join('\n')}
-                    onChange={(e) => setEditingTour({ ...editingTour, included: e.target.value.split('\n').filter(l => l.trim()) })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Non Inclus (un par ligne)</Label>
-                  <Textarea
-                    className="text-xs min-h-[80px]"
-                    value={(editingTour.notIncluded || []).join('\n')}
-                    onChange={(e) => setEditingTour({ ...editingTour, notIncluded: e.target.value.split('\n').filter(l => l.trim()) })}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Point de rencontre (Texte)</Label>
-                <Input
-                  placeholder="Ex: Plaza Catalunya"
-                  value={editingTour.meetingPoint || ''}
-                  onChange={(e) => setEditingTour({ ...editingTour, meetingPoint: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Lien Google Maps (Embed)</Label>
-                <Input
-                  placeholder="https://www.google.com/maps/embed?pb=..."
-                  value={editingTour.meetingPointMapUrl || ''}
-                  onChange={(e) => setEditingTour({ ...editingTour, meetingPointMapUrl: e.target.value })}
-                />
-                <p className="text-[10px] text-gray-400">Pour afficher une carte, collez l'URL 'src' de l'iframe de partage Google Maps (Embed).</p>
-              </div>
-              <div className="space-y-2">
-                <Label>Photo du tour</Label>
-                <div className="flex flex-col gap-3">
-                  <div className="flex gap-2">
-                    <Input placeholder="URL de l'image" value={editingTour.image} onChange={(e) => setEditingTour({ ...editingTour, image: e.target.value })} className="flex-1" />
-                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
-                    <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()}>
-                      <Upload className="w-4 h-4 mr-2" /> Disque
-                    </Button>
+            <div className="flex-1 overflow-y-auto p-6">
+              <Tabs defaultValue="fr" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 mb-6">
+                  <TabsTrigger value="fr" className="flex items-center gap-2 font-bold text-blue-600">FR <Globe className="w-3 h-3" /></TabsTrigger>
+                  <TabsTrigger value="en" className="flex items-center gap-2 font-bold text-amber-600">EN <Globe className="w-3 h-3" /></TabsTrigger>
+                  <TabsTrigger value="es" className="flex items-center gap-2 font-bold text-red-600">ES <Globe className="w-3 h-3" /></TabsTrigger>
+                </TabsList>
+
+                {/* Common Fields */}
+                <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                  <div className="space-y-2">
+                    <Label className="text-xs uppercase text-gray-400">ID du tour</Label>
+                    <Input value={editingTour.id} disabled className="bg-gray-100" />
                   </div>
-                  {editingTour.image && <img src={editingTour.image} className="w-full h-32 object-cover rounded border" alt="Aperçu" />}
+                  <div className="space-y-2">
+                    <Label className="text-xs uppercase text-gray-400">Prix (€)</Label>
+                    <Input type="number" value={editingTour.price} onChange={(e) => setEditingTour({ ...editingTour, price: parseInt(e.target.value) })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs uppercase text-gray-400">Catégorie</Label>
+                    <Input value={editingTour.category} onChange={(e) => setEditingTour({ ...editingTour, category: sanitize(e.target.value) })} />
+                  </div>
                 </div>
-              </div>
-              <div className="pt-2 sticky bottom-0 bg-white">
-                <Button onClick={saveTour} className="w-full bg-amber-600">Enregistrer</Button>
-              </div>
+
+                <TabsContent value="fr" className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Titre (FR)</Label>
+                    <Input value={editingTour.title} onChange={(e) => setEditingTour({ ...editingTour, title: sanitize(e.target.value) })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Sous-titre (FR)</Label>
+                    <Input value={editingTour.subtitle} onChange={(e) => setEditingTour({ ...editingTour, subtitle: sanitize(e.target.value) })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Description (FR)</Label>
+                    <Textarea rows={4} value={editingTour.description} onChange={(e) => setEditingTour({ ...editingTour, description: sanitize(e.target.value) })} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Points forts (FR)</Label>
+                      <Textarea
+                        className="text-xs min-h-[100px]"
+                        value={editingTour.highlights.join('\n')}
+                        onChange={(e) => setEditingTour({ ...editingTour, highlights: e.target.value.split('\n').filter(l => l.trim()) })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Itinéraire (FR)</Label>
+                      <Textarea
+                        className="text-xs min-h-[100px]"
+                        value={(editingTour.itinerary || []).join('\n')}
+                        onChange={(e) => setEditingTour({ ...editingTour, itinerary: e.target.value.split('\n').filter(l => l.trim()) })}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Point de rencontre (FR)</Label>
+                    <Input value={editingTour.meetingPoint || ''} onChange={(e) => setEditingTour({ ...editingTour, meetingPoint: e.target.value })} />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="en" className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Title (EN)</Label>
+                    <Input value={editingTour.title_en || ''} onChange={(e) => setEditingTour({ ...editingTour, title_en: sanitize(e.target.value) })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Subtitle (EN)</Label>
+                    <Input value={editingTour.subtitle_en || ''} onChange={(e) => setEditingTour({ ...editingTour, subtitle_en: sanitize(e.target.value) })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Description (EN)</Label>
+                    <Textarea rows={4} value={editingTour.description_en || ''} onChange={(e) => setEditingTour({ ...editingTour, description_en: sanitize(e.target.value) })} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Highlights (EN)</Label>
+                      <Textarea
+                        className="text-xs min-h-[100px]"
+                        value={(editingTour.highlights_en || []).join('\n')}
+                        onChange={(e) => setEditingTour({ ...editingTour, highlights_en: e.target.value.split('\n').filter(l => l.trim()) })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Itinerary (EN)</Label>
+                      <Textarea
+                        className="text-xs min-h-[100px]"
+                        value={(editingTour.itinerary_en || []).join('\n')}
+                        onChange={(e) => setEditingTour({ ...editingTour, itinerary_en: e.target.value.split('\n').filter(l => l.trim()) })}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Meeting Point (EN)</Label>
+                    <Input value={editingTour.meetingPoint_en || ''} onChange={(e) => setEditingTour({ ...editingTour, meetingPoint_en: e.target.value })} />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="es" className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Título (ES)</Label>
+                    <Input value={editingTour.title_es || ''} onChange={(e) => setEditingTour({ ...editingTour, title_es: sanitize(e.target.value) })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Subtítulo (ES)</Label>
+                    <Input value={editingTour.subtitle_es || ''} onChange={(e) => setEditingTour({ ...editingTour, subtitle_es: sanitize(e.target.value) })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Descripción (ES)</Label>
+                    <Textarea rows={4} value={editingTour.description_es || ''} onChange={(e) => setEditingTour({ ...editingTour, description_es: sanitize(e.target.value) })} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Puntos fuertes (ES)</Label>
+                      <Textarea
+                        className="text-xs min-h-[100px]"
+                        value={(editingTour.highlights_es || []).join('\n')}
+                        onChange={(e) => setEditingTour({ ...editingTour, highlights_es: e.target.value.split('\n').filter(l => l.trim()) })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Itinerario (ES)</Label>
+                      <Textarea
+                        className="text-xs min-h-[100px]"
+                        value={(editingTour.itinerary_es || []).join('\n')}
+                        onChange={(e) => setEditingTour({ ...editingTour, itinerary_es: e.target.value.split('\n').filter(l => l.trim()) })}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Punto de encuentro (ES)</Label>
+                    <Input value={editingTour.meetingPoint_es || ''} onChange={(e) => setEditingTour({ ...editingTour, meetingPoint_es: e.target.value })} />
+                  </div>
+                </TabsContent>
+
+                <div className="mt-8 space-y-6 border-t pt-6">
+                  <div className="space-y-2">
+                    <Label>Lien Google Maps (Embed)</Label>
+                    <Input
+                      placeholder="https://www.google.com/maps/embed?pb=..."
+                      value={editingTour.meetingPointMapUrl || ''}
+                      onChange={(e) => setEditingTour({ ...editingTour, meetingPointMapUrl: e.target.value })}
+                    />
+                    <p className="text-[10px] text-gray-400 font-medium">Pour afficher une carte, collez l'URL 'src' de l'iframe de partage Google Maps (Embed).</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Photo du tour (URL)</Label>
+                    <div className="flex gap-2">
+                      <Input value={editingTour.image} onChange={(e) => setEditingTour({ ...editingTour, image: e.target.value })} className="flex-1" />
+                    </div>
+                  </div>
+                </div>
+              </Tabs>
             </div>
           )}
+          <div className="px-6 py-4 bg-gray-50 border-t flex justify-end gap-3 shrink-0">
+            <Button variant="outline" onClick={() => setIsEditOpen(false)}>Annuler</Button>
+            <Button onClick={saveTour} className="bg-amber-600 hover:bg-amber-700 font-bold px-8">Enregistrer</Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
@@ -927,9 +1048,117 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
 
 // Reviews Component
 function Reviews({ reviews, setReviews }: { reviews: Review[], setReviews: React.Dispatch<React.SetStateAction<Review[]>> }) {
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [newReview, setNewReview] = useState<Partial<Review>>({
+    name: '',
+    location: '',
+    rating: 5,
+    text: '',
+    isPublished: true
+  });
+
+  const handleAddReview = async () => {
+    if (!newReview.name || !newReview.text) {
+      toast.error("Veuillez remplir le nom et le texte");
+      return;
+    }
+
+    if (supabase) {
+      const { data, error } = await supabase.from('reviews').insert({
+        name: newReview.name,
+        location: newReview.location,
+        rating: newReview.rating,
+        text: newReview.text,
+        is_published: newReview.isPublished,
+        created_at: new Date().toISOString()
+      }).select().single();
+
+      if (error) {
+        toast.error("Erreur lors de l'ajout de l'avis");
+      } else if (data) {
+        setReviews(prev => [
+          {
+            id: data.id,
+            name: data.name,
+            location: data.location,
+            rating: data.rating,
+            text: data.text,
+            isPublished: data.is_published,
+            createdAt: data.created_at
+          },
+          ...prev
+        ]);
+        toast.success("Avis ajouté !");
+        setIsAddOpen(false);
+        setNewReview({ name: '', location: '', rating: 5, text: '', isPublished: true });
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Modération des Avis</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Modération des Avis</h2>
+        <Button onClick={() => setIsAddOpen(true)} className="bg-amber-600 hover:bg-amber-700">
+          <Plus className="w-4 h-4 mr-2" /> Ajouter un avis
+        </Button>
+      </div>
+
+      <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Nouvel Avis</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Nom</Label>
+                <Input value={newReview.name} onChange={e => setNewReview({ ...newReview, name: e.target.value })} placeholder="Ex: Marie D." />
+              </div>
+              <div className="space-y-2">
+                <Label>Localisation</Label>
+                <Input value={newReview.location} onChange={e => setNewReview({ ...newReview, location: e.target.value })} placeholder="Ex: Paris, France" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Note (1-5)</Label>
+              <Select value={String(newReview.rating)} onValueChange={val => setNewReview({ ...newReview, rating: Number(val) })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[5, 4, 3, 2, 1].map(n => (
+                    <SelectItem key={n} value={String(n)}>{n} Étoiles</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Commentaire</Label>
+              <Textarea
+                value={newReview.text}
+                onChange={e => setNewReview({ ...newReview, text: e.target.value })}
+                placeholder="L'expérience était fantastique..."
+                rows={4}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="isPublished"
+                checked={newReview.isPublished}
+                onChange={e => setNewReview({ ...newReview, isPublished: e.target.checked })}
+                className="w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
+              />
+              <Label htmlFor="isPublished">Publier immédiatement</Label>
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 mt-4">
+            <Button variant="outline" onClick={() => setIsAddOpen(false)}>Annuler</Button>
+            <Button onClick={handleAddReview} className="bg-amber-600 hover:bg-amber-700">Enregistrer</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       {reviews.map(review => (
         <Card key={review.id} className="p-4">
           <div className="flex justify-between items-start">
@@ -988,42 +1217,208 @@ function Config() {
           </CardHeader>
           <CardContent className="p-6 flex-1 space-y-4">
             <p className="text-sm text-gray-600">
-              Pour encaisser des paiements, utilisez les <strong>Stripe Payment Links</strong> (plus simple que l'API complète pour un catalogue fixe).
+              Le système utilise désormais des <strong>Payment Intents</strong> dynamiques via l'API. Les prix sont gérés ici dans le catalogue des tours.
             </p>
             <div className="bg-gray-100 p-4 rounded-lg text-[13px] font-mono whitespace-pre-wrap">
-              1. Allez sur Stripe {'→'} Paiements {'→'} Liens de paiement.
-              2. Créez un lien pour chaque tour.
-              3. Copiez le lien (ex: buy.stripe.com/abc).
-              4. Dans le "Catalogue" ici, éditez le tour et collez ce lien.
+              1. Les prix modifiés ici sont immédiatement pris en compte.
+              2. Stripe traite le paiement via /api/create-payment-intent.
+              3. Les participants et le total sont calculés dynamiquement.
             </div>
             <p className="text-xs text-amber-700 italic">
-              Note: Si aucun lien n'est renseigné, le site simulera un paiement réussi pour permettre la validation.
+              Note: Assurez-vous que les clés Stripe SECRET sont configurées dans Vercel pour la production.
             </p>
           </CardContent>
         </Card>
 
-        {/* Supabase Section */}
         <Card className="flex flex-col border-blue-200">
           <CardHeader className="bg-blue-50 border-b border-blue-100">
             <CardTitle className="flex items-center gap-2 text-blue-800">
-              <Upload className="w-5 h-5" /> Base de données (Supabase)
+              <Activity className="w-5 h-5" /> Monitoring Système
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6 flex-1 space-y-4">
-            <div className="flex items-center gap-2 py-2">
-              <div className={`w-3 h-3 rounded-full ${supabase ? 'bg-green-500 shadow-lg shadow-green-200' : 'bg-red-500'}`}></div>
-              <span className="font-bold text-sm">{supabase ? 'Connecté à Supabase' : 'Déconnecté (Vérifiez Vercel Envs)'}</span>
-            </div>
-            <p className="text-sm text-gray-600">
-              <strong>Synchronisation du catalogue :</strong> Les tours sont stockés localement par défaut. Utilisez le bouton "Synchro Database" dans le catalogue pour les monter sur le cloud.
-            </p>
-            <div className="bg-blue-900 p-4 rounded-lg text-white text-[11px] font-mono">
-              # SQL requis pour le catalogue tours
-              CREATE TABLE tours (...);
-              ALTER TABLE tours ENABLE RLS;
-            </div>
+          <CardContent className="p-6">
+            <Monitoring />
           </CardContent>
         </Card>
+      </div>
+    </div>
+  );
+}
+// Admins Management Component
+function AdminsManagement() {
+  const [admins, setAdmins] = useState<{ email: string }[]>([]);
+  const [newEmail, setNewEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAdmins();
+  }, []);
+
+  const fetchAdmins = async () => {
+    if (!supabase) return;
+    const { data, error } = await supabase
+      .from('authorized_admins')
+      .select('email')
+      .order('email');
+    if (!error && data) setAdmins(data);
+    setIsLoading(false);
+  };
+
+  const handleAddAdmin = async () => {
+    if (!newEmail || !supabase) return;
+    const email = newEmail.toLowerCase().trim();
+    const { error } = await supabase
+      .from('authorized_admins')
+      .insert({ email });
+
+    if (error) {
+      toast.error("Échec de l'ajout : " + error.message);
+    } else {
+      toast.success("Admin ajouté");
+      setNewEmail('');
+      fetchAdmins();
+    }
+  };
+
+  const handleRemoveAdmin = async (email: string) => {
+    if (!supabase || !confirm(`Révoquer l'accès pour ${email} ?`)) return;
+    const { error } = await supabase
+      .from('authorized_admins')
+      .delete()
+      .eq('email', email);
+
+    if (error) {
+      toast.error("Échec de la suppression");
+    } else {
+      toast.success("Accès révoqué");
+      fetchAdmins();
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Gestion des Administrateurs</h2>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Ajouter un administrateur</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-4">
+            <Input
+              placeholder="email@toursandetours.com"
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+              className="max-w-md"
+            />
+            <Button onClick={handleAddAdmin} className="bg-amber-600">
+              <Plus className="w-4 h-4 mr-2" /> Autoriser
+            </Button>
+          </div>
+          <p className="text-xs text-gray-400 mt-2">
+            L'utilisateur pourra se connecter via un lien magique s'il figure dans cette liste.
+          </p>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-4">
+        {isLoading ? (
+          <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-amber-600" /></div>
+        ) : (
+          admins.map((admin) => (
+            <Card key={admin.email} className="overflow-hidden">
+              <div className="p-4 flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                    <User className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <p className="font-bold">{admin.email}</p>
+                    <p className="text-xs text-gray-500 italic">Accès Master</p>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => handleRemoveAdmin(admin.email)}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" /> Révoquer
+                </Button>
+              </div>
+            </Card>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Monitoring Component
+function Monitoring() {
+  const [stripeStatus, setStripeStatus] = useState<'checking' | 'ok' | 'error'>('checking');
+  const [supabaseStatus, setSupabaseStatus] = useState<'checking' | 'ok' | 'error'>('checking');
+  const [latency, setLatency] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Check Supabase
+    const start = Date.now();
+    if (supabase) {
+      supabase.from('site_config').select('*').limit(1)
+        .then(({ error }) => {
+          setSupabaseStatus(error ? 'error' : 'ok');
+          setLatency(Date.now() - start);
+        });
+    } else {
+      setSupabaseStatus('error');
+    }
+
+    // Check Stripe (via API)
+    fetch('/api/create-payment-intent', { method: 'GET' })
+      .then(res => {
+        setStripeStatus(res.status === 405 || res.status === 200 ? 'ok' : 'error');
+      })
+      .catch(() => setStripeStatus('error'));
+  }, []);
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-4">
+        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className={`w-3 h-3 rounded-full ${supabaseStatus === 'ok' ? 'bg-green-500 shadow-sm shadow-green-200' : supabaseStatus === 'checking' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'}`} />
+            <span className="text-sm font-medium">Supabase</span>
+          </div>
+          {latency !== null && <span className="text-xs text-gray-500">{latency}ms</span>}
+        </div>
+
+        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className={`w-3 h-3 rounded-full ${stripeStatus === 'ok' ? 'bg-green-500 shadow-sm shadow-green-200' : stripeStatus === 'checking' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'}`} />
+            <span className="text-sm font-medium">Stripe API</span>
+          </div>
+          <span className="text-xs text-gray-500">{stripeStatus === 'ok' ? 'Ready' : 'Down'}</span>
+        </div>
+      </div>
+
+      <div className="pt-2 border-t border-gray-100">
+        <h4 className="text-[10px] font-bold uppercase text-gray-400 tracking-wider mb-2">Environnement</h4>
+        <div className="space-y-1 font-mono text-[9px]">
+          <p className="flex justify-between">
+            <span>SUPABASE:</span>
+            <span className={import.meta.env.VITE_SUPABASE_URL ? 'text-green-600' : 'text-red-600'}>
+              {import.meta.env.VITE_SUPABASE_URL ? 'CONFIGURÉ' : 'MANQUANT'}
+            </span>
+          </p>
+          <p className="flex justify-between">
+            <span>STRIPE PK:</span>
+            <span className={import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ? 'text-green-600' : 'text-red-600'}>
+              {import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ? 'CONFIGURÉ' : 'MANQUANT'}
+            </span>
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -1043,104 +1438,123 @@ export default function AdminApp() {
   const profileFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const session = localStorage.getItem('td-admin-session');
-    if (session && Date.now() - parseInt(session) < 8 * 60 * 60 * 1000) {
-      setIsLoggedIn(true);
-    }
+    if (!supabase) return;
 
-    // Fetch reservations
-    if (supabase) {
-      const loadingToast = toast.loading("Chargement des données...");
-      supabase.from('reservations').select('*').order('created_at', { ascending: false })
-        .then(({ data, error }) => {
-          if (!error && data) {
-            // Map DB fields to interface if needed (snake_case to camelCase)
-            const mapped = data.map(r => ({
-              id: r.id,
-              name: r.name,
-              email: r.email,
-              phone: r.phone,
-              tourId: r.tour_id,
-              tourName: r.tour_name,
-              date: r.date,
-              participants: r.participants,
-              status: r.status,
-              message: r.message || '',
-              createdAt: r.created_at,
-              totalPrice: r.total_price
-            }));
-            setReservations(mapped);
-          }
-        });
+    // Check session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
 
-      // Fetch reviews
-      supabase.from('reviews').select('*').order('created_at', { ascending: false })
-        .then(({ data, error }) => {
-          if (!error && data) {
-            const mapped = data.map(r => ({
-              id: r.id,
-              name: r.name,
-              location: r.location,
-              rating: r.rating,
-              text: r.text,
-              tourId: r.tour_id,
-              isPublished: r.is_published,
-              createdAt: r.created_at
-            }));
-            setReviews(mapped);
-          }
-        });
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
 
-      // Fetch tours
-      supabase.from('tours').select('*').order('id')
-        .then(({ data, error }) => {
-          toast.dismiss(loadingToast);
-          if (!error && data && data.length > 0) {
-            const mapped = data.map(t => ({
-              id: t.id,
-              title: t.title,
-              subtitle: t.subtitle,
-              description: t.description,
-              duration: t.duration,
-              group_size: t.group_size,
-              price: t.price,
-              image: t.image,
-              category: t.category,
-              highlights: t.highlights,
-              isActive: t.is_active,
-              stripeLink: t.stripe_link || '',
-              itinerary: t.itinerary,
-              included: t.included,
-              notIncluded: t.not_included,
-              meetingPoint: t.meeting_point
-            }));
-            setTours(mapped as Tour[]);
-            toast.success(`${data.length} tours chargés depuis la base.`);
-          } else if (error) {
-            console.error('Fetch tours error:', error);
-            toast.error("Erreur de chargement des tours (Cloud). Utilisation des données locales.");
-          } else if (data && data.length === 0) {
-            toast.info("Base vide. Vous pouvez synchroniser vos tours locaux.");
-          }
-        });
-
-      // Fetch Profile Photo from site_config
-      supabase.from('site_config').select('value').eq('key', 'guide_profile').single()
-        .then(({ data, error }) => {
-          if (!error && data && data.value) {
-            const val = data.value as { photo?: string; instagram?: string };
-            if (val.photo) setGuidePhoto(val.photo);
-            if (val.instagram) setInstagramUrl(val.instagram);
-          }
-        });
-    } else {
-      console.warn('Supabase client not initialized. Skipping data fetch.');
-    }
+    return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
-    // Synchronisation désactivée vers localStorage pour forcer la DB
-  }, [tours]);
+    if (!isLoggedIn || !supabase) return;
+
+    const loadingToast = toast.loading("Chargement des données...");
+
+    // Fetch reservations
+    supabase.from('reservations').select('*').order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (!error && data) {
+          const mapped = data.map(r => ({
+            id: r.id,
+            name: r.name,
+            email: r.email,
+            phone: r.phone,
+            tourId: r.tour_id,
+            tourName: r.tour_name,
+            date: r.date,
+            participants: r.participants,
+            status: r.status,
+            message: r.message || '',
+            createdAt: r.created_at,
+            totalPrice: r.total_price
+          }));
+          setReservations(mapped);
+        }
+      });
+
+    // Fetch reviews
+    supabase.from('reviews').select('*').order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (!error && data) {
+          const mapped = data.map(r => ({
+            id: r.id,
+            name: r.name,
+            location: r.location,
+            rating: r.rating,
+            text: r.text,
+            tourId: r.tour_id,
+            isPublished: r.is_published,
+            createdAt: r.created_at
+          }));
+          setReviews(mapped);
+        }
+      });
+
+    // Fetch tours
+    supabase.from('tours').select('*').order('id')
+      .then(({ data, error }) => {
+        toast.dismiss(loadingToast);
+        if (!error && data && data.length > 0) {
+          const mapped = data.map(t => ({
+            id: t.id,
+            title: t.title,
+            title_en: t.title_en,
+            title_es: t.title_es,
+            subtitle: t.subtitle,
+            subtitle_en: t.subtitle_en,
+            subtitle_es: t.subtitle_es,
+            description: t.description,
+            description_en: t.description_en,
+            description_es: t.description_es,
+            duration: t.duration,
+            group_size: t.group_size,
+            price: t.price,
+            image: t.image,
+            category: t.category,
+            highlights: t.highlights,
+            highlights_en: t.highlights_en,
+            highlights_es: t.highlights_es,
+            isActive: t.is_active,
+            itinerary: t.itinerary,
+            itinerary_en: t.itinerary_en,
+            itinerary_es: t.itinerary_es,
+            included: t.included,
+            included_en: t.included_en,
+            included_es: t.included_es,
+            notIncluded: t.not_included,
+            notIncluded_en: t.not_included_en,
+            notIncluded_es: t.not_included_es,
+            meetingPoint: t.meeting_point,
+            meetingPoint_en: t.meeting_point_en,
+            meetingPoint_es: t.meeting_point_es,
+            meetingPointMapUrl: t.meeting_point_map_url
+          }));
+          setTours(mapped as Tour[]);
+          toast.success(`${data.length} tours chargés.`);
+        } else if (error) {
+          console.error('Fetch tours error:', error);
+          toast.error("Erreur de chargement des tours (Cloud).");
+        }
+      });
+
+    // Fetch Profile Photo from site_config
+    supabase.from('site_config').select('value').eq('key', 'guide_profile').single()
+      .then(({ data, error }) => {
+        if (!error && data && data.value) {
+          const val = data.value as { photo?: string; instagram?: string };
+          if (val.photo) setGuidePhoto(val.photo);
+          if (val.instagram) setInstagramUrl(val.instagram);
+        }
+      });
+  }, [isLoggedIn]);
 
   useEffect(() => {
     localStorage.setItem('td-guide-photo', guidePhoto);
@@ -1181,7 +1595,7 @@ export default function AdminApp() {
           ctx?.drawImage(img, 0, 0, width, height);
           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
           setGuidePhoto(compressedBase64);
-          toast.success("Photo de profil prête à être enregistrée");
+          toast.success("Photo de profil prête");
         };
         img.src = reader.result as string;
       };
@@ -1191,8 +1605,6 @@ export default function AdminApp() {
 
   const saveProfile = async () => {
     try {
-      localStorage.setItem('td-guide-photo', guidePhoto);
-
       if (supabase) {
         const { error } = await supabase.from('site_config').upsert({
           key: 'guide_profile',
@@ -1201,17 +1613,13 @@ export default function AdminApp() {
         });
 
         if (error) {
-          console.error('Profile save error:', error);
-          toast.error("Sauvegarde cloud échouée (Table site_config manquante ?)");
+          toast.error("Sauvegarde cloud échouée");
         } else {
-          toast.success("Profil mis à jour (Cloud & Local)");
+          toast.success("Profil mis à jour");
         }
-      } else {
-        toast.success("Profil mis à jour localement");
       }
     } catch (error) {
-      console.error('Storage error:', error);
-      toast.error("Erreur lors de la sauvegarde : le stockage est peut-être plein");
+      toast.error("Erreur lors de la sauvegarde");
     }
   };
 
@@ -1222,6 +1630,7 @@ export default function AdminApp() {
     { id: 'reservations', label: 'Réservations', icon: Calendar },
     { id: 'tours', label: 'Catalogue', icon: MapPin },
     { id: 'reviews', label: 'Avis clients', icon: Star },
+    { id: 'admins', label: 'Admins', icon: ShieldCheck },
     { id: 'profile', label: 'Mon Profil', icon: User },
     { id: 'config', label: 'Configuration', icon: Bell },
   ];
@@ -1229,7 +1638,6 @@ export default function AdminApp() {
   return (
     <div className="flex flex-col lg:flex-row h-screen bg-gray-100 overflow-hidden">
       <Toaster richColors position="top-right" />
-      {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm transition-opacity"
@@ -1237,7 +1645,6 @@ export default function AdminApp() {
         />
       )}
 
-      {/* Sidebar */}
       <aside className={`
         fixed inset-y-0 left-0 z-50 lg:static
         bg-gray-900 border-r border-gray-800 transition-all duration-300 flex flex-col
@@ -1273,21 +1680,17 @@ export default function AdminApp() {
         </nav>
 
         <div className="p-4 border-t border-gray-800">
-          <button onClick={() => setIsLoggedIn(false)} className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
+          <button onClick={() => supabase?.auth.signOut()} className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
             <LogOut className="w-5 h-5 flex-shrink-0" />
             {(isSidebarOpen || window.innerWidth < 1024) && <span>Déconnexion</span>}
           </button>
         </div>
       </aside>
 
-      {/* Main content */}
       <main className="flex-1 flex flex-col overflow-hidden w-full">
         <header className="h-16 bg-white border-b border-gray-200 px-4 sm:px-8 flex items-center justify-between flex-shrink-0 sticky top-0 z-30">
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden text-gray-500 p-1 hover:bg-gray-100 rounded-lg"
-            >
+            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden text-gray-500 p-1 hover:bg-gray-100 rounded-lg">
               <Menu className="w-6 h-6" />
             </button>
             <h2 className="text-lg sm:text-xl font-bold text-gray-800 truncate">
@@ -1314,6 +1717,7 @@ export default function AdminApp() {
             {activeTab === 'reservations' && <Reservations reservations={reservations} setReservations={setReservations} />}
             {activeTab === 'tours' && <ToursManagement tours={tours} setTours={setTours} />}
             {activeTab === 'reviews' && <Reviews reviews={reviews} setReviews={setReviews} />}
+            {activeTab === 'admins' && <AdminsManagement />}
             {activeTab === 'config' && <Config />}
             {activeTab === 'profile' && (
               <div className="max-w-2xl mx-auto">
@@ -1349,22 +1753,16 @@ export default function AdminApp() {
                               <Upload className="w-4 h-4 mr-2" /> Upload
                             </Button>
                           </div>
-                          <p className="text-xs text-gray-500">Vous pouvez soit entrer une URL, soit télécharger un fichier depuis votre disque.</p>
                         </div>
                         <div className="space-y-2">
                           <Label>Lien Instagram</Label>
-                          <Input
-                            value={instagramUrl}
-                            onChange={(e) => setInstagramUrl(e.target.value)}
-                            placeholder="https://www.instagram.com/votre_compte"
-                          />
-                          <p className="text-xs text-gray-500">Ce lien sera utilisé pour l'icône Instagram dans le pied de page du site.</p>
+                          <Input value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} placeholder="https://www.instagram.com/compte" />
                         </div>
                       </div>
 
                       <div className="pt-4 flex gap-3">
                         <Button className="flex-1 bg-amber-600" onClick={saveProfile}>
-                          <Check className="w-4 h-4 mr-2" /> Enregistrer le profil
+                          <Check className="w-4 h-4 mr-2" /> Enregistrer
                         </Button>
                         <Button variant="outline" className="flex-1" onClick={() => setActiveTab('dashboard')}>Retour</Button>
                       </div>

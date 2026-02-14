@@ -50,6 +50,7 @@ import { supabase } from './lib/supabase';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { CheckoutForm } from './components/CheckoutForm';
+import { CookieConsent } from './components/CookieConsent';
 import { Toaster } from '@/components/ui/sonner';
 import { toast } from 'sonner';
 import './App.css';
@@ -377,7 +378,6 @@ function App() {
   };
 
   const handleAcceptCookies = () => {
-    localStorage.setItem('cookie-consent', 'accepted');
     setShowCookieConsent(false);
   };
 
@@ -393,7 +393,7 @@ function App() {
         <div className="container-custom flex items-center justify-between">
           <div className="flex items-center gap-2">
             <MapPin className={`w-6 h-6 ${isScrolled ? 'text-amber-600' : 'text-white'}`} />
-            <span className={`text-xl font-semibold font-serif ${isScrolled ? 'text-gray-900' : 'text-white'}`}>
+            <span className={`text-xl font-bold font-serif ${isScrolled ? 'text-gray-900' : 'text-white'}`}>
               Tours<span className="text-amber-500">&</span>Detours
             </span>
           </div>
@@ -447,7 +447,7 @@ function App() {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden"
+            className="md:hidden p-2 rounded-lg"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? (
@@ -499,7 +499,7 @@ function App() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+      <section className="relative hero-mobile-height flex items-center justify-center overflow-hidden">
         {/* Background Video or Image */}
         <div className="absolute inset-0 z-0">
           <video
@@ -1525,30 +1525,9 @@ function App() {
       </footer>
 
       {/* Cookie Consent Banner */}
-      {
-        showCookieConsent && (
-          <div className="fixed bottom-0 left-0 right-0 z-[100] p-4 animate-in fade-in slide-in-from-bottom-10 duration-500">
-            <div className="container-custom max-w-4xl mx-auto">
-              <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">{t.cookies.title}</h3>
-                  <p className="text-sm text-gray-600">
-                    {t.cookies.desc}
-                  </p>
-                </div>
-                <div className="flex gap-3 shrink-0">
-                  <Button variant="outline" onClick={() => setShowCookieConsent(false)} className="px-6 h-11 border-gray-200">
-                    {t.cookies.decline}
-                  </Button>
-                  <Button onClick={handleAcceptCookies} className="px-8 h-11 bg-amber-600 hover:bg-amber-700">
-                    {t.cookies.accept}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      }
+      {showCookieConsent && (
+        <CookieConsent lang={lang} onAccept={handleAcceptCookies} />
+      )}
       <Toaster position="top-right" />
     </div >
   );

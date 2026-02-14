@@ -29,18 +29,34 @@ CREATE TABLE IF NOT EXISTS tours (
     id TEXT PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     title TEXT NOT NULL,
+    title_en TEXT,
+    title_es TEXT,
     subtitle TEXT NOT NULL,
+    subtitle_en TEXT,
+    subtitle_es TEXT,
     description TEXT NOT NULL,
+    description_en TEXT,
+    description_es TEXT,
     duration TEXT NOT NULL,
     group_size TEXT NOT NULL,
     price NUMERIC NOT NULL,
     image TEXT NOT NULL,
     category TEXT NOT NULL,
     highlights TEXT[] NOT NULL,
+    highlights_en TEXT[],
+    highlights_es TEXT[],
     included TEXT[] NOT NULL DEFAULT '{}',
+    included_en TEXT[],
+    included_es TEXT[],
     not_included TEXT[] NOT NULL DEFAULT '{}',
+    not_included_en TEXT[],
+    not_included_es TEXT[],
     itinerary TEXT[] NOT NULL DEFAULT '{}',
+    itinerary_en TEXT[],
+    itinerary_es TEXT[],
     meeting_point TEXT,
+    meeting_point_en TEXT,
+    meeting_point_es TEXT,
     meeting_point_map_url TEXT,
     is_active BOOLEAN DEFAULT TRUE,
     stripe_link TEXT
@@ -50,18 +66,34 @@ CREATE TABLE IF NOT EXISTS default_tours (
     id TEXT PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     title TEXT NOT NULL,
+    title_en TEXT,
+    title_es TEXT,
     subtitle TEXT NOT NULL,
+    subtitle_en TEXT,
+    subtitle_es TEXT,
     description TEXT NOT NULL,
+    description_en TEXT,
+    description_es TEXT,
     duration TEXT NOT NULL,
     group_size TEXT NOT NULL,
     price NUMERIC NOT NULL,
     image TEXT NOT NULL,
     category TEXT NOT NULL,
     highlights TEXT[] NOT NULL,
+    highlights_en TEXT[],
+    highlights_es TEXT[],
     included TEXT[] NOT NULL DEFAULT '{}',
+    included_en TEXT[],
+    included_es TEXT[],
     not_included TEXT[] NOT NULL DEFAULT '{}',
+    not_included_en TEXT[],
+    not_included_es TEXT[],
     itinerary TEXT[] NOT NULL DEFAULT '{}',
+    itinerary_en TEXT[],
+    itinerary_es TEXT[],
     meeting_point TEXT,
+    meeting_point_en TEXT,
+    meeting_point_es TEXT,
     is_active BOOLEAN DEFAULT TRUE,
     stripe_link TEXT
 );
@@ -71,6 +103,16 @@ CREATE TABLE IF NOT EXISTS site_config (
     value JSONB NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS authorized_admins (
+    email TEXT PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Seed initial authorized admins
+INSERT INTO authorized_admins (email) 
+VALUES ('antoine@toursandetours.com'), ('dg@xinus.net')
+ON CONFLICT (email) DO NOTHING;
 
 -- 2. Clean up existing policies safely
 DROP POLICY IF EXISTS "Public Insert" ON reservations;
@@ -97,26 +139,34 @@ ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tours ENABLE ROW LEVEL SECURITY;
 ALTER TABLE site_config ENABLE ROW LEVEL SECURITY;
 ALTER TABLE default_tours ENABLE ROW LEVEL SECURITY;
+ALTER TABLE authorized_admins ENABLE ROW LEVEL SECURITY;
 
 -- 4. Create policies
-CREATE POLICY "Public Insert" ON reservations FOR INSERT WITH CHECK (true);
-CREATE POLICY "Public Select" ON reservations FOR SELECT USING (true);
-CREATE POLICY "Public Update" ON reservations FOR UPDATE USING (true);
 
-CREATE POLICY "Public Select" ON reviews FOR SELECT USING (true);
-CREATE POLICY "Public Insert" ON reviews FOR INSERT WITH CHECK (true);
+-- RESERVATIONS: Anyone can insert (book), but only ADMIN (authenticated) can see/edit
+CREATE POLICY "Public Insert Reservations" ON reservations FOR INSERT WITH CHECK (true);
+CREATE POLICY "Admin Select Reservations" ON reservations FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Admin Update Reservations" ON reservations FOR UPDATE TO authenticated USING (true);
+CREATE POLICY "Admin Delete Reservations" ON reservations FOR DELETE TO authenticated USING (true);
 
+-- REVIEWS: Anyone can insert, public can only see PUBLISHED reviews, admin sees all
+CREATE POLICY "Public Select Reviews" ON reviews FOR SELECT USING (is_published = true OR auth.role() = 'authenticated');
+CREATE POLICY "Public Insert Reviews" ON reviews FOR INSERT WITH CHECK (true);
+CREATE POLICY "Admin Update Reviews" ON reviews FOR UPDATE TO authenticated USING (true);
+CREATE POLICY "Admin Delete Reviews" ON reviews FOR DELETE TO authenticated USING (true);
+
+-- TOURS: Public select, admin edit
 CREATE POLICY "Public Select Tours" ON tours FOR SELECT USING (true);
-CREATE POLICY "Public Insert Tours" ON tours FOR INSERT WITH CHECK (true);
-CREATE POLICY "Public Update Tours" ON tours FOR UPDATE USING (true);
-CREATE POLICY "Public Delete Tours" ON tours FOR DELETE USING (true);
+CREATE POLICY "Admin All Tours" ON tours FOR ALL TO authenticated USING (true);
 
+-- SITE CONFIG: Admin edit, public select (some keys might need more care)
 CREATE POLICY "Public Select Config" ON site_config FOR SELECT USING (true);
-CREATE POLICY "Public Update Config" ON site_config FOR UPDATE USING (true);
-CREATE POLICY "Public Insert Config" ON site_config FOR INSERT WITH CHECK (true);
-CREATE POLICY "Public Delete Config" ON site_config FOR DELETE USING (true);
+CREATE POLICY "Admin All Config" ON site_config FOR ALL TO authenticated USING (true);
 
-CREATE POLICY "Public Select Default Tours" ON default_tours FOR SELECT USING (true);
-CREATE POLICY "Public Insert Default Tours" ON default_tours FOR INSERT WITH CHECK (true);
-CREATE POLICY "Public Update Default Tours" ON default_tours FOR UPDATE USING (true);
-CREATE POLICY "Public Delete Default Tours" ON default_tours FOR DELETE USING (true);
+-- DEFAULT TOURS: Admin only
+CREATE POLICY "Public Select Default Tours" ON default_tours FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Admin All Default Tours" ON default_tours FOR ALL TO authenticated USING (true);
+
+-- AUTHORIZED ADMINS: Admin only (to manage the list)
+CREATE POLICY "Admin All Authorized Admins" ON authorized_admins FOR ALL TO authenticated USING (true);
+CREATE POLICY "Public Select Authorized Admins" ON authorized_admins FOR SELECT USING (true); -- Needed for login check before auth

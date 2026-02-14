@@ -113,7 +113,12 @@ export const translations = {
             title: 'Respect de votre vie privée',
             desc: 'Nous utilisons des cookies pour améliorer votre expérience sur notre site.',
             accept: 'Accepter',
-            decline: 'Refuser'
+            decline: 'Refuser',
+            manage: 'Paramètres',
+            save: 'Enregistrer mes choix',
+            essential: 'Essentiels (Toujours actifs)',
+            analytics: 'Analytiques & Performance',
+            marketing: 'Marketing & Publicité'
         },
         tour_data: [
             {
@@ -302,10 +307,15 @@ export const translations = {
             finish: 'Finish'
         },
         cookies: {
-            title: 'Respect for your privacy',
+            title: 'Respecting your privacy',
             desc: 'We use cookies to improve your experience on our site.',
             accept: 'Accept',
-            decline: 'Decline'
+            decline: 'Decline',
+            manage: 'Manage settings',
+            save: 'Save choices',
+            essential: 'Essential (Always active)',
+            analytics: 'Analytics & Performance',
+            marketing: 'Marketing & Advertising'
         },
         tour_data: [
             {
@@ -497,7 +507,12 @@ export const translations = {
             title: 'Respeto a tu privacidad',
             desc: 'Utilizamos cookies para mejorar tu experiencia en nuestro sitio.',
             accept: 'Aceptar',
-            decline: 'Rechazar'
+            decline: 'Rechazar',
+            manage: 'Gestionar ajustes',
+            save: 'Guardar selección',
+            essential: 'Esenciales (Siempre activos)',
+            analytics: 'Analítica y Rendimiento',
+            marketing: 'Marketing y Publicidad'
         },
         tour_data: [
             {
