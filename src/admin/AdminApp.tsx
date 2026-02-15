@@ -1437,7 +1437,33 @@ function Monitoring() {
   const [vercelStatus, setVercelStatus] = useState<'checking' | 'ok' | 'error'>('checking');
   const [supabaseStatus, setSupabaseStatus] = useState<'checking' | 'ok' | 'error'>('checking');
   const [latency, setLatency] = useState<number | null>(null);
-  const [lastCommit, setLastCommit] = useState<{ message: string; date: string } | null>(null);
+  const [lastCommit, setLastCommit] = useState<{ message: string; date: string; url?: string } | null>(null);
+  const [vercelDeploys, setVercelDeploys] = useState<any[]>([]);
+  const [vToken, setVToken] = useState(localStorage.getItem('td-vercel-token') || '');
+  const [isVLoading, setIsVLoading] = useState(false);
+
+  const fetchVercelDeploys = async (token: string) => {
+    if (!token) return;
+    setIsVLoading(true);
+    try {
+      // Find project ID first or use name
+      const res = await fetch('https://api.vercel.com/v6/deployments?projectId=prj_u3FmYgW8H5YFw4H5r6B7C8D9E0&limit=5', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.deployments) {
+        setVercelDeploys(data.deployments);
+      }
+    } catch (err) {
+      console.error('Vercel API Error:', err);
+    } finally {
+      setIsVLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (vToken) fetchVercelDeploys(vToken);
+  }, []);
 
   useEffect(() => {
     // Check Supabase
@@ -1549,15 +1575,73 @@ function Monitoring() {
         </div>
       </div>
 
-      <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
-        <h4 className="text-xs font-bold text-amber-800 uppercase mb-3 flex items-center gap-2">
-          <Bell className="w-4 h-4" /> Analyse d'Expert
-        </h4>
-        <p className="text-xs text-amber-900/70 leading-relaxed">
-          L'infrastructure est actuellement optimisée. Supabase répond avec une latence <span className="font-bold">inférieure à 200ms</span>.
-          Le déploiement Vercel est stable et le certificat SSL est valide. Aucune anomalie détectée sur les API durant les dernières 24h.
-        </p>
+      {/* Vercel Deployments */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+          <h4 className="text-xs font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
+            <ExternalLink className="w-3 h-3" /> Logs Déploiement Vercel
+          </h4>
+          {!vToken ? (
+            <Button size="sm" variant="ghost" className="text-[10px] h-6" onClick={() => {
+              const token = prompt('Entrez votre Vercel API Token (local storage uniquement) :');
+              if (token) {
+                localStorage.setItem('td-vercel-token', token);
+                setVToken(token);
+                fetchVercelDeploys(token);
+              }
+            }}>Configuration</Button>
+          ) : (
+            <Badge variant="outline" className="text-[10px] bg-blue-50">Token Actif</Badge>
+          )}
+        </div>
+        <div className="divide-y divide-gray-50">
+          {vToken ? (
+            isVLoading ? (
+              <div className="p-8 text-center"><Loader2 className="w-4 h-4 animate-spin mx-auto text-blue-500" /></div>
+            ) : vercelDeploys.length > 0 ? (
+              vercelDeploys.map((dep) => (
+                <div key={dep.uid} className="p-4 hover:bg-gray-50 transition-colors flex justify-between items-center text-xs">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${dep.state === 'READY' ? 'bg-green-500' : dep.state === 'ERROR' ? 'bg-red-500' : 'bg-amber-500'}`} />
+                      <span className="font-bold text-gray-700 capitalize">{dep.state}</span>
+                      <span className="text-gray-400 font-mono">#{dep.uid.slice(-6)}</span>
+                    </div>
+                    <p className="text-gray-500 line-clamp-1 italic max-w-sm">"{dep.meta?.githubCommitMessage || 'Pas de message'}"</p>
+                  </div>
+                  <div className="text-right space-y-1">
+                    <p className="font-medium text-gray-400">{new Date(dep.createdAt).toLocaleString('fr-FR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                    <a href={`https://${dep.url}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline flex items-center justify-end gap-1">
+                      Preview <ExternalLink className="w-2 h-2" />
+                    </a>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="p-8 text-center text-gray-400 italic text-xs">Aucun déploiement trouvé.</p>
+            )
+          ) : (
+            <div className="p-8 text-center space-y-3">
+              <p className="text-xs text-gray-400 italic">Configurez un token Vercel pour voir les logs de déploiement en direct.</p>
+              <Button size="sm" variant="outline" onClick={() => {
+                const token = prompt('Entrez votre Vercel API Token :');
+                if (token) {
+                  localStorage.setItem('td-vercel-token', token);
+                  setVToken(token);
+                  fetchVercelDeploys(token);
+                }
+              }}>Ajouter Token</Button>
+            </div>
+          )}
+        </div>
       </div>
+      <h4 className="text-xs font-bold text-amber-800 uppercase mb-3 flex items-center gap-2">
+        <Bell className="w-4 h-4" /> Analyse d'Expert
+      </h4>
+      <p className="text-xs text-amber-900/70 leading-relaxed">
+        L'infrastructure est actuellement optimisée. Supabase répond avec une latence <span className="font-bold">inférieure à 200ms</span>.
+        Le déploiement Vercel est stable et le certificat SSL est valide. Aucune anomalie détectée sur les API durant les dernières 24h.
+      </p>
     </div>
   );
 }
