@@ -25,9 +25,9 @@ export const Navbar = ({
 }: NavbarProps) => {
     return (
         <nav
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                ? 'bg-white/90 nav-blur shadow-lg py-3'
-                : 'bg-transparent py-5'
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled
+                ? 'bg-white/95 nav-blur shadow-sm py-6'
+                : 'bg-transparent py-10'
                 }`}
         >
             <div className="container-custom flex items-center justify-between">
@@ -79,7 +79,7 @@ export const Navbar = ({
                     </a>
                     <Button
                         onClick={handleBookingStart}
-                        className="bg-amber-600 hover:bg-amber-700 text-white rounded-xl px-6 h-11 font-bold shadow-lg shadow-amber-600/20 transition-all active:scale-95"
+                        className="bg-amber-600 hover:bg-amber-700 text-white rounded-2xl px-8 h-14 font-bold shadow-xl shadow-amber-600/30 transition-all active:scale-95 uppercase tracking-wide"
                     >
                         {t.nav.reserve}
                     </Button>
@@ -129,7 +129,7 @@ export const Navbar = ({
                         ))}
                         <Button
                             onClick={handleBookingStart}
-                            className="bg-amber-600 hover:bg-amber-700 text-white w-full mt-2"
+                            className="bg-amber-600 hover:bg-amber-700 text-white w-full mt-4 h-16 rounded-2xl font-bold uppercase tracking-wide shadow-xl shadow-amber-600/20"
                         >
                             {t.nav.reserve}
                         </Button>

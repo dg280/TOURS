@@ -79,10 +79,10 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="tour">{t.contact.tour}</Label>
+                                    <Label htmlFor="tour" className="text-gray-700 font-semibold ml-1">{t.contact.tour}</Label>
                                     <select
                                         id="tour"
-                                        className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-600 focus:border-transparent text-sm transition-all"
+                                        className="w-full h-14 px-5 rounded-2xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-600 focus:border-transparent text-base transition-all appearance-none cursor-pointer"
                                     >
                                         <option value="">{t.contact.select_tour}</option>
                                         {t.tour_data.map((tour: any) => (
@@ -91,10 +91,10 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                                     </select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="message">{t.contact.message}</Label>
-                                    <Textarea id="message" rows={4} className="bg-white border-gray-200 focus:border-amber-600 rounded-xl" />
+                                    <Label htmlFor="message" className="text-gray-700 font-semibold ml-1">{t.contact.message}</Label>
+                                    <Textarea id="message" rows={4} className="bg-white border-gray-200 focus:border-amber-600 rounded-2xl p-5 text-base" />
                                 </div>
-                                <Button className="w-full bg-gray-900 hover:bg-amber-600 text-white font-bold h-14 rounded-xl shadow-lg transition-all active:scale-95">
+                                <Button className="w-full bg-gray-900 hover:bg-amber-600 text-white font-bold h-16 rounded-2xl shadow-xl transition-all active:scale-95 text-lg uppercase tracking-wide">
                                     {t.contact.cta}
                                 </Button>
                             </form>
