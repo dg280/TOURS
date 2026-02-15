@@ -199,7 +199,7 @@ function Login() {
       const { error: authError } = await supabase.auth.signInWithOtp({
         email: email.toLowerCase().trim(),
         options: {
-          emailRedirectTo: window.location.origin + '/admin.html',
+          emailRedirectTo: 'https://tours-five-olive.vercel.app/admin.html',
         }
       });
 
