@@ -44,11 +44,22 @@
 - **Remède** : Déplacement du bouton WhatsApp à `bottom-32` et ajout du paramètre `?reset=true` pour forcer l'affichage de la bannière.
 - **Statut** : DÉPLOYÉ.
 
-### ⏳ Action F : Validation Finale (Post-Build)
-- **Remède** : Nouveau test de validation complet.
-- **Statut** : EN COURS.
+### ✅ Action F : Optimisations iPhone (iOS) & Cleanup
+- **Diagnostic** : Problèmes d'interaction sur iOS (boutons de cookies), texte de debug "V3" persistant (cache/build), et superposition footer.
+- **Remède** : 
+    - Suppression radicale de toute mention "V3" ou log de debug.
+    - Ajout de `type="button"` et `preventDefault` sur les boutons de cookies pour assurer la compatibilité mobile/iOS.
+    - Désactivation du bouton WhatsApp pendant la phase de réservation (`isBookingOpen`).
+    - Amélioration de la grille du Footer pour le rendu 1-colonne sur mobile.
+- **Statut** : DÉPLOYÉ / EN ATTENTE DE VALIDATION.
 
 ---
+
+## 📝 Résultat Final (Simulation Browser)
+- **WhatsApp** : ✅ Visible, Pulse OK, Badge OK. Se cache pendant la réservation.
+- **Cookies** : ✅ Texte propre, interaction renforcée pour iOS. Paramètre `?reset=true` disponible.
+- **Footer** : ✅ Alignement mobile corrigé (flex-col).
+- **Traductions** : ✅ Tous les détails des tours (Supabase + Local) sont traduits en FR, EN, ES.
 
 ## 🚀 Prochaines Étapes
 1. Déploiement du build final.

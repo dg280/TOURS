@@ -251,7 +251,7 @@ function App() {
         t={t}
       />
 
-      <WhatsAppButton lang={lang} />
+      {!isBookingOpen && <WhatsAppButton lang={lang} />}
       {showCookieConsent && (
         <CookieConsent
           lang={lang}

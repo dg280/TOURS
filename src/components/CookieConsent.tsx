@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -67,13 +66,15 @@ export function CookieConsent({ lang, onAccept }: CookieConsentProps) {
                         </p>
                         <div className="flex flex-col gap-2 pt-2">
                             <button
-                                onClick={handleAcceptAll}
+                                type="button"
+                                onClick={(e) => { e.preventDefault(); handleAcceptAll(); }}
                                 className="w-full h-12 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg shadow-amber-600/20 transition-all active:scale-95 cursor-pointer"
                             >
                                 {t.accept}
                             </button>
                             <button
-                                onClick={() => setShowSettings(true)}
+                                type="button"
+                                onClick={(e) => { e.preventDefault(); setShowSettings(true); }}
                                 className="w-full h-12 text-gray-500 hover:bg-gray-100 rounded-xl transition-colors text-sm font-medium border border-gray-100 cursor-pointer"
                             >
                                 {t.manage}
@@ -121,13 +122,15 @@ export function CookieConsent({ lang, onAccept }: CookieConsentProps) {
 
                         <div className="flex flex-col gap-2 pt-2">
                             <button
-                                onClick={handleSave}
+                                type="button"
+                                onClick={(e) => { e.preventDefault(); handleSave(); }}
                                 className="w-full h-12 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition-all active:scale-95 cursor-pointer"
                             >
                                 {t.save}
                             </button>
                             <button
-                                onClick={() => setShowSettings(false)}
+                                type="button"
+                                onClick={(e) => { e.preventDefault(); setShowSettings(false); }}
                                 className="w-full h-10 text-gray-500 hover:text-gray-700 text-sm font-medium"
                             >
                                 Retour
