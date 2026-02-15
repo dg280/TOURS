@@ -23,23 +23,27 @@ export function CookieConsent({ lang, onAccept }: CookieConsentProps) {
 
     const handleSave = () => {
         try {
+            console.log('COOKIE: Saving custom preferences...', preferences);
             localStorage.setItem("cookie-preferences", JSON.stringify(preferences));
             localStorage.setItem("cookie-consent", "accepted");
+            console.log('COOKIE: LocalStorage updated, calling onAccept()');
             onAccept();
         } catch (e) {
-            console.error("Cookie save error:", e);
+            console.error("COOKIE: Save error:", e);
             onAccept(); // Still close the banner
         }
     };
 
     const handleAcceptAll = () => {
         try {
+            console.log('COOKIE: Accepting all...');
             const allOn = { essential: true, analytics: true, marketing: true };
             localStorage.setItem("cookie-preferences", JSON.stringify(allOn));
             localStorage.setItem("cookie-consent", "accepted");
+            console.log('COOKIE: LocalStorage updated, calling onAccept()');
             onAccept();
         } catch (e) {
-            console.error("Cookie accept all error:", e);
+            console.error("COOKIE: Accept all error:", e);
             onAccept(); // Still close the banner
         }
     };

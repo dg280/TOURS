@@ -248,7 +248,10 @@ function App() {
       {showCookieConsent && (
         <CookieConsent
           lang={lang}
-          onAccept={() => setShowCookieConsent(false)}
+          onAccept={() => {
+            console.log('APP: Cookie consent onAccept triggered');
+            setShowCookieConsent(false);
+          }}
         />
       )}
       <Toaster position="top-center" richColors />
