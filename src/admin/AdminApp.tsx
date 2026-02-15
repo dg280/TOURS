@@ -1447,8 +1447,21 @@ function Monitoring() {
     if (!token) return;
     setIsVLoading(true);
     try {
-      // Find project ID first or use name
-      const res = await fetch('https://api.vercel.com/v6/deployments?projectId=prj_u3FmYgW8H5YFw4H5r6B7C8D9E0&limit=5', {
+      // 1. First, let's try to find the project ID by name/domain
+      const projectsRes = await fetch('https://api.vercel.com/v9/projects', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const projectsData = await projectsRes.json();
+
+      // Look for a project that matches our domain or is named 'tours'
+      const project = projectsData.projects?.find((p: any) =>
+        p.name === 'tours' ||
+        p.targets?.production?.alias?.includes('tours-five-olive.vercel.app')
+      );
+
+      const targetId = project?.id || 'prj_u3FmYgW8H5YFw4H5r6B7C8D9E0'; // fallback to previous or dynamic
+
+      const res = await fetch(`https://api.vercel.com/v6/deployments?projectId=${targetId}&limit=5`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -1608,8 +1621,15 @@ function Monitoring() {
               }
             }}>Configuration</Button>
           ) : (
-            <Badge variant="outline" className="text-[10px] bg-blue-50">Token Actif</Badge>
+            <div className="flex gap-2">
+              <Badge variant="outline" className="text-[10px] bg-blue-50">Token Actif</Badge>
+              <button onClick={() => { if (confirm('Révoquer le token local ?')) { localStorage.removeItem('td-vercel-token'); setVToken(''); setVercelDeploys([]); } }} className="text-[10px] text-red-500 hover:underline">Déconnecter</button>
+            </div>
           )}
+        </div>
+        <div className="p-2 bg-amber-50 text-[10px] text-amber-800 border-b border-amber-100 flex items-center gap-2">
+          <ShieldCheck className="w-3 h-3" />
+          Stockage : LocalStorage (Navigateur). Non stocké en base de données.
         </div>
         <div className="divide-y divide-gray-50">
           {vToken ? (
