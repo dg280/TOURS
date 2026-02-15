@@ -176,6 +176,19 @@ function App() {
     return tour;
   });
 
+  useEffect(() => {
+    // Deep linking to specific tours (e.g. ?tour=1)
+    const params = new URLSearchParams(window.location.search);
+    const tourId = params.get('tour');
+    if (tourId && tours.length > 0) {
+      const targetTour = tours.find(t => String(t.id) === tourId);
+      if (targetTour) {
+        setViewedTour(targetTour);
+        setIsTourDialogOpen(true);
+      }
+    }
+  }, [dbTours, customTours]); // Re-run when tours are fetched
+
   const scrollToSection = (id: string) => {
     setIsMobileMenuOpen(false);
     const element = document.getElementById(id);
