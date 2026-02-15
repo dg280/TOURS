@@ -42,16 +42,16 @@ export const Hero = ({ t, scrollToSection }: HeroProps) => {
                         <Button
                             size="lg"
                             onClick={() => scrollToSection('tours')}
-                            className="bg-amber-600 hover:bg-amber-700 text-white btn-hover text-lg px-8 py-7"
+                            className="bg-amber-600 hover:bg-amber-700 text-white rounded-xl h-16 text-lg font-bold px-10 shadow-xl shadow-amber-600/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                         >
                             {t.hero.cta_discover}
-                            <ChevronRight className="w-5 h-5 ml-2" />
+                            <ChevronRight className="w-5 h-5" />
                         </Button>
                         <Button
                             size="lg"
                             variant="outline"
                             onClick={() => scrollToSection('contact')}
-                            className="bg-transparent border-white text-white hover:bg-white/10 text-lg px-8 py-7"
+                            className="bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20 rounded-xl h-16 text-lg font-bold px-10 transition-all active:scale-95"
                         >
                             {t.hero.cta_contact}
                         </Button>

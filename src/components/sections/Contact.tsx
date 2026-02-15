@@ -82,7 +82,7 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                                     <Label htmlFor="tour">{t.contact.tour}</Label>
                                     <select
                                         id="tour"
-                                        className="w-full h-12 px-3 rounded-md border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-600 focus:border-transparent text-sm"
+                                        className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-600 focus:border-transparent text-sm transition-all"
                                     >
                                         <option value="">{t.contact.select_tour}</option>
                                         {t.tour_data.map((tour: any) => (
@@ -92,9 +92,9 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="message">{t.contact.message}</Label>
-                                    <Textarea id="message" rows={4} className="bg-white border-gray-200 focus:border-amber-600" />
+                                    <Textarea id="message" rows={4} className="bg-white border-gray-200 focus:border-amber-600 rounded-xl" />
                                 </div>
-                                <Button className="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-6 h-auto">
+                                <Button className="w-full bg-gray-900 hover:bg-amber-600 text-white font-bold h-14 rounded-xl shadow-lg transition-all active:scale-95">
                                     {t.contact.cta}
                                 </Button>
                             </form>

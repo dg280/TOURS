@@ -76,7 +76,7 @@ export const Footer = ({ t, instagramUrl }: FooterProps) => {
                                 placeholder="votre@email.com"
                                 className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex-1 focus:outline-none focus:border-amber-500 transition-colors text-sm"
                             />
-                            <button className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-amber-600/20 text-sm whitespace-nowrap">
+                            <button className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 h-12 rounded-xl transition-all active:scale-95 shadow-lg shadow-amber-600/20 text-sm whitespace-nowrap">
                                 S'inscrire
                             </button>
                         </form>

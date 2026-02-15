@@ -123,36 +123,46 @@ function App() {
     const db = dbTours.find(d => Number(d.id) === Number(base.id));
     const custom = customTours.find(c => Number(c.id) === Number(base.id));
 
-    // Merge logic: Start with hardcoded translations, then overwrite with DB/Custom if present
+    // Merge logic: Start with hardcoded translations, then overwrite with DB/Custom if present AND non-empty
     const tour = {
       ...base,
-      ...(db || {}),
-      ...(custom || {})
+      ...Object.fromEntries(
+        Object.entries(db || {}).filter(([_, v]) => {
+          if (Array.isArray(v)) return v.length > 0;
+          return v !== null && v !== undefined && v !== '';
+        })
+      ),
+      ...Object.fromEntries(
+        Object.entries(custom || {}).filter(([_, v]) => {
+          if (Array.isArray(v)) return v.length > 0;
+          return v !== null && v !== undefined && v !== '';
+        })
+      )
     };
 
     if (lang === 'en') {
       return {
         ...tour,
-        title: db?.title_en || custom?.title_en || base.title,
-        subtitle: db?.subtitle_en || custom?.subtitle_en || base.subtitle,
-        description: db?.description_en || custom?.description_en || base.description,
-        highlights: db?.highlights_en || custom?.highlights_en || base.highlights,
-        itinerary: db?.itinerary_en || custom?.itinerary_en || base.itinerary,
-        included: db?.included_en || custom?.included_en || base.included,
-        notIncluded: db?.notIncluded_en || custom?.notIncluded_en || base.notIncluded,
-        meetingPoint: db?.meetingPoint_en || custom?.meetingPoint_en || base.meetingPoint
+        title: (db?.title_en || custom?.title_en) ? (db?.title_en || custom?.title_en) : base.title,
+        subtitle: (db?.subtitle_en || custom?.subtitle_en) ? (db?.subtitle_en || custom?.subtitle_en) : base.subtitle,
+        description: (db?.description_en || custom?.description_en) ? (db?.description_en || custom?.description_en) : base.description,
+        highlights: (db?.highlights_en?.length || custom?.highlights_en?.length) ? (db?.highlights_en || custom?.highlights_en) : base.highlights,
+        itinerary: (db?.itinerary_en?.length || custom?.itinerary_en?.length) ? (db?.itinerary_en || custom?.itinerary_en) : base.itinerary,
+        included: (db?.included_en?.length || custom?.included_en?.length) ? (db?.included_en || custom?.included_en) : base.included,
+        notIncluded: (db?.notIncluded_en?.length || custom?.notIncluded_en?.length) ? (db?.notIncluded_en || custom?.notIncluded_en) : base.notIncluded,
+        meetingPoint: (db?.meetingPoint_en || custom?.meetingPoint_en) ? (db?.meetingPoint_en || custom?.meetingPoint_en) : base.meetingPoint
       };
     } else if (lang === 'es') {
       return {
         ...tour,
-        title: db?.title_es || custom?.title_es || base.title,
-        subtitle: db?.subtitle_es || custom?.subtitle_es || base.subtitle,
-        description: db?.description_es || custom?.description_es || base.description,
-        highlights: db?.highlights_es || custom?.highlights_es || base.highlights,
-        itinerary: db?.itinerary_es || custom?.itinerary_es || base.itinerary,
-        included: db?.included_es || custom?.included_es || base.included,
-        notIncluded: db?.notIncluded_es || custom?.notIncluded_es || base.notIncluded,
-        meetingPoint: db?.meetingPoint_es || custom?.meetingPoint_es || base.meetingPoint
+        title: (db?.title_es || custom?.title_es) ? (db?.title_es || custom?.title_es) : base.title,
+        subtitle: (db?.subtitle_es || custom?.subtitle_es) ? (db?.subtitle_es || custom?.subtitle_es) : base.subtitle,
+        description: (db?.description_es || custom?.description_es) ? (db?.description_es || custom?.description_es) : base.description,
+        highlights: (db?.highlights_es?.length || custom?.highlights_es?.length) ? (db?.highlights_es || custom?.highlights_es) : base.highlights,
+        itinerary: (db?.itinerary_es?.length || custom?.itinerary_es?.length) ? (db?.itinerary_es || custom?.itinerary_es) : base.itinerary,
+        included: (db?.included_es?.length || custom?.included_es?.length) ? (db?.included_es || custom?.included_es) : base.included,
+        notIncluded: (db?.notIncluded_es?.length || custom?.notIncluded_es?.length) ? (db?.notIncluded_es || custom?.notIncluded_es) : base.notIncluded,
+        meetingPoint: (db?.meetingPoint_es || custom?.meetingPoint_es) ? (db?.meetingPoint_es || custom?.meetingPoint_es) : base.meetingPoint
       };
     }
     return tour;
