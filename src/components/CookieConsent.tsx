@@ -23,79 +23,119 @@ export function CookieConsent({ lang, onAccept }: CookieConsentProps) {
 
     const handleSave = () => {
         try {
-            console.log('COOKIE: Saving custom preferences...', preferences);
             localStorage.setItem("cookie-preferences", JSON.stringify(preferences));
             localStorage.setItem("cookie-consent", "accepted");
-            console.log('COOKIE: LocalStorage updated, calling onAccept()');
             onAccept();
         } catch (e) {
-            console.error("COOKIE: Save error:", e);
             onAccept(); // Still close the banner
         }
     };
 
     const handleAcceptAll = () => {
         try {
-            console.log('COOKIE: Accepting all...');
             const allOn = { essential: true, analytics: true, marketing: true };
             localStorage.setItem("cookie-preferences", JSON.stringify(allOn));
             localStorage.setItem("cookie-consent", "accepted");
-            console.log('COOKIE: LocalStorage updated, calling onAccept()');
             onAccept();
         } catch (e) {
-            console.error("COOKIE: Accept all error:", e);
             onAccept(); // Still close the banner
         }
     };
 
     return (
-        <div style={{
-            fixed: 'fixed',
-            position: 'fixed',
-            bottom: '20px',
-            left: '20px',
-            right: '20px',
-            zIndex: 999999,
-            backgroundColor: 'white',
-            pointerEvents: 'auto',
-            padding: '24px',
-            borderRadius: '16px',
-            boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
-            border: '1px solid #fef3c7',
-            maxWidth: '600px',
-            margin: '0 auto'
-        }} className="cookie-banner-raw">
-            <button
-                onClick={() => { console.log('COOKIE: Force close raw clicked'); onAccept(); }}
-                style={{ position: 'absolute', top: '10px', right: '10px', border: 'none', background: 'none', cursor: 'pointer', fontSize: '20px' }}
-            >
-                ✕
-            </button>
-            <div style={{ textAlign: 'center' }}>
-                <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 'bold' }}>{t.title}</h3>
-                <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#4b5563' }}>{t.desc}</p>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
-                    <button
-                        onClick={() => setShowSettings(!showSettings)}
-                        style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer' }}
-                    >
-                        {t.manage}
-                    </button>
-                    <button
-                        onClick={handleAcceptAll}
-                        style={{ padding: '8px 24px', borderRadius: '8px', border: 'none', background: '#d97706', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}
-                    >
-                        {t.accept} (FINAL)
-                    </button>
-                </div>
-            </div>
-            {showSettings && (
-                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
-                    <button onClick={handleSave} style={{ width: '100%', padding: '8px', background: '#d97706', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
-                        {t.save}
-                    </button>
-                </div>
-            )}
+        <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-10 md:bottom-10 z-[99999] pointer-events-auto">
+            <Card className="max-w-[400px] w-full bg-white/95 backdrop-blur-md shadow-2xl border border-amber-100 rounded-3xl overflow-hidden relative">
+                {/* Close Button */}
+                <button
+                    onClick={() => { onAccept(); }}
+                    className="absolute top-4 right-4 p-1 text-gray-400 hover:text-gray-900 transition-colors"
+                    aria-label="Close"
+                >
+                    <span className="text-xl">✕</span>
+                </button>
+
+                {!showSettings ? (
+                    <div className="p-6 space-y-4">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-amber-100 p-2 rounded-xl">
+                                <Cookie className="w-6 h-6 text-amber-600" />
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-900">{t.title}</h3>
+                        </div>
+                        <p className="text-sm text-gray-600 leading-relaxed">
+                            {t.desc}
+                        </p>
+                        <div className="flex flex-col gap-2 pt-2">
+                            <button
+                                onClick={handleAcceptAll}
+                                className="w-full h-12 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg shadow-amber-600/20 transition-all active:scale-95 cursor-pointer"
+                            >
+                                {t.accept}
+                            </button>
+                            <button
+                                onClick={() => setShowSettings(true)}
+                                className="w-full h-12 text-gray-500 hover:bg-gray-100 rounded-xl transition-colors text-sm font-medium border border-gray-100 cursor-pointer"
+                            >
+                                {t.manage}
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="p-6 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <header className="flex items-center gap-3">
+                            <ShieldCheck className="w-5 h-5 text-amber-600" />
+                            <h3 className="text-lg font-bold text-gray-900">{t.manage}</h3>
+                        </header>
+
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <div className="flex items-center gap-3">
+                                    <ShieldCheck className="w-4 h-4 text-green-600" />
+                                    <Label className="text-sm font-semibold text-gray-700">{t.essential}</Label>
+                                </div>
+                                <Switch checked={true} disabled />
+                            </div>
+
+                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <div className="flex items-center gap-3">
+                                    <PieChart className="w-4 h-4 text-blue-600" />
+                                    <Label className="text-sm font-semibold text-gray-700">{t.analytics}</Label>
+                                </div>
+                                <Switch
+                                    checked={preferences.analytics}
+                                    onCheckedChange={(val) => setPreferences({ ...preferences, analytics: val })}
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <div className="flex items-center gap-3">
+                                    <Megaphone className="w-4 h-4 text-purple-600" />
+                                    <Label className="text-sm font-semibold text-gray-700">{t.marketing}</Label>
+                                </div>
+                                <Switch
+                                    checked={preferences.marketing}
+                                    onCheckedChange={(val) => setPreferences({ ...preferences, marketing: val })}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2 pt-2">
+                            <button
+                                onClick={handleSave}
+                                className="w-full h-12 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition-all active:scale-95 cursor-pointer"
+                            >
+                                {t.save}
+                            </button>
+                            <button
+                                onClick={() => setShowSettings(false)}
+                                className="w-full h-10 text-gray-500 hover:text-gray-700 text-sm font-medium"
+                            >
+                                Retour
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </Card>
         </div>
     );
 }
