@@ -21,7 +21,11 @@ import {
   Activity,
   Plus,
   Globe,
-  ShieldCheck
+  ShieldCheck,
+  Send,
+  BarChart3,
+  CheckCircle2,
+  ExternalLink
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Toaster, toast } from 'sonner';
@@ -1551,6 +1555,99 @@ function Monitoring() {
   );
 }
 
+// Marketing Component
+function Marketing({ subscribers }: { subscribers: { email: string; created_at: string }[] }) {
+  const seoChecklist = [
+    { task: "Méta-titres et descriptions dynamiques", status: true },
+    { task: "Données structurées JSON-LD (Tours)", status: true },
+    { task: "Plan du sitemap (sitemap.xml)", status: false },
+    { task: "Optimisation des images (Alt tags)", status: true },
+    { task: "Vitesse de chargement (Vercel Performance)", status: true },
+  ];
+
+  return (
+    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <header>
+        <h2 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
+          <BarChart3 className="w-8 h-8 text-amber-600" />
+          Marketing & SEO
+        </h2>
+        <p className="text-gray-500 font-medium">Gérez votre audience et optimisez votre visibilité sur Google.</p>
+      </header>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <Card className="lg:col-span-2 shadow-sm border-gray-100">
+          <CardHeader className="flex flex-row items-center justify-between border-b border-gray-50 pb-4">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Send className="w-5 h-5 text-amber-500" />
+              Inscriptions Newsletter
+            </CardTitle>
+            <Badge variant="outline" className="font-mono">{subscribers.length} inscrits</Badge>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-gray-50 text-[10px] uppercase font-bold text-gray-400">
+                  <tr>
+                    <th className="px-6 py-3">Email</th>
+                    <th className="px-6 py-3 text-right">Date d'inscription</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {subscribers.length > 0 ? subscribers.map((sub, i) => (
+                    <tr key={i} className="hover:bg-amber-50/30 transition-colors">
+                      <td className="px-6 py-4 text-sm font-medium text-gray-800">{sub.email}</td>
+                      <td className="px-6 py-4 text-sm text-gray-500 text-right">
+                        {new Date(sub.created_at).toLocaleDateString('fr-FR')}
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={2} className="px-6 py-12 text-center text-gray-400 italic">
+                        Aucun inscrit pour le moment.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="space-y-6">
+          <Card className="shadow-sm border-gray-100 overflow-hidden">
+            <CardHeader className="bg-gray-900 text-white pb-6">
+              <CardTitle className="text-sm uppercase tracking-widest text-gray-400 font-bold mb-2">Santé SEO</CardTitle>
+              <div className="text-4xl font-black text-amber-500">85<span className="text-xl text-white">/100</span></div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div className="space-y-3">
+                {seoChecklist.map((item, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <CheckCircle2 className={`w-4 h-4 mt-0.5 shrink-0 ${item.status ? 'text-green-500' : 'text-gray-200'}`} />
+                    <span className={`text-xs ${item.status ? 'text-gray-700' : 'text-gray-400'}`}>{item.task}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-amber-600 text-white border-none shadow-xl shadow-amber-600/20">
+            <CardContent className="p-6 space-y-4">
+              <BarChart3 className="w-10 h-10 opacity-20" />
+              <h3 className="font-bold text-lg leading-tight">Umami Analytics</h3>
+              <p className="text-sm text-amber-100 italic">Accédez à vos statistiques privées sans cookie intrusif.</p>
+              <Button className="w-full bg-white text-amber-600 hover:bg-amber-50 font-bold shadow-sm" onClick={() => window.open('https://cloud.umami.is', '_blank')}>
+                Dashboard <ExternalLink className="w-4 h-4 ml-2" />
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Main App
 export default function AdminApp() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -1579,6 +1676,18 @@ export default function AdminApp() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const [subscribers, setSubscribers] = useState<{ email: string; created_at: string }[]>([]);
+
+  useEffect(() => {
+    if (!isLoggedIn || !supabase) return;
+
+    // Fetch subscribers
+    supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (data) setSubscribers(data);
+      });
+  }, [isLoggedIn]);
 
   useEffect(() => {
     if (!isLoggedIn || !supabase) return;
@@ -1759,7 +1868,8 @@ export default function AdminApp() {
     { id: 'reviews', label: 'Avis clients', icon: Star },
     { id: 'admins', label: 'Admins', icon: ShieldCheck },
     { id: 'profile', label: 'Mon Profil', icon: User },
-    { id: 'config', label: 'Configuration', icon: Bell },
+    { id: 'marketing', label: 'Marketing & SEO', icon: BarChart3 },
+    { id: 'config', label: 'Infrastructure', icon: Bell },
   ];
 
   return (
@@ -1846,6 +1956,7 @@ export default function AdminApp() {
             {activeTab === 'reviews' && <Reviews reviews={reviews} setReviews={setReviews} />}
             {activeTab === 'admins' && <AdminsManagement />}
             {activeTab === 'config' && <Config />}
+            {activeTab === 'marketing' && <Marketing subscribers={subscribers} />}
             {activeTab === 'profile' && (
               <div className="max-w-2xl mx-auto">
                 <Card className="overflow-hidden">

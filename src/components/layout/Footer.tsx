@@ -1,4 +1,6 @@
-import { MapPin, Instagram, Mail } from 'lucide-react';
+import { MapPin, Instagram, Mail, Send } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 interface FooterProps {
     t: any;
@@ -43,9 +45,42 @@ export const Footer = ({ t, instagramUrl }: FooterProps) => {
                         </ul>
                     </div>
 
-                    <div>
-                        <h4 className="text-lg font-bold mb-6">Social</h4>
-                        <div className="flex gap-4">
+                    <div className="lg:col-span-2">
+                        <h4 className="text-xl font-bold mb-6 flex items-center gap-2">
+                            <Send className="w-5 h-5 text-amber-500" />
+                            Newsletter
+                        </h4>
+                        <p className="text-gray-400 mb-6 text-sm">
+                            Recevez nos meilleurs conseils pour visiter Barcelone et soyez informé des nouveaux tours en exclusivité.
+                        </p>
+                        <form className="flex gap-2" onSubmit={async (e) => {
+                            e.preventDefault();
+                            const formData = new FormData(e.currentTarget);
+                            const email = formData.get('email') as string;
+
+                            if (supabase) {
+                                const { error } = await supabase.from('newsletter_subscribers').insert({ email });
+                                if (error) {
+                                    if (error.code === '23505') toast.error("Vous êtes déjà inscrit !");
+                                    else toast.error("Une erreur est survenue.");
+                                } else {
+                                    toast.success("Merci pour votre inscription !");
+                                    e.currentTarget.reset();
+                                }
+                            }
+                        }}>
+                            <input
+                                type="email"
+                                name="email"
+                                required
+                                placeholder="votre@email.com"
+                                className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex-1 focus:outline-none focus:border-amber-500 transition-colors"
+                            />
+                            <button className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 rounded-xl transition-all active:scale-95 shadow-lg shadow-amber-600/20">
+                                S'inscrire
+                            </button>
+                        </form>
+                        <div className="flex gap-4 mt-8">
                             <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-amber-600 transition-colors">
                                 <Instagram className="w-5 h-5" />
                             </a>

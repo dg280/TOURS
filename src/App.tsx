@@ -13,6 +13,7 @@ import { Features } from './components/sections/Features';
 import { Testimonials } from './components/sections/Testimonials';
 import { Contact } from './components/sections/Contact';
 import { BookingModal } from './components/booking/BookingModal';
+import { SEO } from './components/SEO';
 import type { Tour } from './lib/types';
 import './App.css';
 
@@ -32,7 +33,7 @@ function App() {
   const [customTours, setCustomTours] = useState<Tour[]>([]);
   const [dbTours, setDbTours] = useState<Tour[]>([]);
   // suppresses unused warning but keeps it for potential future browser-side cookie logic
-  // const [, setShowCookieConsent] = useState(false);
+  const [showCookieConsent, setShowCookieConsent] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -41,6 +42,9 @@ function App() {
   }, []);
 
   useEffect(() => {
+    const consent = localStorage.getItem('cookie-consent');
+    if (!consent) setShowCookieConsent(true);
+
     const savedPhoto = localStorage.getItem('td-guide-photo');
     if (savedPhoto) setGuidePhoto(savedPhoto);
 
@@ -150,6 +154,11 @@ function App() {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO
+        title={lang === 'fr' ? "Tours & Detours | Barcelona" : lang === 'en' ? "Tours & Detours | Barcelona" : "Tours & Detours | Barcelona"}
+        description={lang === 'fr' ? t.hero.subtitle : lang === 'en' ? t.hero.subtitle : t.hero.subtitle}
+        lang={lang}
+      />
       <Navbar
         isScrolled={isScrolled}
         isMobileMenuOpen={isMobileMenuOpen}
@@ -217,7 +226,15 @@ function App() {
         t={t}
       />
 
-      <CookieConsent lang={lang} onAccept={() => { }} />
+      {showCookieConsent && (
+        <CookieConsent
+          lang={lang}
+          onAccept={() => {
+            console.log("Consent accepted, hiding banner");
+            setShowCookieConsent(false);
+          }}
+        />
+      )}
       <Toaster position="top-center" richColors />
     </div>
   );
