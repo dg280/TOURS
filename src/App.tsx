@@ -104,10 +104,10 @@ function App() {
         }
 
         // Fetch site_config
-        const { data: configData, error: configError } = await supabase.from('site_config').select('*').limit(1);
+        const { data: configData, error: configError } = await supabase.from('site_config').select('*').eq('id', 1).maybeSingle();
         if (configError) console.error('Error fetching site_config:', configError);
-        else if (configData && configData.length > 0) {
-          const config = configData[0];
+        else if (configData) {
+          const config = configData;
           if (config.guide_photo) setGuidePhoto(config.guide_photo);
           if (config.instagram_url) setInstagramUrl(config.instagram_url);
         }

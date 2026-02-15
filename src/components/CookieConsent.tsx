@@ -49,110 +49,53 @@ export function CookieConsent({ lang, onAccept }: CookieConsentProps) {
     };
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-[100] p-4 lg:p-8 animate-in fade-in slide-in-from-bottom-10 duration-700">
-            <div className="max-w-4xl mx-auto">
-                <Card className="bg-white/95 backdrop-blur-md shadow-2xl border border-amber-100 overflow-hidden rounded-3xl">
+        <div style={{
+            fixed: 'fixed',
+            position: 'fixed',
+            bottom: '20px',
+            left: '20px',
+            right: '20px',
+            zIndex: 999999,
+            backgroundColor: 'white',
+            pointerEvents: 'auto',
+            padding: '24px',
+            borderRadius: '16px',
+            boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+            border: '1px solid #fef3c7',
+            maxWidth: '600px',
+            margin: '0 auto'
+        }} className="cookie-banner-raw">
+            <button
+                onClick={() => { console.log('COOKIE: Force close raw clicked'); onAccept(); }}
+                style={{ position: 'absolute', top: '10px', right: '10px', border: 'none', background: 'none', cursor: 'pointer', fontSize: '20px' }}
+            >
+                ✕
+            </button>
+            <div style={{ textAlign: 'center' }}>
+                <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 'bold' }}>{t.title}</h3>
+                <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#4b5563' }}>{t.desc}</p>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
                     <button
-                        onClick={() => { console.log('COOKIE: Force close clicked'); onAccept(); }}
-                        className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-900 z-50"
+                        onClick={() => setShowSettings(!showSettings)}
+                        style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer' }}
                     >
-                        ✕
+                        {t.manage}
                     </button>
-                    {!showSettings ? (
-                        <div className="p-6 md:p-8 flex flex-col md:flex-row items-center gap-6">
-                            <div className="bg-amber-100 p-3 rounded-2xl shrink-0">
-                                <Cookie className="w-8 h-8 text-amber-600" />
-                            </div>
-                            <div className="flex-1 text-center md:text-left">
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">{t.title}</h3>
-                                <p className="text-sm text-gray-600 leading-relaxed">
-                                    {t.desc}
-                                </p>
-                            </div>
-                            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
-                                <button
-                                    onClick={() => setShowSettings(true)}
-                                    className="px-6 h-12 text-gray-500 hover:bg-gray-100 rounded-xl transition-colors text-sm font-medium border border-gray-100"
-                                >
-                                    {t.manage}
-                                </button>
-                                <button
-                                    onClick={handleAcceptAll}
-                                    className="px-8 h-12 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg shadow-amber-600/20 transition-all active:scale-95 cursor-pointer relative z-[10]"
-                                >
-                                    {t.accept} (V3)
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="p-6 md:p-8 space-y-8 animate-in fade-in zoom-in-95 duration-500">
-                            <header className="flex items-center gap-3">
-                                <ShieldCheck className="w-6 h-6 text-amber-600" />
-                                <h3 className="text-xl font-bold text-gray-900">{t.manage}</h3>
-                            </header>
-
-                            <div className="grid gap-6">
-                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                                    <div className="flex items-center gap-4">
-                                        <div className="bg-green-100 p-2 rounded-lg">
-                                            <ShieldCheck className="w-5 h-5 text-green-600" />
-                                        </div>
-                                        <div>
-                                            <Label className="font-bold text-gray-900">{t.essential}</Label>
-                                            <p className="text-xs text-gray-500">Sécurité et fonctionnalités de base.</p>
-                                        </div>
-                                    </div>
-                                    <Switch checked={true} disabled />
-                                </div>
-
-                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                                    <div className="flex items-center gap-4">
-                                        <div className="bg-blue-100 p-2 rounded-lg">
-                                            <PieChart className="w-5 h-5 text-blue-600" />
-                                        </div>
-                                        <div>
-                                            <Label className="font-bold text-gray-900">{t.analytics}</Label>
-                                            <p className="text-xs text-gray-500">Statistiques anonymes d'utilisation.</p>
-                                        </div>
-                                    </div>
-                                    <Switch
-                                        checked={preferences.analytics}
-                                        onCheckedChange={(val) => setPreferences({ ...preferences, analytics: val })}
-                                    />
-                                </div>
-
-                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                                    <div className="flex items-center gap-4">
-                                        <div className="bg-purple-100 p-2 rounded-lg">
-                                            <Megaphone className="w-5 h-5 text-purple-600" />
-                                        </div>
-                                        <div>
-                                            <Label className="font-bold text-gray-900">{t.marketing}</Label>
-                                            <p className="text-xs text-gray-500">Personnalisation des offres.</p>
-                                        </div>
-                                    </div>
-                                    <Switch
-                                        checked={preferences.marketing}
-                                        onCheckedChange={(val) => setPreferences({ ...preferences, marketing: val })}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex justify-between items-center pt-4">
-                                <Button variant="ghost" onClick={() => setShowSettings(false)}>
-                                    Retour
-                                </Button>
-                                <button
-                                    onClick={handleSave}
-                                    className="px-8 h-12 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition-all active:scale-95"
-                                >
-                                    {t.save}
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                </Card>
+                    <button
+                        onClick={handleAcceptAll}
+                        style={{ padding: '8px 24px', borderRadius: '8px', border: 'none', background: '#d97706', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}
+                    >
+                        {t.accept} (FINAL)
+                    </button>
+                </div>
             </div>
+            {showSettings && (
+                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
+                    <button onClick={handleSave} style={{ width: '100%', padding: '8px', background: '#d97706', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
+                        {t.save}
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
