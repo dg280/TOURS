@@ -113,8 +113,8 @@ function App() {
   }, []);
 
   const tours: Tour[] = t.tour_data.map((base: any) => {
-    const db = dbTours.find(d => d.id === base.id);
-    const custom = customTours.find(c => c.id === base.id);
+    const db = dbTours.find(d => Number(d.id) === Number(base.id));
+    const custom = customTours.find(c => Number(c.id) === Number(base.id));
 
     // Merge logic: Start with hardcoded translations, then overwrite with DB/Custom if present
     const tour = {
@@ -244,15 +244,13 @@ function App() {
         t={t}
       />
 
+      <WhatsAppButton lang={lang} />
       {showCookieConsent && (
         <CookieConsent
           lang={lang}
-          onAccept={() => {
-            setShowCookieConsent(false);
-          }}
+          onAccept={() => setShowCookieConsent(false)}
         />
       )}
-      <WhatsAppButton lang={lang} />
       <Toaster position="top-center" richColors />
     </div>
   );

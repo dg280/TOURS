@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Cookie, Settings, ShieldCheck, PieChart, Megaphone } from "lucide-react";
+import { Cookie, ShieldCheck, PieChart, Megaphone } from "lucide-react";
 import { translations, type Language } from "@/lib/translations";
 
 interface CookieConsentProps {
@@ -60,20 +60,18 @@ export function CookieConsent({ lang, onAccept }: CookieConsentProps) {
                                 </p>
                             </div>
                             <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
-                                <Button
-                                    variant="ghost"
+                                <button
                                     onClick={() => setShowSettings(true)}
-                                    className="px-6 h-12 text-gray-500 hover:bg-gray-100"
+                                    className="px-6 h-12 text-gray-500 hover:bg-gray-100 rounded-xl transition-colors text-sm font-medium border border-gray-100"
                                 >
-                                    <Settings className="w-4 h-4 mr-2" />
                                     {t.manage}
-                                </Button>
-                                <Button
+                                </button>
+                                <button
                                     onClick={handleAcceptAll}
-                                    className="px-8 h-12 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg shadow-amber-600/20"
+                                    className="px-8 h-12 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg shadow-amber-600/20 transition-all active:scale-95"
                                 >
                                     {t.accept}
-                                </Button>
+                                </button>
                             </div>
                         </div>
                     ) : (
@@ -134,12 +132,12 @@ export function CookieConsent({ lang, onAccept }: CookieConsentProps) {
                                 <Button variant="ghost" onClick={() => setShowSettings(false)}>
                                     Retour
                                 </Button>
-                                <Button
+                                <button
                                     onClick={handleSave}
-                                    className="px-8 h-12 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl"
+                                    className="px-8 h-12 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition-all active:scale-95"
                                 >
                                     {t.save}
-                                </Button>
+                                </button>
                             </div>
                         </div>
                     )}
