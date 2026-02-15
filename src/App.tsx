@@ -14,6 +14,7 @@ import { Testimonials } from './components/sections/Testimonials';
 import { Contact } from './components/sections/Contact';
 import { BookingModal } from './components/booking/BookingModal';
 import { SEO } from './components/SEO';
+import { WhatsAppButton } from './components/WhatsAppButton';
 import type { Tour } from './lib/types';
 import './App.css';
 
@@ -235,6 +236,7 @@ function App() {
           }}
         />
       )}
+      <WhatsAppButton lang={lang} />
       <Toaster position="top-center" richColors />
     </div>
   );
