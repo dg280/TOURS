@@ -52,83 +52,100 @@ function App() {
     const savedTours = localStorage.getItem('td-tours');
     if (savedTours) setCustomTours(JSON.parse(savedTours));
 
-    if (supabase) {
-      supabase.from('tours').select('*')
-        .then(({ data, error }) => {
-          if (!error && data && data.length > 0) {
-            const mapped = data.map(t => ({
-              id: Number(t.id) || t.id,
-              title: t.title,
-              title_en: t.title_en,
-              title_es: t.title_es,
-              subtitle: t.subtitle,
-              subtitle_en: t.subtitle_en,
-              subtitle_es: t.subtitle_es,
-              description: t.description,
-              description_en: t.description_en,
-              description_es: t.description_es,
-              duration: t.duration,
-              groupSize: t.group_size,
-              price: t.price,
-              image: t.image,
-              category: t.category,
-              highlights: t.highlights,
-              highlights_en: t.highlights_en,
-              highlights_es: t.highlights_es,
-              itinerary: t.itinerary,
-              itinerary_en: t.itinerary_en,
-              itinerary_es: t.itinerary_es,
-              included: t.included,
-              included_en: t.included_en,
-              included_es: t.included_es,
-              notIncluded: t.not_included,
-              notIncluded_en: t.not_included_en,
-              notIncluded_es: t.not_included_es,
-              meetingPoint: t.meeting_point,
-              meetingPointMapUrl: t.meeting_point_map_url
-            }));
-            setDbTours(mapped as Tour[]);
-          }
-        });
+    const fetchData = async () => {
+      try {
+        if (!supabase) return;
 
-      supabase.from('site_config').select('*').eq('id', 1).single()
-        .then(({ data, error }) => {
-          if (!error && data) {
-            if (data.guide_photo) setGuidePhoto(data.guide_photo);
-            if (data.instagram_url) setInstagramUrl(data.instagram_url);
-          }
-        });
-    }
+        // Fetch tours
+        const { data: toursData, error: toursError } = await supabase.from('tours').select('*');
+        if (toursError) console.error('Error fetching tours:', toursError);
+        else if (toursData && toursData.length > 0) {
+          const mapped = toursData.map(t => ({
+            id: Number(t.id) || t.id,
+            title: t.title,
+            title_en: t.title_en,
+            title_es: t.title_es,
+            subtitle: t.subtitle,
+            subtitle_en: t.subtitle_en,
+            subtitle_es: t.subtitle_es,
+            description: t.description,
+            description_en: t.description_en,
+            description_es: t.description_es,
+            duration: t.duration,
+            groupSize: t.group_size,
+            price: t.price,
+            image: t.image,
+            category: t.category,
+            highlights: t.highlights,
+            highlights_en: t.highlights_en,
+            highlights_es: t.highlights_es,
+            itinerary: t.itinerary,
+            itinerary_en: t.itinerary_en,
+            itinerary_es: t.itinerary_es,
+            included: t.included,
+            included_en: t.included_en,
+            included_es: t.included_es,
+            notIncluded: t.not_included,
+            notIncluded_en: t.not_included_en,
+            notIncluded_es: t.not_included_es,
+            meetingPoint: t.meeting_point,
+            meetingPoint_en: t.meeting_point_en,
+            meetingPoint_es: t.meeting_point_es,
+            meetingPointMapUrl: t.meeting_point_map_url
+          }));
+          setDbTours(mapped as Tour[]);
+        }
+
+        // Fetch site_config
+        const { data: configData, error: configError } = await supabase.from('site_config').select('*').limit(1);
+        if (configError) console.error('Error fetching site_config:', configError);
+        else if (configData && configData.length > 0) {
+          const config = configData[0];
+          if (config.guide_photo) setGuidePhoto(config.guide_photo);
+          if (config.instagram_url) setInstagramUrl(config.instagram_url);
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const tours: Tour[] = t.tour_data.map((base: any) => {
     const db = dbTours.find(d => d.id === base.id);
     const custom = customTours.find(c => c.id === base.id);
-    const tour = custom ? { ...base, ...custom } : db ? { ...base, ...db } : base;
+
+    // Merge logic: Start with hardcoded translations, then overwrite with DB/Custom if present
+    const tour = {
+      ...base,
+      ...(db || {}),
+      ...(custom || {})
+    };
 
     if (lang === 'en') {
       return {
         ...tour,
-        title: tour.title_en || tour.title,
-        subtitle: tour.subtitle_en || tour.subtitle,
-        description: tour.description_en || tour.description,
-        highlights: tour.highlights_en || tour.highlights,
-        itinerary: tour.itinerary_en || tour.itinerary,
-        included: tour.included_en || tour.included,
-        notIncluded: tour.notIncluded_en || tour.notIncluded,
-        meetingPoint: tour.meetingPoint_en || tour.meetingPoint
+        title: db?.title_en || custom?.title_en || base.title,
+        subtitle: db?.subtitle_en || custom?.subtitle_en || base.subtitle,
+        description: db?.description_en || custom?.description_en || base.description,
+        highlights: db?.highlights_en || custom?.highlights_en || base.highlights,
+        itinerary: db?.itinerary_en || custom?.itinerary_en || base.itinerary,
+        included: db?.included_en || custom?.included_en || base.included,
+        notIncluded: db?.notIncluded_en || custom?.notIncluded_en || base.notIncluded,
+        meetingPoint: db?.meetingPoint_en || custom?.meetingPoint_en || base.meetingPoint
       };
     } else if (lang === 'es') {
       return {
         ...tour,
-        title: tour.title_es || tour.title,
-        subtitle: tour.subtitle_es || tour.subtitle,
-        description: tour.description_es || tour.description,
-        highlights: tour.highlights_es || tour.highlights,
-        itinerary: tour.itinerary_es || tour.itinerary,
-        included: tour.included_es || tour.included,
-        notIncluded: tour.notIncluded_es || tour.notIncluded,
-        meetingPoint: tour.meetingPoint_es || tour.meetingPoint
+        title: db?.title_es || custom?.title_es || base.title,
+        subtitle: db?.subtitle_es || custom?.subtitle_es || base.subtitle,
+        description: db?.description_es || custom?.description_es || base.description,
+        highlights: db?.highlights_es || custom?.highlights_es || base.highlights,
+        itinerary: db?.itinerary_es || custom?.itinerary_es || base.itinerary,
+        included: db?.included_es || custom?.included_es || base.included,
+        notIncluded: db?.notIncluded_es || custom?.notIncluded_es || base.notIncluded,
+        meetingPoint: db?.meetingPoint_es || custom?.meetingPoint_es || base.meetingPoint
       };
     }
     return tour;
@@ -231,7 +248,6 @@ function App() {
         <CookieConsent
           lang={lang}
           onAccept={() => {
-            console.log("Consent accepted, hiding banner");
             setShowCookieConsent(false);
           }}
         />

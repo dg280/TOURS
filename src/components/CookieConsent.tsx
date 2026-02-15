@@ -22,16 +22,26 @@ export function CookieConsent({ lang, onAccept }: CookieConsentProps) {
     const t = translations[lang].cookies;
 
     const handleSave = () => {
-        localStorage.setItem("cookie-preferences", JSON.stringify(preferences));
-        localStorage.setItem("cookie-consent", "accepted");
-        onAccept();
+        try {
+            localStorage.setItem("cookie-preferences", JSON.stringify(preferences));
+            localStorage.setItem("cookie-consent", "accepted");
+            onAccept();
+        } catch (e) {
+            console.error("Cookie save error:", e);
+            onAccept(); // Still close the banner
+        }
     };
 
     const handleAcceptAll = () => {
-        const allOn = { essential: true, analytics: true, marketing: true };
-        localStorage.setItem("cookie-preferences", JSON.stringify(allOn));
-        localStorage.setItem("cookie-consent", "accepted");
-        onAccept();
+        try {
+            const allOn = { essential: true, analytics: true, marketing: true };
+            localStorage.setItem("cookie-preferences", JSON.stringify(allOn));
+            localStorage.setItem("cookie-consent", "accepted");
+            onAccept();
+        } catch (e) {
+            console.error("Cookie accept all error:", e);
+            onAccept(); // Still close the banner
+        }
     };
 
     return (

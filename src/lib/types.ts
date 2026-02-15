@@ -28,5 +28,7 @@ export interface Tour {
     notIncluded_en?: string[];
     notIncluded_es?: string[];
     meetingPoint?: string;
+    meetingPoint_en?: string;
+    meetingPoint_es?: string;
     meetingPointMapUrl?: string;
 }
