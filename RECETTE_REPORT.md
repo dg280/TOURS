@@ -34,9 +34,14 @@
 - **Remède** : Passage au `z-[110]` et vérification du point d'entrée dans `App.tsx`.
 - **Statut** : DÉPLOYÉ.
 
-### ⏳ Action D : Correction Admin 404
-- **Diagnostic** : Build statique cherchant un dossier au lieu du fichier HTML.
-- **Remède** : Redirection explicite vers `admin.html` dans les liens de management.
+### ✅ Action D : Résolution du Conflit de Dépendances (Build Vercel)
+- **Diagnostic** : Conflit entre `react-helmet-async` et `react@19` bloquant le déploiement sur Vercel.
+- **Remède** : Ajout d'un fichier `.npmrc` avec `legacy-peer-deps=true`.
+- **Statut** : DÉPLOYÉ.
+
+### ⏳ Action E : Validation Finale Cookies & WhatsApp
+- **Diagnostic** : Le site en production n'était pas à jour à cause de l'échec du build ci-dessus.
+- **Remède** : Nouveau test de validation après déploiement réussi.
 - **Statut** : EN COURS.
 
 ---

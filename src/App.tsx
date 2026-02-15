@@ -43,6 +43,13 @@ function App() {
   }, []);
 
   useEffect(() => {
+    // Debug: reset cookies if URL has ?reset=true
+    if (window.location.search.includes('reset=true')) {
+      localStorage.removeItem('cookie-consent');
+      localStorage.removeItem('cookie-preferences');
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     const consent = localStorage.getItem('cookie-consent');
     if (!consent) setShowCookieConsent(true);
 

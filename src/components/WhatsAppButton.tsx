@@ -19,7 +19,7 @@ export const WhatsAppButton = ({ lang }: WhatsAppButtonProps) => {
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
     return (
-        <div className="fixed bottom-6 right-6 z-[110] flex flex-col items-end gap-3 group">
+        <div className="fixed bottom-32 right-6 z-[110] flex flex-col items-end gap-3 group">
             {/* Label Tooltip */}
             <div className="bg-white px-4 py-2 rounded-xl shadow-xl border border-gray-100 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 pointer-events-none">
                 <p className="text-xs font-bold text-gray-800 whitespace-nowrap">
