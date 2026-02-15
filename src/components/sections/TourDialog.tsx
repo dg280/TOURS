@@ -168,9 +168,9 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, t, onBookNow }: TourDia
                                             onOpenChange(false);
                                             onBookNow(tour);
                                         }}
-                                        className="w-full bg-amber-600 hover:bg-amber-700 text-white h-16 text-base sm:text-lg font-bold rounded-2xl shadow-xl shadow-amber-600/30 transition-all active:scale-95 flex items-center justify-center px-4"
+                                        className="w-full bg-amber-600 hover:bg-amber-700 text-white px-8 sm:px-12 h-16 text-lg font-bold rounded-2xl shadow-xl shadow-amber-600/30 transition-all active:scale-95 flex items-center justify-center text-center"
                                     >
-                                        <span className="truncate">{t.tours.book_now}</span>
+                                        {t.tours.book_now}
                                     </Button>
                                 </div>
 

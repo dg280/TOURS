@@ -63,7 +63,7 @@ export const TourCard = ({ tour, index, t, onClick }: TourCardProps) => {
                 </div>
 
                 <Button
-                    className="w-full mt-auto bg-gray-900 hover:bg-amber-600 text-white rounded-xl h-12 font-bold transition-all active:scale-95 shadow-lg group-hover:shadow-amber-600/10"
+                    className="w-full mt-auto bg-gray-900 hover:bg-amber-600 text-white rounded-2xl h-14 font-bold transition-all active:scale-95 shadow-lg group-hover:shadow-amber-600/20"
                 >
                     {t.tours.learn_more}
                 </Button>

@@ -297,7 +297,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                                 </div>
                                 <Button
                                     onClick={() => onOpenChange(false)}
-                                    className="w-full bg-gray-900 hover:bg-gray-800 h-14 text-lg font-bold rounded-xl shadow-lg transition-all active:scale-95"
+                                    className="w-full bg-gray-900 hover:bg-gray-800 h-16 text-lg font-bold rounded-2xl shadow-xl transition-all active:scale-95"
                                 >
                                     {t.booking.finish}
                                 </Button>
@@ -313,7 +313,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                             </div>
                             <Button
                                 onClick={nextStep}
-                                className="bg-amber-600 hover:bg-amber-700 text-white px-6 sm:px-10 h-14 text-lg font-bold rounded-xl shadow-lg shadow-amber-600/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+                                className="bg-amber-600 hover:bg-amber-700 text-white px-8 sm:px-12 h-16 text-lg font-bold rounded-2xl shadow-xl shadow-amber-600/30 transition-all active:scale-95 flex items-center justify-center gap-2"
                             >
                                 {t.booking.next}
                                 <ChevronRight className="w-5 h-5" />
