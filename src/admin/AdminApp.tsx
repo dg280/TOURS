@@ -1440,6 +1440,7 @@ function Monitoring() {
   const [lastCommit, setLastCommit] = useState<{ message: string; date: string; url?: string } | null>(null);
   const [vercelDeploys, setVercelDeploys] = useState<any[]>([]);
   const [vToken, setVToken] = useState(localStorage.getItem('td-vercel-token') || '');
+  const [ghToken, setGhToken] = useState(localStorage.getItem('td-github-token') || '');
   const [isVLoading, setIsVLoading] = useState(false);
 
   const fetchVercelDeploys = async (token: string) => {
@@ -1485,7 +1486,10 @@ function Monitoring() {
       .catch(() => setVercelStatus('error'));
 
     // Fetch Last Git Commit
-    fetch('https://api.github.com/repos/dg280/TOURS/commits/main')
+    const gitHeaders: any = {};
+    if (ghToken) gitHeaders['Authorization'] = `token ${ghToken}`;
+
+    fetch('https://api.github.com/repos/dg280/TOURS/commits/main', { headers: gitHeaders })
       .then(res => {
         if (!res.ok) throw new Error('GitHub API Error: ' + res.status);
         return res.json();
@@ -1502,7 +1506,7 @@ function Monitoring() {
         console.error('Git fetch error:', err);
         setLastCommit({ message: "Erreur de récupération (Repo Privé ou Limite API)", date: "N/A" });
       });
-  }, []);
+  }, [ghToken]);
 
   return (
     <div className="space-y-6">
@@ -1553,7 +1557,20 @@ function Monitoring() {
             <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
             <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400">Dernier Push GitHub</h4>
           </div>
-          <Globe className="w-4 h-4 text-gray-600" />
+          <div className="flex gap-2">
+            {!ghToken && (
+              <Button size="icon-sm" variant="ghost" onClick={() => {
+                const token = prompt('Entrez votre GitHub Personal Access Token (classic ou fine-grained) :');
+                if (token) {
+                  localStorage.setItem('td-github-token', token);
+                  setGhToken(token);
+                }
+              }} className="h-6 w-6 text-gray-500 hover:text-white">
+                <ShieldCheck className="w-3 h-3" />
+              </Button>
+            )}
+            <Globe className="w-4 h-4 text-gray-600" />
+          </div>
         </div>
         <div className="p-6">
           {lastCommit ? (
