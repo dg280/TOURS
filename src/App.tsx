@@ -124,7 +124,7 @@ function App() {
     const custom = customTours.find(c => Number(c.id) === Number(base.id));
 
     // Helper to merge fields while prioritizing non-empty values
-    const getVal = (field: string, baseVal: any, dbVal: any, customVal: any) => {
+    const getVal = (baseVal: any, dbVal: any, customVal: any) => {
       const val = customVal ?? dbVal ?? baseVal;
       if (Array.isArray(val)) return val.length > 0 ? val : baseVal;
       if (typeof val === 'string') return val.trim() !== '' ? val : baseVal;
@@ -134,42 +134,42 @@ function App() {
     // Base merged tour (French by default)
     const tour: Tour = {
       ...base,
-      title: getVal('title', base.title, db?.title, custom?.title),
-      subtitle: getVal('subtitle', base.subtitle, db?.subtitle, custom?.subtitle),
-      description: getVal('description', base.description, db?.description, custom?.description),
-      highlights: getVal('highlights', base.highlights, db?.highlights, custom?.highlights),
-      itinerary: getVal('itinerary', base.itinerary, db?.itinerary, custom?.itinerary),
-      included: getVal('included', base.included, db?.included, custom?.included),
-      notIncluded: getVal('notIncluded', base.notIncluded, db?.notIncluded, custom?.notIncluded),
-      meetingPoint: getVal('meetingPoint', base.meetingPoint, db?.meetingPoint, custom?.meetingPoint),
+      title: getVal(base.title, db?.title, custom?.title),
+      subtitle: getVal(base.subtitle, db?.subtitle, custom?.subtitle),
+      description: getVal(base.description, db?.description, custom?.description),
+      highlights: getVal(base.highlights, db?.highlights, custom?.highlights),
+      itinerary: getVal(base.itinerary, db?.itinerary, custom?.itinerary),
+      included: getVal(base.included, db?.included, custom?.included),
+      notIncluded: getVal(base.notIncluded, db?.notIncluded, custom?.notIncluded),
+      meetingPoint: getVal(base.meetingPoint, db?.meetingPoint, custom?.meetingPoint),
       price: db?.price ?? custom?.price ?? base.price,
-      duration: getVal('duration', base.duration, db?.duration, custom?.duration),
-      groupSize: getVal('groupSize', base.groupSize, db?.groupSize, custom?.groupSize),
+      duration: getVal(base.duration, db?.duration, custom?.duration),
+      groupSize: getVal(base.groupSize, db?.groupSize, custom?.groupSize),
     };
 
     if (lang === 'en') {
       return {
         ...tour,
-        title: getVal('title', base.title, db?.title_en, custom?.title_en),
-        subtitle: getVal('subtitle', base.subtitle, db?.subtitle_en, custom?.subtitle_en),
-        description: getVal('description', base.description, db?.description_en, custom?.description_en),
-        highlights: getVal('highlights', base.highlights, db?.highlights_en, custom?.highlights_en),
-        itinerary: getVal('itinerary', base.itinerary, db?.itinerary_en, custom?.itinerary_en),
-        included: getVal('included', base.included, db?.included_en, custom?.included_en),
-        notIncluded: getVal('notIncluded', base.notIncluded, db?.notIncluded_en, custom?.notIncluded_en),
-        meetingPoint: getVal('meetingPoint', base.meetingPoint, db?.meetingPoint_en, custom?.meetingPoint_en),
+        title: getVal(base.title, db?.title_en, custom?.title_en),
+        subtitle: getVal(base.subtitle, db?.subtitle_en, custom?.subtitle_en),
+        description: getVal(base.description, db?.description_en, custom?.description_en),
+        highlights: getVal(base.highlights, db?.highlights_en, custom?.highlights_en),
+        itinerary: getVal(base.itinerary, db?.itinerary_en, custom?.itinerary_en),
+        included: getVal(base.included, db?.included_en, custom?.included_en),
+        notIncluded: getVal(base.notIncluded, db?.notIncluded_en, custom?.notIncluded_en),
+        meetingPoint: getVal(base.meetingPoint, db?.meetingPoint_en, custom?.meetingPoint_en),
       };
     } else if (lang === 'es') {
       return {
         ...tour,
-        title: getVal('title', base.title, db?.title_es, custom?.title_es),
-        subtitle: getVal('subtitle', base.subtitle, db?.subtitle_es, custom?.subtitle_es),
-        description: getVal('description', base.description, db?.description_es, custom?.description_es),
-        highlights: getVal('highlights', base.highlights, db?.highlights_es, custom?.highlights_es),
-        itinerary: getVal('itinerary', base.itinerary, db?.itinerary_es, custom?.itinerary_es),
-        included: getVal('included', base.included, db?.included_es, custom?.included_es),
-        notIncluded: getVal('notIncluded', base.notIncluded, db?.notIncluded_es, custom?.notIncluded_es),
-        meetingPoint: getVal('meetingPoint', base.meetingPoint, db?.meetingPoint_es, custom?.meetingPoint_es),
+        title: getVal(base.title, db?.title_es, custom?.title_es),
+        subtitle: getVal(base.subtitle, db?.subtitle_es, custom?.subtitle_es),
+        description: getVal(base.description, db?.description_es, custom?.description_es),
+        highlights: getVal(base.highlights, db?.highlights_es, custom?.highlights_es),
+        itinerary: getVal(base.itinerary, db?.itinerary_es, custom?.itinerary_es),
+        included: getVal(base.included, db?.included_es, custom?.included_es),
+        notIncluded: getVal(base.notIncluded, db?.notIncluded_es, custom?.notIncluded_es),
+        meetingPoint: getVal(base.meetingPoint, db?.meetingPoint_es, custom?.meetingPoint_es),
       };
     }
     return tour;
