@@ -103,11 +103,11 @@ function App() {
           setDbTours(mapped as Tour[]);
         }
 
-        // Fetch site_config
-        const { data: configData, error: configError } = await supabase.from('site_config').select('*').eq('id', 1).maybeSingle();
+        // Fetch site_config - using 'key' instead of 'id'
+        const { data: configData, error: configError } = await supabase.from('site_config').select('*').eq('key', 'main_config').maybeSingle();
         if (configError) console.error('Error fetching site_config:', configError);
-        else if (configData) {
-          const config = configData;
+        else if (configData && configData.value) {
+          const config = configData.value;
           if (config.guide_photo) setGuidePhoto(config.guide_photo);
           if (config.instagram_url) setInstagramUrl(config.instagram_url);
         }
@@ -143,6 +143,7 @@ function App() {
       notIncluded: getVal(base.notIncluded, db?.notIncluded, custom?.notIncluded),
       meetingPoint: getVal(base.meetingPoint, db?.meetingPoint, custom?.meetingPoint),
       price: db?.price ?? custom?.price ?? base.price,
+      image: getVal(base.image, db?.image, custom?.image),
       duration: getVal(base.duration, db?.duration, custom?.duration),
       groupSize: getVal(base.groupSize, db?.groupSize, custom?.groupSize),
     };

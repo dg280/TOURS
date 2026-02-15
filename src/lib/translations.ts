@@ -133,7 +133,9 @@ export const translations = {
                 notIncluded: ['Déjeuner et boissons', 'Entrées aux monuments (optionnel)', 'Dépenses personnelles'],
                 duration: 'Journée entière',
                 groupSize: '1-8',
-                price: 145
+                price: 145,
+                image: '/tour-girona.jpg',
+                category: 'Excursion'
             },
             {
                 id: 4,
@@ -145,7 +147,9 @@ export const translations = {
                 notIncluded: ['Déjeuner pique-nique', 'Dépenses personnelles'],
                 duration: 'Journée entière',
                 groupSize: '1-8',
-                price: 95
+                price: 95,
+                image: '/tour-prepirinees.jpg',
+                category: 'Nature'
             },
             {
                 id: 5,
@@ -157,7 +161,9 @@ export const translations = {
                 notIncluded: ['Transport vers le site', 'Repas et boissons', 'Crème solaire'],
                 duration: 'Demi/Journée entière',
                 groupSize: '1-8',
-                price: 75
+                price: 75,
+                image: '/tour-kayak.jpg',
+                category: 'Aventure'
             },
             {
                 id: 6,
@@ -169,7 +175,9 @@ export const translations = {
                 notIncluded: ['Déjeuner', 'Funiculaire de Montserrat', 'Dépenses personnelles'],
                 duration: 'Demi/Journée entière',
                 groupSize: '1-8',
-                price: 125
+                price: 125,
+                image: '/tour-montserrat.jpg',
+                category: 'Culture'
             },
             {
                 id: 7,
@@ -181,7 +189,9 @@ export const translations = {
                 notIncluded: ['Dépenses personnelles', 'Entrées additionnelles'],
                 duration: 'Journée entière',
                 groupSize: '1-8',
-                price: 165
+                price: 165,
+                image: '/tour-collioure.jpg',
+                category: 'Excursion'
             },
             {
                 id: 2,
@@ -193,7 +203,9 @@ export const translations = {
                 notIncluded: ['Transport public', 'Entrées musées', 'Repas complets'],
                 duration: 'Demi-journée',
                 groupSize: '1-8',
-                price: 55
+                price: 55,
+                image: '/tour-barcelona-hidden.jpg',
+                category: 'Ville'
             },
             {
                 id: 3,
@@ -205,7 +217,9 @@ export const translations = {
                 notIncluded: ['Déjeuner au restaurant', 'Équipement de snorkeling', 'Boissons'],
                 duration: 'Journée entière',
                 groupSize: '1-8',
-                price: 85
+                price: 85,
+                image: '/tour-camironda.jpg',
+                category: 'Randonnée'
             }
         ],
         testimonials_data: [

@@ -1443,9 +1443,10 @@ function Monitoring() {
     // Check Supabase
     const start = Date.now();
     if (supabase) {
-      supabase.from('site_config').select('*').limit(1)
+      supabase.from('site_config').select('key').limit(1)
         .then(({ error }) => {
           setSupabaseStatus(error ? 'error' : 'ok');
+          if (error) console.error('Monitor Supabase Error:', error);
           setLatency(Date.now() - start);
         });
     } else {
@@ -1459,7 +1460,10 @@ function Monitoring() {
 
     // Fetch Last Git Commit
     fetch('https://api.github.com/repos/dg280/TOURS/commits/main')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('GitHub API Error: ' + res.status);
+        return res.json();
+      })
       .then(data => {
         if (data && data.commit) {
           setLastCommit({
@@ -1468,7 +1472,10 @@ function Monitoring() {
           });
         }
       })
-      .catch(console.error);
+      .catch(err => {
+        console.error('Git fetch error:', err);
+        setLastCommit({ message: "Erreur de récupération (Repo Privé ou Limite API)", date: "N/A" });
+      });
   }, []);
 
   return (
