@@ -107,7 +107,9 @@ export const translations = {
             success_title: 'Réservation confirmée !',
             next: 'Suivant',
             pay: 'Payer et Réserver',
-            finish: 'Terminer'
+            finish: 'Terminer',
+            included_label: 'Inclus',
+            not_included_label: 'Non inclus'
         },
         cookies: {
             title: 'Respect de votre vie privée',
@@ -127,6 +129,8 @@ export const translations = {
                 subtitle: 'Profondeur culturelle et paysages marquants',
                 description: 'Un voyage d\'une journée entière, guidé privativement, combinant l\'héritage juif et médiéval de Gérone avec les villages côtiers raffinés de la Costa Brava.',
                 highlights: ['Quartier Juif (El Call)', 'Village médiéval de Pals', 'Calella de Palafrugell & Llafranc', 'Randonnée Camí de Ronda optionnelle', 'Déjeuner méditerranéen'],
+                included: ['Guide privé expert', 'Transport privé AR', 'Visite de Gérone', 'Village médiéval de Pals', 'Assurance voyage'],
+                notIncluded: ['Déjeuner et boissons', 'Entrées aux monuments (optionnel)', 'Dépenses personnelles'],
                 duration: 'Journée entière',
                 groupSize: '1-8',
                 price: 145
@@ -137,6 +141,8 @@ export const translations = {
                 subtitle: 'Marche, Nature & Patrimoine',
                 description: 'Une randonnée immersive à faible impact (6km) commençant dans une ville médiévale, avec des chapelles romanes et des vallées forestières. Idéal pour le calme.',
                 highlights: ['Départ village médiéval', 'Chapelles romanes', 'Vallées forestières', 'Paysages paisibles', 'Marche immersive 6km'],
+                included: ['Guide spécialisé outdoor', 'Transport privé', 'Bâtons de marche', 'Snacks locaux', 'Assurance accident'],
+                notIncluded: ['Déjeuner pique-nique', 'Dépenses personnelles'],
                 duration: 'Journée entière',
                 groupSize: '1-8',
                 price: 95
@@ -147,6 +153,8 @@ export const translations = {
                 subtitle: 'Aventure, Nature & Activités Nautiques',
                 description: 'Une expérience guidée en kayak explorant grottes marines, vie marine et falaises escarpées. Opéré avec des partenaires locaux audités.',
                 highlights: ['Exploration de grottes', 'Falaises escarpées', 'Vie marine', 'Sécurité auditée', 'Demi ou Journée entière'],
+                included: ['Guide de kayak certifié', 'Équipement complet (kayak, gilet, pagaie)', 'Sac étanche', 'Assurance spécifique'],
+                notIncluded: ['Transport vers le site', 'Repas et boissons', 'Crème solaire'],
                 duration: 'Demi/Journée entière',
                 groupSize: '1-8',
                 price: 75
@@ -157,6 +165,8 @@ export const translations = {
                 subtitle: 'Culture, Décors & Gastronomie',
                 description: 'Une journée combinant le paysage majestueux et la spiritualité de Montserrat avec la visite d\'une bodega familiale et une dégustation.',
                 highlights: ['Exploration du monastère', 'Vues panoramiques', 'Visite cave locale', 'Dégustation', 'Bodega familiale'],
+                included: ['Guide privé passionné', 'Transport privé AR', 'Visite de Montserrat', 'Visite de cave et dégustation', 'Assurance voyage'],
+                notIncluded: ['Déjeuner', 'Funiculaire de Montserrat', 'Dépenses personnelles'],
                 duration: 'Demi/Journée entière',
                 groupSize: '1-8',
                 price: 125
@@ -167,6 +177,8 @@ export const translations = {
                 subtitle: 'Histoire, paysages, gastronomie et architecture',
                 description: 'Une journée complète reliant la profondeur médiévale de la Catalogne au charme côtier du sud de la France.',
                 highlights: ['Cathédrale de Gérone & El Call', 'Traversée des Pyrénées', 'Port & Forteresse de Collioure', 'Dégustation d\'anchois boutique', 'Déjeuner méditerranéen complet'],
+                included: ['Guide privé AR', 'Transport confortable', 'Déjeuner complet inclus', 'Dégustation d\'anchois', 'Assurance voyage'],
+                notIncluded: ['Dépenses personnelles', 'Entrées additionnelles'],
                 duration: 'Journée entière',
                 groupSize: '1-8',
                 price: 165
@@ -177,6 +189,8 @@ export const translations = {
                 subtitle: 'Culturel, Voyage Responsable',
                 description: 'Une exploration slow-travel des quartiers Gothique et Born, dévoilant l\'histoire, les légendes et les histoires de quartier loin des circuits bondés.',
                 highlights: ['Quartiers Gothique & Born', 'Histoire cachée', 'Légendes & récits locaux', 'Loin des foules'],
+                included: ['Guide local licencié', 'Tour à pied personnalisé', 'Recommandations locales', 'Petit snack traditionnel'],
+                notIncluded: ['Transport public', 'Entrées musées', 'Repas complets'],
                 duration: 'Demi-journée',
                 groupSize: '1-8',
                 price: 55
@@ -187,6 +201,8 @@ export const translations = {
                 subtitle: 'Marche & Trekking',
                 description: 'Une randonnée côtière spectaculaire (6km) sur l\'un des sentiers les plus emblématiques de Catalogne. Forêts de pins et criques turquoises.',
                 highlights: ['Randonnée côtière 6km', 'Criques turquoises', 'Déjeuner de la mer', 'Possibilité de baignade'],
+                included: ['Guide de randonnée', 'Transport privé AR', 'Visite de Calella de Palafrugell', 'Assurance outdoor'],
+                notIncluded: ['Déjeuner au restaurant', 'Équipement de snorkeling', 'Boissons'],
                 duration: 'Journée entière',
                 groupSize: '1-8',
                 price: 85
@@ -304,7 +320,9 @@ export const translations = {
             success_title: 'Booking Confirmed!',
             next: 'Next',
             pay: 'Pay & Book',
-            finish: 'Finish'
+            finish: 'Finish',
+            included_label: 'Included',
+            not_included_label: 'Not Included'
         },
         cookies: {
             title: 'Respecting your privacy',
@@ -324,6 +342,8 @@ export const translations = {
                 subtitle: 'Significant cultural depth and scenery',
                 description: 'A privately guided, full-day journey combining Girona’s Jewish and medieval heritage with the refined coastal villages of the Costa Brava.',
                 highlights: ["Girona's Jewish Quarter (El Call)", 'Medieval village of Pals', 'Calella de Palafrugell & Llafranc', 'Optional Camí de Ronda coastal walk', 'Mediterranean lunch'],
+                included: ['Expert private guide', 'Round-trip private transport', 'Girona city tour', 'Pals medieval village visit', 'Travel insurance'],
+                notIncluded: ['Lunch and drinks', 'Monument entry fees (optional)', 'Personal expenses'],
                 duration: 'Full Day',
                 groupSize: '1-8',
                 price: 145
@@ -334,6 +354,8 @@ export const translations = {
                 subtitle: 'Walking, Nature & Heritage',
                 description: 'A low-impact, immersive hike (6km) starting in a medieval town, featuring Romanesque chapels and forested valleys. Perfect for travellers seeking quiet landscapes.',
                 highlights: ['Medieval town start', 'Romanesque chapels', 'Forested valleys', 'Quiet landscapes', '6km immersive walk'],
+                included: ['Specialized outdoor guide', 'Private transport', 'Walking poles', 'Local snacks', 'Accident insurance'],
+                notIncluded: ['Picnic lunch', 'Personal expenses'],
                 duration: 'Full Day',
                 groupSize: '1-8',
                 price: 95
@@ -344,6 +366,8 @@ export const translations = {
                 subtitle: 'Adventure, Nature & Water Activity',
                 description: 'A guided kayaking experience exploring sea caves, marine life and rugged cliffs. Operated with audited local partners for safety standards.',
                 highlights: ['Sea caves exploration', 'Rugged cliffs', 'Marine life', 'Safety-audited gear', 'Half or Full Day'],
+                included: ['Certified kayak guide', 'Full equipment (kayak, vest, paddle)', 'Dry bag', 'Specific insurance'],
+                notIncluded: ['Transport to site', 'Meals and drinks', 'Sunscreen'],
                 duration: 'Half/Full Day',
                 groupSize: '1-8',
                 price: 75
@@ -354,6 +378,8 @@ export const translations = {
                 subtitle: 'Cultural, Scenic & Food & Wine',
                 description: 'A day combining the majestic landscape and spirituality of Montserrat with a family-run bodega visit and tasting session.',
                 highlights: ['Monastery exploration', 'Panoramic views', 'Local winery visit', 'Tasting session', 'Family-run bodega'],
+                included: ['Passionate private guide', 'Round-trip private transport', 'Montserrat visit', 'Winery tour & tasting', 'Travel insurance'],
+                notIncluded: ['Lunch', 'Montserrat funicular', 'Personal expenses'],
                 duration: 'Half/Full Day',
                 groupSize: '1-8',
                 price: 125
@@ -364,6 +390,8 @@ export const translations = {
                 subtitle: 'History, scenery, gastronomy and architecture',
                 description: 'A full-day journey connecting the medieval depth of Catalonia with the refined coastal charm of southern France.',
                 highlights: ["Girona's Jewish Quarter & Gothic cathedral", 'Scenic Pyrenees crossing', 'Collioure harbor & fortress', 'Boutique anchovy tasting', '3-course Mediterranean lunch'],
+                included: ['Private guide', 'Comfortable transport', 'Full 3-course lunch', 'Anchovy tasting', 'Travel insurance'],
+                notIncluded: ['Personal expenses', 'Additional entry fees'],
                 duration: 'Full Day',
                 groupSize: '1-8',
                 price: 165
@@ -374,6 +402,8 @@ export const translations = {
                 subtitle: 'Cultural, Responsible Travel',
                 description: 'A slow-travel exploration of the Gothic and Born neighbourhoods, uncovering history, legends, community stories, and lesser-known locations.',
                 highlights: ['Gothic & Born quarters', 'Hidden history', 'Legends & community stories', 'Away from crowds'],
+                included: ['Licensed local guide', 'Personalized walking tour', 'Local recommendations', 'Traditional small snack'],
+                notIncluded: ['Public transport', 'Museum entries', 'Full meals'],
                 duration: 'Half Day',
                 groupSize: '1-8',
                 price: 55
@@ -384,6 +414,8 @@ export const translations = {
                 subtitle: 'Walking & Trekking',
                 description: 'A spectacular coastal hike (6km) on one of Catalonia’s most iconic trails. Pine forests, turquoise coves, and panoramic viewpoints.',
                 highlights: ['6km coastal hike', 'Turquoise coves', 'Seafood lunch', 'Swim opportunities'],
+                included: ['Hiking guide', 'Round-trip private transport', 'Calella de Palafrugell visit', 'Outdoor insurance'],
+                notIncluded: ['Restaurant lunch', 'Snorkeling gear', 'Drinks'],
                 duration: 'Full Day',
                 groupSize: '1-8',
                 price: 85
@@ -501,7 +533,9 @@ export const translations = {
             success_title: '¡Reserva Confirmada!',
             next: 'Siguiente',
             pay: 'Pagar y Reservar',
-            finish: 'Terminar'
+            finish: 'Terminar',
+            included_label: 'Incluido',
+            not_included_label: 'No incluido'
         },
         cookies: {
             title: 'Respeto a tu privacidad',
@@ -517,10 +551,12 @@ export const translations = {
         tour_data: [
             {
                 id: 1,
-                title: 'Costa Brava y Girona: senderos medievales y belleza costera',
+                title: 'Costa Brava y Girona: senderos medievales y bellezza costera',
                 subtitle: 'Profundidad cultural y paisajes espectaculares',
                 description: 'Un viaje de un día completo, guiado privadamente, que combina el legado judío y medieval de Girona con los refinados pueblos costeros de la Costa Brava.',
                 highlights: ['Barrio Judío (El Call)', 'Pueblo medieval de Pals', 'Calella de Palafrugell y Llafranc', 'Caminata Camí de Ronda opcional', 'Almuerzo mediterráneo'],
+                included: ['Guía privado experto', 'Transporte privado ida y vuelta', 'Tour por Girona', 'Visita al pueblo de Pals', 'Seguro de viaje'],
+                notIncluded: ['Almuerzo y bebidas', 'Entradas a monumentos (opcional)', 'Gastos personales'],
                 duration: 'Día completo',
                 groupSize: '1-8',
                 price: 145
@@ -531,6 +567,8 @@ export const translations = {
                 subtitle: 'Caminata, Naturaleza y Patrimonio',
                 description: 'Una caminata inmersiva de bajo impacto (6km) que comienza en un pueblo medieval, con capillas románicas y valles boscosos. Perfecto para viajeros que buscan paz.',
                 highlights: ['Inicio en pueblo medieval', 'Capillas románicas', 'Valles boscosos', 'Paisajes tranquilos', 'Caminata de 6km'],
+                included: ['Guía especializado en outdoor', 'Transporte privado', 'Bastones de marcha', 'Snacks locales', 'Seguro de accidentes'],
+                notIncluded: ['Almuerzo picnic', 'Gastos personales'],
                 duration: 'Día completo',
                 groupSize: '1-8',
                 price: 95
@@ -541,6 +579,8 @@ export const translations = {
                 subtitle: 'Aventura, Naturaleza y Actividad Acuática',
                 description: 'Una experiencia guiada en kayak explorando cuevas marinas, vida marina y acantilados escarpados. En colaboración con socios locales auditados.',
                 highlights: ['Exploración de cuevas', 'Acantilados escarpados', 'Vida marina', 'Seguridad auditada', 'Medio día o completo'],
+                included: ['Guía de kayak certificado', 'Equipo completo (kayak, chaleco, remo)', 'Bolsa estanca', 'Seguro específico'],
+                notIncluded: ['Transporte al lugar', 'Comidas y bebidas', 'Protector solar'],
                 duration: 'Medio/Día completo',
                 groupSize: '1-8',
                 price: 75
@@ -551,6 +591,8 @@ export const translations = {
                 subtitle: 'Cultura, Paisaje, Gastronomía y Vino',
                 description: 'Un día que combina el majestuoso paisaje y la espiritualidad de Montserrat con la visita a una bodega familiar y sesión de degustación.',
                 highlights: ['Monasterio de Montserrat', 'Vistas panorámicas', 'Bodega local familiar', 'Sesión de cata', 'Entorno auténtico'],
+                included: ['Guía privado apasionado', 'Transporte privado ida y vuelta', 'Visita a Montserrat', 'Visita a bodega y cata', 'Seguro de viaje'],
+                notIncluded: ['Almuerzo', 'Funicular de Montserrat', 'Gastos personales'],
                 duration: 'Medio/Día completo',
                 groupSize: '1-8',
                 price: 125
@@ -561,6 +603,8 @@ export const translations = {
                 subtitle: 'Historia, paisajes, gastronomía y arquitectura',
                 description: 'Un viaje de un día completo que conecta la profundidad medieval de Cataluña con el refinado encanto costero del sur de Francia.',
                 highlights: ['Catedral de Girona y El Call', 'Cruce de los Pirineos', 'Puerto y fortaleza de Collioure', 'Degustación de anchoas boutique', 'Almuerzo mediterráneo de 3 platos'],
+                included: ['Guía privado', 'Transporte cómodo', 'Almuerzo completo incluido', 'Degustación de anchoas', 'Seguro de viaje'],
+                notIncluded: ['Gastos personales', 'Entradas adicionales'],
                 duration: 'Día completo',
                 groupSize: '1-8',
                 price: 165
@@ -571,6 +615,8 @@ export const translations = {
                 subtitle: 'Cultural, Viaje Responsable',
                 description: 'Una exploración de slow-travel por los barrios Gótico y Born, descubriendo historia, leyendas e historias comunitarias lejos de las rutas concurridas.',
                 highlights: ['Barrios Gótico y Born', 'Historia oculta', 'Leyendas y relatos locales', 'Lejos de las multitudes'],
+                included: ['Guía local certificado', 'Tour a pie personalizado', 'Recomendaciones locales', 'Pequeño snack tradicional'],
+                notIncluded: ['Transporte público', 'Entradas a museos', 'Comidas completas'],
                 duration: 'Medio día',
                 groupSize: '1-8',
                 price: 55
@@ -581,6 +627,8 @@ export const translations = {
                 subtitle: 'Caminata y Trekking',
                 description: 'Una caminata costera espectacular (6km) por uno de los senderos más emblemáticos de Cataluña. Bosques de pinos y calas turquesas.',
                 highlights: ['Caminata costera 6km', 'Calas turquesas', 'Almuerzo marinero', 'Oportunidad de baño'],
+                included: ['Guía de senderismo', 'Transporte privado ida y vuelta', 'Visita a Calella de Palafrugell', 'Seguro outdoor'],
+                notIncluded: ['Almuerzo en restaurante', 'Equipo de snorkel', 'Bebidas'],
                 duration: 'Día completo',
                 groupSize: '1-8',
                 price: 85

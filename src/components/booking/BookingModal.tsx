@@ -7,7 +7,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Calendar as CalendarIcon, Users, CheckCircle2, ChevronRight, Minus, Plus, CreditCard, Info } from 'lucide-react';
+import { Loader2, Calendar as CalendarIcon, Users, CheckCircle2, ChevronRight, Minus, Plus, CreditCard, Info, Check, X } from 'lucide-react';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { CheckoutForm } from '../CheckoutForm';
@@ -132,9 +132,32 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                         </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-6 sm:p-8">
+                    <div className="flex-1 overflow-y-auto p-6 sm:p-8 custom-scrollbar">
                         {step === 1 && (
-                            <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
+                            <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                                {/* Inclusions Summary */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 bg-amber-50/30 p-4 rounded-2xl border border-amber-100/50">
+                                    <div className="space-y-1.5">
+                                        <h4 className="text-[10px] font-bold uppercase tracking-widest text-green-700 flex items-center gap-1.5 opacity-80">
+                                            <Check className="w-3 h-3" /> {t.booking.included_label}
+                                        </h4>
+                                        <ul className="space-y-1">
+                                            {tour.included?.slice(0, 3).map((item, i) => (
+                                                <li key={i} className="text-[11px] text-gray-700 leading-tight">• {item}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <h4 className="text-[10px] font-bold uppercase tracking-widest text-red-600 flex items-center gap-1.5 opacity-80">
+                                            <X className="w-3 h-3" /> {t.booking.not_included_label}
+                                        </h4>
+                                        <ul className="space-y-1">
+                                            {tour.notIncluded?.slice(0, 3).map((item, i) => (
+                                                <li key={i} className="text-[11px] text-gray-600/80 leading-tight">• {item}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
                                 <div className="space-y-4">
                                     <h3 className="text-xl font-bold flex items-center gap-2">
                                         <CalendarIcon className="w-5 h-5 text-amber-600" />
@@ -263,12 +286,19 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                                         <p className="flex justify-between"><span>Tour:</span> <span className="font-bold text-amber-900">{tour.title}</span></p>
                                         <p className="flex justify-between"><span>Date:</span> <span className="font-bold text-amber-900">{date}</span></p>
                                         <p className="flex justify-between"><span>Voyageurs:</span> <span className="font-bold text-amber-900">{participants}</span></p>
+                                        <div className="pt-2 border-t border-amber-200 mt-2 space-y-1">
+                                            <p className="text-[10px] font-bold uppercase tracking-wider text-amber-700/50">Inclus :</p>
+                                            <p className="text-xs text-amber-900/60 leading-tight">{tour.included?.join(', ')}</p>
+                                        </div>
                                         <div className="pt-2 border-t border-amber-200 mt-2">
                                             <p className="flex justify-between text-base"><span>Total payé:</span> <span className="font-bold text-amber-900">{calculateTotal()}€</span></p>
                                         </div>
                                     </div>
                                 </div>
-                                <Button onClick={() => onOpenChange(false)} className="w-full bg-gray-900 h-12 text-lg mt-6">
+                                <Button
+                                    onClick={() => onOpenChange(false)}
+                                    className="w-full bg-gray-900 hover:bg-gray-800 h-14 text-lg font-bold rounded-xl shadow-lg transition-all active:scale-95"
+                                >
                                     {t.booking.finish}
                                 </Button>
                             </div>
@@ -283,10 +313,10 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                             </div>
                             <Button
                                 onClick={nextStep}
-                                className="bg-amber-600 hover:bg-amber-700 text-white px-10 h-14 text-lg font-bold shadow-lg shadow-amber-600/20"
+                                className="bg-amber-600 hover:bg-amber-700 text-white px-6 sm:px-10 h-14 text-lg font-bold rounded-xl shadow-lg shadow-amber-600/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                             >
                                 {t.booking.next}
-                                <ChevronRight className="w-5 h-5 ml-2" />
+                                <ChevronRight className="w-5 h-5" />
                             </Button>
                         </div>
                     )}

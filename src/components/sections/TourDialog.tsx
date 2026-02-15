@@ -87,7 +87,7 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, t, onBookNow }: TourDia
                                 <TabsContent value="incl" className="mt-4 grid md:grid-cols-2 gap-8">
                                     <div>
                                         <h4 className="font-bold text-green-700 mb-3 flex items-center gap-2">
-                                            <Check className="w-5 h-5" /> Inclus
+                                            <Check className="w-5 h-5" /> {t.booking.included_label}
                                         </h4>
                                         <ul className="space-y-2">
                                             {tour.included?.map((item, i) => (
@@ -100,7 +100,7 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, t, onBookNow }: TourDia
                                     </div>
                                     <div>
                                         <h4 className="font-bold text-red-700 mb-3 flex items-center gap-2">
-                                            <X className="w-5 h-5" /> Non Inclus
+                                            <X className="w-5 h-5" /> {t.booking.not_included_label}
                                         </h4>
                                         <ul className="space-y-2">
                                             {tour.notIncluded?.map((item, i) => (
@@ -155,7 +155,7 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, t, onBookNow }: TourDia
                             </Tabs>
                         </div>
 
-                        <div className="lg:col-span-1 border-l lg:pl-10">
+                        <div className="lg:col-span-1 border-t lg:border-t-0 lg:border-l pt-10 lg:pt-0 lg:pl-10">
                             <div className="sticky top-0 space-y-8">
                                 <div className="bg-amber-50 rounded-2xl p-8 border border-amber-100">
                                     <p className="text-gray-500 text-sm mb-1">{t.tours.from_price}</p>
