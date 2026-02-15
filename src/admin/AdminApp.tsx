@@ -199,7 +199,7 @@ function Login() {
       const { error: authError } = await supabase.auth.signInWithOtp({
         email: email.toLowerCase().trim(),
         options: {
-          emailRedirectTo: window.location.origin + '/admin',
+          emailRedirectTo: window.location.origin + '/admin.html',
         }
       });
 
@@ -939,6 +939,24 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                     <Label>Point de rencontre (FR)</Label>
                     <Input value={editingTour.meetingPoint || ''} onChange={(e) => setEditingTour({ ...editingTour, meetingPoint: e.target.value })} />
                   </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Inclusions (FR)</Label>
+                      <Textarea
+                        className="text-xs min-h-[100px]"
+                        value={(editingTour.included || []).join('\n')}
+                        onChange={(e) => setEditingTour({ ...editingTour, included: e.target.value.split('\n').filter(l => l.trim()) })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Exclusions (FR)</Label>
+                      <Textarea
+                        className="text-xs min-h-[100px]"
+                        value={(editingTour.notIncluded || []).join('\n')}
+                        onChange={(e) => setEditingTour({ ...editingTour, notIncluded: e.target.value.split('\n').filter(l => l.trim()) })}
+                      />
+                    </div>
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="en" className="space-y-4">
@@ -976,6 +994,24 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                     <Label>Meeting Point (EN)</Label>
                     <Input value={editingTour.meetingPoint_en || ''} onChange={(e) => setEditingTour({ ...editingTour, meetingPoint_en: e.target.value })} />
                   </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Inclusions (EN)</Label>
+                      <Textarea
+                        className="text-xs min-h-[100px]"
+                        value={(editingTour.included_en || []).join('\n')}
+                        onChange={(e) => setEditingTour({ ...editingTour, included_en: e.target.value.split('\n').filter(l => l.trim()) })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Exclusions (EN)</Label>
+                      <Textarea
+                        className="text-xs min-h-[100px]"
+                        value={(editingTour.notIncluded_en || []).join('\n')}
+                        onChange={(e) => setEditingTour({ ...editingTour, notIncluded_en: e.target.value.split('\n').filter(l => l.trim()) })}
+                      />
+                    </div>
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="es" className="space-y-4">
@@ -1012,6 +1048,24 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                   <div className="space-y-2">
                     <Label>Punto de encuentro (ES)</Label>
                     <Input value={editingTour.meetingPoint_es || ''} onChange={(e) => setEditingTour({ ...editingTour, meetingPoint_es: e.target.value })} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Inclusiones (ES)</Label>
+                      <Textarea
+                        className="text-xs min-h-[100px]"
+                        value={(editingTour.included_es || []).join('\n')}
+                        onChange={(e) => setEditingTour({ ...editingTour, included_es: e.target.value.split('\n').filter(l => l.trim()) })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Exclusiones (ES)</Label>
+                      <Textarea
+                        className="text-xs min-h-[100px]"
+                        value={(editingTour.notIncluded_es || []).join('\n')}
+                        onChange={(e) => setEditingTour({ ...editingTour, notIncluded_es: e.target.value.split('\n').filter(l => l.trim()) })}
+                      />
+                    </div>
                   </div>
                 </TabsContent>
 

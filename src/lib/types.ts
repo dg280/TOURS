@@ -1,0 +1,32 @@
+export interface Tour {
+    id: number;
+    title: string;
+    title_en?: string;
+    title_es?: string;
+    subtitle: string;
+    subtitle_en?: string;
+    subtitle_es?: string;
+    description: string;
+    description_en?: string;
+    description_es?: string;
+    duration: string;
+    groupSize: string;
+    price: number;
+    image: string;
+    category: string;
+    highlights: string[];
+    highlights_en?: string[];
+    highlights_es?: string[];
+    stripeLink?: string;
+    itinerary?: string[];
+    itinerary_en?: string[];
+    itinerary_es?: string[];
+    included?: string[];
+    included_en?: string[];
+    included_es?: string[];
+    notIncluded?: string[];
+    notIncluded_en?: string[];
+    notIncluded_es?: string[];
+    meetingPoint?: string;
+    meetingPointMapUrl?: string;
+}
