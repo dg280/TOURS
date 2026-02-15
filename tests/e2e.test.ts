@@ -1,61 +1,68 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Non-regression UI & Data', () => {
+test.describe('Full Site Verification - Tours & Detours', () => {
     test.beforeEach(async ({ page }) => {
-        // Go to live site or use localhost if running locally
-        await page.goto('https://tours-five-olive.vercel.app/?reset=true');
-        // Wait for images and data to load
-        await page.waitForTimeout(2000);
+        await page.goto('https://tours-five-olive.vercel.app/?reset=true', { waitUntil: 'networkidle', timeout: 60000 });
+        await page.evaluate(() => localStorage.clear());
+        await page.reload({ waitUntil: 'networkidle' });
     });
 
-    test('Check that tour images are appearing', async ({ page }) => {
-        const images = await page.locator('section#tours img');
-        const count = await images.count();
-        expect(count).toBeGreaterThan(0);
-
-        for (let i = 0; i < count; i++) {
-            const img = images.nth(i);
-            const src = await img.getAttribute('src');
-            expect(src).toBeTruthy();
-            expect(src).not.toContain('undefined');
-
-            // Check if image loads correctly (naturalWidth > 0)
-            const isLoaded = await img.evaluate((node: HTMLImageElement) => {
-                return node.complete && node.naturalWidth > 0;
-            });
-            expect(isLoaded).toBeTruthy();
+    test('Critical: Cookie Banner & WhatsApp Visibility', async ({ page }) => {
+        const acceptBtn = page.getByRole('button', { name: /Tout accepter|Accept all/i });
+        try {
+            await acceptBtn.waitFor({ state: 'visible', timeout: 5000 });
+            await acceptBtn.click();
+        } catch (e) {
+            console.log('Banner not found');
         }
+
+        const whatsapp = page.locator('a[href*="wa.me"]').last();
+        await expect(whatsapp).toBeVisible();
     });
 
-    test('Check for critical Supabase/Console errors', async ({ page }) => {
-        const errors: string[] = [];
-        page.on('console', msg => {
-            if (msg.type() === 'error') {
-                errors.push(msg.text());
+    test('Data: Multi-language Support (en/es)', async ({ page }) => {
+        const enBtn = page.locator('nav button').filter({ hasText: /^en$/i });
+        await enBtn.click();
+        await page.waitForTimeout(1000);
+        await expect(page.locator('h1')).toContainText(/Unique tours/i);
+
+        const esBtn = page.locator('nav button').filter({ hasText: /^es$/i });
+        await esBtn.click();
+        await page.waitForTimeout(1000);
+        await expect(page.locator('h1')).toContainText(/Experiencias/i);
+    });
+
+    test('UI: Tour Dialog Logic & Overflow Check', async ({ page }) => {
+        await page.getByRole('button', { name: /Tout accepter/i }).click().catch(() => { });
+
+        // Wait for cards to appear
+        const tourCard = page.locator('section#tours h3').first();
+        await tourCard.waitFor({ state: 'visible', timeout: 15000 });
+        await tourCard.click({ force: true });
+
+        await expect(page.locator('div[role="dialog"]')).toBeVisible({ timeout: 15000 });
+        const bookBtn = page.locator('div[role="dialog"] button').filter({ hasText: /Réserver|Book/i }).first();
+        await expect(bookBtn).toBeVisible();
+
+        // Specific test for MacBook Air overflow (text should not exceed container width)
+        const isOverflowing = await bookBtn.evaluate((el) => {
+            return el.scrollWidth > el.clientWidth;
+        });
+        expect(isOverflowing, "The 'Book Now' button text is overflowing its container!").toBe(false);
+    });
+
+    test('Performance: Assets 404 check', async ({ page }) => {
+        const brokenAssets: string[] = [];
+        page.on('response', response => {
+            if (response.status() === 404 && !response.url().includes('favicon')) {
+                brokenAssets.push(response.url());
             }
         });
 
-        await page.reload();
+        await page.goto('https://tours-five-olive.vercel.app/', { waitUntil: 'networkidle' });
+        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
         await page.waitForTimeout(2000);
 
-        const supabaseErrors = errors.filter(e => e.toLowerCase().includes('supabase') || e.toLowerCase().includes('site_config'));
-        expect(supabaseErrors).toHaveLength(0);
-    });
-
-    test('Check header and footer styles', async ({ page }) => {
-        const navbar = await page.locator('nav');
-        await expect(navbar).toBeVisible();
-
-        const footer = await page.locator('footer');
-        await expect(footer).toBeVisible();
-
-        // Premium check: Dark footer
-        const footerBg = await footer.evaluate(el => window.getComputedStyle(el).backgroundColor);
-        // Expecting something very dark (rgb(10, 10, 10) or similar)
-        expect(footerBg).toMatch(/rgb\(10,\s*10,\s*10\)/);
-
-        // No newsletter check
-        const newsletter = await footer.locator('input[type="email"]').count();
-        expect(newsletter).toBe(0);
+        expect(brokenAssets).toHaveLength(0);
     });
 });

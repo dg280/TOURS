@@ -138,7 +138,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                                 {/* Inclusions Summary */}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 bg-amber-50/30 p-4 rounded-2xl border border-amber-100/50">
                                     <div className="space-y-1.5">
-                                        <h4 className="text-[10px] font-bold uppercase tracking-widest text-green-700 flex items-center gap-1.5 opacity-80">
+                                        <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-green-700 flex items-center gap-1.5 opacity-80">
                                             <Check className="w-3 h-3" /> {t.booking.included_label}
                                         </h4>
                                         <ul className="space-y-1">
@@ -148,7 +148,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                                         </ul>
                                     </div>
                                     <div className="space-y-1.5">
-                                        <h4 className="text-[10px] font-bold uppercase tracking-widest text-red-600 flex items-center gap-1.5 opacity-80">
+                                        <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-red-600 flex items-center gap-1.5 opacity-80">
                                             <X className="w-3 h-3" /> {t.booking.not_included_label}
                                         </h4>
                                         <ul className="space-y-1">
@@ -159,7 +159,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                                     </div>
                                 </div>
                                 <div className="space-y-4">
-                                    <h3 className="text-xl font-bold flex items-center gap-2">
+                                    <h3 className="text-xl font-sans font-bold flex items-center gap-2 text-gray-900">
                                         <CalendarIcon className="w-5 h-5 text-amber-600" />
                                         {t.booking.date_title}
                                     </h3>
@@ -177,7 +177,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                                 </div>
 
                                 <div className="space-y-4">
-                                    <h3 className="text-xl font-bold flex items-center gap-2">
+                                    <h3 className="text-xl font-sans font-bold flex items-center gap-2 text-gray-900">
                                         <Users className="w-5 h-5 text-amber-600" />
                                         {t.booking.participants}
                                     </h3>
@@ -208,7 +208,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
 
                         {step === 2 && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-                                <h3 className="text-xl font-bold flex items-center gap-2 mb-6">
+                                <h3 className="text-xl font-sans font-bold flex items-center gap-2 mb-6 text-gray-900">
                                     <Info className="w-5 h-5 text-amber-600" />
                                     {t.booking.info_title}
                                 </h3>
@@ -250,7 +250,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
 
                         {step === 3 && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-                                <h3 className="text-xl font-bold flex items-center gap-2 mb-6">
+                                <h3 className="text-xl font-sans font-bold flex items-center gap-2 mb-6 text-gray-900">
                                     <CreditCard className="w-5 h-5 text-amber-600" />
                                     {t.booking.payment_title}
                                 </h3>
@@ -297,7 +297,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                                 </div>
                                 <Button
                                     onClick={() => onOpenChange(false)}
-                                    className="w-full bg-gray-900 hover:bg-gray-800 h-16 text-base sm:text-lg font-bold rounded-2xl shadow-xl transition-all active:scale-95"
+                                    className="w-full bg-gray-900 hover:bg-gray-800 h-16 text-sm sm:text-base font-bold rounded-2xl shadow-xl transition-all active:scale-95"
                                 >
                                     {t.booking.finish}
                                 </Button>
@@ -313,7 +313,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                             </div>
                             <Button
                                 onClick={nextStep}
-                                className="bg-amber-600 hover:bg-amber-700 text-white px-8 sm:px-12 h-16 text-base sm:text-lg font-bold rounded-2xl shadow-xl shadow-amber-600/30 transition-all active:scale-95 flex items-center justify-center gap-2"
+                                className="bg-amber-600 hover:bg-amber-700 text-white px-6 sm:px-12 h-16 text-sm sm:text-base font-bold rounded-2xl shadow-xl shadow-amber-600/30 transition-all active:scale-95 flex items-center justify-center gap-2"
                             >
                                 {t.booking.next}
                                 <ChevronRight className="w-5 h-5" />

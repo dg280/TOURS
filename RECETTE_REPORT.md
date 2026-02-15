@@ -52,6 +52,14 @@
     - Désactivation du bouton WhatsApp pendant la phase de réservation (`isBookingOpen`).
     - Amélioration de la grille du Footer pour le rendu 1-colonne sur mobile.
 - **Statut** : DÉPLOYÉ / EN ATTENTE DE VALIDATION.
+25: 
+26: ### ✅ Action G : Harmonisation Typo & Fix Modales (Overflow)
+27: - **Diagnostic** : Texte de réservation "RÉSERVER MAINTENANT" trop gros pour le bouton sur MacBook Air, et mélange de Serif/Sans inconsistant sur les sous-titres techniques.
+28: - **Remède** : 
+29:     - Réduction de la taille de police (`xs/sm`) et du padding du bouton de réservation.
+30:     - Forçage de la police `font-sans` (Inter) sur tous les headers techniques (`h3`/`h4`) des modales pour harmonisation.
+31:     - Réduction de l'espacement interne (padding) du bloc tarifaire pour libérer de la largeur.
+32: - **Statut** : DÉPLOYÉ.
 
 ---
 

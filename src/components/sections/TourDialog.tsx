@@ -57,7 +57,7 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, t, onBookNow }: TourDia
                                         {tour.description}
                                     </p>
                                     <div className="mt-6">
-                                        <h4 className="font-bold text-gray-900 mb-4">Points forts :</h4>
+                                        <h4 className="font-sans font-bold text-gray-900 mb-4 uppercase tracking-widest text-xs">Points forts :</h4>
                                         <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                             {tour.highlights.map((h, i) => (
                                                 <li key={i} className="flex items-start gap-2 text-gray-600">
@@ -86,7 +86,7 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, t, onBookNow }: TourDia
 
                                 <TabsContent value="incl" className="mt-4 grid md:grid-cols-2 gap-8">
                                     <div>
-                                        <h4 className="font-bold text-green-700 mb-3 flex items-center gap-2">
+                                        <h4 className="font-sans font-bold text-green-700 mb-3 flex items-center gap-2 uppercase tracking-widest text-xs">
                                             <Check className="w-5 h-5" /> {t.booking.included_label}
                                         </h4>
                                         <ul className="space-y-2">
@@ -99,7 +99,7 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, t, onBookNow }: TourDia
                                         </ul>
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-red-700 mb-3 flex items-center gap-2">
+                                        <h4 className="font-sans font-bold text-red-700 mb-3 flex items-center gap-2 uppercase tracking-widest text-xs">
                                             <X className="w-5 h-5" /> {t.booking.not_included_label}
                                         </h4>
                                         <ul className="space-y-2">
@@ -157,7 +157,7 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, t, onBookNow }: TourDia
 
                         <div className="lg:col-span-1 border-t lg:border-t-0 lg:border-l pt-10 lg:pt-0 lg:pl-10">
                             <div className="sticky top-0 space-y-8">
-                                <div className="bg-amber-50 rounded-2xl p-8 border border-amber-100">
+                                <div className="bg-amber-50 rounded-2xl p-6 border border-amber-100">
                                     <p className="text-gray-500 text-sm mb-1">{t.tours.from_price}</p>
                                     <div className="flex items-baseline gap-2 mb-6">
                                         <span className="text-4xl font-bold text-gray-900">{tour.price}€</span>
@@ -168,14 +168,14 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, t, onBookNow }: TourDia
                                             onOpenChange(false);
                                             onBookNow(tour);
                                         }}
-                                        className="w-full bg-amber-600 hover:bg-amber-700 text-white min-h-[72px] py-4 px-6 text-base sm:text-lg font-bold rounded-2xl shadow-xl shadow-amber-600/30 transition-all active:scale-95 flex items-center justify-center text-center leading-tight overflow-visible uppercase tracking-wide"
+                                        className="w-full bg-amber-600 hover:bg-amber-700 text-white min-h-[64px] py-4 px-2 text-[11px] sm:text-xs font-bold rounded-2xl shadow-xl shadow-amber-600/30 transition-all active:scale-95 flex items-center justify-center text-center leading-tight overflow-hidden uppercase tracking-tighter"
                                     >
                                         {t.tours.book_now}
                                     </Button>
                                 </div>
 
                                 <div className="space-y-4">
-                                    <h4 className="font-bold text-gray-900">Infos rapides :</h4>
+                                    <h4 className="font-sans font-bold text-gray-900 uppercase tracking-widest text-xs">Infos rapides :</h4>
                                     <div className="grid gap-3">
                                         <div className="flex items-center gap-3 text-gray-600">
                                             <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"><CheckCircle2 className="w-4 h-4 text-amber-600" /></div>
