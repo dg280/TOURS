@@ -209,7 +209,6 @@ function App() {
         lang={lang}
         setLang={setLang}
         scrollToSection={scrollToSection}
-        handleBookingStart={() => handleBookingStart()}
         t={t}
       />
 
