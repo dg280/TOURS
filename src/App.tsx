@@ -37,6 +37,13 @@ function App() {
   const [showCookieConsent, setShowCookieConsent] = useState(false);
 
   useEffect(() => {
+    (window as any).__FORCE_HIDE_COOKIES = () => {
+      console.log('WINDOW: Force hiding cookies...');
+      setShowCookieConsent(false);
+    };
+  }, []);
+
+  useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
