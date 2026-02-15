@@ -52,6 +52,12 @@ export function CookieConsent({ lang, onAccept }: CookieConsentProps) {
         <div className="fixed bottom-0 left-0 right-0 z-[100] p-4 lg:p-8 animate-in fade-in slide-in-from-bottom-10 duration-700">
             <div className="max-w-4xl mx-auto">
                 <Card className="bg-white/95 backdrop-blur-md shadow-2xl border border-amber-100 overflow-hidden rounded-3xl">
+                    <button
+                        onClick={() => { console.log('COOKIE: Force close clicked'); onAccept(); }}
+                        className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-900 z-50"
+                    >
+                        ✕
+                    </button>
                     {!showSettings ? (
                         <div className="p-6 md:p-8 flex flex-col md:flex-row items-center gap-6">
                             <div className="bg-amber-100 p-3 rounded-2xl shrink-0">
@@ -72,9 +78,9 @@ export function CookieConsent({ lang, onAccept }: CookieConsentProps) {
                                 </button>
                                 <button
                                     onClick={handleAcceptAll}
-                                    className="px-8 h-12 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg shadow-amber-600/20 transition-all active:scale-95"
+                                    className="px-8 h-12 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg shadow-amber-600/20 transition-all active:scale-95 cursor-pointer relative z-[10]"
                                 >
-                                    {t.accept}
+                                    {t.accept} (V3)
                                 </button>
                             </div>
                         </div>

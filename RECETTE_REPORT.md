@@ -39,9 +39,13 @@
 - **Remède** : Ajout d'un fichier `.npmrc` avec `legacy-peer-deps=true`.
 - **Statut** : DÉPLOYÉ.
 
-### ⏳ Action E : Validation Finale Cookies & WhatsApp
-- **Diagnostic** : Le site en production n'était pas à jour à cause de l'échec du build ci-dessus.
-- **Remède** : Nouveau test de validation après déploiement réussi.
+### ✅ Action E : Correction de Superposition & Debugging
+- **Diagnostic** : Risque de superposition entre le bouton WhatsApp (z-110) et les boutons de cookies (z-100). Difficulté à réinitialiser l'état pour les tests.
+- **Remède** : Déplacement du bouton WhatsApp à `bottom-32` et ajout du paramètre `?reset=true` pour forcer l'affichage de la bannière.
+- **Statut** : DÉPLOYÉ.
+
+### ⏳ Action F : Validation Finale (Post-Build)
+- **Remède** : Nouveau test de validation complet.
 - **Statut** : EN COURS.
 
 ---
