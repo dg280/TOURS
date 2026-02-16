@@ -33,7 +33,9 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
         name: '',
         email: '',
         phone: '',
+        comment: '',
     });
+
     const [clientSecret, setClientSecret] = useState('');
 
     useEffect(() => {
@@ -70,9 +72,23 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
         }
     }, [tour, step, clientSecret, participants, lang]);
 
-    const calculateTotal = () => {
+    const calculateSubtotal = () => {
         if (!tour) return 0;
         return tour.price * participants;
+    };
+
+    const calculateTotal = () => {
+        const subtotal = calculateSubtotal();
+        if (subtotal === 0) return 0;
+        // Formule : (Prix tour + 0.30) / 0.956
+        const total = (subtotal + 0.30) / 0.956;
+        return Number(total.toFixed(2));
+    };
+
+    const calculateFees = () => {
+        const total = calculateTotal();
+        const subtotal = calculateSubtotal();
+        return Number((total - subtotal).toFixed(2));
     };
 
     const nextStep = () => {
@@ -103,14 +119,24 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
             participants: participants,
             total_price: calculateTotal(),
             status: 'pending' as const,
+            message: formData.comment,
         };
 
         if (supabase) {
-            await supabase.from('reservations').insert(newReservation);
+            const { data, error } = await supabase.from('reservations').insert(newReservation).select('id').single();
+            if (!error && data) {
+                // Trigger confirmation email
+                fetch('/api/confirm-booking', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reservationId: data.id }),
+                }).catch(err => console.error('Failed to trigger confirmation email:', err));
+            }
         }
 
         setStep(4);
     };
+
 
     if (!tour) return null;
 
@@ -244,6 +270,16 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                                             className="h-12"
                                         />
                                     </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="booking-comment">{t.booking.comment_label}</Label>
+                                        <textarea
+                                            id="booking-comment"
+                                            placeholder={t.booking.comment_placeholder}
+                                            value={formData.comment}
+                                            onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+                                            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -283,7 +319,8 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                                 <div className="bg-amber-50 p-6 rounded-2xl w-full border border-amber-100 text-left">
                                     <p className="text-amber-800 font-bold mb-4">Récapitulatif :</p>
                                     <div className="space-y-2 text-sm text-amber-900/80">
-                                        <p className="flex justify-between"><span>Tour:</span> <span className="font-bold text-amber-900">{tour.title}</span></p>
+                                        <p className="flex justify-between"><span>{t.booking.subtotal}:</span> <span className="font-bold text-amber-900">{calculateSubtotal()}€</span></p>
+                                        <p className="flex justify-between"><span>{t.booking.processing_fees}:</span> <span className="font-bold text-amber-900">{calculateFees()}€</span></p>
                                         <p className="flex justify-between"><span>Date:</span> <span className="font-bold text-amber-900">{date}</span></p>
                                         <p className="flex justify-between"><span>Voyageurs:</span> <span className="font-bold text-amber-900">{participants}</span></p>
                                         <div className="pt-2 border-t border-amber-200 mt-2 space-y-1">
@@ -306,18 +343,38 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                     </div>
 
                     {step < 3 && (
-                        <div className="p-6 sm:p-8 bg-gray-50 border-t flex items-center justify-between shrink-0">
-                            <div className="text-left">
-                                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">{t.booking.total}</p>
-                                <p className="text-2xl font-bold text-gray-900">{calculateTotal()}€</p>
+                        <div className="p-6 sm:p-8 bg-gray-50 border-t flex flex-col gap-4 shrink-0">
+                            <div className="space-y-1 text-sm">
+                                <div className="flex justify-between text-gray-500">
+                                    <span>{t.booking.subtotal}</span>
+                                    <span>{calculateSubtotal()}€</span>
+                                </div>
+                                <div className="flex justify-between text-gray-500">
+                                    <span>{t.booking.processing_fees}</span>
+                                    <span>{calculateFees()}€</span>
+                                </div>
+                                <div className="flex justify-between pt-1 border-t border-gray-200 font-bold text-gray-900 text-lg">
+                                    <span>{t.booking.total}</span>
+                                    <span>{calculateTotal()}€</span>
+                                </div>
+                                <p className="text-[10px] text-gray-400 text-right italic">
+                                    ({(calculateTotal() / participants).toFixed(2)}€ {t.booking.per_person_incl_fees})
+                                </p>
                             </div>
-                            <Button
-                                onClick={nextStep}
-                                className="bg-amber-600 hover:bg-amber-700 text-white px-6 sm:px-12 h-16 text-sm sm:text-base font-bold rounded-2xl shadow-xl shadow-amber-600/30 transition-all active:scale-95 flex items-center justify-center gap-2"
-                            >
-                                {t.booking.next}
-                                <ChevronRight className="w-5 h-5" />
-                            </Button>
+                            <div className="flex items-center justify-between">
+                                <div className="text-left hidden">
+                                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">{t.booking.total}</p>
+                                    <p className="text-2xl font-bold text-gray-900">{calculateTotal()}€</p>
+                                </div>
+                                <div className="flex-1" />
+                                <Button
+                                    onClick={nextStep}
+                                    className="bg-amber-600 hover:bg-amber-700 text-white px-6 sm:px-12 h-16 text-sm sm:text-base font-bold rounded-2xl shadow-xl shadow-amber-600/30 transition-all active:scale-95 flex items-center justify-center gap-2"
+                                >
+                                    {t.booking.next}
+                                    <ChevronRight className="w-5 h-5" />
+                                </Button>
+                            </div>
                         </div>
                     )}
                 </div>

@@ -55,24 +55,32 @@ export default async function handler(req: any, res: any) {
             return res.status(404).json({ error: 'Tour non trouvé en base de données' });
         }
 
-        const amount = Math.round(tour.price * participants * 100);
+        const baseAmount = tour.price * participants;
+        // Formule : (Prix tour + 0.30) / 0.956
+        const totalAmount = (baseAmount + 0.30) / 0.956;
+        const amountInCents = Math.round(totalAmount * 100);
 
         const paymentIntent = await stripe.paymentIntents.create({
-            amount,
+            amount: amountInCents,
             currency,
             automatic_payment_methods: {
                 enabled: true,
             },
             metadata: {
                 tourId,
-                participants: participants.toString()
+                participants: participants.toString(),
+                baseAmount: baseAmount.toString(),
+                stripeFees: (totalAmount - baseAmount).toFixed(2)
             }
         });
 
         res.status(200).json({
             clientSecret: paymentIntent.client_secret,
-            amount: tour.price * participants
+            amount: Number(totalAmount.toFixed(2)),
+            baseAmount: baseAmount,
+            stripeFees: Number((totalAmount - baseAmount).toFixed(2))
         });
+
     } catch (err: any) {
         console.error('Global API Error:', err);
         res.status(500).json({ error: err.message || 'Erreur interne du serveur' });

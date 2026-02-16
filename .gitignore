@@ -23,4 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 .env
-ADS_CAMPAIGN_TEMPLATE.md
+
+# Playwright
+/playwright-report
+/test-results
+
+# Testing
+/coverage
+

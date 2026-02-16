@@ -51,8 +51,7 @@ export const translations = {
         guide: {
             section_tag: 'VOTRE GUIDE',
             title: 'Bonjour, je suis Antoine Pilard',
-            desc1: "Antoine Pilard, Tours and detours. Je conçois et dirige personnellement des expériences privées à travers la Catalogne pour des voyageurs en quête de profondeur culturelle, de rythme calme et de connexions locales significatives — loin des foules et des clichés.",
-            desc2: "Avec plus de 15 ans d'expérience en tant que guide en France, en Andorre et en Espagne, et ancien chef de tour Intrepid Travel (2018-2022), je combine des normes opérationnelles solides avec une approche humaine et discrète du guidage. Basé à Barcelone depuis 2022, je travaille en étroite collaboration avec des partenaires locaux de confiance pour proposer des journées guidées privées et des expériences de plusieurs jours adaptées aux intérêts, au rythme et aux attentes de chaque client.",
+            bio: "Antoine Pilard & Tours and Detours\n\nJe conçois et mène personnellement des expériences privées à travers la Catalogne pour des voyageurs en quête de profondeur culturelle, de rythme calme et de connexions locales authentiques — loin de la foule et des clichés.\n\nLe voyage façonne ma vie depuis plus de 15 ans. De mes propres périples en Afrique, Asie et Amérique jusqu'à l'accompagnement de voyageurs dans les avenues historiques de Paris et du Nord de la France, ou en menant des aventures de randonnée, de vélo et de rafting dans les Alpes et les Pyrénées, j'ai toujours cru en une chose : les meilleures expériences se trouvent dans les détours — quand on ralentit, qu'on prête attention et qu'on se connecte vraiment au monde qui nous entoure.\n\nAvec plus de 15 ans d'expérience en tant que guide en France, en Andorre et en Espagne, et ancien tour-leader pour Intrepid Travel (2018–2022), je combine des standards opérationnels rigoureux avec une approche humaine et discrète. Basé à Barcelone depuis 2022, je travaille en étroite collaboration avec des partenaires locaux de confiance pour offrir des journées guidées privées et des expériences de plusieurs jours adaptées aux intérêts, au rythme et aux attentes de chaque client. Cette conviction pour le voyage porteur de sens est le cœur de Tours & Detours.\n\nNotre Philosophie\n\nIci en Catalogne — un endroit que je suis fier d'appeler ma maison — nous créons des expériences qui honorent la terre, les gens et les traditions qui la rendent unique. Nous pratiquons le voyage lent (slow travel), privilégiant la profondeur à la vitesse et le sens au kilométrage. Nous surveillons notre empreinte carbone, intégrons la marche et les activités non motorisées chaque fois que possible, et concevons des itinéraires qui respectent et profitent à la fois à l'environnement et aux communautés qui nous accueillent.\n\nNotre esprit est ancré dans l'aventure — non pas au sens de défis extrêmes, mais dans la joie de la découverte : un sentier côtier tranquille, une piste forestière que seuls les locaux connaissent, un artisan ouvrant son atelier, un vigneron engagé dans des pratiques durables partageant ses histoires autour d'un verre. Ces moments deviennent des souvenirs car ils sont réels, humains et naturels.\n\nNous travaillons en étroite collaboration avec les acteurs locaux — agriculteurs, familles, artisans, restaurateurs — pour garantir que les bénéfices du tourisme restent là où ils doivent être : au sein de la communauté elle-même. Chaque partenariat est intentionnel, respectueux et fondé sur la confiance.\n\nCe qui nous rend différents\n\nChaque groupe est unique. Je m'adapte au rythme de la journée, à votre énergie, à vos intérêts et à votre rythme. Parfois, le moment le plus inoubliable vient d'un détour, d'un ralentissement ou de l'écoute d'une histoire qui ne faisait pas partie du plan.\n\nChez Tours & Detours, nous ne nous contentons pas de vous montrer la Catalogne — nous vous aidons à en faire l'expérience de la manière la plus authentique, responsable et significative possible.\n\nJ'ai hâte de vous accueillir pour ce voyage. Embrassons les détours ensemble — c'est là que nous trouverons ce qui compte le plus.",
             cta_contact: 'Me contacter',
             cta_tours: 'Voir le portfolio',
             features: [
@@ -109,7 +108,12 @@ export const translations = {
             pay: 'Payer et Réserver',
             finish: 'Terminer',
             included_label: 'Inclus',
-            not_included_label: 'Non inclus'
+            not_included_label: 'Non inclus',
+            comment_label: 'Commentaire (infos complémentaires, restrictions alimentaires)',
+            comment_placeholder: 'Avez-vous des besoins spécifiques ?',
+            subtotal: 'Prix du tour',
+            processing_fees: 'Frais de traitement du paiement',
+            per_person_incl_fees: 'par personne (frais inclus)'
         },
         cookies: {
             title: 'Respect de votre vie privée',
@@ -278,8 +282,7 @@ export const translations = {
         guide: {
             section_tag: 'YOUR GUIDE',
             title: 'Hello, I am Antoine Pilard',
-            desc1: "Antoine Pilard, Tours and detours. I design and personally lead private experiences across Catalonia for well-traveled guests seeking cultural depth, calm pacing, and meaningful local connections — away from crowds and clichés.",
-            desc2: "With over 15 years of guiding experience in France, Andorra, and Spain, and as a former Intrepid Travel tour leader (2018–2022), I combine strong operational standards with a discreet, human approach to guiding. Based in Barcelona since 2022, I work closely with trusted local partners to deliver seamless, privately guided days and multi-day experiences tailored to each client’s interests, pace, and expectations.",
+            bio: "Antoine Pilard & Tours and Detours\n\nI design and personally lead private experiences across Catalonia for well-traveled guests seeking cultural depth, calm pacing, and meaningful local connections — away from crowds and clichés.\n\nTravel has shaped my life for more than 15 years. From my own journeys across Europe, Africa, Asia, and the Americas to guiding travelers through the historic avenues of Paris and Northern France, leading hiking, biking, and rafting adventures across the Alps and the Pyrenees, I've always believed one thing: the best experiences are found in detours — when we slow down, pay attention, and truly connect with the world around us.\n\nWith over 15 years of guiding experience across France, Andorra, and Spain, and as a former Intrepid Travel tour leader (2018–2022), I combine strong operational standards with a discreet, human approach to guiding. Based in Barcelona since 2022, I work closely with trusted local partners to deliver seamless, privately guided days and multi-day experiences tailored to each client's interests, pace, and expectations. This belief in meaningful travel is the heart of Tours & Detours.\n\nOur Philosophy\n\nHere in Catalonia — a place I proudly call home — we craft experiences that honor the land, its people, and the traditions that make it unique. We practice slow travel, choosing depth over speed and meaning over mileage. We monitor our carbon footprint, integrate walking and non-motorized activities whenever possible, and design itineraries that respect and benefit both the environment and the communities who welcome us.\n\nOur spirit is rooted in adventure — not in the sense of extreme challenges, but in the joy of discovery: a quiet coastal path, a forest track only locals know, a village artisan opening their workshop, a winemaker engaged in sustainable practices sharing stories over a glass. These moments become memories because they are real, human, and unforced.\n\nWe work closely with local stakeholders — farmers, families, artisans, restaurateurs — ensuring that the benefits of tourism stay where they belong: within the community itself. Every partnership is intentional, respectful, and built on trust.\n\nWhat Makes Us Different\n\nEvery group is unique. I read the rhythm of the day and adapt to your energy, your interests, and your pace. Sometimes the most unforgettable moment comes from taking a detour, slowing down, or listening to a story that wasn't part of the plan.\n\nAt Tours & Detours, we don't just show you Catalonia — we help you experience it in the most authentic, responsible, and meaningful way possible.\n\nI look forward to welcoming you on the journey. Let's embrace the detours together — this is where we'll find what matters most.",
             cta_contact: 'Contact Me',
             cta_tours: 'View Portfolio',
             features: [
@@ -336,7 +339,12 @@ export const translations = {
             pay: 'Pay & Book',
             finish: 'Finish',
             included_label: 'Included',
-            not_included_label: 'Not Included'
+            not_included_label: 'Not Included',
+            comment_label: 'Comments (additional info, dietary restrictions)',
+            comment_placeholder: 'Do you have any specific needs?',
+            subtotal: 'Tour price',
+            processing_fees: 'Payment processing fees',
+            per_person_incl_fees: 'per person (fees included)'
         },
         cookies: {
             title: 'Respecting your privacy',
@@ -491,8 +499,7 @@ export const translations = {
         guide: {
             section_tag: 'TU GUÍA',
             title: 'Hola, soy Antoine Pilard',
-            desc1: "Antoine Pilard, Tours and detours. Diseño y dirijo personalmente experiencias privadas en Cataluña para viajeros que buscan profundidad cultural, un ritmo pausado y conexiones locales significativas, lejos de las multitudes y los clichés.",
-            desc2: "Con más de 15 años de experiencia como guía en Francia, Andorra y España, y ex jefe de tour de Intrepid Travel (2018-2022), combino estándares operativos sólidos con un enfoque humano y discreto del guía. Basado en Barcelona desde 2022, trabajo estrechamente con socios locales de confianza para ofrecer días guiados privados y experiencias de varios días adaptadas a los intereses, el ritmo y las expectativas de cada cliente.",
+            bio: "Antoine Pilard & Tours and Detours\n\nDiseño y lidero personalmente experiencias privadas por Cataluña para viajeros que buscan profundidad cultural, un ritmo pausado y conexiones locales significativas, lejos de las multitudes y los clichés.\n\nViajar ha dado forma a mi vida durante más de 15 años. Desde mis propios viajes por África, Asie y América hasta guiar a viajeros por las avenidas históricas de París y el norte de Francia, o liderar aventuras de senderismo, ciclismo y rafting en los Alpes y los Pirineos, siempre he creído en una cosa: las mejores experiencias se encuentran en los desvíos, cuando reducimos la velocidad, prestamos atención y conectamos de verdad con el mundo que nos rodea.\n\nCon más de 15 años de experiencia como guía en Francia, Andorra y España, y como antiguo líder de viajes de Intrepid Travel (2018–2022), combino altos estándares operativos con un enfoque humano y discreto. Afincado en Barcelona desde 2022, trabajo en estrecha colaboración con socios locales de confianza para ofrecer días guiados privados y experiencias de varios días adaptadas a los intereses, el ritmo y las expectativas de cada cliente. Esta creencia en el viaje con propósito es el corazón de Tours & Detours.\n\nNuestra Filosofía\n\nAquí en Cataluña, un lugar que me enorgullece llamar mi hogar, creamos experiencias que honoran la tierra, a su gente y las tradiciones que la hacen única. Practicamos el \"slow travel\", eligiendo la profundidad sobre la velocidad y el significado sobre el kilometraje. Controlamos nuestra huella de carbono, integramos caminatas y actividades no motorizadas siempre que es posible, y diseñamos itinerarios que respetan y benefician tanto al medio ambiente como a las comunidades que nos acogen.\n\nNuestro espíritu está arraigado en la aventura, no en el sentido de desafíos extremos, sino en la alegría del descubrimiento: un sendero costero tranquilo, una pista forestal que solo los lugareños conocen, un artesano local abriendo su taller, un viticultor comprometido con prácticas sostenibles compartiendo historias con una copa. Estos momentos se convierten en recuerdos porque son reales, humanos y espontáneos.\n\nTrabajamos estrechamente con los actores locales —agricultores, familias, artesanos, restauradores—, asegurándonos de que los beneficios del turismo se queden donde pertenecen: dentro de la propia comunidad. Cada asociación es intencional, respetuosa y basada en la confianza.\n\nLo que nos hace diferentes\n\nCada grupo es único. Analizo el ritmo del día y me adapto a su energía, sus intereses y su ritmo. Parfois, el momento más inolvidable surge de tomar un desvío, reducir la velocidad o escuchar una historia que no formaba parte del plan.\n\nEn Tours & Detours, no solo le mostramos Cataluña: le ayudamos a experimentarla de la manera más auténtica, responsable y significativa posible.\n\nEspero tener el placer de darle la bienvenida. Abracemos los desvíos juntos: aquí es donde encontraremos lo que más importa.",
             cta_contact: 'Contactar',
             cta_tours: 'Ver portfolio',
             features: [
@@ -549,7 +556,12 @@ export const translations = {
             pay: 'Pagar y Reservar',
             finish: 'Terminar',
             included_label: 'Incluido',
-            not_included_label: 'No incluido'
+            not_included_label: 'No incluido',
+            comment_label: 'Comentarios (información adicional, restricciones alimentarias)',
+            comment_placeholder: '¿Tiene alguna necesidad específica?',
+            subtotal: 'Precio del tour',
+            processing_fees: 'Gastos de gestión del pago',
+            per_person_incl_fees: 'por persona (gastos incluidos)'
         },
         cookies: {
             title: 'Respeto a tu privacidad',

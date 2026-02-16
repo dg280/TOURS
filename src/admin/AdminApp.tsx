@@ -1889,10 +1889,11 @@ export default function AdminApp() {
   const [tours, setTours] = useState<Tour[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [guidePhoto, setGuidePhoto] = useState(() => localStorage.getItem('td-guide-photo') || '/guide-antoine.jpg');
+  const [guidePhoto, setGuidePhoto] = useState(() => localStorage.getItem('td-guide-photo') || '/guide-portrait.jpg');
   const [instagramUrl, setInstagramUrl] = useState(() => localStorage.getItem('td-instagram-url') || 'https://www.instagram.com/tours_and_detours_bcn/');
-  const [guideBio1, setGuideBio1] = useState(() => localStorage.getItem('td-guide-bio1') || '');
-  const [guideBio2, setGuideBio2] = useState(() => localStorage.getItem('td-guide-bio2') || '');
+  const [guideBio, setGuideBio] = useState(() => localStorage.getItem('td-guide-bio') || '');
+  const [guideBioEn, setGuideBioEn] = useState(() => localStorage.getItem('td-guide-bio-en') || '');
+  const [guideBioEs, setGuideBioEs] = useState(() => localStorage.getItem('td-guide-bio-es') || '');
 
   const profileFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -2020,11 +2021,15 @@ export default function AdminApp() {
     supabase.from('site_config').select('value').eq('key', 'guide_profile').single()
       .then(({ data, error }) => {
         if (!error && data && data.value) {
-          const val = data.value as { photo?: string; instagram?: string; bio1?: string; bio2?: string };
+          const val = data.value as { photo?: string; instagram?: string; bio?: string; bio_en?: string; bio_es?: string; bio1?: string; bio2?: string };
           if (val.photo) setGuidePhoto(val.photo);
           if (val.instagram) setInstagramUrl(val.instagram);
-          if (val.bio1) setGuideBio1(val.bio1);
-          if (val.bio2) setGuideBio2(val.bio2);
+
+          if (val.bio) setGuideBio(val.bio);
+          else if (val.bio1) setGuideBio(val.bio1 + (val.bio2 ? '\n\n' + val.bio2 : ''));
+
+          if (val.bio_en) setGuideBioEn(val.bio_en);
+          if (val.bio_es) setGuideBioEs(val.bio_es);
         }
       });
   }, [isLoggedIn]);
@@ -2038,12 +2043,16 @@ export default function AdminApp() {
   }, [instagramUrl]);
 
   useEffect(() => {
-    localStorage.setItem('td-guide-bio1', guideBio1);
-  }, [guideBio1]);
+    localStorage.setItem('td-guide-bio', guideBio);
+  }, [guideBio]);
 
   useEffect(() => {
-    localStorage.setItem('td-guide-bio2', guideBio2);
-  }, [guideBio2]);
+    localStorage.setItem('td-guide-bio-en', guideBioEn);
+  }, [guideBioEn]);
+
+  useEffect(() => {
+    localStorage.setItem('td-guide-bio-es', guideBioEs);
+  }, [guideBioEs]);
 
   const handleProfileImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -2089,7 +2098,13 @@ export default function AdminApp() {
       if (supabase) {
         const { error } = await supabase.from('site_config').upsert({
           key: 'guide_profile',
-          value: { photo: guidePhoto, instagram: instagramUrl, bio1: guideBio1, bio2: guideBio2 },
+          value: {
+            photo: guidePhoto,
+            instagram: instagramUrl,
+            bio: guideBio,
+            bio_en: guideBioEn,
+            bio_es: guideBioEs
+          },
           updated_at: new Date().toISOString()
         });
 
@@ -2242,22 +2257,38 @@ export default function AdminApp() {
                           <Input value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} placeholder="https://www.instagram.com/compte" />
                         </div>
 
-                        <div className="space-y-2">
-                          <h4 className="font-bold text-gray-900 border-b pb-2 pt-4">Ma Biographie (FR)</h4>
-                          <Label>Paragraphe 1</Label>
-                          <Textarea
-                            value={guideBio1}
-                            onChange={(e) => setGuideBio1(e.target.value)}
-                            placeholder="Ma passion pour Barcelone..."
-                            rows={3}
-                          />
-                          <Label>Paragraphe 2</Label>
-                          <Textarea
-                            value={guideBio2}
-                            onChange={(e) => setGuideBio2(e.target.value)}
-                            placeholder="Mon approche des visites..."
-                            rows={3}
-                          />
+                        <div className="space-y-4 pt-4">
+                          <h4 className="font-bold text-gray-900 border-b pb-2">Ma Biographie</h4>
+
+                          <div className="space-y-2">
+                            <Label className="flex items-center gap-2">Français <Globe className="w-3 h-3 text-blue-500" /></Label>
+                            <Textarea
+                              value={guideBio}
+                              onChange={(e) => setGuideBio(e.target.value)}
+                              placeholder="Ma passion pour Barcelone..."
+                              rows={6}
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label className="flex items-center gap-2">Anglais <Globe className="w-3 h-3 text-amber-500" /></Label>
+                            <Textarea
+                              value={guideBioEn}
+                              onChange={(e) => setGuideBioEn(e.target.value)}
+                              placeholder="My passion for Barcelona..."
+                              rows={6}
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label className="flex items-center gap-2">Espagnol <Globe className="w-3 h-3 text-red-500" /></Label>
+                            <Textarea
+                              value={guideBioEs}
+                              onChange={(e) => setGuideBioEs(e.target.value)}
+                              placeholder="Mi pasión por Barcelona..."
+                              rows={6}
+                            />
+                          </div>
                         </div>
                       </div>
 

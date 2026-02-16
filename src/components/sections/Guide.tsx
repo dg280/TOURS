@@ -5,12 +5,11 @@ interface GuideProps {
     t: any;
     guidePhoto: string;
     instagramUrl: string;
-    guideBio1?: string;
-    guideBio2?: string;
+    guideBio?: string;
     scrollToSection: (id: string) => void;
 }
 
-export const Guide = ({ t, guidePhoto, instagramUrl, guideBio1, guideBio2, scrollToSection }: GuideProps) => {
+export const Guide = ({ t, guidePhoto, instagramUrl, guideBio, scrollToSection }: GuideProps) => {
     return (
         <section id="guide" className="section-padding bg-gray-50 overflow-hidden">
             <div className="container-custom">
@@ -36,8 +35,9 @@ export const Guide = ({ t, guidePhoto, instagramUrl, guideBio1, guideBio2, scrol
                                 {t.guide.title}
                             </h2>
                             <div className="space-y-4 text-gray-600 text-lg leading-relaxed">
-                                <p>{guideBio1 || t.guide.desc1}</p>
-                                <p>{guideBio2 || t.guide.desc2}</p>
+                                {(guideBio || t.guide.bio || '').split('\n\n').map((para: string, idx: number) => (
+                                    <p key={idx}>{para}</p>
+                                ))}
                             </div>
                         </div>
 

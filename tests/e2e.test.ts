@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Full Site Verification - Tours & Detours', () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto('https://tours-five-olive.vercel.app/?reset=true', { waitUntil: 'networkidle', timeout: 60000 });
+        await page.goto('/?reset=true', { waitUntil: 'networkidle', timeout: 60000 });
         await page.evaluate(() => localStorage.clear());
         await page.reload({ waitUntil: 'networkidle' });
     });
@@ -59,7 +59,7 @@ test.describe('Full Site Verification - Tours & Detours', () => {
             }
         });
 
-        await page.goto('https://tours-five-olive.vercel.app/', { waitUntil: 'networkidle' });
+        await page.goto('/', { waitUntil: 'networkidle' });
         await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
         await page.waitForTimeout(2000);
 

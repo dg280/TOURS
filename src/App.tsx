@@ -29,10 +29,9 @@ function App() {
   const [isTourDialogOpen, setIsTourDialogOpen] = useState(false);
   const [viewedTour, setViewedTour] = useState<Tour | null>(null);
 
-  const [guidePhoto, setGuidePhoto] = useState('/guide-antoine.jpg');
+  const [guidePhoto, setGuidePhoto] = useState('/guide-portrait.jpg');
   const [instagramUrl, setInstagramUrl] = useState('https://www.instagram.com/tours_and_detours_bcn/');
-  const [guideBio1, setGuideBio1] = useState('');
-  const [guideBio2, setGuideBio2] = useState('');
+  const [guideBio, setGuideBio] = useState('');
   const [customTours, setCustomTours] = useState<Tour[]>([]);
   const [dbTours, setDbTours] = useState<Tour[]>([]);
   // suppresses unused warning but keeps it for potential future browser-side cookie logic
@@ -120,8 +119,10 @@ function App() {
           const profile = profileData.value;
           if (profile.photo) setGuidePhoto(profile.photo);
           if (profile.instagram) setInstagramUrl(profile.instagram);
-          if (profile.bio1) setGuideBio1(profile.bio1);
-          if (profile.bio2) setGuideBio2(profile.bio2);
+
+          const dbBio = lang === 'en' ? profile.bio_en : lang === 'es' ? profile.bio_es : (profile.bio || profile.bio1);
+          if (dbBio) setGuideBio(dbBio);
+          else if (profile.bio1) setGuideBio(profile.bio1 + (profile.bio2 ? '\n\n' + profile.bio2 : ''));
         }
       } catch (err) {
         console.error('Fetch error:', err);
@@ -270,8 +271,7 @@ function App() {
           t={t}
           guidePhoto={guidePhoto}
           instagramUrl={instagramUrl}
-          guideBio1={guideBio1}
-          guideBio2={guideBio2}
+          guideBio={guideBio}
           scrollToSection={scrollToSection}
         />
 
