@@ -568,6 +568,46 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
   const [editingTour, setEditingTour] = useState<Tour | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const tourFileRef = useRef<HTMLInputElement>(null);
+
+  const handleTourImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && editingTour) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("L'image est trop volumineuse (max 5MB)");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 1200; // Slightly higher for catalog quality
+
+          if (width > height && width > maxDim) {
+            height *= maxDim / width;
+            width = maxDim;
+          } else if (height > maxDim) {
+            width *= maxDim / height;
+            height = maxDim;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+          setEditingTour({ ...editingTour, image: compressedBase64 });
+          toast.success("Image du tour chargée localement. N'oubliez pas d'enregistrer !");
+        };
+        img.src = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const saveTour = async () => {
     if (editingTour) {
@@ -1085,10 +1125,30 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Photo du tour (URL)</Label>
+                    <Label>Photo du tour (URL ou Upload)</Label>
                     <div className="flex gap-2">
                       <Input value={editingTour.image} onChange={(e) => setEditingTour({ ...editingTour, image: e.target.value })} className="flex-1" />
+                      <input
+                        type="file"
+                        ref={tourFileRef}
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleTourImageUpload}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => tourFileRef.current?.click()}
+                        className="shrink-0"
+                      >
+                        <ImageIcon className="w-4 h-4 mr-2" /> Upload
+                      </Button>
                     </div>
+                    {editingTour.image && (
+                      <div className="mt-2 rounded-lg overflow-hidden border border-gray-100 max-w-sm">
+                        <img src={editingTour.image} alt="Preview" className="w-full h-32 object-cover" />
+                      </div>
+                    )}
                   </div>
                 </div>
               </Tabs>
