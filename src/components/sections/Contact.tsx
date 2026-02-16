@@ -45,8 +45,8 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-400 uppercase tracking-widest font-bold">Email</p>
-                                        <a href="mailto:antoine@toursandetours.com" className="text-xl font-bold hover:text-amber-600 transition-colors">
-                                            antoine@toursandetours.com
+                                        <a href="mailto:info@toursandetours.com" className="text-xl font-bold hover:text-amber-600 transition-colors">
+                                            info@toursandetours.com
                                         </a>
                                     </div>
                                 </div>

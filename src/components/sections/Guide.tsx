@@ -75,7 +75,7 @@ export const Guide = ({ t, guidePhoto, instagramUrl, guideBio, scrollToSection }
                                 <Instagram className="w-6 h-6" />
                             </a>
                             <a
-                                href={`mailto:antoine@toursandetours.com`}
+                                href={`mailto:info@toursandetours.com`}
                                 className="w-14 h-14 rounded-2xl border border-gray-200 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all text-gray-700 hover:text-amber-600"
                             >
                                 <Mail className="w-6 h-6" />

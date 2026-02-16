@@ -4,5 +4,5 @@
 - **Admin Interface**: [https://tours-five-olive.vercel.app/admin.html](https://tours-five-olive.vercel.app/admin.html)
 
 ## Admin Credentials
-- **Email**: `antoine@toursandetours.com`
+- **Email**: `info@toursandetours.com`
 - **Password**: `admin123`

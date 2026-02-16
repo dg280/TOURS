@@ -25,7 +25,7 @@ export const Footer = ({ t, instagramUrl }: FooterProps) => {
                         <div className="flex gap-5 pt-4">
                             {[
                                 { icon: Instagram, url: instagramUrl },
-                                { icon: Mail, url: "mailto:antoine@toursandetours.com" }
+                                { icon: Mail, url: "mailto:info@toursandetours.com" }
                             ].map((social, i) => (
                                 <a
                                     key={i}

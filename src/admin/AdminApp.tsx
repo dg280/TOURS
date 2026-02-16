@@ -250,7 +250,7 @@ function Login() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="antoine@toursandetours.com"
+              placeholder="info@toursandetours.com"
               className="mt-1 h-12"
               disabled={isLoading || !!message}
               required
