@@ -13,6 +13,7 @@ export interface Tour {
     groupSize: string;
     price: number;
     image: string;
+    images?: string[];
     category: string;
     highlights: string[];
     highlights_en?: string[];

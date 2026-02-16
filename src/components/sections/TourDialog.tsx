@@ -28,7 +28,7 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, t, onBookNow }: TourDia
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="w-[95vw] sm:max-w-5xl h-[90vh] p-0 rounded-2xl border-none shadow-2xl overflow-hidden flex flex-col bg-white">
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-10">
+                <div className="flex-1 overflow-y-auto no-scrollbar p-6 sm:p-10">
                     <DialogHeader className="mb-8">
                         <DialogTitle className="text-3xl sm:text-4xl font-serif mb-2 text-gray-900">{tour.title}</DialogTitle>
                         <p className="text-amber-600 font-semibold uppercase tracking-widest text-sm">{tour.subtitle}</p>

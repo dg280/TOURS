@@ -27,6 +27,7 @@ import {
   CheckCircle2,
   ExternalLink
 } from 'lucide-react';
+import { translations } from '@/lib/translations';
 import { Button } from '@/components/ui/button';
 import { Toaster, toast } from 'sonner';
 import { Input } from '@/components/ui/input';
@@ -86,6 +87,7 @@ interface Tour {
   group_size: string;
   price: number;
   image: string;
+  images?: string[];
   highlights: string[];
   highlights_en?: string[];
   highlights_es?: string[];
@@ -570,42 +572,57 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
   const [isSyncing, setIsSyncing] = useState(false);
   const tourFileRef = useRef<HTMLInputElement>(null);
 
-  const handleTourImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && editingTour) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("L'image est trop volumineuse (max 5MB)");
-        return;
+  const handleTourImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0 && editingTour) {
+      const newImages = [...(editingTour.images || [])];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error(`${file.name} est trop volumineuse (max 5MB)`);
+          continue;
+        }
+
+        const promise = new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              let width = img.width;
+              let height = img.height;
+              const maxDim = 1200;
+
+              if (width > height && width > maxDim) {
+                height *= maxDim / width;
+                width = maxDim;
+              } else if (height > maxDim) {
+                width *= maxDim / height;
+                height = maxDim;
+              }
+
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx?.drawImage(img, 0, 0, width, height);
+              resolve(canvas.toDataURL('image/jpeg', 0.8));
+            };
+            img.src = reader.result as string;
+          };
+          reader.readAsDataURL(file);
+        });
+
+        const base64 = await promise;
+        newImages.push(base64);
       }
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          const maxDim = 1200; // Slightly higher for catalog quality
-
-          if (width > height && width > maxDim) {
-            height *= maxDim / width;
-            width = maxDim;
-          } else if (height > maxDim) {
-            width *= maxDim / height;
-            height = maxDim;
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, width, height);
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
-          setEditingTour({ ...editingTour, image: compressedBase64 });
-          toast.success("Image du tour chargée localement. N'oubliez pas d'enregistrer !");
-        };
-        img.src = reader.result as string;
-      };
-      reader.readAsDataURL(file);
+      setEditingTour({
+        ...editingTour,
+        image: newImages[0] || editingTour.image,
+        images: newImages
+      });
+      toast.success(`${files.length} image(s) chargée(s) localement.`);
     }
   };
 
@@ -644,6 +661,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
             meeting_point: editingTour.meetingPoint,
             meeting_point_en: editingTour.meetingPoint_en,
             meeting_point_es: editingTour.meetingPoint_es,
+            images: editingTour.images,
             meeting_point_map_url: editingTour.meetingPointMapUrl
           };
 
@@ -690,6 +708,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
           group_size: t.group_size,
           price: t.price,
           image: t.image,
+          images: t.images || [],
           category: t.category,
           highlights: t.highlights,
           isActive: t.is_active,
@@ -730,6 +749,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
           group_size: tour.group_size,
           price: tour.price,
           image: tour.image,
+          images: tour.images || [],
           category: tour.category,
           highlights: tour.highlights,
           is_active: tour.isActive,
@@ -773,6 +793,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
           group_size: t.group_size,
           price: t.price,
           image: t.image,
+          images: t.images || [],
           category: t.category,
           highlights: t.highlights,
           isActive: t.is_active,
@@ -1124,15 +1145,21 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                     <p className="text-[10px] text-gray-400 font-medium">Pour afficher une carte, collez l'URL 'src' de l'iframe de partage Google Maps (Embed).</p>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Photo du tour (URL ou Upload)</Label>
+                  <div className="space-y-4">
+                    <Label>Photos du tour (Gérez plusieurs photos)</Label>
                     <div className="flex gap-2">
-                      <Input value={editingTour.image} onChange={(e) => setEditingTour({ ...editingTour, image: e.target.value })} className="flex-1" />
+                      <Input
+                        placeholder="URL de l'image principale"
+                        value={editingTour.image}
+                        onChange={(e) => setEditingTour({ ...editingTour, image: e.target.value })}
+                        className="flex-1"
+                      />
                       <input
                         type="file"
                         ref={tourFileRef}
                         className="hidden"
                         accept="image/*"
+                        multiple
                         onChange={handleTourImageUpload}
                       />
                       <Button
@@ -1141,12 +1168,55 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                         onClick={() => tourFileRef.current?.click()}
                         className="shrink-0"
                       >
-                        <ImageIcon className="w-4 h-4 mr-2" /> Upload
+                        <Plus className="w-4 h-4 mr-2" /> Ajouter des photos
                       </Button>
                     </div>
-                    {editingTour.image && (
-                      <div className="mt-2 rounded-lg overflow-hidden border border-gray-100 max-w-sm">
-                        <img src={editingTour.image} alt="Preview" className="w-full h-32 object-cover" />
+
+                    {editingTour.images && editingTour.images.length > 0 && (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                        {editingTour.images.map((img, idx) => (
+                          <div key={idx} className="relative group aspect-video rounded-lg overflow-hidden border border-white shadow-sm">
+                            <img src={img} alt={`Tour photo ${idx + 1}`} className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                              <Button
+                                size="icon"
+                                variant="destructive"
+                                className="h-8 w-8"
+                                onClick={() => {
+                                  const newImages = editingTour.images?.filter((_, i) => i !== idx) || [];
+                                  setEditingTour({
+                                    ...editingTour,
+                                    images: newImages,
+                                    image: idx === 0 ? (newImages[0] || '') : editingTour.image
+                                  });
+                                }}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                              {idx !== 0 && (
+                                <Button
+                                  size="icon"
+                                  variant="secondary"
+                                  className="h-8 w-8"
+                                  onClick={() => {
+                                    const newImages = [...(editingTour.images || [])];
+                                    const [moved] = newImages.splice(idx, 1);
+                                    newImages.unshift(moved);
+                                    setEditingTour({ ...editingTour, images: newImages, image: moved });
+                                  }}
+                                  title="Définir comme photo principale"
+                                >
+                                  <Star className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </div>
+                            {idx === 0 && (
+                              <div className="absolute top-1 left-1">
+                                <Badge className="bg-amber-500 text-[8px] h-4 px-1 uppercase tracking-tighter">Principale</Badge>
+                              </div>
+                            )}
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
@@ -1891,9 +1961,9 @@ export default function AdminApp() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [guidePhoto, setGuidePhoto] = useState(() => localStorage.getItem('td-guide-photo') || '/guide-portrait.jpg');
   const [instagramUrl, setInstagramUrl] = useState(() => localStorage.getItem('td-instagram-url') || 'https://www.instagram.com/tours_and_detours_bcn/');
-  const [guideBio, setGuideBio] = useState(() => localStorage.getItem('td-guide-bio') || '');
-  const [guideBioEn, setGuideBioEn] = useState(() => localStorage.getItem('td-guide-bio-en') || '');
-  const [guideBioEs, setGuideBioEs] = useState(() => localStorage.getItem('td-guide-bio-es') || '');
+  const [guideBio, setGuideBio] = useState(() => localStorage.getItem('td-guide-bio') || translations.fr.guide.bio);
+  const [guideBioEn, setGuideBioEn] = useState(() => localStorage.getItem('td-guide-bio-en') || translations.en.guide.bio);
+  const [guideBioEs, setGuideBioEs] = useState(() => localStorage.getItem('td-guide-bio-es') || translations.es.guide.bio);
 
   const profileFileInputRef = useRef<HTMLInputElement>(null);
 

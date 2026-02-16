@@ -158,7 +158,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                         </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-6 sm:p-8 custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto p-6 sm:p-8 no-scrollbar">
                         {step === 1 && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
                                 {/* Inclusions Summary */}

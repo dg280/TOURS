@@ -99,7 +99,8 @@ function App() {
             meetingPoint: t.meeting_point,
             meetingPoint_en: t.meeting_point_en,
             meetingPoint_es: t.meeting_point_es,
-            meetingPointMapUrl: t.meeting_point_map_url
+            meetingPointMapUrl: t.meeting_point_map_url,
+            images: t.images || []
           }));
           setDbTours(mapped as Tour[]);
         }
