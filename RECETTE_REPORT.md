@@ -97,6 +97,8 @@
 - **Fonts** : ✅ Serif pour l'émotion, Sans pour l'information technique.
 - **Monitoring** : ✅ Persistance cloud activée (GitHub / Vercel).
 - **Tests** : ✅ Protection contre le débordement de texte activée.
+- **Catalogue** : ✅ Upload d'images ajouté.
+- **Guide** : ✅ Biographie éditable dynamiquement.
 
 ## 🚀 Prochaines Étapes
 1. Validation finale par l'utilisateur.

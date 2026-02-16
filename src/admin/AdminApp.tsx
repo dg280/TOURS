@@ -1891,6 +1891,8 @@ export default function AdminApp() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [guidePhoto, setGuidePhoto] = useState(() => localStorage.getItem('td-guide-photo') || '/guide-antoine.jpg');
   const [instagramUrl, setInstagramUrl] = useState(() => localStorage.getItem('td-instagram-url') || 'https://www.instagram.com/tours_and_detours_bcn/');
+  const [guideBio1, setGuideBio1] = useState(() => localStorage.getItem('td-guide-bio1') || '');
+  const [guideBio2, setGuideBio2] = useState(() => localStorage.getItem('td-guide-bio2') || '');
 
   const profileFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -2018,9 +2020,11 @@ export default function AdminApp() {
     supabase.from('site_config').select('value').eq('key', 'guide_profile').single()
       .then(({ data, error }) => {
         if (!error && data && data.value) {
-          const val = data.value as { photo?: string; instagram?: string };
+          const val = data.value as { photo?: string; instagram?: string; bio1?: string; bio2?: string };
           if (val.photo) setGuidePhoto(val.photo);
           if (val.instagram) setInstagramUrl(val.instagram);
+          if (val.bio1) setGuideBio1(val.bio1);
+          if (val.bio2) setGuideBio2(val.bio2);
         }
       });
   }, [isLoggedIn]);
@@ -2032,6 +2036,14 @@ export default function AdminApp() {
   useEffect(() => {
     localStorage.setItem('td-instagram-url', instagramUrl);
   }, [instagramUrl]);
+
+  useEffect(() => {
+    localStorage.setItem('td-guide-bio1', guideBio1);
+  }, [guideBio1]);
+
+  useEffect(() => {
+    localStorage.setItem('td-guide-bio2', guideBio2);
+  }, [guideBio2]);
 
   const handleProfileImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -2077,7 +2089,7 @@ export default function AdminApp() {
       if (supabase) {
         const { error } = await supabase.from('site_config').upsert({
           key: 'guide_profile',
-          value: { photo: guidePhoto, instagram: instagramUrl },
+          value: { photo: guidePhoto, instagram: instagramUrl, bio1: guideBio1, bio2: guideBio2 },
           updated_at: new Date().toISOString()
         });
 
@@ -2228,6 +2240,24 @@ export default function AdminApp() {
                         <div className="space-y-2">
                           <Label>Lien Instagram</Label>
                           <Input value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} placeholder="https://www.instagram.com/compte" />
+                        </div>
+
+                        <div className="space-y-2">
+                          <h4 className="font-bold text-gray-900 border-b pb-2 pt-4">Ma Biographie (FR)</h4>
+                          <Label>Paragraphe 1</Label>
+                          <Textarea
+                            value={guideBio1}
+                            onChange={(e) => setGuideBio1(e.target.value)}
+                            placeholder="Ma passion pour Barcelone..."
+                            rows={3}
+                          />
+                          <Label>Paragraphe 2</Label>
+                          <Textarea
+                            value={guideBio2}
+                            onChange={(e) => setGuideBio2(e.target.value)}
+                            placeholder="Mon approche des visites..."
+                            rows={3}
+                          />
                         </div>
                       </div>
 

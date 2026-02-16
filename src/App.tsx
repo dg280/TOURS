@@ -31,6 +31,8 @@ function App() {
 
   const [guidePhoto, setGuidePhoto] = useState('/guide-antoine.jpg');
   const [instagramUrl, setInstagramUrl] = useState('https://www.instagram.com/tours_and_detours_bcn/');
+  const [guideBio1, setGuideBio1] = useState('');
+  const [guideBio2, setGuideBio2] = useState('');
   const [customTours, setCustomTours] = useState<Tour[]>([]);
   const [dbTours, setDbTours] = useState<Tour[]>([]);
   // suppresses unused warning but keeps it for potential future browser-side cookie logic
@@ -110,6 +112,16 @@ function App() {
           const config = configData.value;
           if (config.guide_photo) setGuidePhoto(config.guide_photo);
           if (config.instagram_url) setInstagramUrl(config.instagram_url);
+        }
+
+        // Fetch guide_profile specifically for bio
+        const { data: profileData } = await supabase.from('site_config').select('*').eq('key', 'guide_profile').maybeSingle();
+        if (profileData && profileData.value) {
+          const profile = profileData.value;
+          if (profile.photo) setGuidePhoto(profile.photo);
+          if (profile.instagram) setInstagramUrl(profile.instagram);
+          if (profile.bio1) setGuideBio1(profile.bio1);
+          if (profile.bio2) setGuideBio2(profile.bio2);
         }
       } catch (err) {
         console.error('Fetch error:', err);
@@ -254,7 +266,14 @@ function App() {
           </div>
         </section>
 
-        <Guide t={t} guidePhoto={guidePhoto} instagramUrl={instagramUrl} scrollToSection={scrollToSection} />
+        <Guide
+          t={t}
+          guidePhoto={guidePhoto}
+          instagramUrl={instagramUrl}
+          guideBio1={guideBio1}
+          guideBio2={guideBio2}
+          scrollToSection={scrollToSection}
+        />
 
         <Features t={t} />
 
