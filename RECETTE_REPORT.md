@@ -81,12 +81,23 @@
 
 ---
 
+### ✅ Action I : Persistance du Monitoring (Cloud Sync)
+- **Diagnostic** : Les clefs GitHub et Vercel étaient stockées uniquement dans le `localStorage`, obligeant à les ressaisir sur chaque nouvel ordinateur.
+- **Remède** : 
+    - Migration du stockage vers Supabase (table `site_config`, clef `infra_config`).
+    - Sécurisation via RLS (Row Level Security) : seule l'administration authentifiée peut lire ces clefs.
+    - Synchronisation automatique au chargement du dashboard.
+- **Statut** : DÉPLOYÉ.
+
+---
+
 ## 📝 Résultat Final (Simulation Browser)
 - **Navbar** : ✅ Épurée, hauteur premium, navigation fluide.
 - **WhatsApp** : ✅ Bouton flottant conservé, navbar nettoyée.
 - **Fonts** : ✅ Serif pour l'émotion, Sans pour l'information technique.
+- **Monitoring** : ✅ Persistance cloud activée (GitHub / Vercel).
 - **Tests** : ✅ Protection contre le débordement de texte activée.
 
 ## 🚀 Prochaines Étapes
 1. Validation finale par l'utilisateur.
-2. Suppression des logs de tests Playwright locaux.
+2. Nettoyage des fichiers temporaires.

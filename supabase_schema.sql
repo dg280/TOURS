@@ -159,8 +159,8 @@ CREATE POLICY "Admin Delete Reviews" ON reviews FOR DELETE TO authenticated USIN
 CREATE POLICY "Public Select Tours" ON tours FOR SELECT USING (true);
 CREATE POLICY "Admin All Tours" ON tours FOR ALL TO authenticated USING (true);
 
--- SITE CONFIG: Admin edit, public select (some keys might need more care)
-CREATE POLICY "Public Select Config" ON site_config FOR SELECT USING (true);
+-- SITE CONFIG: Admin edit, public select (only non-sensitive keys)
+CREATE POLICY "Public Select Config" ON site_config FOR SELECT USING (key IN ('main_config', 'guide_profile'));
 CREATE POLICY "Admin All Config" ON site_config FOR ALL TO authenticated USING (true);
 
 -- DEFAULT TOURS: Admin only

@@ -1442,6 +1442,48 @@ function Monitoring() {
   const [vToken, setVToken] = useState(localStorage.getItem('td-vercel-token') || '');
   const [ghToken, setGhToken] = useState(localStorage.getItem('td-github-token') || '');
   const [isVLoading, setIsVLoading] = useState(false);
+  const [isConfigSyncing, setIsConfigSyncing] = useState(false);
+
+  useEffect(() => {
+    const fetchCloudConfig = async () => {
+      if (!supabase) return;
+      const { data, error } = await supabase
+        .from('site_config')
+        .select('value')
+        .eq('key', 'infra_config')
+        .maybeSingle();
+
+      if (!error && data?.value) {
+        const { gh_token, v_token } = data.value;
+        if (gh_token) {
+          setGhToken(gh_token);
+          localStorage.setItem('td-github-token', gh_token);
+        }
+        if (v_token) {
+          setVToken(v_token);
+          localStorage.setItem('td-vercel-token', v_token);
+        }
+      }
+    };
+    fetchCloudConfig();
+  }, []);
+
+  const saveCloudConfig = async (gh: string, v: string) => {
+    if (!supabase) return;
+    setIsConfigSyncing(true);
+    const { error } = await supabase.from('site_config').upsert({
+      key: 'infra_config',
+      value: { gh_token: gh, v_token: v },
+      updated_at: new Date().toISOString()
+    });
+
+    if (error) {
+      toast.error("Erreur de synchronisation cloud");
+    } else {
+      toast.success("Configuration synchronisée sur le cloud");
+    }
+    setIsConfigSyncing(false);
+  };
 
   const fetchVercelDeploys = async (token: string) => {
     if (!token) return;
@@ -1573,10 +1615,11 @@ function Monitoring() {
           <div className="flex gap-2">
             {!ghToken && (
               <Button size="icon-sm" variant="ghost" onClick={() => {
-                const token = prompt('Entrez votre GitHub Personal Access Token (classic ou fine-grained) :');
-                if (token) {
-                  localStorage.setItem('td-github-token', token);
-                  setGhToken(token);
+                const tk = prompt('Entrez votre GitHub Personal Access Token (classic ou fine-grained) :');
+                if (tk) {
+                  localStorage.setItem('td-github-token', tk);
+                  setGhToken(tk);
+                  saveCloudConfig(tk, vToken);
                 }
               }} className="h-6 w-6 text-gray-500 hover:text-white">
                 <ShieldCheck className="w-3 h-3" />
@@ -1613,11 +1656,12 @@ function Monitoring() {
           </h4>
           {!vToken ? (
             <Button size="sm" variant="ghost" className="text-[10px] h-6" onClick={() => {
-              const token = prompt('Entrez votre Vercel API Token (local storage uniquement) :');
-              if (token) {
-                localStorage.setItem('td-vercel-token', token);
-                setVToken(token);
-                fetchVercelDeploys(token);
+              const tk = prompt('Entrez votre Vercel API Token :');
+              if (tk) {
+                localStorage.setItem('td-vercel-token', tk);
+                setVToken(tk);
+                fetchVercelDeploys(tk);
+                saveCloudConfig(ghToken, tk);
               }
             }}>Configuration</Button>
           ) : (
@@ -1629,7 +1673,8 @@ function Monitoring() {
         </div>
         <div className="p-2 bg-amber-50 text-[10px] text-amber-800 border-b border-amber-100 flex items-center gap-2">
           <ShieldCheck className="w-3 h-3" />
-          Stockage : LocalStorage (Navigateur). Non stocké en base de données.
+          Stockage : Cloud Supabase (Partagé) + LocalStorage.
+          {isConfigSyncing && <Loader2 className="w-2 h-2 animate-spin ml-2" />}
         </div>
         <div className="divide-y divide-gray-50">
           {vToken ? (
