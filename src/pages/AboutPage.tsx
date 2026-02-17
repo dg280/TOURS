@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { CheckCircle2, Star, Users, Heart, Quote, Leaf } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 
 interface AboutPageProps {
     t: any;
@@ -17,77 +16,49 @@ export const AboutPage = ({ t, guidePhoto, guideBio, onBackToHome }: AboutPagePr
 
     const at = t.about;
 
-    const sections = [
-        { id: 'me', label: at.me.label },
-        { id: 'philosophy', label: at.philosophy.label },
-        { id: 'different', label: at.different.label },
-        { id: 'why', label: at.why.label }
-    ];
-
-    const scrollToSectionNode = (id: string) => {
-        const element = document.getElementById(id);
-        if (element) {
-            const navHeight = 140; // Main nav (72) + Sticky about nav (70)
-            const elementPosition = element.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - navHeight;
-            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-        }
-    };
-
     return (
         <div className="pt-24 pb-20 bg-white">
-            {/* Anchor Navigation Bar */}
-            <div className="sticky top-[72px] z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 hidden md:block">
-                <div className="container-custom py-4">
-                    <div className="flex justify-center items-center gap-8">
-                        <button
-                            onClick={onBackToHome}
-                            className="text-[10px] font-black uppercase tracking-tighter text-amber-600 hover:text-amber-700 transition-colors flex items-center gap-1 border-r pr-8 border-gray-100"
-                        >
-                            <span>Home</span>
-                        </button>
-                        {sections.map((section) => (
-                            <button
-                                key={section.id}
-                                onClick={() => scrollToSectionNode(section.id)}
-                                className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-amber-600 transition-colors"
-                            >
-                                {section.label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
             <div className="container-custom">
-                {/* SECTION 1: ABOUT ME */}
-                <section id="me" className="py-20 md:py-28 border-b border-gray-50">
-                    <div className="flex flex-col md:flex-row-reverse gap-12 lg:gap-20 items-center">
-                        <div className="w-full md:w-4/12 lg:w-3/12">
+                <section id="me" className="py-20 md:py-32 border-b border-gray-50">
+                    <div className="flex flex-col md:flex-row gap-16 lg:gap-24 items-center">
+                        <div className="w-full md:w-5/12 lg:w-4/12 relative">
                             <div className="relative">
+                                {/* Decorative background element */}
+                                <div className="absolute -top-6 -left-6 w-full h-full bg-amber-50 rounded-3xl -z-10" />
+
                                 <div className="rounded-3xl overflow-hidden shadow-2xl aspect-[4/5] border-8 border-white bg-gray-100">
                                     <img
                                         src={guidePhoto}
                                         alt="Guide"
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                                     />
                                 </div>
-                                <div className="absolute -bottom-6 -right-6 bg-amber-600 text-white p-6 rounded-2xl shadow-xl hidden md:block">
-                                    <p className="font-bold text-2xl">15+</p>
-                                    <p className="text-[10px] font-black uppercase tracking-widest opacity-80">{at.me.exp}</p>
+
+                                <div className="absolute -bottom-10 -right-6 bg-amber-600 text-white p-8 rounded-3xl shadow-2xl hidden md:block border-4 border-white">
+                                    <p className="font-black text-4xl">15+</p>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] mt-1 opacity-90">{at.me.exp}</p>
                                 </div>
                             </div>
                         </div>
-                        <div className="flex-1 space-y-6">
-                            <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-none px-4 py-1 font-bold">
-                                {at.me.badge}
-                            </Badge>
-                            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight tracking-tight">
+                        <div className="flex-1 space-y-8">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-700 rounded-full">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                                </span>
+                                <span className="text-[10px] font-black uppercase tracking-widest">{at.me.badge}</span>
+                            </div>
+
+                            <h2 className="text-4xl md:text-6xl font-black text-gray-900 leading-[1.1] tracking-tighter">
                                 {at.me.title}
                             </h2>
-                            <div className="space-y-4 text-gray-600 text-lg leading-relaxed">
+
+                            <div className="space-y-6 text-gray-600 text-xl leading-relaxed font-serif">
                                 {(guideBio || t.guide.bio || '').split('\n\n').map((para: string, idx: number) => (
-                                    <p key={idx}>{para}</p>
+                                    <p key={idx} className="relative">
+                                        {idx === 0 && <span className="absolute -left-8 top-2 w-4 h-0.5 bg-amber-200 hidden lg:block" />}
+                                        {para}
+                                    </p>
                                 ))}
                             </div>
                         </div>

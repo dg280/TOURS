@@ -208,30 +208,25 @@ function App() {
     }
   }, [dbTours, customTours]); // Re-run when tours are fetched
 
-  const scrollToSection = (id: string) => {
-    setIsMobileMenuOpen(false);
+  const scrollToSection = (id: string | null) => {
+    if (!id) return;
 
-    // If on about page and target is a home section, switch to home first
-    if (view === 'about' && ['top-tours', 'category-tours', 'contact', 'avis'].includes(id)) {
+    // If we're on About page and trying to reach a home section, switch to home first
+    if (view === 'about' && ['top-tours', 'avis', 'contact'].includes(id)) {
       setView('home');
-      setTimeout(() => {
-        const element = document.getElementById(id);
-        if (element) {
-          const navHeight = 80;
-          const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - navHeight;
-          window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-        }
-      }, 100);
+      setTimeout(() => scrollToSection(id), 100);
       return;
     }
 
     const element = document.getElementById(id);
     if (element) {
-      const navHeight = 80;
+      const offset = 100; // Adjusted for new navbar height
       const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - navHeight;
-      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -242,6 +237,40 @@ function App() {
 
   // Use translated testimonials from translations.ts
   const testimonials = (t as any).testimonials_data || [];
+
+  const [activeSection, setActiveSection] = useState('home');
+
+  useEffect(() => {
+    if (view === 'about') {
+      const observerOptions = {
+        root: null,
+        rootMargin: '-20% 0px -60% 0px',
+        threshold: 0
+      };
+
+      const handleIntersect = (entries: IntersectionObserverEntry[]) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      };
+
+      const observer = new IntersectionObserver(handleIntersect, observerOptions);
+      const sections = ['me', 'philosophy', 'different', 'why'];
+
+      sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) observer.observe(el);
+      });
+
+      // Also observe the top of the page for 'home'
+      const topEl = document.querySelector('.pt-24');
+      if (topEl) observer.observe(topEl);
+
+      return () => observer.disconnect();
+    }
+  }, [view]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -261,6 +290,7 @@ function App() {
         t={t}
         view={view}
         setView={setView}
+        activeSection={activeSection}
       />
 
       <main>

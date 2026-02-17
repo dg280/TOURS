@@ -112,19 +112,19 @@ export const CategoryToursCarousel = ({ tours, t, onTourClick }: CategoryToursCa
                         </div>
                     </div>
 
-                    {filteredTours.length > 3 && (
+                    {filteredTours.length > 0 && (
                         <>
                             <button
                                 onClick={scrollPrev}
-                                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 bg-white shadow-xl rounded-full flex items-center justify-center border border-gray-100 text-gray-600 hover:text-amber-600 z-10 hidden md:flex"
+                                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-8 w-12 h-12 md:w-16 md:h-16 bg-white shadow-2xl rounded-full flex items-center justify-center border border-gray-100 text-gray-600 hover:text-amber-600 z-10 transition-all hover:scale-110 active:scale-95 group/btn"
                             >
-                                <ChevronLeft className="w-6 h-6" />
+                                <ChevronLeft className="w-6 h-6 md:w-8 md:h-8 group-hover/btn:-translate-x-0.5 transition-transform" />
                             </button>
                             <button
                                 onClick={scrollNext}
-                                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 bg-white shadow-xl rounded-full flex items-center justify-center border border-gray-100 text-gray-600 hover:text-amber-600 z-10 hidden md:flex"
+                                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-8 w-12 h-12 md:w-16 md:h-16 bg-white shadow-2xl rounded-full flex items-center justify-center border border-gray-100 text-gray-600 hover:text-amber-600 z-10 transition-all hover:scale-110 active:scale-95 group/btn"
                             >
-                                <ChevronRight className="w-6 h-6" />
+                                <ChevronRight className="w-6 h-6 md:w-8 md:h-8 group-hover/btn:translate-x-0.5 transition-transform" />
                             </button>
                         </>
                     )}

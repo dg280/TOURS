@@ -13,6 +13,7 @@ interface NavbarProps {
     t: any; // translations object
     view: 'home' | 'about';
     setView: (view: 'home' | 'about') => void;
+    activeSection?: string;
 }
 
 export const Navbar = ({
@@ -25,13 +26,27 @@ export const Navbar = ({
     onLiveClick,
     t,
     view,
-    setView
+    setView,
+    activeSection
 }: NavbarProps) => {
+    const navItems = view === 'home'
+        ? ['tours', 'about', 'avis', 'contact']
+        : ['home', 'me', 'philosophy', 'different', 'why'];
+
+    const getLabel = (item: string) => {
+        if (view === 'home') {
+            return item === 'avis' ? t.nav.avis : item === 'about' ? t.nav.about : item === 'contact' ? t.nav.contact : t.nav.tours;
+        } else {
+            if (item === 'home') return 'HOME';
+            return t.about[item].label;
+        }
+    };
+
     return (
         <nav
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled
-                ? 'bg-white/95 nav-blur shadow-sm py-8'
-                : 'bg-transparent py-14'
+                ? 'bg-white/95 nav-blur shadow-sm py-6'
+                : 'bg-transparent py-10'
                 }`}
         >
             <div className="container-custom flex items-center justify-between">
@@ -42,38 +57,48 @@ export const Navbar = ({
                     }}
                     className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                 >
-                    <MapPin className={`w-6 h-6 ${isScrolled ? 'text-amber-600' : 'text-white'}`} />
-                    <span className={`text-xl font-bold font-serif ${isScrolled ? 'text-gray-900' : 'text-white'}`}>
+                    <MapPin className={`w-6 h-6 ${isScrolled || view === 'about' ? 'text-amber-600' : 'text-white'}`} />
+                    <span className={`text-xl font-bold font-serif ${isScrolled || view === 'about' ? 'text-gray-900' : 'text-white'}`}>
                         Tours<span className="text-amber-500">&</span>Detours
                     </span>
                 </button>
 
                 {/* Desktop Navigation */}
-                <div className="hidden md:flex items-center gap-6">
-                    {['tours', 'about', 'avis', 'contact'].map((item) => (
+                <div className="hidden md:flex items-center gap-8">
+                    {navItems.map((item) => (
                         <button
                             key={item}
                             onClick={() => {
                                 if (item === 'about') {
                                     setView('about');
                                     setIsMobileMenuOpen(false);
+                                } else if (item === 'home') {
+                                    setView('home');
+                                    setIsMobileMenuOpen(false);
+                                    window.scrollTo(0, 0);
                                 } else {
                                     scrollToSection(item === 'tours' ? 'top-tours' : item);
                                 }
                             }}
                             className={cn(
-                                "text-sm font-medium capitalize transition-colors hover:opacity-80 px-2 py-1",
-                                isScrolled ? 'text-gray-700' : 'text-white',
-                                view === 'about' && item === 'about' ? 'border-b-2 border-amber-600 font-bold' : ''
+                                "relative text-[11px] font-black uppercase tracking-widest transition-all px-2 py-1 h-full flex flex-col items-center justify-center group",
+                                isScrolled || view === 'about' ? 'text-gray-400 hover:text-amber-600' : 'text-white/70 hover:text-white',
+                                (view === 'about' && activeSection === item) || (view === 'home' && item === 'about' && false) ? 'text-amber-600' : ''
                             )}
                         >
-                            {item === 'avis' ? t.nav.avis : item === 'about' ? t.nav.about : item === 'contact' ? t.nav.contact : t.nav.tours}
+                            {/* Active Indicator Bar (Above) */}
+                            <div className={cn(
+                                "absolute -top-8 left-0 right-0 h-1 bg-amber-600 transition-all duration-300 transform scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-50",
+                                activeSection === item ? "scale-x-100 opacity-100" : ""
+                            )} />
+
+                            {getLabel(item)}
                         </button>
                     ))}
 
                     <button
                         onClick={onLiveClick}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all text-xs font-bold uppercase ${isScrolled
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all text-[10px] font-black uppercase tracking-wider ${isScrolled || view === 'about'
                             ? 'border-amber-600 text-amber-600 hover:bg-amber-50'
                             : 'border-white/30 text-white hover:bg-white/10'
                             }`}
@@ -83,14 +108,14 @@ export const Navbar = ({
                     </button>
 
                     {/* Language Switcher */}
-                    <div className="flex items-center gap-2 ml-2 border-l border-gray-300 pl-4 h-6">
+                    <div className={`flex items-center gap-3 ml-2 border-l pl-5 h-6 ${isScrolled || view === 'about' ? 'border-gray-200' : 'border-white/20'}`}>
                         {(['fr', 'en', 'es'] as Language[]).map((l) => (
                             <button
                                 key={l}
                                 onClick={() => setLang(l)}
-                                className={`text-xs font-bold uppercase transition-all ${lang === l
-                                    ? (isScrolled ? 'text-amber-600' : 'text-amber-400')
-                                    : (isScrolled ? 'text-gray-400 hover:text-gray-600' : 'text-white/60 hover:text-white')
+                                className={`text-[10px] font-black uppercase transition-all ${lang === l
+                                    ? 'text-amber-600 border border-amber-600 px-1.5 py-0.5 rounded'
+                                    : (isScrolled || view === 'about' ? 'text-gray-400 hover:text-gray-600' : 'text-white/60 hover:text-white')
                                     }`}
                             >
                                 {l}
@@ -136,21 +161,28 @@ export const Navbar = ({
                             ))}
                         </div>
 
-                        {['tours', 'about', 'avis', 'contact'].map((item) => (
+                        {navItems.map((item) => (
                             <button
                                 key={item}
                                 onClick={() => {
                                     if (item === 'about') {
                                         setView('about');
                                         setIsMobileMenuOpen(false);
+                                    } else if (item === 'home') {
+                                        setView('home');
+                                        setIsMobileMenuOpen(false);
+                                        window.scrollTo(0, 0);
                                     } else {
                                         scrollToSection(item === 'tours' ? 'top-tours' : item);
                                         setIsMobileMenuOpen(false);
                                     }
                                 }}
-                                className="text-left text-gray-700 py-2 font-medium capitalize"
+                                className={cn(
+                                    "text-left py-3 font-bold uppercase text-xs tracking-widest transition-colors",
+                                    activeSection === item ? "text-amber-600" : "text-gray-700"
+                                )}
                             >
-                                {item === 'avis' ? t.nav.avis : item === 'about' ? t.nav.about : item === 'contact' ? t.nav.contact : t.nav.tours}
+                                {getLabel(item)}
                             </button>
                         ))}
                         <button

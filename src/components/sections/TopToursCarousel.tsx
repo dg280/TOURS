@@ -56,28 +56,9 @@ export const TopToursCarousel = ({ tours, t, onTourClick }: TopToursCarouselProp
                             {(t as any).tours.top_tours_title || 'Nos tours incontournables'}
                         </h2>
                     </div>
-
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={scrollPrev}
-                            className="rounded-full border-gray-200 hover:border-amber-600 hover:text-amber-600 transition-colors"
-                        >
-                            <ChevronLeft className="w-5 h-5" />
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={scrollNext}
-                            className="rounded-full border-gray-200 hover:border-amber-600 hover:text-amber-600 transition-colors"
-                        >
-                            <ChevronRight className="w-5 h-5" />
-                        </Button>
-                    </div>
                 </div>
 
-                <div className="relative">
+                <div className="relative group/carousel">
                     <div className="embla overflow-hidden" ref={emblaRef}>
                         <div className="embla__container flex -ml-4 md:-ml-6">
                             {topTours.map((tour) => (
@@ -131,6 +112,20 @@ export const TopToursCarousel = ({ tours, t, onTourClick }: TopToursCarouselProp
                             ))}
                         </div>
                     </div>
+
+                    {/* Navigation Arrows */}
+                    <button
+                        onClick={scrollPrev}
+                        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-8 w-12 h-12 md:w-16 md:h-16 bg-white shadow-2xl rounded-full flex items-center justify-center border border-gray-100 text-gray-600 hover:text-amber-600 z-10 transition-all hover:scale-110 active:scale-95 group/btn opacity-0 group-hover/carousel:opacity-100"
+                    >
+                        <ChevronLeft className="w-6 h-6 md:w-8 md:h-8 group-hover/btn:-translate-x-0.5 transition-transform" />
+                    </button>
+                    <button
+                        onClick={scrollNext}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-8 w-12 h-12 md:w-16 md:h-16 bg-white shadow-2xl rounded-full flex items-center justify-center border border-gray-100 text-gray-600 hover:text-amber-600 z-10 transition-all hover:scale-110 active:scale-95 group/btn opacity-0 group-hover/carousel:opacity-100"
+                    >
+                        <ChevronRight className="w-6 h-6 md:w-8 md:h-8 group-hover/btn:translate-x-0.5 transition-transform" />
+                    </button>
                 </div>
 
                 <div className="flex justify-center gap-2 mt-8 md:hidden">
