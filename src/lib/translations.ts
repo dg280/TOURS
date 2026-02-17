@@ -4,6 +4,7 @@ export const translations = {
     fr: {
         nav: {
             tours: 'Nos Tours',
+            about: 'À Propos',
             guide: 'Votre Guide',
             avis: 'Avis',
             contact: 'Contact',
@@ -11,6 +12,28 @@ export const translations = {
             live: 'Live Experience',
             no_live: 'Pas de tour en cours',
             enter_code: 'Entrez le code du tour'
+        },
+        about_hook: {
+            title: 'Une approche humaine et authentique pour découvrir la vraie Catalogne.',
+            cta: 'En savoir plus sur votre guide →'
+        },
+        about: {
+            me: { label: 'À propos', badge: 'Votre Guide Local', title: 'Antoine, passionné par la Catalogne et ses secrets', exp: "Ans d'expérience" },
+            philosophy: {
+                label: 'Philosophie', tag: 'Notre Philosophie', title: "Plus qu'un tour, une immersion authentique", quote: "Ma vision est de vous faire découvrir la région comme si vous étiez avec un ami local.", items: [
+                    { title: 'Authenticité', desc: 'Découvrez la vraie culture locale.' },
+                    { title: 'Respect', desc: 'Un tourisme durable et respectueux.' },
+                    { title: 'Proximité', desc: 'Des groupes réduits pour plus d’échange.' }
+                ]
+            },
+            different: {
+                label: 'Différences', tag: 'Ce qui nous rend différents', title: 'Pourquoi ne pas choisir une agence classique ?', items: [
+                    { title: "Experts du terrain", desc: "Nous habitons ici, nous connaissons chaque chemin." },
+                    { title: "Itinéraires secrets", desc: "Évitez les foules avec nos parcours exclusifs." },
+                    { title: "Flexibilité totale", desc: "On s'adapte à votre rythme et vos envies." }
+                ]
+            },
+            why: { label: 'Pourquoi nous ?', title: 'La confiance de nos voyageurs', stats: [{ val: '150+', label: 'Voyageurs' }, { val: '5.0', label: 'Note moyenne' }, { val: '100%', label: 'Local' }], quote: "Une expérience inoubliable ! Antoine connaît la région comme sa poche et nous a emmenés dans des endroits où aucun touriste ne va.", back: '← Retour à l\'accueil' }
         },
         hero: {
             tagline: 'Découvrez la Catalogne authentique',
@@ -116,7 +139,17 @@ export const translations = {
             comment_placeholder: 'Avez-vous des besoins spécifiques ?',
             subtotal: 'Prix du tour',
             processing_fees: 'Frais de traitement du paiement',
-            per_person_incl_fees: 'par personne (frais inclus)'
+            per_person_incl_fees: 'par personne (frais inclus)',
+            phone: 'Téléphone',
+            payment_error: 'Erreur de paiement'
+        },
+        live: {
+            title: 'Un tour est actuellement en cours !',
+            no_session: 'Aucune session en cours.'
+        },
+        whatsapp: {
+            floating_text: 'Une question ? Discutez avec moi !',
+            message_prefix: 'Bonjour Antoine ! Je suis intéressé par vos tours...'
         },
         cookies: {
             title: 'Respect de votre vie privée',
@@ -238,6 +271,7 @@ export const translations = {
     en: {
         nav: {
             tours: 'Our Tours',
+            about: 'About',
             guide: 'Your Guide',
             avis: 'Reviews',
             contact: 'Contact',
@@ -245,6 +279,28 @@ export const translations = {
             live: 'Live Experience',
             no_live: 'No tour in progress',
             enter_code: 'Enter tour code'
+        },
+        about_hook: {
+            title: 'A human and authentic approach to discover the real Catalonia.',
+            cta: 'Learn more about your guide →'
+        },
+        about: {
+            me: { label: 'About', badge: 'Your Local Guide', title: 'Antoine, passionate about Catalonia and its secrets', exp: "Years of Experience" },
+            philosophy: {
+                label: 'Philosophy', tag: 'Our Philosophy', title: "More than a tour, an authentic immersion", quote: "My vision is to show you the region as if you were with a local friend.", items: [
+                    { title: 'Authenticity', desc: 'Discover the true local culture.' },
+                    { title: 'Respect', desc: 'Sustainable and respectful tourism.' },
+                    { title: 'Proximity', desc: 'Small groups for better interaction.' }
+                ]
+            },
+            different: {
+                label: 'Differences', tag: 'What makes us different', title: 'Why not choose a classic agency?', items: [
+                    { title: "Local Experts", desc: "We live here, we know every path." },
+                    { title: "Secret Itineraries", desc: "Avoid crowds with our exclusive routes." },
+                    { title: "Total Flexibility", desc: "We adapt to your rhythm and wishes." }
+                ]
+            },
+            why: { label: 'Why us?', title: 'The trust of our travelers', stats: [{ val: '150+', label: 'Travelers' }, { val: '5.0', label: 'Average rating' }, { val: '100%', label: 'Local' }], quote: "An unforgettable experience! Antoine knows the region like the back of his hand and took us to places where no tourist goes.", back: '← Back to Home' }
         },
         hero: {
             tagline: 'Discover authentic Catalonia',
@@ -350,7 +406,17 @@ export const translations = {
             comment_placeholder: 'Do you have any specific needs?',
             subtotal: 'Tour price',
             processing_fees: 'Payment processing fees',
-            per_person_incl_fees: 'per person (fees included)'
+            per_person_incl_fees: 'per person (fees included)',
+            phone: 'Phone',
+            payment_error: 'Payment Error'
+        },
+        live: {
+            title: 'A tour is currently in progress!',
+            no_session: 'No session in progress.'
+        },
+        whatsapp: {
+            floating_text: 'Any questions? Chat with me!',
+            message_prefix: 'Hello Antoine! I am interested in your tours...'
         },
         cookies: {
             title: 'Respecting your privacy',
@@ -458,6 +524,7 @@ export const translations = {
     es: {
         nav: {
             tours: 'Nuestros Tours',
+            about: 'Sobre mí',
             guide: 'Tu Guía',
             avis: 'Opiniones',
             contact: 'Contacto',
@@ -465,6 +532,28 @@ export const translations = {
             live: 'Experiencia Live',
             no_live: 'No hay tour en curso',
             enter_code: 'Introduce el código del tour'
+        },
+        about_hook: {
+            title: 'Un enfoque humano y auténtico para descubrir la verdadera Cataluña.',
+            cta: 'Saber más sobre su guía →'
+        },
+        about: {
+            me: { label: 'Sobre mí', badge: 'Tu Guía Local', title: 'Antoine, apasionado por Cataluña y sus secretos', exp: "Años de experiencia" },
+            philosophy: {
+                label: 'Filosofía', tag: 'Nuestra Filosofía', title: "Más que un tour, una inmersión auténtica", quote: "Mi visión es hacerte descubrir la región como si estuvieras con un amigo local.", items: [
+                    { title: 'Autenticidad', desc: 'Descubre la verdadera cultura local.' },
+                    { title: 'Respeto', desc: 'Turismo sostenible y respetuoso.' },
+                    { title: 'Proximidad', desc: 'Grupos reducidos para mayor intercambio.' }
+                ]
+            },
+            different: {
+                label: 'Diferencias', tag: 'Lo que nos hace diferentes', title: '¿Por qué no elegir una agencia clásica?', items: [
+                    { title: "Expertos locales", desc: "Vivimos aquí, conocemos cada camino." },
+                    { title: "Itinerarios secretos", desc: "Evita las multitudes con nuestras rutas exclusivas." },
+                    { title: "Flexibilidad total", desc: "Nos adaptamos a tu ritmo y deseos." }
+                ]
+            },
+            why: { label: '¿Por qué nosotros?', title: 'La confianza de nuestros viajeros', stats: [{ val: '150+', label: 'Viajeros' }, { val: '5.0', label: 'Nota media' }, { val: '100%', label: 'Local' }], quote: "¡Una experiencia inolvidable! Antoine conoce la región como la palma de su mano y nos llevó a lugares donde no va ningún turista.", back: '← Volver al inicio' }
         },
         hero: {
             tagline: 'Descubre la Cataluña auténtica',
@@ -570,7 +659,17 @@ export const translations = {
             comment_placeholder: '¿Tiene alguna necesidad específica?',
             subtotal: 'Precio del tour',
             processing_fees: 'Gastos de gestión del pago',
-            per_person_incl_fees: 'por persona (gastos incluidos)'
+            per_person_incl_fees: 'por persona (gastos incluidos)',
+            phone: 'Teléfono',
+            payment_error: 'Error de pago'
+        },
+        live: {
+            title: '¡Un tour está en curso!',
+            no_session: 'No hay sesión en curso.'
+        },
+        whatsapp: {
+            floating_text: '¿Una pregunta? ¡Chatea conmigo!',
+            message_prefix: '¡Hola Antoine! Estoy interesado en tus tours...'
         },
         cookies: {
             title: 'Respeto a tu privacidad',

@@ -66,7 +66,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                 })
                 .catch(err => {
                     console.error(err);
-                    toast.error(lang === 'fr' ? "Erreur de paiement" : "Payment Error");
+                    toast.error(t.booking.payment_error);
                     setStep(2);
                 });
         }
@@ -261,7 +261,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="booking-phone">{lang === 'fr' ? 'Téléphone' : 'Phone'}</Label>
+                                        <Label htmlFor="booking-phone">{t.booking.phone}</Label>
                                         <Input
                                             id="booking-phone"
                                             placeholder="+33 6 ..."
@@ -313,7 +313,9 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                                     <p className="text-gray-600 max-w-sm mx-auto">
                                         {lang === 'fr'
                                             ? `Merci ${formData.name}. Un email de confirmation a été envoyé à ${formData.email}.`
-                                            : `Thank you ${formData.name}. A confirmation email has been sent to ${formData.email}.`}
+                                            : lang === 'es'
+                                                ? `Gracias ${formData.name}. Se ha enviado un correo de confirmación a ${formData.email}.`
+                                                : `Thank you ${formData.name}. A confirmation email has been sent to ${formData.email}.`}
                                     </p>
                                 </div>
                                 <div className="bg-amber-50 p-6 rounded-2xl w-full border border-amber-100 text-left">

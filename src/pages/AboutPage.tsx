@@ -8,25 +8,26 @@ interface AboutPageProps {
     guidePhoto: string;
     guideBio: string;
     onBackToHome: () => void;
-    lang: string;
 }
 
-export const AboutPage = ({ t, guidePhoto, guideBio, onBackToHome, lang }: AboutPageProps) => {
+export const AboutPage = ({ t, guidePhoto, guideBio, onBackToHome }: AboutPageProps) => {
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
 
+    const at = t.about;
+
     const sections = [
-        { id: 'me', label: lang === 'fr' ? 'À propos de moi' : lang === 'es' ? 'Sobre mí' : 'About Me' },
-        { id: 'philosophy', label: lang === 'fr' ? 'Philosophie' : lang === 'es' ? 'Filosofía' : 'Philosophy' },
-        { id: 'different', label: lang === 'fr' ? 'Différences' : lang === 'es' ? 'Diferencias' : 'Differences' },
-        { id: 'why', label: lang === 'fr' ? 'Pourquoi nous ?' : lang === 'es' ? '¿Por qué nosotros?' : 'Why us?' }
+        { id: 'me', label: at.me.label },
+        { id: 'philosophy', label: at.philosophy.label },
+        { id: 'different', label: at.different.label },
+        { id: 'why', label: at.why.label }
     ];
 
     const scrollToSectionNode = (id: string) => {
         const element = document.getElementById(id);
         if (element) {
-            const navHeight = 120; // Anchor bar height
+            const navHeight = 140; // Main nav (72) + Sticky about nav (70)
             const elementPosition = element.getBoundingClientRect().top;
             const offsetPosition = elementPosition + window.pageYOffset - navHeight;
             window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
@@ -36,14 +37,20 @@ export const AboutPage = ({ t, guidePhoto, guideBio, onBackToHome, lang }: About
     return (
         <div className="pt-24 pb-20 bg-white">
             {/* Anchor Navigation Bar */}
-            <div className="sticky top-[72px] z-40 bg-white/80 backdrop-blur-md border-b border-gray-100 hidden md:block">
+            <div className="sticky top-[72px] z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 hidden md:block">
                 <div className="container-custom py-4">
-                    <div className="flex justify-center gap-8">
+                    <div className="flex justify-center items-center gap-8">
+                        <button
+                            onClick={onBackToHome}
+                            className="text-[10px] font-black uppercase tracking-tighter text-amber-600 hover:text-amber-700 transition-colors flex items-center gap-1 border-r pr-8 border-gray-100"
+                        >
+                            <span>Home</span>
+                        </button>
                         {sections.map((section) => (
                             <button
                                 key={section.id}
                                 onClick={() => scrollToSectionNode(section.id)}
-                                className="text-sm font-bold uppercase tracking-widest text-gray-500 hover:text-amber-600 transition-colors"
+                                className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-amber-600 transition-colors"
                             >
                                 {section.label}
                             </button>
@@ -56,9 +63,9 @@ export const AboutPage = ({ t, guidePhoto, guideBio, onBackToHome, lang }: About
                 {/* SECTION 1: ABOUT ME */}
                 <section id="me" className="py-20 md:py-28 border-b border-gray-50">
                     <div className="flex flex-col md:flex-row-reverse gap-12 lg:gap-20 items-center">
-                        <div className="w-full md:w-5/12 lg:w-1/3">
+                        <div className="w-full md:w-4/12 lg:w-3/12">
                             <div className="relative">
-                                <div className="rounded-3xl overflow-hidden shadow-2xl aspect-[4/5] border-8 border-white">
+                                <div className="rounded-3xl overflow-hidden shadow-2xl aspect-[4/5] border-8 border-white bg-gray-100">
                                     <img
                                         src={guidePhoto}
                                         alt="Guide"
@@ -66,17 +73,17 @@ export const AboutPage = ({ t, guidePhoto, guideBio, onBackToHome, lang }: About
                                     />
                                 </div>
                                 <div className="absolute -bottom-6 -right-6 bg-amber-600 text-white p-6 rounded-2xl shadow-xl hidden md:block">
-                                    <p className="font-bold text-2xl">10+</p>
-                                    <p className="text-xs uppercase tracking-widest opacity-80">{lang === 'fr' ? "Ans d'expérience" : "Years exp."}</p>
+                                    <p className="font-bold text-2xl">15+</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest opacity-80">{at.me.exp}</p>
                                 </div>
                             </div>
                         </div>
                         <div className="flex-1 space-y-6">
-                            <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-none px-4 py-1">
-                                {lang === 'fr' ? "Votre Guide Local" : "Your Local Guide"}
+                            <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-none px-4 py-1 font-bold">
+                                {at.me.badge}
                             </Badge>
-                            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-                                {lang === 'fr' ? "Antoine, passionné par la Catalogne et ses secrets" : "Antoine, passionate about Catalonia"}
+                            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight tracking-tight">
+                                {at.me.title}
                             </h2>
                             <div className="space-y-4 text-gray-600 text-lg leading-relaxed">
                                 {(guideBio || t.guide.bio || '').split('\n\n').map((para: string, idx: number) => (
@@ -89,31 +96,27 @@ export const AboutPage = ({ t, guidePhoto, guideBio, onBackToHome, lang }: About
 
                 {/* SECTION 2: PHILOSOPHY */}
                 <section id="philosophy" className="py-20 md:py-28 border-b border-gray-50 text-center">
-                    <div className="max-w-3xl mx-auto space-y-12">
+                    <div className="max-w-4xl mx-auto space-y-12">
                         <div>
                             <p className="text-amber-600 font-bold uppercase tracking-widest text-sm mb-4">
-                                {lang === 'fr' ? "Notre Philosophie" : "Our Philosophy"}
+                                {at.philosophy.tag}
                             </p>
-                            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-                                {lang === 'fr' ? "Plus qu'un tour, une immersion authentique" : "More than a tour, an immersion"}
+                            <h2 className="text-3xl md:text-6xl font-black text-gray-900 mb-6 tracking-tighter">
+                                {at.philosophy.title}
                             </h2>
-                            <p className="text-xl text-gray-500 italic font-serif">
-                                "{lang === 'fr' ? "Ma vision est de vous faire découvrir la région comme si vous étiez avec un ami local." : "My vision is to show you the region as if you were with a local friend."}"
+                            <p className="text-xl md:text-2xl text-gray-500 italic font-serif leading-relaxed px-10">
+                                "{at.philosophy.quote}"
                             </p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            {[
-                                { icon: Heart, title: 'Authenticité', desc: 'Découvrez la vraie culture locale.' },
-                                { icon: Leaf, title: 'Respect', desc: 'Un tourisme durable et respectueux.' },
-                                { icon: Users, title: 'Proximité', desc: 'Des groupes réduits pour plus d’échange.' }
-                            ].map((val, i) => (
-                                <div key={i} className="space-y-4">
-                                    <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center mx-auto text-amber-600">
-                                        <val.icon className="w-8 h-8" />
+                            {[Heart, Leaf, Users].map((Icon, i) => (
+                                <div key={i} className="space-y-4 p-8 rounded-3xl bg-gray-50/50 border border-gray-50">
+                                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto text-amber-600 shadow-sm">
+                                        <Icon className="w-8 h-8" />
                                     </div>
-                                    <h3 className="font-bold text-xl">{val.title}</h3>
-                                    <p className="text-gray-500 text-sm">{val.desc}</p>
+                                    <h3 className="font-bold text-xl">{at.philosophy.items[i].title}</h3>
+                                    <p className="text-gray-500 text-sm">{at.philosophy.items[i].desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -125,18 +128,14 @@ export const AboutPage = ({ t, guidePhoto, guideBio, onBackToHome, lang }: About
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                         <div>
                             <p className="text-amber-600 font-bold uppercase tracking-widest text-sm mb-4">
-                                {lang === 'fr' ? "Ce qui nous rend différents" : "What sets us apart"}
+                                {at.different.tag}
                             </p>
-                            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-8">
-                                {lang === 'fr' ? "Pourquoi ne pas choisir une agence classique ?" : "Why not a classic agency?"}
+                            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-8 tracking-tight">
+                                {at.different.title}
                             </h2>
                             <div className="space-y-4">
-                                {[
-                                    { title: "Experts du terrain", desc: "Nous habitons ici, nous connaissons chaque chemin." },
-                                    { title: "Itinéraires secrets", desc: "Évitez les foules avec nos parcours exclusifs." },
-                                    { title: "Flexibilité totale", desc: "On s'adapte à votre rythme et vos envies." }
-                                ].map((item, i) => (
-                                    <div key={i} className="flex gap-4 p-6 rounded-2xl bg-gray-50 hover:bg-amber-50 transition-colors group">
+                                {at.different.items.map((item: any, i: number) => (
+                                    <div key={i} className="flex gap-4 p-6 rounded-2xl bg-gray-50 hover:bg-amber-50 transition-colors group border border-transparent hover:border-amber-100">
                                         <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center shrink-0 text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-colors">
                                             <CheckCircle2 className="w-6 h-6" />
                                         </div>
@@ -149,8 +148,8 @@ export const AboutPage = ({ t, guidePhoto, guideBio, onBackToHome, lang }: About
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                            <img src="/tour-naturereserve.jpg" className="rounded-2xl shadow-lg mt-12" alt="Nature" />
-                            <img src="/tour-camironda.jpg" className="rounded-2xl shadow-lg" alt="Costa Brava" />
+                            <img src="/tour-naturereserve.jpg" className="rounded-2xl shadow-lg mt-12 w-full aspect-square object-cover" alt="Nature" />
+                            <img src="/tour-camironda.jpg" className="rounded-2xl shadow-lg w-full aspect-square object-cover" alt="Costa Brava" />
                         </div>
                     </div>
                 </section>
@@ -159,35 +158,31 @@ export const AboutPage = ({ t, guidePhoto, guideBio, onBackToHome, lang }: About
                 <section id="why" className="py-20 md:py-28 text-center">
                     <div className="max-w-4xl mx-auto space-y-12">
                         <div>
-                            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-                                {lang === 'fr' ? "La confiance de nos voyageurs" : "Trusted by travelers"}
+                            <h2 className="text-3xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight">
+                                {at.why.title}
                             </h2>
                             <div className="flex justify-center gap-12 mb-12">
-                                {[
-                                    { val: '150+', label: 'Voyageurs' },
-                                    { val: '5.0', label: 'Note moyenne' },
-                                    { val: '100%', label: 'Local' }
-                                ].map((stat, i) => (
+                                {at.why.stats.map((stat: any, i: number) => (
                                     <div key={i}>
-                                        <p className="text-4xl font-bold text-amber-600">{stat.val}</p>
-                                        <p className="text-gray-500 text-sm uppercase tracking-widest">{stat.label}</p>
+                                        <p className="text-4xl md:text-5xl font-black text-amber-600">{stat.val}</p>
+                                        <p className="text-gray-400 text-[10px] font-bold uppercase tracking-[0.2em] mt-2">{stat.label}</p>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        <div className="bg-amber-50 rounded-3xl p-10 relative">
-                            <Quote className="absolute top-6 left-6 w-12 h-12 text-amber-200" />
-                            <p className="text-xl md:text-2xl text-gray-800 font-medium italic mb-6 relative z-10">
-                                "{lang === 'fr' ? "Une expérience inoubliable ! Antoine connaît la région comme sa poche et nous a emmenés dans des endroits où aucun touriste ne va." : "Unforgettable experience! Antoine knows the region like the back of his hand."}"
+                        <div className="bg-amber-50 rounded-[3rem] p-10 md:p-16 relative">
+                            <Quote className="absolute top-8 left-8 w-16 h-16 text-amber-100" />
+                            <p className="text-xl md:text-3xl text-gray-800 font-medium italic mb-10 relative z-10 leading-relaxed">
+                                "{at.why.quote}"
                             </p>
-                            <div className="flex items-center justify-center gap-3">
-                                <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 border-2 border-white shadow-sm">
+                            <div className="flex items-center justify-center gap-4">
+                                <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200 border-4 border-white shadow-md">
                                     <img src="/api/placeholder/48/48" alt="Client" />
                                 </div>
                                 <div className="text-left">
-                                    <p className="font-bold text-sm">Marie D.</p>
-                                    <div className="flex text-amber-400">
+                                    <p className="font-black text-gray-900 uppercase tracking-wider text-xs">Marie D.</p>
+                                    <div className="flex text-amber-400 mt-1">
                                         {[...Array(5)].map((_, i) => <Star key={i} className="w-3 h-3 fill-current" />)}
                                     </div>
                                 </div>
@@ -198,9 +193,9 @@ export const AboutPage = ({ t, guidePhoto, guideBio, onBackToHome, lang }: About
                             <Button
                                 onClick={onBackToHome}
                                 variant="outline"
-                                className="rounded-full px-8 py-6 h-auto font-bold border-gray-200 hover:border-amber-600"
+                                className="rounded-full px-10 py-7 h-auto font-black uppercase tracking-widest text-xs border-gray-200 hover:border-amber-600 hover:text-amber-600 transition-all active:scale-95 shadow-sm"
                             >
-                                {lang === 'fr' ? "← Retour à l'accueil" : "← Home"}
+                                {at.why.back}
                             </Button>
                         </div>
                     </div>

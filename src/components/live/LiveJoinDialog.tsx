@@ -58,7 +58,7 @@ export const LiveJoinDialog = ({ isOpen, onOpenChange, lang, t }: LiveJoinDialog
                     </DialogTitle>
                     <DialogDescription>
                         {activeSessions.length > 0
-                            ? (lang === 'fr' ? 'Un tour est actuellement en cours !' : lang === 'en' ? 'A tour is currently in progress!' : '¡Un tour está en curso!')
+                            ? t.live.title
                             : t.nav.no_live}
                     </DialogDescription>
                 </DialogHeader>

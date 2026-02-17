@@ -9,12 +9,8 @@ export const WhatsAppButton = ({ lang }: WhatsAppButtonProps) => {
     const t = translations[lang];
     const phoneNumber = t.contact.whatsapp.replace(/\s+/g, '').replace('+', '');
 
-    // Custom message based on language
-    const message = lang === 'fr'
-        ? "Bonjour Antoine, j'aimerais avoir plus d'informations sur vos tours à Barcelone."
-        : lang === 'es'
-            ? "Hola Antoine, me gustaría tener más información sobre sus tours en Barcelona."
-            : "Hello Antoine, I would like more information about your tours in Barcelona.";
+    // Custom message based on language from translations
+    const message = t.whatsapp.message_prefix;
 
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
@@ -23,7 +19,7 @@ export const WhatsAppButton = ({ lang }: WhatsAppButtonProps) => {
             {/* Label Tooltip */}
             <div className="bg-white px-4 py-2 rounded-xl shadow-xl border border-gray-100 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 pointer-events-none">
                 <p className="text-xs font-bold text-gray-800 whitespace-nowrap">
-                    {lang === 'fr' ? 'Une question ? Discutez avec moi !' : lang === 'es' ? '¿Una pregunta? ¡Chatea conmigo!' : 'Any questions? Chat with me!'}
+                    {t.whatsapp.floating_text}
                 </p>
             </div>
 

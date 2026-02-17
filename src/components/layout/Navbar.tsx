@@ -35,12 +35,18 @@ export const Navbar = ({
                 }`}
         >
             <div className="container-custom flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <button
+                    onClick={() => {
+                        setView('home');
+                        window.scrollTo(0, 0);
+                    }}
+                    className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                >
                     <MapPin className={`w-6 h-6 ${isScrolled ? 'text-amber-600' : 'text-white'}`} />
                     <span className={`text-xl font-bold font-serif ${isScrolled ? 'text-gray-900' : 'text-white'}`}>
                         Tours<span className="text-amber-500">&</span>Detours
                     </span>
-                </div>
+                </button>
 
                 {/* Desktop Navigation */}
                 <div className="hidden md:flex items-center gap-6">
@@ -61,7 +67,7 @@ export const Navbar = ({
                                 view === 'about' && item === 'about' ? 'border-b-2 border-amber-600 font-bold' : ''
                             )}
                         >
-                            {item === 'avis' ? t.nav.avis : item === 'about' ? (lang === 'fr' ? 'À Propos' : lang === 'es' ? 'Sobre mí' : 'About') : item === 'contact' ? t.nav.contact : t.nav.tours}
+                            {item === 'avis' ? t.nav.avis : item === 'about' ? t.nav.about : item === 'contact' ? t.nav.contact : t.nav.tours}
                         </button>
                     ))}
 
@@ -144,7 +150,7 @@ export const Navbar = ({
                                 }}
                                 className="text-left text-gray-700 py-2 font-medium capitalize"
                             >
-                                {item === 'avis' ? t.nav.avis : item === 'about' ? (lang === 'fr' ? 'À Propos' : lang === 'es' ? 'Sobre mí' : 'About') : item === 'contact' ? t.nav.contact : t.nav.tours}
+                                {item === 'avis' ? t.nav.avis : item === 'about' ? t.nav.about : item === 'contact' ? t.nav.contact : t.nav.tours}
                             </button>
                         ))}
                         <button

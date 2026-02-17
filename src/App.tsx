@@ -246,8 +246,8 @@ function App() {
   return (
     <div className="min-h-screen bg-white">
       <SEO
-        title={lang === 'fr' ? "Tours & Detours | Barcelona" : lang === 'en' ? "Tours & Detours | Barcelona" : "Tours & Detours | Barcelona"}
-        description={lang === 'fr' ? t.hero.subtitle : lang === 'en' ? t.hero.subtitle : t.hero.subtitle}
+        title={t.seo.title}
+        description={t.seo.description}
         lang={lang}
       />
       <Navbar
@@ -286,13 +286,13 @@ function App() {
             <section className="py-20 bg-amber-600 text-white overflow-hidden relative">
               <div className="container-custom relative z-10 text-center">
                 <h2 className="text-3xl md:text-5xl font-bold mb-8 max-w-4xl mx-auto leading-tight">
-                  {lang === 'fr' ? "Une approche humaine et authentique pour découvrir la vraie Catalogne." : "A human and authentic approach to discover the real Catalonia."}
+                  {t.about_hook.title}
                 </h2>
                 <Button
                   onClick={() => setView('about')}
                   className="bg-white text-amber-600 hover:bg-gray-100 rounded-full h-16 px-10 text-lg font-bold transition-all shadow-xl"
                 >
-                  {lang === 'fr' ? "En savoir plus sur votre guide →" : "Learn more about your guide →"}
+                  {t.about_hook.cta}
                 </Button>
               </div>
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
@@ -307,7 +307,6 @@ function App() {
             t={t}
             guidePhoto={guidePhoto}
             guideBio={guideBio}
-            lang={lang}
             onBackToHome={() => setView('home')}
           />
         )}
