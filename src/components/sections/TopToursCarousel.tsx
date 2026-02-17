@@ -14,7 +14,7 @@ interface TopToursCarouselProps {
 export const TopToursCarousel = ({ tours, t, onTourClick }: TopToursCarouselProps) => {
     // For now, we take the first 3 tours as "top"
     // In a real scenario, this could be filtered by an 'isFeatured' flag
-    const topTours = tours.slice(0, 3);
+    const topTours = tours;
 
     const [emblaRef, emblaApi] = useEmblaCarousel({
         loop: true,

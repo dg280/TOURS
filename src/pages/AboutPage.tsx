@@ -55,8 +55,8 @@ export const AboutPage = ({ t, guidePhoto, guideBio, onBackToHome, lang }: About
             <div className="container-custom">
                 {/* SECTION 1: ABOUT ME */}
                 <section id="me" className="py-20 md:py-28 border-b border-gray-50">
-                    <div className="flex flex-col md:flex-row gap-12 lg:gap-20 items-center">
-                        <div className="w-full md:w-1/2 lg:w-2/5">
+                    <div className="flex flex-col md:flex-row-reverse gap-12 lg:gap-20 items-center">
+                        <div className="w-full md:w-5/12 lg:w-1/3">
                             <div className="relative">
                                 <div className="rounded-3xl overflow-hidden shadow-2xl aspect-[4/5] border-8 border-white">
                                     <img

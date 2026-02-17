@@ -8,6 +8,8 @@ import { Hero } from './components/sections/Hero';
 import { Footer } from './components/layout/Footer';
 import { TourDialog } from './components/sections/TourDialog';
 import { Button } from '@/components/ui/button';
+import { Testimonials } from './components/sections/Testimonials';
+import { Contact } from './components/sections/Contact';
 import { LiveJoinDialog } from './components/live/LiveJoinDialog';
 import { BookingModal } from './components/booking/BookingModal';
 import { SEO } from './components/SEO';
@@ -210,7 +212,7 @@ function App() {
     setIsMobileMenuOpen(false);
 
     // If on about page and target is a home section, switch to home first
-    if (view === 'about' && ['top-tours', 'category-tours', 'contact'].includes(id)) {
+    if (view === 'about' && ['top-tours', 'category-tours', 'contact', 'avis'].includes(id)) {
       setView('home');
       setTimeout(() => {
         const element = document.getElementById(id);
@@ -237,6 +239,9 @@ function App() {
     setSelectedTour(tour || tours[0]);
     setIsBookingOpen(true);
   };
+
+  // Use translated testimonials from translations.ts
+  const testimonials = (t as any).testimonials_data || [];
 
   return (
     <div className="min-h-screen bg-white">
@@ -293,6 +298,9 @@ function App() {
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
               <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
             </section>
+
+            <Testimonials t={t} testimonials={testimonials} />
+            <Contact t={t} instagramUrl={instagramUrl} />
           </>
         ) : (
           <AboutPage
