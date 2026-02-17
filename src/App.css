@@ -77,16 +77,16 @@ img[src] {
 }
 
 .hero-mobile-height {
-  height: 100vh;
+  height: 75vh;
   min-height: 500px;
 }
 
 @media (max-width: 640px) {
   .hero-mobile-height {
     height: auto;
-    min-height: 85vh;
-    padding-top: 6rem;
-    padding-bottom: 4rem;
+    min-height: 70vh;
+    padding-top: 5rem;
+    padding-bottom: 3rem;
   }
 }
 

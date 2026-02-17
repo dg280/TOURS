@@ -1,5 +1,6 @@
 import { MapPin, Menu, X, Activity } from 'lucide-react';
 import { type Language } from '@/lib/translations';
+import { cn } from '@/lib/utils';
 
 interface NavbarProps {
     isScrolled: boolean;
@@ -10,6 +11,8 @@ interface NavbarProps {
     scrollToSection: (id: string) => void;
     onLiveClick: () => void;
     t: any; // translations object
+    view: 'home' | 'about';
+    setView: (view: 'home' | 'about') => void;
 }
 
 export const Navbar = ({
@@ -20,7 +23,9 @@ export const Navbar = ({
     setLang,
     scrollToSection,
     onLiveClick,
-    t
+    t,
+    view,
+    setView
 }: NavbarProps) => {
     return (
         <nav
@@ -39,22 +44,32 @@ export const Navbar = ({
 
                 {/* Desktop Navigation */}
                 <div className="hidden md:flex items-center gap-6">
-                    {['tours', 'guide', 'avis', 'contact'].map((item) => (
+                    {['tours', 'about', 'avis', 'contact'].map((item) => (
                         <button
                             key={item}
-                            onClick={() => scrollToSection(item)}
-                            className={`text-sm font-medium capitalize transition-colors hover:opacity-80 ${isScrolled ? 'text-gray-700' : 'text-white'
-                                }`}
+                            onClick={() => {
+                                if (item === 'about') {
+                                    setView('about');
+                                    setIsMobileMenuOpen(false);
+                                } else {
+                                    scrollToSection(item === 'tours' ? 'top-tours' : item);
+                                }
+                            }}
+                            className={cn(
+                                "text-sm font-medium capitalize transition-colors hover:opacity-80 px-2 py-1",
+                                isScrolled ? 'text-gray-700' : 'text-white',
+                                view === 'about' && item === 'about' ? 'border-b-2 border-amber-600 font-bold' : ''
+                            )}
                         >
-                            {item === 'avis' ? t.nav.avis : item === 'guide' ? t.nav.guide : item === 'contact' ? t.nav.contact : t.nav.tours}
+                            {item === 'avis' ? t.nav.avis : item === 'about' ? (lang === 'fr' ? 'À Propos' : lang === 'es' ? 'Sobre mí' : 'About') : item === 'contact' ? t.nav.contact : t.nav.tours}
                         </button>
                     ))}
 
                     <button
                         onClick={onLiveClick}
                         className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all text-xs font-bold uppercase ${isScrolled
-                                ? 'border-amber-600 text-amber-600 hover:bg-amber-50'
-                                : 'border-white/30 text-white hover:bg-white/10'
+                            ? 'border-amber-600 text-amber-600 hover:bg-amber-50'
+                            : 'border-white/30 text-white hover:bg-white/10'
                             }`}
                     >
                         <Activity className="w-3 h-3" />
@@ -115,13 +130,21 @@ export const Navbar = ({
                             ))}
                         </div>
 
-                        {['tours', 'guide', 'avis', 'contact'].map((item) => (
+                        {['tours', 'about', 'avis', 'contact'].map((item) => (
                             <button
                                 key={item}
-                                onClick={() => scrollToSection(item)}
+                                onClick={() => {
+                                    if (item === 'about') {
+                                        setView('about');
+                                        setIsMobileMenuOpen(false);
+                                    } else {
+                                        scrollToSection(item === 'tours' ? 'top-tours' : item);
+                                        setIsMobileMenuOpen(false);
+                                    }
+                                }}
                                 className="text-left text-gray-700 py-2 font-medium capitalize"
                             >
-                                {item === 'avis' ? t.nav.avis : item === 'guide' ? t.nav.guide : item === 'contact' ? t.nav.contact : t.nav.tours}
+                                {item === 'avis' ? t.nav.avis : item === 'about' ? (lang === 'fr' ? 'À Propos' : lang === 'es' ? 'Sobre mí' : 'About') : item === 'contact' ? t.nav.contact : t.nav.tours}
                             </button>
                         ))}
                         <button

@@ -4,24 +4,24 @@ import { supabase } from './lib/supabase';
 import { Toaster } from '@/components/ui/sonner';
 import { CookieConsent } from './components/CookieConsent';
 import { Navbar } from './components/layout/Navbar';
-import { Footer } from './components/layout/Footer';
 import { Hero } from './components/sections/Hero';
-import { TourCard } from './components/sections/TourCard';
+import { Footer } from './components/layout/Footer';
 import { TourDialog } from './components/sections/TourDialog';
-import { Guide } from './components/sections/Guide';
-import { Features } from './components/sections/Features';
-import { Testimonials } from './components/sections/Testimonials';
-import { Contact } from './components/sections/Contact';
+import { Button } from '@/components/ui/button';
 import { LiveJoinDialog } from './components/live/LiveJoinDialog';
 import { BookingModal } from './components/booking/BookingModal';
 import { SEO } from './components/SEO';
 import { WhatsAppButton } from './components/WhatsAppButton';
 import type { Tour } from './lib/types';
 import { prepareTourForEditing } from './lib/utils';
+import { AboutPage } from './pages/AboutPage';
+import { TopToursCarousel } from './components/sections/TopToursCarousel';
+import { CategoryToursCarousel } from './components/sections/CategoryToursCarousel';
 import './App.css';
 
 function App() {
   const [lang, setLang] = useState<Language>('fr');
+  const [view, setView] = useState<'home' | 'about'>('home');
   const t = translations[lang];
 
   const [isScrolled, setIsScrolled] = useState(false);
@@ -208,6 +208,22 @@ function App() {
 
   const scrollToSection = (id: string) => {
     setIsMobileMenuOpen(false);
+
+    // If on about page and target is a home section, switch to home first
+    if (view === 'about' && ['top-tours', 'category-tours', 'contact'].includes(id)) {
+      setView('home');
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          const navHeight = 80;
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - navHeight;
+          window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+        }
+      }, 100);
+      return;
+    }
+
     const element = document.getElementById(id);
     if (element) {
       const navHeight = 80;
@@ -221,9 +237,6 @@ function App() {
     setSelectedTour(tour || tours[0]);
     setIsBookingOpen(true);
   };
-
-  // Use translated testimonials from translations.ts
-  const testimonials = (t as any).testimonials_data || [];
 
   return (
     <div className="min-h-screen bg-white">
@@ -241,50 +254,55 @@ function App() {
         scrollToSection={scrollToSection}
         onLiveClick={() => setIsLiveJoinOpen(true)}
         t={t}
+        view={view}
+        setView={setView}
       />
 
       <main>
-        <Hero t={t} scrollToSection={scrollToSection} />
+        {view === 'home' ? (
+          <>
+            <Hero t={t} scrollToSection={scrollToSection} />
 
-        <section id="tours" className="section-padding bg-white relative">
-          <div className="container-custom">
-            <div className="text-center mb-16">
-              <p className="text-amber-600 font-medium mb-2">{t.tours.section_tag}</p>
-              <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
-                {(t as any).tours.section_title}
-              </h2>
-              <p className="text-gray-500 max-w-2xl mx-auto">
-                {(t as any).tours.section_desc}
-              </p>
-            </div>
+            {/* Bloc 1: Carousel des 3 meilleurs tours */}
+            <TopToursCarousel
+              tours={tours}
+              t={t}
+              onTourClick={(tour) => { setViewedTour(tour); setIsTourDialogOpen(true); }}
+            />
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {tours.map((tour, index) => (
-                <TourCard
-                  key={tour.id}
-                  tour={tour}
-                  index={index}
-                  t={t}
-                  onClick={() => { setViewedTour(tour); setIsTourDialogOpen(true); }}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
+            {/* Bloc 2: Carousel par type de tour */}
+            <CategoryToursCarousel
+              tours={tours}
+              t={t}
+              onTourClick={(tour) => { setViewedTour(tour); setIsTourDialogOpen(true); }}
+            />
 
-        <Guide
-          t={t}
-          guidePhoto={guidePhoto}
-          instagramUrl={instagramUrl}
-          guideBio={guideBio}
-          scrollToSection={scrollToSection}
-        />
-
-        <Features t={t} />
-
-        <Testimonials t={t} testimonials={testimonials} />
-
-        <Contact t={t} instagramUrl={instagramUrl} />
+            {/* Bloc 3: About Hook */}
+            <section className="py-20 bg-amber-600 text-white overflow-hidden relative">
+              <div className="container-custom relative z-10 text-center">
+                <h2 className="text-3xl md:text-5xl font-bold mb-8 max-w-4xl mx-auto leading-tight">
+                  {lang === 'fr' ? "Une approche humaine et authentique pour découvrir la vraie Catalogne." : "A human and authentic approach to discover the real Catalonia."}
+                </h2>
+                <Button
+                  onClick={() => setView('about')}
+                  className="bg-white text-amber-600 hover:bg-gray-100 rounded-full h-16 px-10 text-lg font-bold transition-all shadow-xl"
+                >
+                  {lang === 'fr' ? "En savoir plus sur votre guide →" : "Learn more about your guide →"}
+                </Button>
+              </div>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+            </section>
+          </>
+        ) : (
+          <AboutPage
+            t={t}
+            guidePhoto={guidePhoto}
+            guideBio={guideBio}
+            lang={lang}
+            onBackToHome={() => setView('home')}
+          />
+        )}
       </main>
 
       <Footer t={t} instagramUrl={instagramUrl} />

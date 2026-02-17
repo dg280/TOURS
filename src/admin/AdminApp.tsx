@@ -58,7 +58,7 @@ import {
 } from "@/components/ui/tabs"
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { decodeHTMLEntities, prepareTourForEditing } from '@/lib/utils';
+import { prepareTourForEditing } from '@/lib/utils';
 
 // Types
 interface Reservation {
@@ -125,8 +125,6 @@ interface Review {
   createdAt: string;
 }
 
-// Utility
-const sanitize = (str: string) => str; // React handles this automatically
 // Mock Data is now handled via the database (default_tours table)
 // No longer using hardcoded mockTours in this file.
 
