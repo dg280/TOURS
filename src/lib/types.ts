@@ -32,4 +32,7 @@ export interface Tour {
     meetingPoint_en?: string;
     meetingPoint_es?: string;
     meetingPointMapUrl?: string;
+    stops?: { name: string; description: string; image?: string }[];
+    stripe_tip_link?: string;
+    isActive?: boolean;
 }

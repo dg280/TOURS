@@ -7,7 +7,10 @@ export const translations = {
             guide: 'Votre Guide',
             avis: 'Avis',
             contact: 'Contact',
-            reserve: 'Réserver'
+            reserve: 'Réserver',
+            live: 'Live Experience',
+            no_live: 'Pas de tour en cours',
+            enter_code: 'Entrez le code du tour'
         },
         hero: {
             tagline: 'Découvrez la Catalogne authentique',
@@ -238,7 +241,10 @@ export const translations = {
             guide: 'Your Guide',
             avis: 'Reviews',
             contact: 'Contact',
-            reserve: 'Book Now'
+            reserve: 'Book Now',
+            live: 'Live Experience',
+            no_live: 'No tour in progress',
+            enter_code: 'Enter tour code'
         },
         hero: {
             tagline: 'Discover authentic Catalonia',
@@ -455,7 +461,10 @@ export const translations = {
             guide: 'Tu Guía',
             avis: 'Opiniones',
             contact: 'Contacto',
-            reserve: 'Reservar'
+            reserve: 'Reservar',
+            live: 'Experiencia Live',
+            no_live: 'No hay tour en curso',
+            enter_code: 'Introduce el código del tour'
         },
         hero: {
             tagline: 'Descubre la Cataluña auténtica',

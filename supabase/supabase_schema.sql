@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS authorized_admins (
 
 -- Seed initial authorized admins
 INSERT INTO authorized_admins (email) 
-VALUES ('info@toursandetours.com'), ('dg@xinus.net')
+VALUES ('info@toursandetours.com'), ('dg@xinus.net'), ('dgenevois06@gmail.com')
 ON CONFLICT (email) DO NOTHING;
 
 -- 2. Clean up existing policies safely

@@ -25,7 +25,10 @@ import {
   Send,
   BarChart3,
   CheckCircle2,
-  ExternalLink
+  ExternalLink,
+  Maximize2,
+  Minimize2,
+  Camera
 } from 'lucide-react';
 import { translations } from '@/lib/translations';
 import { Button } from '@/components/ui/button';
@@ -84,7 +87,7 @@ interface Tour {
   description_en?: string;
   description_es?: string;
   duration: string;
-  group_size: string;
+  groupSize: string;
   price: number;
   image: string;
   images?: string[];
@@ -106,6 +109,8 @@ interface Tour {
   meetingPoint_en?: string;
   meetingPoint_es?: string;
   meetingPointMapUrl?: string;
+  stops?: { name: string; description: string; image?: string }[];
+  stripe_tip_link?: string;
 }
 
 interface Review {
@@ -172,9 +177,11 @@ const mockReviews: Review[] = [
 // Login Component
 function Login() {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [mode, setMode] = useState<'magic' | 'password'>('magic');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -201,20 +208,34 @@ function Login() {
         return;
       }
 
-      // 2. Send Magic Link
-      const { error: authError } = await supabase.auth.signInWithOtp({
-        email: email.toLowerCase().trim(),
-        options: {
-          emailRedirectTo: 'https://tours-five-olive.vercel.app/admin.html',
+      let authError = null;
+
+      // 2. Auth Flow
+      if (mode === 'magic') {
+        const { error } = await supabase.auth.signInWithOtp({
+          email: email.toLowerCase().trim(),
+          options: {
+            emailRedirectTo: window.location.origin + '/admin.html',
+          }
+        });
+        authError = error;
+
+        if (!authError) {
+          setMessage('Lien magique envoyé ! Vérifiez votre boîte mail.');
         }
-      });
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: email.toLowerCase().trim(),
+          password: password
+        });
+        authError = error;
+      }
 
       if (authError) {
-        setError('Une erreur est survenue lors de l\'envoi du lien magique : ' + authError.message);
-      } else {
-        setMessage('Lien magique envoyé ! Vérifiez votre boîte mail.');
+        setError(mode === 'magic' ? 'Lien magique : ' + authError.message : 'Erreur de mot de passe : ' + authError.message);
       }
     } catch (err: any) {
+      console.error('Login error:', err);
       setError('Une erreur est survenue lors de la connexion');
     } finally {
       setIsLoading(false);
@@ -250,19 +271,46 @@ function Login() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="info@toursandetours.com"
+              placeholder="votre@email.com"
               className="mt-1 h-12"
               disabled={isLoading || !!message}
               required
             />
           </div>
+
+          {mode === 'password' && (
+            <div>
+              <Label htmlFor="password">Mot de passe</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 h-12"
+                disabled={isLoading || !!message}
+                required
+              />
+            </div>
+          )}
+
           <Button
             type="submit"
             className="w-full bg-amber-600 hover:bg-amber-700 h-12 rounded-xl font-bold text-lg shadow-lg shadow-amber-600/20 transition-all hover:-translate-y-0.5"
             disabled={isLoading || !!message}
           >
-            {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Recevoir un lien magique'}
+            {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (mode === 'magic' ? 'Recevoir un lien magique' : 'Se connecter')}
           </Button>
+
+          <div className="text-center pt-2">
+            <button
+              type="button"
+              onClick={() => setMode(mode === 'magic' ? 'password' : 'magic')}
+              className="text-xs text-amber-600 hover:underline font-medium"
+            >
+              {mode === 'magic' ? '→ Utiliser un mot de passe' : '← Utiliser un lien magique'}
+            </button>
+          </div>
         </form>
 
         <div className="mt-8 pt-6 border-t border-gray-100 text-center">
@@ -570,7 +618,53 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
   const [editingTour, setEditingTour] = useState<Tour | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [activeSession, setActiveSession] = useState<{ tour: Tour; session: any } | null>(null);
+  const [isLiveMinimized, setIsLiveMinimized] = useState(false);
+  const [sessionLoading, setSessionLoading] = useState(false);
+  const [urgentMsg, setUrgentMsg] = useState('');
   const tourFileRef = useRef<HTMLInputElement>(null);
+
+  const startLiveSession = async (tour: Tour) => {
+    if (!supabase) return;
+    setSessionLoading(true);
+    try {
+      const sessionCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const { data, error } = await supabase
+        .from('live_sessions')
+        .insert({
+          tour_id: tour.id,
+          session_code: sessionCode,
+          status: 'active',
+          current_stop_index: 0
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      setActiveSession({ tour, session: data });
+      toast.success(`Session Live démarrée ! Code : ${sessionCode}`);
+    } catch (err: any) {
+      toast.error("Erreur lors du démarrage : " + err.message);
+    } finally {
+      setSessionLoading(false);
+    }
+  };
+
+  const updateSession = async (updates: any) => {
+    if (!supabase || !activeSession) return;
+    try {
+      const { data, error } = await supabase
+        .from('live_sessions')
+        .update(updates)
+        .eq('id', activeSession.session.id)
+        .select()
+        .single();
+      if (error) throw error;
+      setActiveSession({ ...activeSession, session: data });
+    } catch (err: any) {
+      toast.error("Erreur de mise à jour : " + err.message);
+    }
+  };
 
   const handleTourImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -641,7 +735,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
             description_en: editingTour.description_en,
             description_es: editingTour.description_es,
             duration: editingTour.duration,
-            group_size: editingTour.group_size,
+            group_size: editingTour.groupSize,
             price: editingTour.price,
             image: editingTour.image,
             category: editingTour.category,
@@ -662,7 +756,9 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
             meeting_point_en: editingTour.meetingPoint_en,
             meeting_point_es: editingTour.meetingPoint_es,
             images: editingTour.images,
-            meeting_point_map_url: editingTour.meetingPointMapUrl
+            meeting_point_map_url: editingTour.meetingPointMapUrl,
+            stops: editingTour.stops || [],
+            stripe_tip_link: editingTour.stripe_tip_link
           };
 
           const { error } = await supabase.from('tours').upsert({
@@ -702,21 +798,39 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
         const mapped = data.map(t => ({
           id: t.id,
           title: t.title,
+          title_en: t.title_en,
+          title_es: t.title_es,
           subtitle: t.subtitle,
+          subtitle_en: t.subtitle_en,
+          subtitle_es: t.subtitle_es,
           description: t.description,
+          description_en: t.description_en,
+          description_es: t.description_es,
           duration: t.duration,
-          group_size: t.group_size,
+          groupSize: t.group_size,
           price: t.price,
           image: t.image,
           images: t.images || [],
           category: t.category,
           highlights: t.highlights,
+          highlights_en: t.highlights_en,
+          highlights_es: t.highlights_es,
           isActive: t.is_active,
           itinerary: t.itinerary,
+          itinerary_en: t.itinerary_en,
+          itinerary_es: t.itinerary_es,
           included: t.included,
+          included_en: t.included_en,
+          included_es: t.included_es,
           notIncluded: t.not_included,
+          notIncluded_en: t.not_included_en,
+          notIncluded_es: t.not_included_es,
           meetingPoint: t.meeting_point,
-          meetingPointMapUrl: t.meeting_point_map_url
+          meetingPoint_en: t.meeting_point_en,
+          meetingPoint_es: t.meeting_point_es,
+          meetingPointMapUrl: t.meeting_point_map_url,
+          stops: t.stops || [],
+          stripe_tip_link: t.stripe_tip_link
         }));
         setTours(mapped as Tour[]);
         localStorage.setItem('td-tours', JSON.stringify(mapped));
@@ -743,20 +857,38 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
         const dbTour = {
           id: tour.id,
           title: tour.title,
+          title_en: tour.title_en,
+          title_es: tour.title_es,
           subtitle: tour.subtitle,
+          subtitle_en: tour.subtitle_en,
+          subtitle_es: tour.subtitle_es,
           description: tour.description,
+          description_en: tour.description_en,
+          description_es: tour.description_es,
           duration: tour.duration,
-          group_size: tour.group_size,
+          group_size: tour.groupSize,
           price: tour.price,
           image: tour.image,
           images: tour.images || [],
           category: tour.category,
           highlights: tour.highlights,
-          is_active: tour.isActive,
+          highlights_en: tour.highlights_en,
+          highlights_es: tour.highlights_es,
+          is_active: tour.isActive ?? true,
           itinerary: tour.itinerary || [],
+          itinerary_en: tour.itinerary_en || [],
+          itinerary_es: tour.itinerary_es || [],
           included: tour.included || [],
+          included_en: tour.included_en || [],
+          included_es: tour.included_es || [],
           not_included: tour.notIncluded || [],
-          meeting_point: tour.meetingPoint || null
+          not_included_en: tour.notIncluded_en || [],
+          not_included_es: tour.notIncluded_es || [],
+          meeting_point: tour.meetingPoint || null,
+          meeting_point_en: tour.meetingPoint_en || null,
+          meeting_point_es: tour.meetingPoint_es || null,
+          stops: tour.stops || [],
+          stripe_tip_link: tour.stripe_tip_link || null
         };
         const { error } = await supabase.from('tours').upsert(dbTour);
         if (error) throw error;
@@ -787,20 +919,36 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
         const mapped = data.map(t => ({
           id: t.id,
           title: t.title,
+          title_en: t.title_en,
+          title_es: t.title_es,
           subtitle: t.subtitle,
+          subtitle_en: t.subtitle_en,
+          subtitle_es: t.subtitle_es,
           description: t.description,
+          description_en: t.description_en,
+          description_es: t.description_es,
           duration: t.duration,
-          group_size: t.group_size,
+          groupSize: t.group_size,
           price: t.price,
           image: t.image,
           images: t.images || [],
           category: t.category,
           highlights: t.highlights,
+          highlights_en: t.highlights_en,
+          highlights_es: t.highlights_es,
           isActive: t.is_active,
-          itinerary: t.itinerary,
-          included: t.included,
-          notIncluded: t.not_included,
-          meetingPoint: t.meeting_point
+          itinerary: t.itinerary || [],
+          itinerary_en: t.itinerary_en || [],
+          itinerary_es: t.itinerary_es || [],
+          included: t.included || [],
+          included_en: t.included_en || [],
+          included_es: t.included_es || [],
+          notIncluded: t.not_included || [],
+          notIncluded_en: t.not_included_en || [],
+          notIncluded_es: t.not_included_es || [],
+          meetingPoint: t.meeting_point,
+          meetingPoint_en: t.meeting_point_en,
+          meetingPoint_es: t.meeting_point_es
         }));
         setTours(mapped as Tour[]);
         localStorage.setItem('td-tours', JSON.stringify(mapped));
@@ -859,6 +1007,122 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
 
   return (
     <div className="space-y-6">
+      {/* Active Session Control Panel */}
+      {activeSession && (
+        <Card className="border-2 border-amber-500 bg-amber-50/50 overflow-hidden shadow-xl animate-in fade-in slide-in-from-top duration-500">
+          <CardHeader className="bg-amber-500 text-white flex flex-row justify-between items-center py-4 px-6">
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 bg-white rounded-full animate-pulse" />
+              <CardTitle className="text-xl">LIVE : {activeSession.tour.title}</CardTitle>
+            </div>
+            <div className="flex items-center gap-3">
+              <Badge variant="outline" className="text-white border-white text-lg px-4 py-1">
+                CODE : {activeSession.session.session_code}
+              </Badge>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white hover:bg-white/20"
+                onClick={() => setIsLiveMinimized(!isLiveMinimized)}
+              >
+                {isLiveMinimized ? <Maximize2 className="w-5 h-5" /> : <Minimize2 className="w-5 h-5" />}
+              </Button>
+            </div>
+          </CardHeader>
+          {!isLiveMinimized && (
+            <CardContent className="p-6 space-y-6 animate-in slide-in-from-top-4 duration-300">
+              <div className="grid md:grid-cols-3 gap-6">
+                {/* QR Code */}
+                <div className="bg-white p-4 rounded-2xl border border-amber-200 flex flex-col items-center justify-center text-center space-y-3 shadow-sm">
+                  <div className="w-32 h-32 rounded-xl overflow-hidden border border-gray-100 flex items-center justify-center">
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${window.location.origin}/live/${activeSession.session.session_code}`)}`}
+                      alt="QR Code"
+                      className="w-full h-full"
+                    />
+                  </div>
+                  <p className="text-xs font-medium text-amber-900">Scannez pour rejoindre</p>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" className="h-7 text-[10px]" onClick={() => {
+                      const url = `${window.location.origin}/live/${activeSession.session.session_code}`;
+                      navigator.clipboard.writeText(url);
+                      toast.success("Lien copié !");
+                    }}>Copier le lien</Button>
+                  </div>
+                </div>
+
+                {/* Progression Controls */}
+                <div className="md:col-span-2 space-y-4">
+                  <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-amber-200 shadow-sm">
+                    <div className="space-y-1">
+                      <p className="text-xs text-amber-600 font-bold uppercase">Étape Actuelle</p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {activeSession.tour.stops?.[activeSession.session.current_stop_index]?.name || "Introduction"}
+                      </p>
+                      <p className="text-xs text-gray-500 italic">
+                        {activeSession.session.current_stop_index + 1} / {(activeSession.tour.stops?.length || 0) + 1}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        disabled={activeSession.session.current_stop_index === 0}
+                        onClick={() => updateSession({ current_stop_index: activeSession.session.current_stop_index - 1 })}
+                      >
+                        Précédent
+                      </Button>
+                      <Button
+                        className="bg-amber-600"
+                        disabled={activeSession.session.current_stop_index >= (activeSession.tour.stops?.length || 0)}
+                        onClick={() => updateSession({ current_stop_index: activeSession.session.current_stop_index + 1 })}
+                      >
+                        Suivant
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Urgent Message */}
+                  <div className="flex gap-3">
+                    <Input
+                      placeholder="Message urgent à diffuser..."
+                      value={urgentMsg}
+                      onChange={(e) => setUrgentMsg(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button
+                      variant="destructive"
+                      onClick={() => {
+                        updateSession({ urgent_message: urgentMsg });
+                        if (urgentMsg) toast.success("Alerte diffusée !");
+                        else toast.info("Alerte effacée.");
+                      }}
+                    >
+                      {urgentMsg ? "Alerter" : "Effacer"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-amber-100">
+                <Button
+                  variant="ghost"
+                  className="text-gray-400 hover:text-red-600"
+                  onClick={async () => {
+                    if (confirm("Terminer la session live ?")) {
+                      await updateSession({ status: 'completed' });
+                      setActiveSession(null);
+                      toast.info("Session terminée.");
+                    }
+                  }}
+                >
+                  Terminer la session
+                </Button>
+              </div>
+            </CardContent>
+          )}
+        </Card>
+      )}
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold">Catalogue des Tours</h2>
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
@@ -906,7 +1170,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
               subtitle: '',
               description: '',
               duration: '',
-              group_size: '',
+              groupSize: '',
               price: 0,
               image: '',
               highlights: [],
@@ -929,6 +1193,14 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                 <span className="font-bold text-amber-600">{tour.price}€</span>
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" onClick={() => { setEditingTour(tour); setIsEditOpen(true); }}>Modifier</Button>
+                  <Button
+                    size="sm"
+                    className="bg-amber-600 hover:bg-amber-700"
+                    onClick={() => startLiveSession(tour)}
+                    disabled={sessionLoading}
+                  >
+                    <Activity className="w-4 h-4 mr-1" /> Live
+                  </Button>
                   <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300" onClick={() => deleteTour(tour.id)}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -947,10 +1219,11 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
           {editingTour && (
             <div className="flex-1 overflow-y-auto p-6">
               <Tabs defaultValue="fr" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6">
+                <TabsList className="grid w-full grid-cols-4 mb-6">
                   <TabsTrigger value="fr" className="flex items-center gap-2 font-bold text-blue-600">FR <Globe className="w-3 h-3" /></TabsTrigger>
                   <TabsTrigger value="en" className="flex items-center gap-2 font-bold text-amber-600">EN <Globe className="w-3 h-3" /></TabsTrigger>
                   <TabsTrigger value="es" className="flex items-center gap-2 font-bold text-red-600">ES <Globe className="w-3 h-3" /></TabsTrigger>
+                  <TabsTrigger value="live" className="flex items-center gap-2 font-bold text-black bg-amber-100 border-amber-200">LIVE <Activity className="w-3 h-3" /></TabsTrigger>
                 </TabsList>
 
                 {/* Common Fields */}
@@ -1221,6 +1494,165 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                     )}
                   </div>
                 </div>
+                <TabsContent value="live" className="space-y-6">
+                  <div className="bg-amber-50 p-6 rounded-2xl border border-amber-100 space-y-4">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h3 className="font-bold text-amber-900 text-lg">Configuration LiveTour</h3>
+                        <p className="text-sm text-amber-700 italic">Préparez les étapes de votre visite interactive.</p>
+                      </div>
+                      <Badge className="bg-amber-600 h-8 px-4">Beta</Badge>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-amber-900 font-bold">Lien Stripe (Tips)</Label>
+                      <Input
+                        placeholder="https://buy.stripe.com/..."
+                        value={editingTour.stripe_tip_link || ''}
+                        onChange={(e) => setEditingTour({ ...editingTour, stripe_tip_link: e.target.value })}
+                        className="bg-white border-amber-200"
+                      />
+                      <p className="text-xs text-amber-600 italic">Ce lien sera affiché aux clients à la fin de leur expérience Live.</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h3 className="font-bold flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-amber-600" /> Étapes de la visite (Stops)
+                      </h3>
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          const newStops = [...(editingTour.stops || [])];
+                          newStops.push({ name: `Étape ${newStops.length + 1}`, description: '' });
+                          setEditingTour({ ...editingTour, stops: newStops });
+                        }}
+                        className="bg-amber-600"
+                      >
+                        <Plus className="w-4 h-4 mr-2" /> Ajouter une étape
+                      </Button>
+                    </div>
+
+                    <div className="space-y-3">
+                      {(editingTour.stops || []).length === 0 ? (
+                        <div className="text-center p-8 border-2 border-dashed border-gray-100 rounded-2xl text-gray-400 italic">
+                          Aucune étape configurée. Ajoutez-en une pour commencer le LiveTour.
+                        </div>
+                      ) : (
+                        editingTour.stops?.map((stop, idx) => (
+                          <div key={idx} className="group flex gap-4 p-4 bg-white border border-gray-100 rounded-xl hover:border-amber-200 transition-all shadow-sm">
+                            <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0">
+                              {idx + 1}
+                            </div>
+                            <div className="flex-1 space-y-3">
+                              <div className="flex gap-2">
+                                <div className="flex-1 space-y-2">
+                                  <Input
+                                    placeholder="Nom de l'étape"
+                                    value={stop.name}
+                                    onChange={(e) => {
+                                      const newStops = [...(editingTour.stops || [])];
+                                      newStops[idx].name = e.target.value;
+                                      setEditingTour({ ...editingTour, stops: newStops });
+                                    }}
+                                    className="h-9 font-bold"
+                                  />
+                                  <div className="flex gap-2">
+                                    <Input
+                                      placeholder="Image URL (optionnelle)"
+                                      value={stop.image || ''}
+                                      onChange={(e) => {
+                                        const newStops = [...(editingTour.stops || [])];
+                                        newStops[idx].image = e.target.value;
+                                        setEditingTour({ ...editingTour, stops: newStops });
+                                      }}
+                                      className="h-8 text-[10px]"
+                                    />
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-8 px-2 shrink-0"
+                                      type="button"
+                                      onClick={() => {
+                                        const input = document.createElement('input');
+                                        input.type = 'file';
+                                        input.accept = 'image/*';
+                                        input.onchange = async (ev: any) => {
+                                          const file = ev.target.files?.[0];
+                                          if (!file) return;
+                                          const loading = toast.loading("Upload photo étape...");
+                                          try {
+                                            const fileExt = file.name.split('.').pop();
+                                            const fileName = `stops/${editingTour.id}/stop-${idx}-${Date.now()}.${fileExt}`;
+                                            const { error: uploadError } = await supabase!.storage
+                                              .from('tour_images')
+                                              .upload(fileName, file);
+                                            if (uploadError) throw uploadError;
+                                            const { data: { publicUrl } } = supabase!.storage
+                                              .from('tour_images')
+                                              .getPublicUrl(fileName);
+                                            const newStops = [...(editingTour.stops || [])];
+                                            newStops[idx].image = publicUrl;
+                                            setEditingTour({ ...editingTour, stops: newStops });
+                                            toast.success("Photo étape uploadée !", { id: loading });
+                                          } catch (err: any) {
+                                            toast.error("Erreur upload : " + err.message, { id: loading });
+                                          }
+                                        };
+                                        input.click();
+                                      }}
+                                    >
+                                      <Camera className="w-3 h-3 mr-1 text-amber-600" />
+                                      <span className="text-[10px]">Photo</span>
+                                    </Button>
+                                  </div>
+                                  <Textarea
+                                    placeholder="Description de l'étape (optionnelle)"
+                                    value={stop.description || ''}
+                                    onChange={(e) => {
+                                      const newStops = [...(editingTour.stops || [])];
+                                      newStops[idx].description = e.target.value;
+                                      setEditingTour({ ...editingTour, stops: newStops });
+                                    }}
+                                    className="text-xs h-16 min-h-0"
+                                  />
+                                  {stop.image && (
+                                    <div className="w-32 aspect-video rounded-lg overflow-hidden border border-gray-100 mt-1">
+                                      <img src={stop.image} alt={stop.name} className="w-full h-full object-cover" />
+                                    </div>
+                                  )}
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-400 hover:text-red-600 hover:bg-red-50"
+                                  onClick={() => {
+                                    const newStops = editingTour.stops?.filter((_, i) => i !== idx);
+                                    setEditingTour({ ...editingTour, stops: newStops });
+                                  }}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                              <Textarea
+                                placeholder="Petite description ou instructions pour cette étape..."
+                                value={stop.description}
+                                rows={2}
+                                onChange={(e) => {
+                                  const newStops = [...(editingTour.stops || [])];
+                                  newStops[idx].description = e.target.value;
+                                  setEditingTour({ ...editingTour, stops: newStops });
+                                }}
+                                className="text-sm"
+                              />
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </TabsContent>
               </Tabs>
             </div>
           )}
@@ -2057,7 +2489,7 @@ export default function AdminApp() {
             description_en: t.description_en,
             description_es: t.description_es,
             duration: t.duration,
-            group_size: t.group_size,
+            groupSize: t.group_size,
             price: t.price,
             image: t.image,
             category: t.category,

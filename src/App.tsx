@@ -12,6 +12,7 @@ import { Guide } from './components/sections/Guide';
 import { Features } from './components/sections/Features';
 import { Testimonials } from './components/sections/Testimonials';
 import { Contact } from './components/sections/Contact';
+import { LiveJoinDialog } from './components/live/LiveJoinDialog';
 import { BookingModal } from './components/booking/BookingModal';
 import { SEO } from './components/SEO';
 import { WhatsAppButton } from './components/WhatsAppButton';
@@ -28,6 +29,7 @@ function App() {
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
   const [isTourDialogOpen, setIsTourDialogOpen] = useState(false);
   const [viewedTour, setViewedTour] = useState<Tour | null>(null);
+  const [isLiveJoinOpen, setIsLiveJoinOpen] = useState(false);
 
   const [guidePhoto, setGuidePhoto] = useState('/guide-portrait.jpg');
   const [instagramUrl, setInstagramUrl] = useState('https://www.instagram.com/tours_and_detours_bcn/');
@@ -236,6 +238,7 @@ function App() {
         lang={lang}
         setLang={setLang}
         scrollToSection={scrollToSection}
+        onLiveClick={() => setIsLiveJoinOpen(true)}
         t={t}
       />
 
@@ -297,6 +300,13 @@ function App() {
         isOpen={isBookingOpen}
         onOpenChange={setIsBookingOpen}
         tour={selectedTour}
+        lang={lang}
+        t={t}
+      />
+
+      <LiveJoinDialog
+        isOpen={isLiveJoinOpen}
+        onOpenChange={setIsLiveJoinOpen}
         lang={lang}
         t={t}
       />

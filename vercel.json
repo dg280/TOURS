@@ -5,6 +5,10 @@
             "destination": "/admin.html"
         },
         {
+            "source": "/live/(.*)",
+            "destination": "/live.html"
+        },
+        {
             "source": "/(.*)",
             "destination": "/index.html"
         }

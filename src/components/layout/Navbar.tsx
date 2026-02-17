@@ -1,4 +1,4 @@
-import { MapPin, Menu, X } from 'lucide-react';
+import { MapPin, Menu, X, Activity } from 'lucide-react';
 import { type Language } from '@/lib/translations';
 
 interface NavbarProps {
@@ -8,6 +8,7 @@ interface NavbarProps {
     lang: Language;
     setLang: (lang: Language) => void;
     scrollToSection: (id: string) => void;
+    onLiveClick: () => void;
     t: any; // translations object
 }
 
@@ -18,6 +19,7 @@ export const Navbar = ({
     lang,
     setLang,
     scrollToSection,
+    onLiveClick,
     t
 }: NavbarProps) => {
     return (
@@ -47,6 +49,17 @@ export const Navbar = ({
                             {item === 'avis' ? t.nav.avis : item === 'guide' ? t.nav.guide : item === 'contact' ? t.nav.contact : t.nav.tours}
                         </button>
                     ))}
+
+                    <button
+                        onClick={onLiveClick}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all text-xs font-bold uppercase ${isScrolled
+                                ? 'border-amber-600 text-amber-600 hover:bg-amber-50'
+                                : 'border-white/30 text-white hover:bg-white/10'
+                            }`}
+                    >
+                        <Activity className="w-3 h-3" />
+                        {t.nav.live}
+                    </button>
 
                     {/* Language Switcher */}
                     <div className="flex items-center gap-2 ml-2 border-l border-gray-300 pl-4 h-6">
@@ -111,6 +124,16 @@ export const Navbar = ({
                                 {item === 'avis' ? t.nav.avis : item === 'guide' ? t.nav.guide : item === 'contact' ? t.nav.contact : t.nav.tours}
                             </button>
                         ))}
+                        <button
+                            onClick={() => {
+                                onLiveClick();
+                                setIsMobileMenuOpen(false);
+                            }}
+                            className="flex items-center gap-2 text-amber-600 py-2 font-bold uppercase text-left"
+                        >
+                            <Activity className="w-4 h-4" />
+                            {t.nav.live}
+                        </button>
                     </div>
                 </div>
             )}
