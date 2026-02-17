@@ -58,6 +58,7 @@ import {
 } from "@/components/ui/tabs"
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { decodeHTMLEntities, prepareTourForEditing } from '@/lib/utils';
 
 // Types
 interface Reservation {
@@ -125,18 +126,7 @@ interface Review {
 }
 
 // Utility
-const sanitize = (str: string) => {
-  if (typeof str !== 'string') return str;
-  return str.replace(/[&<>"']/g, (m) => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;'
-  }[m] || m));
-};
-
-// Mock Data
+const sanitize = (str: string) => str; // React handles this automatically
 // Mock Data is now handled via the database (default_tours table)
 // No longer using hardcoded mockTours in this file.
 
@@ -1192,7 +1182,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
               <div className="flex justify-between items-center pt-2">
                 <span className="font-bold text-amber-600">{tour.price}€</span>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => { setEditingTour(tour); setIsEditOpen(true); }}>Modifier</Button>
+                  <Button size="sm" variant="outline" onClick={() => { setEditingTour(prepareTourForEditing(tour)); setIsEditOpen(true); }}>Modifier</Button>
                   <Button
                     size="sm"
                     className="bg-amber-600 hover:bg-amber-700"
@@ -1238,22 +1228,22 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                   </div>
                   <div className="space-y-2">
                     <Label className="text-xs uppercase text-gray-400">Catégorie</Label>
-                    <Input value={editingTour.category} onChange={(e) => setEditingTour({ ...editingTour, category: sanitize(e.target.value) })} />
+                    <Input value={editingTour.category} onChange={(e) => setEditingTour({ ...editingTour, category: e.target.value })} />
                   </div>
                 </div>
 
                 <TabsContent value="fr" className="space-y-4">
                   <div className="space-y-2">
                     <Label>Titre (FR)</Label>
-                    <Input value={editingTour.title} onChange={(e) => setEditingTour({ ...editingTour, title: sanitize(e.target.value) })} />
+                    <Input value={editingTour.title} onChange={(e) => setEditingTour({ ...editingTour, title: e.target.value })} />
                   </div>
                   <div className="space-y-2">
                     <Label>Sous-titre (FR)</Label>
-                    <Input value={editingTour.subtitle} onChange={(e) => setEditingTour({ ...editingTour, subtitle: sanitize(e.target.value) })} />
+                    <Input value={editingTour.subtitle} onChange={(e) => setEditingTour({ ...editingTour, subtitle: e.target.value })} />
                   </div>
                   <div className="space-y-2">
                     <Label>Description (FR)</Label>
-                    <Textarea rows={4} value={editingTour.description} onChange={(e) => setEditingTour({ ...editingTour, description: sanitize(e.target.value) })} />
+                    <Textarea rows={4} value={editingTour.description} onChange={(e) => setEditingTour({ ...editingTour, description: e.target.value })} />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -1300,15 +1290,15 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                 <TabsContent value="en" className="space-y-4">
                   <div className="space-y-2">
                     <Label>Title (EN)</Label>
-                    <Input value={editingTour.title_en || ''} onChange={(e) => setEditingTour({ ...editingTour, title_en: sanitize(e.target.value) })} />
+                    <Input value={editingTour.title_en || ''} onChange={(e) => setEditingTour({ ...editingTour, title_en: e.target.value })} />
                   </div>
                   <div className="space-y-2">
                     <Label>Subtitle (EN)</Label>
-                    <Input value={editingTour.subtitle_en || ''} onChange={(e) => setEditingTour({ ...editingTour, subtitle_en: sanitize(e.target.value) })} />
+                    <Input value={editingTour.subtitle_en || ''} onChange={(e) => setEditingTour({ ...editingTour, subtitle_en: e.target.value })} />
                   </div>
                   <div className="space-y-2">
                     <Label>Description (EN)</Label>
-                    <Textarea rows={4} value={editingTour.description_en || ''} onChange={(e) => setEditingTour({ ...editingTour, description_en: sanitize(e.target.value) })} />
+                    <Textarea rows={4} value={editingTour.description_en || ''} onChange={(e) => setEditingTour({ ...editingTour, description_en: e.target.value })} />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -1355,15 +1345,15 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                 <TabsContent value="es" className="space-y-4">
                   <div className="space-y-2">
                     <Label>Título (ES)</Label>
-                    <Input value={editingTour.title_es || ''} onChange={(e) => setEditingTour({ ...editingTour, title_es: sanitize(e.target.value) })} />
+                    <Input value={editingTour.title_es || ''} onChange={(e) => setEditingTour({ ...editingTour, title_es: e.target.value })} />
                   </div>
                   <div className="space-y-2">
                     <Label>Subtítulo (ES)</Label>
-                    <Input value={editingTour.subtitle_es || ''} onChange={(e) => setEditingTour({ ...editingTour, subtitle_es: sanitize(e.target.value) })} />
+                    <Input value={editingTour.subtitle_es || ''} onChange={(e) => setEditingTour({ ...editingTour, subtitle_es: e.target.value })} />
                   </div>
                   <div className="space-y-2">
                     <Label>Descripción (ES)</Label>
-                    <Textarea rows={4} value={editingTour.description_es || ''} onChange={(e) => setEditingTour({ ...editingTour, description_es: sanitize(e.target.value) })} />
+                    <Textarea rows={4} value={editingTour.description_es || ''} onChange={(e) => setEditingTour({ ...editingTour, description_es: e.target.value })} />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">

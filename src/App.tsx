@@ -17,6 +17,7 @@ import { BookingModal } from './components/booking/BookingModal';
 import { SEO } from './components/SEO';
 import { WhatsAppButton } from './components/WhatsAppButton';
 import type { Tour } from './lib/types';
+import { prepareTourForEditing } from './lib/utils';
 import './App.css';
 
 function App() {
@@ -70,7 +71,7 @@ function App() {
         const { data: toursData, error: toursError } = await supabase.from('tours').select('*');
         if (toursError) console.error('Error fetching tours:', toursError);
         else if (toursData && toursData.length > 0) {
-          const mapped = toursData.map(t => ({
+          const mapped = toursData.map(t => prepareTourForEditing({
             id: Number(t.id) || t.id,
             title: t.title,
             title_en: t.title_en,
