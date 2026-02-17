@@ -205,6 +205,21 @@
   background: rgba(217, 119, 6, 0.4);
 }
 
+/* Background Patterns */
+.bg-pattern-dots {
+  background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.bg-pattern-amber {
+  background-image: radial-gradient(#fcd34d 0.5px, transparent 0.5px);
+  background-size: 15px 15px;
+}
+
+.bg-premium-white {
+  @apply bg-[#FAF9F6];
+}
+
 /* Hide scrollbar utility */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
