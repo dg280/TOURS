@@ -14,4 +14,10 @@ description: Procédure de vérification avant recette
 3. Si le déploiement est prêt, ouvrir l'URL de production :
 `https://tours-five-olive.vercel.app/`
 
-4. Valider les points spécifiques demandés par l'utilisateur.
+4. **Lancer les tests de non-régression** :
+// turbo
+`npm run test`
+*Note : Cela garantit que les correctifs passés (Cookies, WhatsApp, etc.) sont toujours fonctionnels.*
+
+5. Valider les points spécifiques demandés par l'utilisateur en suivant le [Plan de Recette](file:///Users/dgenevois/.gemini/antigravity/scratch/TOURS/docs/QA_STRATEGY.md).
+
