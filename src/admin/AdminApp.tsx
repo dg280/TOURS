@@ -657,54 +657,43 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
   const handleTourImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0 && editingTour) {
-      const newImages = [...(editingTour.images || [])];
+      const loading = toast.loading(`Upload de ${files.length} image(s)...`);
+      try {
+        const newImages = [...(editingTour.images || [])];
 
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (file.size > 5 * 1024 * 1024) {
-          toast.error(`${file.name} est trop volumineuse (max 5MB)`);
-          continue;
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          if (file.size > 10 * 1024 * 1024) {
+            toast.error(`${file.name} est trop volumineuse (max 10MB)`);
+            continue;
+          }
+
+          const fileExt = file.name.split('.').pop();
+          const fileName = `tours/${editingTour.id}/${Date.now()}-${i}.${fileExt}`;
+
+          const { error: uploadError } = await supabase!.storage
+            .from('tour_images')
+            .upload(fileName, file);
+
+          if (uploadError) throw uploadError;
+
+          const { data: { publicUrl } } = supabase!.storage
+            .from('tour_images')
+            .getPublicUrl(fileName);
+
+          newImages.push(publicUrl);
         }
 
-        const promise = new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            const img = new Image();
-            img.onload = () => {
-              const canvas = document.createElement('canvas');
-              let width = img.width;
-              let height = img.height;
-              const maxDim = 1200;
-
-              if (width > height && width > maxDim) {
-                height *= maxDim / width;
-                width = maxDim;
-              } else if (height > maxDim) {
-                width *= maxDim / height;
-                height = maxDim;
-              }
-
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              ctx?.drawImage(img, 0, 0, width, height);
-              resolve(canvas.toDataURL('image/jpeg', 0.8));
-            };
-            img.src = reader.result as string;
-          };
-          reader.readAsDataURL(file);
+        setEditingTour({
+          ...editingTour,
+          image: newImages[0] || editingTour.image,
+          images: newImages
         });
-
-        const base64 = await promise;
-        newImages.push(base64);
+        toast.success(`${files.length} image(s) uploadée(s) avec succès !`, { id: loading });
+      } catch (err: any) {
+        console.error('Upload error:', err);
+        toast.error("Erreur d'upload : " + err.message, { id: loading });
       }
-
-      setEditingTour({
-        ...editingTour,
-        image: newImages[0] || editingTour.image,
-        images: newImages
-      });
-      toast.success(`${files.length} image(s) chargée(s) localement.`);
     }
   };
 

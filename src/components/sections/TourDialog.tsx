@@ -12,6 +12,13 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs";
+import {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
+} from "@/components/ui/carousel";
 import type { Tour } from '@/lib/types';
 
 interface TourDialogProps {
@@ -37,12 +44,34 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, t, onBookNow }: TourDia
 
                         <div className="grid lg:grid-cols-3 gap-10">
                             <div className="lg:col-span-2 space-y-6">
-                                <div className="aspect-video rounded-xl overflow-hidden shadow-md">
-                                    <img
-                                        src={tour.image}
-                                        alt={tour.title}
-                                        className="w-full h-full object-cover"
-                                    />
+                                <div className="aspect-video rounded-xl overflow-hidden shadow-md bg-gray-100 relative group">
+                                    {(tour.images && tour.images.length > 0) ? (
+                                        <Carousel className="w-full h-full">
+                                            <CarouselContent>
+                                                {tour.images.map((img, i) => (
+                                                    <CarouselItem key={i}>
+                                                        <img
+                                                            src={img}
+                                                            alt={`${tour.title} ${i + 1}`}
+                                                            className="w-full h-full object-cover aspect-video"
+                                                        />
+                                                    </CarouselItem>
+                                                ))}
+                                            </CarouselContent>
+                                            {tour.images.length > 1 && (
+                                                <>
+                                                    <CarouselPrevious className="left-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                    <CarouselNext className="right-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                </>
+                                            )}
+                                        </Carousel>
+                                    ) : (
+                                        <img
+                                            src={tour.image}
+                                            alt={tour.title}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    )}
                                 </div>
 
                                 <Tabs defaultValue="desc" className="w-full">
