@@ -45,8 +45,8 @@ export const Navbar = ({
     return (
         <nav
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled
-                ? 'bg-white/95 nav-blur shadow-sm py-6'
-                : 'bg-transparent py-10'
+                ? 'bg-white/95 nav-blur shadow-md py-4'
+                : 'bg-transparent py-8'
                 }`}
         >
             <div className="container-custom flex items-center justify-between">
@@ -81,8 +81,8 @@ export const Navbar = ({
                                 }
                             }}
                             className={cn(
-                                "relative text-[11px] font-black uppercase tracking-widest transition-all px-2 py-1 h-full flex flex-col items-center justify-center group",
-                                isScrolled || view === 'about' ? 'text-gray-400 hover:text-amber-600' : 'text-white/70 hover:text-white',
+                                "relative text-xs font-bold uppercase tracking-widest transition-all px-2 py-1 h-full flex flex-col items-center justify-center group",
+                                isScrolled || view === 'about' ? 'text-gray-600 hover:text-amber-600' : 'text-white/80 hover:text-white',
                                 (view === 'about' && activeSection === item) || (view === 'home' && item === 'about' && false) ? 'text-amber-600' : ''
                             )}
                         >
@@ -113,9 +113,9 @@ export const Navbar = ({
                             <button
                                 key={l}
                                 onClick={() => setLang(l)}
-                                className={`text-[10px] font-black uppercase transition-all ${lang === l
-                                    ? 'text-amber-600 border border-amber-600 px-1.5 py-0.5 rounded'
-                                    : (isScrolled || view === 'about' ? 'text-gray-400 hover:text-gray-600' : 'text-white/60 hover:text-white')
+                                className={`text-xs font-bold uppercase transition-all ${lang === l
+                                    ? 'text-amber-600 border border-amber-600/30 bg-amber-50/50 px-2 py-0.5 rounded'
+                                    : (isScrolled || view === 'about' ? 'text-gray-500 hover:text-gray-900' : 'text-white/70 hover:text-white')
                                     }`}
                             >
                                 {l}

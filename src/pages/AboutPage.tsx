@@ -26,28 +26,9 @@ export const AboutPage = ({ t, guidePhoto, guideBio, onBackToHome }: AboutPagePr
                 <div className="absolute top-0 left-0 w-full h-[600px] mesh-gradient-light opacity-60 -z-10" />
 
                 <div className="container-custom relative">
-                    <div className="flex flex-col lg:flex-row items-center lg:items-end gap-12 lg:gap-20">
-                        {/* Photo: High placed and integrated */}
-                        <div className="w-full max-w-[420px] lg:w-5/12 relative group">
-                            <div className="absolute -inset-4 bg-amber-100/50 rounded-[2.5rem] blur-2xl group-hover:bg-amber-200/50 transition-colors duration-700" />
-                            <div className="relative rounded-[2rem] overflow-hidden shadow-2xl aspect-[4/5] border-[12px] border-white">
-                                <img
-                                    src={guidePhoto}
-                                    alt="Guide"
-                                    className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-110"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60" />
-                            </div>
-
-                            {/* Floating Stats - Subtle Apple style */}
-                            <div className="absolute -bottom-6 -right-6 glass-card px-8 py-6 rounded-3xl hidden md:block border-white/40 ring-1 ring-black/5 animate-fade-in delay-300">
-                                <p className="text-premium-tight text-5xl text-amber-600">15+</p>
-                                <p className="text-[10px] font-black uppercase tracking-[0.3em] mt-2 text-gray-500 opacity-80">{at.me.exp}</p>
-                            </div>
-                        </div>
-
-                        {/* Text Content: Overlapping Feel */}
-                        <div className="flex-1 space-y-8 lg:pb-8">
+                    <div className="flex flex-col lg:flex-row items-start gap-12 lg:gap-20">
+                        {/* Text Content: Bio on the left/first on mobile */}
+                        <div className="flex-1 space-y-8 lg:pb-8 order-2 lg:order-1">
                             <div className="inline-flex items-center gap-3 px-4 py-1.5 glass-card rounded-full border-white/50 shadow-sm">
                                 <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
                                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-700">{at.me.badge}</span>
@@ -63,6 +44,27 @@ export const AboutPage = ({ t, guidePhoto, guideBio, onBackToHome }: AboutPagePr
                                         {para}
                                     </p>
                                 ))}
+                            </div>
+                        </div>
+
+                        {/* Photo: Sticky on the right/top on mobile */}
+                        <div className="w-full max-w-[420px] lg:w-5/12 lg:sticky lg:top-32 order-1 lg:order-2">
+                            <div className="relative group">
+                                <div className="absolute -inset-4 bg-amber-100/50 rounded-[2.5rem] blur-2xl group-hover:bg-amber-200/50 transition-colors duration-700" />
+                                <div className="relative rounded-[2rem] overflow-hidden shadow-2xl aspect-[4/5] border-[12px] border-white bg-white">
+                                    <img
+                                        src={guidePhoto}
+                                        alt="Guide"
+                                        className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-110"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-40" />
+                                </div>
+
+                                {/* Floating Stats - Subtle Apple style */}
+                                <div className="absolute -bottom-6 -right-6 glass-card px-8 py-6 rounded-3xl hidden md:block border-white/40 ring-1 ring-black/5 animate-fade-in delay-300">
+                                    <p className="text-premium-tight text-5xl text-amber-600">15+</p>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] mt-2 text-gray-500 opacity-80">{at.me.exp}</p>
+                                </div>
                             </div>
                         </div>
                     </div>

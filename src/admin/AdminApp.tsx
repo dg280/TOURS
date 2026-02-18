@@ -1214,8 +1214,20 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                     <Input type="number" value={editingTour.price} onChange={(e) => setEditingTour({ ...editingTour, price: parseInt(e.target.value) })} />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-xs uppercase text-gray-400">Catégorie</Label>
-                    <Input value={editingTour.category} onChange={(e) => setEditingTour({ ...editingTour, category: e.target.value })} />
+                    <Label className="text-xs uppercase text-gray-400 font-bold">Catégorie</Label>
+                    <Select
+                      value={editingTour.category}
+                      onValueChange={(val) => setEditingTour({ ...editingTour, category: val })}
+                    >
+                      <SelectTrigger className="w-full text-xs font-bold">
+                        <SelectValue placeholder="Choisir une catégorie" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Nature">Nature</SelectItem>
+                        <SelectItem value="Rando">Rando</SelectItem>
+                        <SelectItem value="Walking Tour">Walking Tour</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
