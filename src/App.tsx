@@ -367,7 +367,7 @@ function App() {
         t={t}
       />
 
-      {!isBookingOpen && <WhatsAppButton lang={lang} />}
+      {!isBookingOpen && !isTourDialogOpen && !isLiveJoinOpen && <WhatsAppButton lang={lang} />}
       {showCookieConsent && (
         <CookieConsent
           lang={lang}
