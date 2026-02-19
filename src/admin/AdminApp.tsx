@@ -814,12 +814,12 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
       }
       toast.success("Tout le catalogue est synchronisé sur Supabase !", { id: loadingToast });
     } catch (err) {
-      const error = err as Error;
-      console.error('Sync error:', err);
-      if (err.code === '42P01') {
+      const error = err as any;
+      console.error('Sync error:', error);
+      if (error.code === '42P01') {
         toast.error("La table 'tours' n'existe pas. Avez-vous exécuté le SQL dans Supabase ?", { id: loadingToast });
       } else {
-        toast.error("Échec de la synchronisation : " + err.message, { id: loadingToast });
+        toast.error("Échec de la synchronisation : " + (error.message || 'Erreur inconnue'), { id: loadingToast });
       }
     } finally {
       setIsSyncing(false);
@@ -1622,8 +1622,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                                             setEditingTour({ ...editingTour, stops: newStops });
                                             toast.success("Photo étape uploadée !", { id: loading });
                                           } catch (err) {
-                                            const error = err as Error;
-                                            toast.error("Erreur upload : " + err.message, { id: loading });
+                                            toast.error("Erreur upload : " + (err as Error).message, { id: loading });
                                           }
                                         };
                                         input.click();
