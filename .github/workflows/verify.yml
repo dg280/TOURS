@@ -2,9 +2,9 @@ name: Verify & Test
 
 on:
   push:
-    branches: [ main, fix-antoine ]
+    branches: [ '**' ]
   pull_request:
-    branches: [ main ]
+    branches: [ '**' ]
 
 jobs:
   verify:

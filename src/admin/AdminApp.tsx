@@ -58,7 +58,7 @@ import {
 } from "@/components/ui/tabs"
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { prepareTourForEditing } from '@/lib/utils';
+import { prepareTourForEditing, extractIframeSrc } from '@/lib/utils';
 
 // Types
 interface Reservation {
@@ -95,7 +95,8 @@ interface Tour {
   highlights: string[];
   highlights_en?: string[];
   highlights_es?: string[];
-  category: string;
+  category: string | string[];
+  pricing_tiers?: Record<number, number>;
   isActive: boolean;
   itinerary?: string[];
   itinerary_en?: string[];
@@ -732,8 +733,9 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
             meeting_point: editingTour.meetingPoint,
             meeting_point_en: editingTour.meetingPoint_en,
             meeting_point_es: editingTour.meetingPoint_es,
+            meeting_point_map_url: extractIframeSrc(editingTour.meetingPointMapUrl || ''),
             images: editingTour.images,
-            meeting_point_map_url: editingTour.meetingPointMapUrl,
+            pricing_tiers: editingTour.pricing_tiers || {},
             stops: editingTour.stops || [],
             stripe_tip_link: editingTour.stripe_tip_link
           };
@@ -1150,8 +1152,10 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
               groupSize: '',
               price: 0,
               image: '',
+              images: [],
               highlights: [],
-              category: 'Tour',
+              category: [],
+              pricing_tiers: {},
               isActive: true
             });
             setIsEditOpen(true);
@@ -1204,31 +1208,122 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                 </TabsList>
 
                 {/* Common Fields */}
-                <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                {/* Common Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
                   <div className="space-y-2">
                     <Label className="text-xs uppercase text-gray-400">ID du tour</Label>
                     <Input value={editingTour.id} disabled className="bg-gray-100" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-xs uppercase text-gray-400">Prix (€)</Label>
+                    <Label className="text-xs uppercase text-gray-400">Prix de base (€)</Label>
                     <Input type="number" value={editingTour.price} onChange={(e) => setEditingTour({ ...editingTour, price: parseInt(e.target.value) })} />
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs uppercase text-gray-400 font-bold">Catégorie</Label>
-                    <Select
-                      value={editingTour.category}
-                      onValueChange={(val) => setEditingTour({ ...editingTour, category: val })}
-                    >
-                      <SelectTrigger className="w-full text-xs font-bold">
-                        <SelectValue placeholder="Choisir une catégorie" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Nature">Nature</SelectItem>
-                        <SelectItem value="Rando">Rando</SelectItem>
-                        <SelectItem value="Walking Tour">Walking Tour</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <div className="md:col-span-2 space-y-2">
+                    <Label className="text-xs uppercase text-gray-400 font-bold">Catégories (Sélectionnez plusieurs)</Label>
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {[
+                        { id: 'nature', label: 'Nature' },
+                        { id: 'rando', label: 'Rando' },
+                        { id: 'walking', label: 'Walking Tour' },
+                        { id: 'gastro', label: 'Gastronomie' },
+                        { id: 'views', label: 'Vues spectaculaires' },
+                        { id: 'culture', label: 'Culturel' },
+                        { id: 'urban', label: 'Aventure urbaine' },
+                        { id: 'bcn', label: 'Barcelona city' },
+                        { id: 'outside', label: 'Outside of Barcelona' }
+                      ].map((cat) => {
+                        const isSelected = Array.isArray(editingTour.category)
+                          ? editingTour.category.includes(cat.id)
+                          : editingTour.category === cat.id;
+
+                        return (
+                          <Badge
+                            key={cat.id}
+                            variant={isSelected ? "default" : "outline"}
+                            className={cn(
+                              "cursor-pointer font-bold py-1.5 px-3 transition-all",
+                              isSelected ? "bg-amber-600 text-white" : "hover:border-amber-200 hover:text-amber-600"
+                            )}
+                            onClick={() => {
+                              const currentCats = Array.isArray(editingTour.category)
+                                ? [...editingTour.category]
+                                : editingTour.category ? [editingTour.category] : [];
+
+                              if (isSelected) {
+                                setEditingTour({
+                                  ...editingTour,
+                                  category: currentCats.filter(c => c !== cat.id)
+                                });
+                              } else {
+                                setEditingTour({
+                                  ...editingTour,
+                                  category: [...currentCats, cat.id]
+                                });
+                              }
+                            }}
+                          >
+                            {cat.label}
+                          </Badge>
+                        );
+                      })}
+                    </div>
                   </div>
+                </div>
+
+                {/* Tiered Pricing Section */}
+                <div className="mb-6 p-4 bg-amber-50 rounded-xl border border-amber-100">
+                  <div className="flex justify-between items-center mb-4">
+                    <Label className="text-xs uppercase text-amber-700 font-bold">Tarification par nombre de participants (Manuel)</Label>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 text-[10px] uppercase font-bold"
+                      onClick={() => {
+                        const nextPax = Object.keys(editingTour.pricing_tiers || {}).length + 1;
+                        setEditingTour({
+                          ...editingTour,
+                          pricing_tiers: {
+                            ...(editingTour.pricing_tiers || {}),
+                            [nextPax]: (editingTour.price || 0) * nextPax
+                          }
+                        });
+                      }}
+                    >
+                      <Plus className="w-3 h-3 mr-1" /> Ajouter un palier
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                    {Object.entries(editingTour.pricing_tiers || {}).sort(([a], [b]) => Number(a) - Number(b)).map(([pax, price]) => (
+                      <div key={pax} className="space-y-1">
+                        <Label className="text-[10px] text-amber-600 font-bold">{pax} PAX (€)</Label>
+                        <div className="relative">
+                          <Input
+                            type="number"
+                            className="bg-white pr-7 h-9 text-xs font-bold"
+                            value={String(price)}
+                            onChange={(e) => {
+                              const newTiers = { ...(editingTour.pricing_tiers || {}) };
+                              newTiers[Number(pax)] = parseInt(e.target.value) || 0;
+                              setEditingTour({ ...editingTour, pricing_tiers: newTiers });
+                            }}
+                          />
+                          <button
+                            onClick={() => {
+                              const newTiers = { ...(editingTour.pricing_tiers || {}) };
+                              delete newTiers[Number(pax)];
+                              setEditingTour({ ...editingTour, pricing_tiers: newTiers });
+                            }}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-amber-600/60 mt-3 italic">
+                    Si défini, ce prix sera utilisé à la place du calcul automatique (Prix x Participants).
+                  </p>
                 </div>
 
                 <TabsContent value="fr" className="space-y-4">

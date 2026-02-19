@@ -39,6 +39,7 @@ function App() {
   const [guideBio, setGuideBio] = useState('');
   const [customTours, setCustomTours] = useState<Tour[]>([]);
   const [dbTours, setDbTours] = useState<Tour[]>([]);
+  const [dbReviews, setDbReviews] = useState<any[]>([]);
   // suppresses unused warning but keeps it for potential future browser-side cookie logic
   const [showCookieConsent, setShowCookieConsent] = useState(false);
 
@@ -64,7 +65,13 @@ function App() {
 
     const savedTours = localStorage.getItem('td-tours');
     if (savedTours) setCustomTours(JSON.parse(savedTours));
+  }, []);
 
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         if (!supabase) return;
@@ -105,9 +112,24 @@ function App() {
             meetingPoint_en: t.meeting_point_en,
             meetingPoint_es: t.meeting_point_es,
             meetingPointMapUrl: t.meeting_point_map_url,
-            images: t.images || []
+            images: t.images || [],
+            pricing_tiers: t.pricing_tiers || {}
           }));
           setDbTours(mapped as Tour[]);
+        }
+
+        // Fetch reviews
+        const { data: reviewsData, error: reviewsError } = await supabase.from('reviews').select('*').eq('is_published', true).order('created_at', { ascending: false });
+        if (reviewsError) console.error('Error fetching reviews:', reviewsError);
+        else if (reviewsData) {
+          setDbReviews(reviewsData.map(r => ({
+            id: r.id,
+            name: r.name,
+            loc: r.location,
+            rating: r.rating,
+            text: r.text,
+            avatar: r.name.charAt(0).toUpperCase() + (r.name.split(' ')[1]?.charAt(0).toUpperCase() || '')
+          })));
         }
 
         // Fetch site_config - using 'key' instead of 'id'
@@ -165,6 +187,8 @@ function App() {
       image: getVal(base.image, db?.image, custom?.image),
       duration: getVal(base.duration, db?.duration, custom?.duration),
       groupSize: getVal(base.groupSize, db?.groupSize, custom?.groupSize),
+      category: getVal(base.category, db?.category, custom?.category),
+      pricing_tiers: db?.pricing_tiers || custom?.pricing_tiers || base.pricing_tiers || {}
     };
 
     if (lang === 'en') {
@@ -230,13 +254,18 @@ function App() {
     }
   };
 
+  const handleTourClick = (tour: Tour) => {
+    setViewedTour(tour);
+    setIsTourDialogOpen(true);
+  };
+
   const handleBookingStart = (tour?: Tour) => {
     setSelectedTour(tour || tours[0]);
     setIsBookingOpen(true);
   };
 
-  // Use translated testimonials from translations.ts
-  const testimonials = (t as any).testimonials_data || [];
+  // Use translated testimonials from translations.ts as fallback
+  const testimonials = dbReviews.length > 0 ? dbReviews : (t as any).testimonials_data || [];
 
   const [activeSection, setActiveSection] = useState('home');
 
@@ -301,15 +330,17 @@ function App() {
             {/* Bloc 1: Carousel des 3 meilleurs tours */}
             <TopToursCarousel
               tours={tours}
+              lang={lang}
               t={t}
-              onTourClick={(tour) => { setViewedTour(tour); setIsTourDialogOpen(true); }}
+              onTourClick={handleTourClick}
             />
 
             {/* Bloc 2: Carousel par type de tour */}
             <CategoryToursCarousel
               tours={tours}
+              lang={lang}
               t={t}
-              onTourClick={(tour) => { setViewedTour(tour); setIsTourDialogOpen(true); }}
+              onTourClick={handleTourClick}
             />
 
             {/* Bloc 3: About Hook */}
@@ -348,6 +379,7 @@ function App() {
         tour={viewedTour}
         isOpen={isTourDialogOpen}
         onOpenChange={setIsTourDialogOpen}
+        lang={lang}
         t={t}
         onBookNow={(tour) => handleBookingStart(tour)}
       />

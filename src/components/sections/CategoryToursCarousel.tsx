@@ -1,29 +1,42 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
-import { ChevronLeft, ChevronRight, Leaf, Footprints, PersonStanding } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Leaf, Footprints, PersonStanding, Utensils, Mountain, Landmark, Camera, Building2, Map } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Tour } from '@/lib/types';
+import type { Language } from '@/lib/translations';
 
 interface CategoryToursCarouselProps {
     tours: Tour[];
+    lang: Language;
     t: any;
     onTourClick: (tour: Tour) => void;
 }
 
 const CATEGORIES = [
-    { id: 'Nature', icon: Leaf, label_key: 'nature' },
-    { id: 'Rando', icon: Footprints, label_key: 'rando' },
-    { id: 'Walking Tour', icon: PersonStanding, label_key: 'walking' }
+    { id: 'nature', icon: Leaf },
+    { id: 'rando', icon: Footprints },
+    { id: 'walking', icon: PersonStanding },
+    { id: 'gastro', icon: Utensils },
+    { id: 'views', icon: Mountain },
+    { id: 'culture', icon: Landmark },
+    { id: 'urban', icon: Building2 },
+    { id: 'bcn', icon: Camera },
+    { id: 'outside', icon: Map }
 ];
 
-export const CategoryToursCarousel = ({ tours, t, onTourClick }: CategoryToursCarouselProps) => {
-    const [activeCategory, setActiveCategory] = useState('Nature');
+export const CategoryToursCarousel = ({ tours, lang, t, onTourClick }: CategoryToursCarouselProps) => {
+    const [activeCategory, setActiveCategory] = useState('nature');
 
     const filteredTours = useMemo(() => {
         return tours.filter(tour => {
-            const cat = tour.category || '';
-            return cat.toLowerCase().includes(activeCategory.toLowerCase());
+            if (!tour.category) return false;
+
+            const tourCats = Array.isArray(tour.category)
+                ? tour.category
+                : [tour.category];
+
+            return tourCats.some(cat => cat.toLowerCase() === activeCategory.toLowerCase());
         });
     }, [tours, activeCategory]);
 
@@ -63,7 +76,7 @@ export const CategoryToursCarousel = ({ tours, t, onTourClick }: CategoryToursCa
                                     )}
                                 >
                                     <Icon className="w-5 h-5" />
-                                    {cat.label_key === 'nature' ? 'Nature' : cat.label_key === 'rando' ? 'Rando' : 'Walking Tour'}
+                                    {t.tours.categories?.[cat.id] || cat.id}
                                 </button>
                             );
                         })}
@@ -91,8 +104,12 @@ export const CategoryToursCarousel = ({ tours, t, onTourClick }: CategoryToursCa
                                                 </div>
                                             </div>
                                             <div className="p-5 flex-1 flex flex-col">
-                                                <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-1">{tour.title}</h3>
-                                                <p className="text-sm text-gray-500 mb-4">{tour.duration}</p>
+                                                <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-1">
+                                                    {lang === 'en' ? (tour.title_en || tour.title) : lang === 'es' ? (tour.title_es || tour.title) : tour.title}
+                                                </h3>
+                                                <p className="text-sm text-gray-500 mb-4">
+                                                    {t.tours.duration_labels[tour.duration] || tour.duration}
+                                                </p>
 
                                                 <Button
                                                     variant="outline"
@@ -106,7 +123,7 @@ export const CategoryToursCarousel = ({ tours, t, onTourClick }: CategoryToursCa
                                 ))
                             ) : (
                                 <div className="w-full text-center py-20 text-gray-400 italic">
-                                    Aucun tour trouvé dans cette catégorie.
+                                    {t.tours.no_tours_found || 'Aucun tour trouvé dans cette catégorie.'}
                                 </div>
                             )}
                         </div>

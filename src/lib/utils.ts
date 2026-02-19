@@ -40,3 +40,10 @@ export const prepareTourForEditing = (tour: Tour | any): any => {
   };
   return decode(tour);
 };
+export const extractIframeSrc = (input: string): string => {
+  if (!input) return '';
+  if (!input.includes('<iframe')) return input.trim();
+
+  const match = input.match(/src=["']([^"']+)["']/);
+  return match ? match[1] : input.trim();
+};

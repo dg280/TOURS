@@ -14,7 +14,8 @@ export interface Tour {
     price: number;
     image: string;
     images?: string[];
-    category: string;
+    category: string | string[];
+    pricing_tiers?: Record<number, number>;
     highlights: string[];
     highlights_en?: string[];
     highlights_es?: string[];

@@ -4,14 +4,16 @@ import { ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Tour } from '@/lib/types';
+import type { Language } from '@/lib/translations';
 
 interface TopToursCarouselProps {
     tours: Tour[];
+    lang: Language;
     t: any;
     onTourClick: (tour: Tour) => void;
 }
 
-export const TopToursCarousel = ({ tours, t, onTourClick }: TopToursCarouselProps) => {
+export const TopToursCarousel = ({ tours, lang, t, onTourClick }: TopToursCarouselProps) => {
     // For now, we take the first 3 tours as "top"
     // In a real scenario, this could be filtered by an 'isFeatured' flag
     const topTours = tours;
@@ -48,13 +50,16 @@ export const TopToursCarousel = ({ tours, t, onTourClick }: TopToursCarouselProp
         <section id="top-tours" className="section-padding bg-gray-50 overflow-hidden">
             <div className="container-custom">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
-                    <div>
+                    <div className="max-w-3xl">
                         <p className="text-amber-600 font-medium mb-2 uppercase tracking-wider text-sm">
-                            {(t as any).tours.selection_tag || 'Sélection du guide'}
+                            {(t as any).tours.selection_tag || 'Sélection du tour'}
                         </p>
-                        <h2 className="text-3xl md:text-5xl font-bold text-gray-900">
+                        <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
                             {(t as any).tours.top_tours_title || 'Nos tours incontournables'}
                         </h2>
+                        <p className="text-gray-600 text-lg leading-relaxed">
+                            {(t as any).tours.top_tours_desc}
+                        </p>
                     </div>
                 </div>
 
@@ -70,7 +75,7 @@ export const TopToursCarousel = ({ tours, t, onTourClick }: TopToursCarouselProp
                                         <div className="relative h-64 md:h-56 overflow-hidden">
                                             <img
                                                 src={tour.image}
-                                                alt={tour.title}
+                                                alt={lang === 'en' ? (tour.title_en || tour.title) : lang === 'es' ? (tour.title_es || tour.title) : tour.title}
                                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                             />
                                             <div className="absolute top-3 left-3">
@@ -84,17 +89,19 @@ export const TopToursCarousel = ({ tours, t, onTourClick }: TopToursCarouselProp
                                         </div>
 
                                         <div className="p-6 flex-1 flex flex-col">
-                                            <h3 className="text-xl font-bold text-gray-900 mb-2">{tour.title}</h3>
+                                            <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                                {lang === 'en' ? (tour.title_en || tour.title) : lang === 'es' ? (tour.title_es || tour.title) : tour.title}
+                                            </h3>
 
                                             <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
                                                 <span className="flex items-center gap-1">
                                                     <Clock className="w-4 h-4 text-amber-600" />
-                                                    {tour.duration}
+                                                    {t.tours.duration_labels[tour.duration] || tour.duration}
                                                 </span>
                                             </div>
 
                                             <div className="flex flex-wrap gap-1 mb-6">
-                                                {tour.highlights.slice(0, 3).map((h, i) => (
+                                                {(lang === 'en' ? (tour.highlights_en || tour.highlights) : lang === 'es' ? (tour.highlights_es || tour.highlights) : tour.highlights).slice(0, 3).map((h, i) => (
                                                     <span key={i} className="text-[10px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded uppercase font-bold tracking-tight">
                                                         {h}
                                                     </span>

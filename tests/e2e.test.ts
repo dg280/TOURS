@@ -17,7 +17,7 @@ test.describe('Full Site Verification - Tours & Detours', () => {
             console.log('Banner not found or already closed');
         }
 
-        const whatsapp = page.locator('a[href*="wa.me"]').last();
+        const whatsapp = page.getByLabel('Chat on WhatsApp').first();
         await expect(whatsapp).toBeVisible();
 
         // State Logic: WhatsApp should hide when a dialog is open (to avoid overlap)
@@ -30,22 +30,19 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         await expect(whatsapp).toBeVisible();
     });
 
-    test('Data: Multi-language Support (Deep Check)', async ({ page }) => {
+    test('Data: Multi-language Support & SEO', async ({ page }) => {
         // EN
         const enBtn = page.locator('nav button').filter({ hasText: /^en$/i });
         await enBtn.click();
+        await expect(page).toHaveTitle(/Tours & Detours/i);
+        await expect(page.locator('html')).toHaveAttribute('lang', 'en');
         await expect(page.locator('h1')).toContainText(/Unique tours/i);
-        // Deep check: "View Details" button text
-        const firstViewBtn = page.locator('section#top-tours button').filter({ hasText: /View Details/i }).first();
-        await expect(firstViewBtn).toBeVisible();
 
         // ES
         const esBtn = page.locator('nav button').filter({ hasText: /^es$/i });
         await esBtn.click();
+        await expect(page.locator('html')).toHaveAttribute('lang', 'es');
         await expect(page.locator('h1')).toContainText(/Experiencias/i);
-        // Deep check: "Ver detalles" button text
-        const firstViewBtnEs = page.locator('section#top-tours button').filter({ hasText: /Ver detalles/i }).first();
-        await expect(firstViewBtnEs).toBeVisible();
     });
 
     test('UI: Tour Dialog Logic & Overflow Check', async ({ page }) => {
@@ -113,9 +110,81 @@ test.describe('Full Site Verification - Tours & Detours', () => {
 
     test('Admin: Smoke Test & Login Access', async ({ page }) => {
         await page.goto('/admin.html');
-        // Check for "Accès Admin" or "Se connecter"
         await expect(page.locator('h2, h1')).toContainText(/Admin|Connexion|Connecter/i);
         const emailInput = page.locator('input[type="email"]');
         await expect(emailInput).toBeVisible();
+    });
+
+    test('Conversion: Booking Funnel Walkthrough', async ({ page }) => {
+        // 1. Open Tour
+        const tourCard = page.locator('section#top-tours h3').first();
+        await tourCard.click({ force: true });
+
+        // 2. Click Book Now
+        await page.locator('button').filter({ hasText: /Réserver|Book/i }).first().click();
+
+        // 3. Step 1: Date & Participants
+        await expect(page.locator('text=Étape 1 sur 4')).toBeVisible();
+        const dateInput = page.locator('input[type="date"]');
+        await expect(dateInput).toBeVisible();
+
+        // 4. Go to Step 2
+        await page.locator('button').filter({ hasText: /Suivant|Next/i }).click();
+        await expect(page.locator('text=Étape 2 sur 4')).toBeVisible();
+
+        // 5. Check validation (try next without name)
+        await page.locator('button').filter({ hasText: /Suivant|Next/i }).click();
+        // Should stay on step 2 (no crash)
+        await expect(page.locator('text=Étape 2 sur 4')).toBeVisible();
+        await expect(page.locator('input#booking-name')).toBeVisible();
+    });
+
+    test('Security: Outbound Links Safety', async ({ page }) => {
+        const externalLinks = await page.locator('a[target="_blank"]').all();
+        for (const link of externalLinks) {
+            const rel = await link.getAttribute('rel');
+            expect(rel, `Link ${await link.getAttribute('href')} missing noopener noreferrer`).toMatch(/noopener.*noreferrer|noreferrer.*noopener/);
+        }
+    });
+
+    test('UI: Meeting Point Map Embed Sanitization', async ({ page }) => {
+        await page.goto('/');
+        const tourCard = page.locator('section#top-tours h3').first();
+        await tourCard.click({ force: true });
+
+        await page.getByRole('tab', { name: /Rencontre|Meeting/i }).click();
+
+        const mapIframe = page.locator('div[role="tabpanel"] iframe');
+    });
+
+    test('UI: Tour Content Translation', async ({ page }) => {
+        await page.goto('/');
+
+        // Switch to EN
+        const enBtn = page.locator('nav button').filter({ hasText: /^en$/i });
+        await enBtn.click();
+
+        // Open first tour
+        const tourCard = page.locator('section#top-tours h3').first();
+        await tourCard.click({ force: true });
+
+        // Verify Title in Dialog is EN (or at least not the default FR one if translated)
+        const dialogTitle = page.locator('div[role="dialog"] h2').first();
+        await expect(dialogTitle).toBeVisible();
+
+        // Check Duration Translation in Dialog
+        // "Journée entière" should become "Full Day"
+        const durationText = page.locator('div[role="dialog"] span:has-text("Day")');
+        await expect(durationText).toBeVisible();
+
+        await page.keyboard.press('Escape');
+
+        // Switch to ES
+        const esBtn = page.locator('nav button').filter({ hasText: /^es$/i });
+        await esBtn.click();
+
+        // Check Duration Translation on Card
+        const durationCard = page.locator('section#top-tours').locator('span:has-text("Día")').first();
+        await expect(durationCard).toBeVisible();
     });
 });

@@ -59,6 +59,9 @@ export const translations = {
         tours: {
             section_tag: 'NOS EXPÉRIENCES',
             section_title: 'Excursions Guidées en Catalogne',
+            selection_tag: 'Sélection du tour',
+            top_tours_title: 'Nos tours incontournables',
+            top_tours_desc: 'Excursions privées en petit groupe à Barcelone et en Catalogne. Chaque excursion est soigneusement conçue pour vous offrir une expérience authentique, loin des sentiers battus et s’adaptant à vos intérêts.',
             section_desc: 'Chaque excursion est soigneusement conçue pour vous offrir une expérience authentique, loin des sentiers battus.',
             learn_more: 'Plus d\'Informations',
             book_now: 'Réserver Maintenant',
@@ -72,7 +75,24 @@ export const translations = {
                 itin: 'Itinéraire',
                 incl: 'Inclus / Non Inclus',
                 meet: 'Point de Rencontre'
-            }
+            },
+            duration_labels: {
+                "Journée entière": "Journée entière",
+                "Demi-journée": "Demi-journée",
+                "Demi/Journée entière": "Demi/Journée entière"
+            },
+            categories: {
+                nature: 'Nature',
+                rando: 'Rando',
+                walking: 'Tour à pied',
+                gastro: 'Gastronomie',
+                views: 'Vues spectaculaires',
+                culture: 'Culturel',
+                urban: 'Aventure urbaine',
+                bcn: 'Barcelona city',
+                outside: 'Outside of Barcelona'
+            },
+            no_tours_found: 'Aucun tour trouvé dans cette catégorie.'
         },
         guide: {
             section_tag: 'VOTRE GUIDE',
@@ -326,6 +346,9 @@ export const translations = {
         tours: {
             section_tag: 'OUR EXPERIENCES',
             section_title: 'Guided Excursions in Catalonia',
+            selection_tag: 'Tour Selection',
+            top_tours_title: 'Our Must-See Tours',
+            top_tours_desc: 'Private excursions in small groups in Barcelona and Catalonia. Each excursion is carefully designed to offer you an authentic experience, off the beaten path and tailored to your interests.',
             section_desc: 'Each excursion is carefully designed to offer you an authentic experience, off the beaten path.',
             learn_more: 'More Information',
             book_now: 'Book Now',
@@ -339,7 +362,24 @@ export const translations = {
                 itin: 'Itinerary',
                 incl: 'Included / Not Included',
                 meet: 'Meeting Point'
-            }
+            },
+            duration_labels: {
+                "Journée entière": "Full Day",
+                "Demi-journée": "Half Day",
+                "Demi/Journée entière": "Half/Full Day"
+            },
+            categories: {
+                nature: 'Nature',
+                rando: 'Hiking',
+                walking: 'Walking Tour',
+                gastro: 'Gastronomy',
+                views: 'Spectacular Views',
+                culture: 'Cultural',
+                urban: 'Urban Adventure',
+                bcn: 'Barcelona City',
+                outside: 'Outside of Barcelona'
+            },
+            no_tours_found: 'No tours found in this category.'
         },
         guide: {
             section_tag: 'YOUR GUIDE',
@@ -579,6 +619,9 @@ export const translations = {
         tours: {
             section_tag: 'NUESTRAS EXPERIENCIAS',
             section_title: 'Excursions Guidées en Cataluña',
+            selection_tag: 'Selección del tour',
+            top_tours_title: 'Nuestros tours imprescindibles',
+            top_tours_desc: 'Excursiones privadas en grupos pequeños en Barcelona y Cataluña. Cada excursión está cuidadosamente diseñada para ofrecerle una experiencia auténtica, fuera de las rutas habituales y adaptada a sus intereses.',
             section_desc: 'Cada excursión está cuidadosamente diseñada para ofrecerte una experiencia auténtica, fuera de las rutas comunes.',
             learn_more: 'Más Información',
             book_now: 'Reservar Ahora',
@@ -592,7 +635,24 @@ export const translations = {
                 itin: 'Itinerario',
                 incl: 'Incluido / No Incluido',
                 meet: 'Punto de Encuentro'
-            }
+            },
+            duration_labels: {
+                "Journée entière": "Día completo",
+                "Demi-journée": "Medio día",
+                "Demi/Journée entière": "Medio/Día completo"
+            },
+            categories: {
+                nature: 'Naturaleza',
+                rando: 'Senderismo',
+                walking: 'Tour a pie',
+                gastro: 'Gastronomía',
+                views: 'Vistas espectaculares',
+                culture: 'Cultural',
+                urban: 'Aventura urbana',
+                bcn: 'Barcelona ciudad',
+                outside: 'Fuera de Barcelona'
+            },
+            no_tours_found: 'No se han encontrado tours en esta categoría.'
         },
         guide: {
             section_tag: 'TU GUÍA',

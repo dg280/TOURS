@@ -74,6 +74,13 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
 
     const calculateSubtotal = () => {
         if (!tour) return 0;
+
+        // Manual override for specific participant count
+        if (tour.pricing_tiers && tour.pricing_tiers[participants]) {
+            return tour.pricing_tiers[participants];
+        }
+
+        // Fallback to per-person pricing
         return tour.price * participants;
     };
 
