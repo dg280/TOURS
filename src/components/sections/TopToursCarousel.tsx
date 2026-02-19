@@ -47,8 +47,8 @@ export const TopToursCarousel = ({ tours, lang, t, onTourClick }: TopToursCarous
     if (topTours.length === 0) return null;
 
     return (
-        <section id="top-tours" className="section-padding bg-gray-50 overflow-hidden">
-            <div className="container-custom">
+        <section id="tours" className="section-padding bg-gray-50 overflow-hidden">
+            <div id="top-tours" className="container-custom">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
                     <div className="max-w-3xl">
                         <p className="text-amber-600 font-medium mb-2 uppercase tracking-wider text-sm">

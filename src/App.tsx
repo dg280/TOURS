@@ -236,7 +236,7 @@ function App() {
     if (!id) return;
 
     // If we're on About page and trying to reach a home section, switch to home first
-    if (view === 'about' && ['top-tours', 'avis', 'contact'].includes(id)) {
+    if (view === 'about' && ['top-tours', 'tours', 'avis', 'contact'].includes(id)) {
       setView('home');
       setTimeout(() => scrollToSection(id), 100);
       return;
