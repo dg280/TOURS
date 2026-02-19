@@ -43,6 +43,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import {
   Select,
   SelectContent,
