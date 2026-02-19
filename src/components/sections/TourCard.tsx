@@ -2,13 +2,13 @@ import { Clock, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Tour } from '@/lib/types';
-import type { Language } from '@/lib/translations';
+import type { Language, Translations } from '@/lib/translations';
 
 interface TourCardProps {
     tour: Tour;
     index: number;
     lang: Language;
-    t: any;
+    t: Translations;
     onClick: () => void;
 }
 
@@ -28,11 +28,11 @@ export const TourCard = ({ tour, index, lang, t, onClick }: TourCardProps) => {
                 <div className="absolute top-3 left-3 flex flex-wrap gap-1 max-w-[70%]">
                     {Array.isArray(tour.category) ? tour.category.map(catId => (
                         <Badge key={catId} className="bg-white/90 text-gray-800 text-[10px] font-bold uppercase transition-all hover:bg-amber-600 hover:text-white">
-                            {t.tours.categories?.[catId] || catId}
+                            {(t.tours.categories as Record<string, string>)?.[catId] || catId}
                         </Badge>
                     )) : (
                         <Badge className="bg-white/90 text-gray-800 text-[10px] font-bold uppercase">
-                            {t.tours.categories?.[tour.category] || tour.category}
+                            {(t.tours.categories as Record<string, string>)?.[tour.category] || tour.category}
                         </Badge>
                     )}
                 </div>
@@ -58,7 +58,7 @@ export const TourCard = ({ tour, index, lang, t, onClick }: TourCardProps) => {
                 <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
                     <span className="flex items-center gap-1">
                         <Clock className="w-4 h-4" />
-                        {t.tours.duration_labels[tour.duration] || tour.duration}
+                        {(t.tours.duration_labels as Record<string, string>)[tour.duration] || tour.duration}
                     </span>
                     <span className="flex items-center gap-1">
                         <Users className="w-4 h-4" />

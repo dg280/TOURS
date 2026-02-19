@@ -13,7 +13,7 @@ test.describe('Full Site Verification - Tours & Detours', () => {
             await acceptBtn.waitFor({ state: 'visible', timeout: 10000 });
             await acceptBtn.click();
             await page.waitForTimeout(500);
-        } catch (e) {
+        } catch {
             console.log('Banner not found or already closed');
         }
 

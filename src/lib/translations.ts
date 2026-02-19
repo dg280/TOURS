@@ -1,4 +1,5 @@
 export type Language = 'fr' | 'en' | 'es';
+export type Translations = typeof translations.fr;
 
 export const translations = {
     fr: {
@@ -59,6 +60,7 @@ export const translations = {
         tours: {
             section_tag: 'NOS EXPÉRIENCES',
             section_title: 'Excursions Guidées en Catalogne',
+            category_title: 'Trouvez votre prochaine aventure',
             selection_tag: 'Sélection du tour',
             top_tours_title: 'Nos tours incontournables',
             top_tours_desc: 'Excursions privées en petit groupe à Barcelone et en Catalogne. Chaque excursion est soigneusement conçue pour vous offrir une expérience authentique, loin des sentiers battus et s’adaptant à vos intérêts.',
@@ -346,6 +348,7 @@ export const translations = {
         tours: {
             section_tag: 'OUR EXPERIENCES',
             section_title: 'Guided Excursions in Catalonia',
+            category_title: 'Find your next adventure',
             selection_tag: 'Tour Selection',
             top_tours_title: 'Our Must-See Tours',
             top_tours_desc: 'Private excursions in small groups in Barcelona and Catalonia. Each excursion is carefully designed to offer you an authentic experience, off the beaten path and tailored to your interests.',
@@ -480,7 +483,9 @@ export const translations = {
                 notIncluded: ['Lunch and drinks', 'Monument entry fees (optional)', 'Personal expenses'],
                 duration: 'Full Day',
                 groupSize: '1-8',
-                price: 145
+                price: 145,
+                image: '/tour-girona.jpg',
+                category: 'Excursion'
             },
             {
                 id: 4,
@@ -492,7 +497,9 @@ export const translations = {
                 notIncluded: ['Picnic lunch', 'Personal expenses'],
                 duration: 'Full Day',
                 groupSize: '1-8',
-                price: 95
+                price: 95,
+                image: '/tour-prepirinees.jpg',
+                category: 'Nature'
             },
             {
                 id: 5,
@@ -504,7 +511,9 @@ export const translations = {
                 notIncluded: ['Transport to site', 'Meals and drinks', 'Sunscreen'],
                 duration: 'Half/Full Day',
                 groupSize: '1-8',
-                price: 75
+                price: 75,
+                image: '/tour-kayak.jpg',
+                category: 'Aventure'
             },
             {
                 id: 6,
@@ -516,7 +525,9 @@ export const translations = {
                 notIncluded: ['Lunch', 'Montserrat funicular', 'Personal expenses'],
                 duration: 'Half/Full Day',
                 groupSize: '1-8',
-                price: 125
+                price: 125,
+                image: '/tour-montserrat.jpg',
+                category: 'Culture'
             },
             {
                 id: 7,
@@ -528,7 +539,9 @@ export const translations = {
                 notIncluded: ['Personal expenses', 'Additional entry fees'],
                 duration: 'Full Day',
                 groupSize: '1-8',
-                price: 165
+                price: 165,
+                image: '/tour-collioure.jpg',
+                category: 'Excursion'
             },
             {
                 id: 2,
@@ -540,7 +553,9 @@ export const translations = {
                 notIncluded: ['Public transport', 'Museum entries', 'Full meals'],
                 duration: 'Half Day',
                 groupSize: '1-8',
-                price: 55
+                price: 55,
+                image: '/tour-barcelona-hidden.jpg',
+                category: 'Ville'
             },
             {
                 id: 3,
@@ -552,12 +567,14 @@ export const translations = {
                 notIncluded: ['Restaurant lunch', 'Snorkeling gear', 'Drinks'],
                 duration: 'Full Day',
                 groupSize: '1-8',
-                price: 85
+                price: 85,
+                image: '/tour-camironda.jpg',
+                category: 'Randonnée'
             }
         ],
         testimonials_data: [
             { id: 1, text: 'An unforgettable experience! Antoine knows every corner of Catalonia.', name: 'Marie & Pierre', loc: 'Paris, France', avatar: 'MP', rating: 5 },
-            { id: 2, text: 'The Costa Brava hike was absolutely magical. Antoine\'s knowledge is impressive.', name: 'Sarah Johnson', loc: 'London, UK', avatar: 'SJ', rating: 5 },
+            { id: 2, text: 'The Costa Brava hike was absolutely magical. Antoine\'s knowledge is impressive.', name: 'Sarah Johnson', loc: 'Londres, UK', avatar: 'SJ', rating: 5 },
             { id: 3, text: 'We did the Montserrat tour and it was fantastic! Everything was perfect.', name: 'Hans & Lisa', loc: 'Berlin, Germany', avatar: 'HL', rating: 5 }
         ]
     },
@@ -619,6 +636,7 @@ export const translations = {
         tours: {
             section_tag: 'NUESTRAS EXPERIENCIAS',
             section_title: 'Excursions Guidées en Cataluña',
+            category_title: 'Encuentra tu próxima aventura',
             selection_tag: 'Selección del tour',
             top_tours_title: 'Nuestros tours imprescindibles',
             top_tours_desc: 'Excursiones privadas en grupos pequeños en Barcelona y Cataluña. Cada excursión está cuidadosamente diseñada para ofrecerle una experiencia auténtica, fuera de las rutas habituales y adaptada a sus intereses.',
@@ -753,7 +771,9 @@ export const translations = {
                 notIncluded: ['Almuerzo y bebidas', 'Entradas a monumentos (opcional)', 'Gastos personales'],
                 duration: 'Día completo',
                 groupSize: '1-8',
-                price: 145
+                price: 145,
+                image: '/tour-girona.jpg',
+                category: 'Excursion'
             },
             {
                 id: 4,
@@ -765,7 +785,9 @@ export const translations = {
                 notIncluded: ['Almuerzo picnic', 'Gastos personales'],
                 duration: 'Día completo',
                 groupSize: '1-8',
-                price: 95
+                price: 95,
+                image: '/tour-prepirinees.jpg',
+                category: 'Nature'
             },
             {
                 id: 5,
@@ -777,7 +799,9 @@ export const translations = {
                 notIncluded: ['Transporte al lugar', 'Comidas y bebidas', 'Protector solar'],
                 duration: 'Medio/Día completo',
                 groupSize: '1-8',
-                price: 75
+                price: 75,
+                image: '/tour-kayak.jpg',
+                category: 'Aventure'
             },
             {
                 id: 6,
@@ -789,7 +813,9 @@ export const translations = {
                 notIncluded: ['Almuerzo', 'Funicular de Montserrat', 'Gastos personales'],
                 duration: 'Medio/Día completo',
                 groupSize: '1-8',
-                price: 125
+                price: 125,
+                image: '/tour-montserrat.jpg',
+                category: 'Culture'
             },
             {
                 id: 7,
@@ -801,7 +827,9 @@ export const translations = {
                 notIncluded: ['Gastos personales', 'Entradas adicionales'],
                 duration: 'Día completo',
                 groupSize: '1-8',
-                price: 165
+                price: 165,
+                image: '/tour-collioure.jpg',
+                category: 'Excursion'
             },
             {
                 id: 2,
@@ -813,7 +841,9 @@ export const translations = {
                 notIncluded: ['Transporte público', 'Entradas a museos', 'Comidas completas'],
                 duration: 'Medio día',
                 groupSize: '1-8',
-                price: 55
+                price: 55,
+                image: '/tour-barcelona-hidden.jpg',
+                category: 'Ville'
             },
             {
                 id: 3,
@@ -825,7 +855,9 @@ export const translations = {
                 notIncluded: ['Almuerzo en restaurante', 'Equipo de snorkel', 'Bebidas'],
                 duration: 'Día completo',
                 groupSize: '1-8',
-                price: 85
+                price: 85,
+                image: '/tour-camironda.jpg',
+                category: 'Randonnée'
             }
         ],
         testimonials_data: [

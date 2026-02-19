@@ -4,18 +4,18 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Activity, ArrowRight, Loader2 } from 'lucide-react';
-import { type Language } from '@/lib/translations';
+import { type Language, type Translations } from '@/lib/translations';
 
 interface LiveJoinDialogProps {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
     lang: Language;
-    t: any;
+    t: Translations;
 }
 
 export const LiveJoinDialog = ({ isOpen, onOpenChange, lang, t }: LiveJoinDialogProps) => {
     const [sessionCode, setSessionCode] = useState('');
-    const [activeSessions, setActiveSessions] = useState<any[]>([]);
+    const [activeSessions, setActiveSessions] = useState<any[]>([]); // Keeping any here for convenience as it's from DB
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {

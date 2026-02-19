@@ -1,6 +1,5 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import type { Tour } from "./types"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -22,23 +21,25 @@ export const decodeHTMLEntities = (str: string) => {
   return decoded;
 };
 
-export const prepareTourForEditing = (tour: Tour | any): any => {
-  if (!tour) return tour;
+export const prepareTourForEditing = <T>(item: T): T => {
+  if (!item) return item;
+
   const decode = (val: any): any => {
     if (typeof val === 'string') return decodeHTMLEntities(val);
     if (Array.isArray(val)) return val.map(decode);
     if (val && typeof val === 'object') {
-      const result: any = {};
+      const result: Record<string, any> = {};
       for (const k in val) {
         if (Object.prototype.hasOwnProperty.call(val, k)) {
-          result[k] = decode(val[k]);
+          result[k] = decode((val as any)[k]);
         }
       }
       return result;
     }
     return val;
   };
-  return decode(tour);
+
+  return decode(item) as T;
 };
 export const extractIframeSrc = (input: string): string => {
   if (!input) return '';

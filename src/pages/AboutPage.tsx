@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 import { CheckCircle2, Star, Users, Heart, Quote, Leaf } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import type { Translations } from '@/lib/translations';
 
 interface AboutPageProps {
-    t: any;
+    t: Translations;
     guidePhoto: string;
     guideBio: string;
     onBackToHome: () => void;
@@ -119,7 +120,7 @@ export const AboutPage = ({ t, guidePhoto, guideBio, onBackToHome }: AboutPagePr
                                 </h2>
                             </div>
                             <div className="space-y-4">
-                                {at.different.items.map((item: any, i: number) => (
+                                {at.different.items.map((item, i: number) => (
                                     <div key={i} className="glass-card group flex gap-6 p-8 rounded-[2rem] hover:bg-amber-50/50 transition-all duration-500 border-gray-100 hover:border-amber-200">
                                         <div className="w-14 h-14 bg-gray-900 text-white rounded-2xl flex items-center justify-center shrink-0 transition-all duration-500 group-hover:bg-amber-600 group-hover:text-white">
                                             <CheckCircle2 className="w-7 h-7" />
@@ -169,7 +170,7 @@ export const AboutPage = ({ t, guidePhoto, guideBio, onBackToHome }: AboutPagePr
                         </h2>
 
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-12 lg:gap-24 mb-32">
-                            {at.why.stats.map((stat: any, i: number) => (
+                            {at.why.stats.map((stat, i: number) => (
                                 <div key={i} className="space-y-3 group">
                                     <p className="text-6xl md:text-9xl text-premium-tight text-amber-500 group-hover:scale-110 transition-transform duration-500">{stat.val}</p>
                                     <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.4em]">{stat.label}</p>

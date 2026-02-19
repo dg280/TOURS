@@ -1,8 +1,9 @@
 import { ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import type { Translations } from '@/lib/translations';
 
 interface HeroProps {
-    t: any;
+    t: Translations;
     scrollToSection: (id: string) => void;
 }
 

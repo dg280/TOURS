@@ -1,9 +1,9 @@
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 // Initialisation lazy pour éviter les crashs au démarrage si les variables sont absentes
 let stripe: Stripe | null = null;
-let supabase: any = null;
+let supabase: SupabaseClient | null = null;
 
 function getClients() {
     if (!stripe) {
@@ -20,7 +20,22 @@ function getClients() {
     return { stripe, supabase };
 }
 
-export default async function handler(req: any, res: any) {
+interface ApiResponse {
+    status: (code: number) => {
+        json: (data: Record<string, unknown>) => void;
+    };
+}
+
+interface ApiRequest {
+    method: string;
+    body: {
+        tourId: string | number;
+        participants: number;
+        currency?: string;
+    };
+}
+
+export default async function handler(req: ApiRequest, res: ApiResponse) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }

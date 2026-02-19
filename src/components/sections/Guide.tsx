@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { Instagram, Mail, Phone, CheckCircle2 } from 'lucide-react';
+import type { Translations } from '@/lib/translations';
 
 interface GuideProps {
-    t: any;
+    t: Translations;
     guidePhoto: string;
     instagramUrl: string;
     guideBio?: string;

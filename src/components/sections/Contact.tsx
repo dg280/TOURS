@@ -3,9 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import type { Translations } from '@/lib/translations';
+import type { Tour } from '@/lib/types';
 
 interface ContactProps {
-    t: any;
+    t: Translations;
     instagramUrl: string;
 }
 
@@ -85,7 +87,7 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                                         className="w-full h-14 px-5 rounded-2xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-600 focus:border-transparent text-base transition-all appearance-none cursor-pointer"
                                     >
                                         <option value="">{t.contact.select_tour}</option>
-                                        {t.tour_data.map((tour: any) => (
+                                        {t.tour_data.map((tour: Tour) => (
                                             <option key={tour.id} value={tour.id}>{tour.title}</option>
                                         ))}
                                     </select>

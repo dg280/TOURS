@@ -17,15 +17,19 @@ import { Input } from '../components/ui/input';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Toaster, toast } from 'sonner';
+import type { LiveSession, Tour, LiveEcho, LiveMedia } from '../lib/types';
+// Note: LiveJoinDialog is being used in App.tsx, but here we were trying to define it? 
+// The previous edit accidentally added a placeholder component. Removing it as it's not needed here.
+
 
 export default function LiveApp() {
-    const [session, setSession] = useState<any>(null);
-    const [tour, setTour] = useState<any>(null);
+    const [session, setSession] = useState<LiveSession | null>(null);
+    const [tour, setTour] = useState<Tour | null>(null);
     const [loading, setLoading] = useState(true);
-    const [userName, setUserName] = useState<string | null>(localStorage.getItem('td-live-name'));
+    const [userName, setUserName] = useState<string | null>(localStorage.getItem('td-live-name')); // Corrected userName state
     const [nameInput, setNameInput] = useState('');
-    const [echoes, setEchoes] = useState<any[]>([]);
-    const [media, setMedia] = useState<any[]>([]);
+    const [echoes, setEchoes] = useState<LiveEcho[]>([]);
+    const [media, setMedia] = useState<LiveMedia[]>([]);
     const [message, setMessage] = useState('');
     const [uploading, setUploading] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -55,7 +59,7 @@ export default function LiveApp() {
                 const { data: med } = await supabase.from('live_media').select('*').eq('session_id', sess.id).order('created_at', { ascending: false });
                 setMedia(med || []);
 
-            } catch (err: any) {
+            } catch (err) {
                 console.error(err);
                 toast.error("Session non trouvée ou terminée.");
             } finally {
@@ -70,16 +74,16 @@ export default function LiveApp() {
         const channel = supabase
             .channel(`session:${sessionCode}`)
             .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'live_sessions', filter: `session_code=eq.${sessionCode}` }, (payload) => {
-                setSession((prev: any) => ({ ...prev, ...payload.new }));
-                if (payload.new.urgent_message) {
-                    toast.warning(payload.new.urgent_message, { duration: 10000 });
+                setSession((prev) => prev ? ({ ...prev, ...(payload.new as Partial<LiveSession>) }) : null);
+                if ((payload.new as LiveSession).urgent_message) {
+                    toast.warning((payload.new as LiveSession).urgent_message, { duration: 10000 });
                 }
             })
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'live_echoes' }, (payload) => {
-                setEchoes((prev) => [...prev, payload.new]);
+                setEchoes((prev) => [...prev, payload.new as LiveEcho]);
             })
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'live_media' }, (payload) => {
-                setMedia((prev) => [payload.new, ...prev]);
+                setMedia((prev) => [payload.new as LiveMedia, ...prev]);
             })
             .subscribe();
 
@@ -154,8 +158,9 @@ export default function LiveApp() {
 
             if (dbError) throw dbError;
             toast.success("Photo partagée !");
-        } catch (err: any) {
-            toast.error("Erreur upload : " + err.message);
+        } catch (err) {
+            const error = err as Error;
+            toast.error("Erreur upload : " + error.message);
         } finally {
             setUploading(false);
         }

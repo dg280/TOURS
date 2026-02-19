@@ -21,14 +21,14 @@ import {
 } from "@/components/ui/carousel";
 import type { Tour } from '@/lib/types';
 import { extractIframeSrc } from '@/lib/utils';
-import type { Language } from '@/lib/translations';
+import type { Language, Translations } from '@/lib/translations';
 
 interface TourDialogProps {
     tour: Tour | null;
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
     lang: Language;
-    t: any;
+    t: Translations;
     onBookNow: (tour: Tour) => void;
 }
 
@@ -223,7 +223,7 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, lang, t, onBookNow }: T
                                             <div className="flex items-center gap-3 text-gray-600">
                                                 <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"><CheckCircle2 className="w-4 h-4 text-amber-600" /></div>
                                                 <span className="font-medium">
-                                                    {t.tours.duration_labels[tour.duration] || tour.duration}
+                                                    {(t.tours.duration_labels as Record<string, string>)[tour.duration] || tour.duration}
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-3 text-gray-600">

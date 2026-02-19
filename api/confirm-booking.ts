@@ -7,7 +7,20 @@ const supabase = createClient(
     process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 );
 
-export default async function handler(req: any, res: any) {
+interface ApiResponse {
+    status: (code: number) => {
+        json: (data: Record<string, unknown>) => void;
+    };
+}
+
+interface ApiRequest {
+    method: string;
+    body: {
+        reservationId: string;
+    };
+}
+
+export default async function handler(req: ApiRequest, res: ApiResponse) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }

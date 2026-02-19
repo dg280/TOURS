@@ -4,12 +4,12 @@ import { ChevronLeft, ChevronRight, Leaf, Footprints, PersonStanding, Utensils, 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Tour } from '@/lib/types';
-import type { Language } from '@/lib/translations';
+import type { Language, Translations } from '@/lib/translations';
 
 interface CategoryToursCarouselProps {
     tours: Tour[];
     lang: Language;
-    t: any;
+    t: Translations;
     onTourClick: (tour: Tour) => void;
 }
 
@@ -58,7 +58,7 @@ export const CategoryToursCarousel = ({ tours, lang, t, onTourClick }: CategoryT
             <div className="container-custom">
                 <div className="text-center mb-10">
                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                        {(t as any).tours.category_title || 'Trouvez votre prochaine aventure'}
+                        {t.tours.category_title || 'Trouvez votre prochaine aventure'}
                     </h2>
 
                     <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-8">
@@ -76,7 +76,7 @@ export const CategoryToursCarousel = ({ tours, lang, t, onTourClick }: CategoryT
                                     )}
                                 >
                                     <Icon className="w-5 h-5" />
-                                    {t.tours.categories?.[cat.id] || cat.id}
+                                    {(t.tours.categories as Record<string, string>)?.[cat.id] || cat.id}
                                 </button>
                             );
                         })}
@@ -108,7 +108,7 @@ export const CategoryToursCarousel = ({ tours, lang, t, onTourClick }: CategoryT
                                                     {lang === 'en' ? (tour.title_en || tour.title) : lang === 'es' ? (tour.title_es || tour.title) : tour.title}
                                                 </h3>
                                                 <p className="text-sm text-gray-500 mb-4">
-                                                    {t.tours.duration_labels[tour.duration] || tour.duration}
+                                                    {(t.tours.duration_labels as Record<string, string>)[tour.duration] || tour.duration}
                                                 </p>
 
                                                 <Button

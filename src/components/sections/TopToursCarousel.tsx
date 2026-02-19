@@ -4,12 +4,12 @@ import { ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Tour } from '@/lib/types';
-import type { Language } from '@/lib/translations';
+import type { Language, Translations } from '@/lib/translations';
 
 interface TopToursCarouselProps {
     tours: Tour[];
     lang: Language;
-    t: any;
+    t: Translations;
     onTourClick: (tour: Tour) => void;
 }
 
@@ -31,18 +31,30 @@ export const TopToursCarousel = ({ tours, lang, t, onTourClick }: TopToursCarous
     const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
     const scrollTo = useCallback((index: number) => emblaApi && emblaApi.scrollTo(index), [emblaApi]);
 
-    const onSelect = useCallback((emblaApi: any) => {
-        setSelectedIndex(emblaApi.selectedScrollSnap());
-    }, []);
 
     useEffect(() => {
         if (!emblaApi) return;
 
-        onSelect(emblaApi);
-        setScrollSnaps(emblaApi.scrollSnapList());
-        emblaApi.on('select', onSelect);
-        emblaApi.on('reInit', onSelect);
-    }, [emblaApi, onSelect]);
+        const onSelectCallback = () => {
+            setSelectedIndex(emblaApi.selectedScrollSnap());
+        };
+
+        // Initialize with a slight delay if needed or just use standard lifecycle
+        // To avoid "cascading render" warning, we can put init logic in a timeout
+        const timer = setTimeout(() => {
+            onSelectCallback();
+            setScrollSnaps(emblaApi.scrollSnapList());
+        }, 0);
+
+        emblaApi.on('select', onSelectCallback);
+        emblaApi.on('reInit', onSelectCallback);
+
+        return () => {
+            clearTimeout(timer);
+            emblaApi.off('select', onSelectCallback);
+            emblaApi.off('reInit', onSelectCallback);
+        };
+    }, [emblaApi]);
 
     if (topTours.length === 0) return null;
 
@@ -96,7 +108,7 @@ export const TopToursCarousel = ({ tours, lang, t, onTourClick }: TopToursCarous
                                             <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
                                                 <span className="flex items-center gap-1">
                                                     <Clock className="w-4 h-4 text-amber-600" />
-                                                    {t.tours.duration_labels[tour.duration] || tour.duration}
+                                                    {(t.tours.duration_labels as Record<string, string>)[tour.duration] || tour.duration}
                                                 </span>
                                             </div>
 

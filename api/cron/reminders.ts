@@ -8,7 +8,19 @@ const supabase = createClient(
     process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 );
 
-export default async function handler(req: any, res: any) {
+interface ApiResponse {
+    status: (code: number) => {
+        json: (data: Record<string, unknown>) => ApiResponse;
+    };
+}
+
+interface ApiRequest {
+    method?: string;
+    headers: Record<string, string | string[] | undefined>;
+    body?: any;
+}
+
+export default async function handler(req: ApiRequest, res: ApiResponse) {
     // Vercel Cron protection (optional but recommended)
     // if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
     //     return res.status(401).json({ error: 'Unauthorized' });

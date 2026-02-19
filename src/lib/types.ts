@@ -37,3 +37,65 @@ export interface Tour {
     stripe_tip_link?: string;
     isActive?: boolean;
 }
+export interface Reservation {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    tourId: string;
+    tourName: string;
+    date: string;
+    participants: number;
+    status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+    message: string;
+    createdAt: string;
+    totalPrice: number;
+}
+
+export interface Review {
+    id: string;
+    name: string;
+    location: string;
+    rating: number;
+    text: string;
+    tourId?: string;
+    isPublished: boolean;
+    createdAt: string;
+}
+
+export interface Testimonial {
+    id: string | number;
+    name: string;
+    loc: string;
+    rating: number;
+    text: string;
+    avatar: string;
+}
+
+export interface LiveSession {
+    id: string;
+    session_code: string;
+    tour_id: string;
+    current_stop_index: number;
+    is_active: boolean;
+    urgent_message?: string | null;
+    created_at: string;
+    tours?: Tour;
+}
+
+export interface LiveEcho {
+    id: string;
+    session_id: string;
+    user_name: string;
+    message: string;
+    created_at: string;
+}
+
+export interface LiveMedia {
+    id: string;
+    session_id: string;
+    url: string;
+    uploaded_by: string;
+    created_at: string;
+}
+

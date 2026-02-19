@@ -1,5 +1,7 @@
+import type { Translations } from '@/lib/translations';
+
 interface FeaturesProps {
-    t: any;
+    t: Translations;
 }
 
 export const Features = ({ t }: FeaturesProps) => {
@@ -14,7 +16,7 @@ export const Features = ({ t }: FeaturesProps) => {
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {t.features.items.map((item: any, i: number) => (
+                    {t.features.items.map((item, i: number) => (
                         <div
                             key={i}
                             className="p-8 rounded-2xl bg-amber-50/50 border border-amber-100 hover:shadow-lg transition-all duration-300"

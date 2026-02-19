@@ -60,72 +60,9 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { prepareTourForEditing, extractIframeSrc } from '@/lib/utils';
+import type { Tour, Reservation, Review } from '@/lib/types';
 
-// Types
-interface Reservation {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  tourId: string;
-  tourName: string;
-  date: string;
-  participants: number;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-  message: string;
-  createdAt: string;
-  totalPrice: number;
-}
-
-interface Tour {
-  id: string | number;
-  title: string;
-  title_en?: string;
-  title_es?: string;
-  subtitle: string;
-  subtitle_en?: string;
-  subtitle_es?: string;
-  description: string;
-  description_en?: string;
-  description_es?: string;
-  duration: string;
-  groupSize: string;
-  price: number;
-  image: string;
-  images?: string[];
-  highlights: string[];
-  highlights_en?: string[];
-  highlights_es?: string[];
-  category: string | string[];
-  pricing_tiers?: Record<number, number>;
-  isActive: boolean;
-  itinerary?: string[];
-  itinerary_en?: string[];
-  itinerary_es?: string[];
-  included?: string[];
-  included_en?: string[];
-  included_es?: string[];
-  notIncluded?: string[];
-  notIncluded_en?: string[];
-  notIncluded_es?: string[];
-  meetingPoint?: string;
-  meetingPoint_en?: string;
-  meetingPoint_es?: string;
-  meetingPointMapUrl?: string;
-  stops?: { name: string; description: string; image?: string }[];
-  stripe_tip_link?: string;
-}
-
-interface Review {
-  id: string;
-  name: string;
-  location: string;
-  rating: number;
-  text: string;
-  tourId?: string;
-  isPublished: boolean;
-  createdAt: string;
-}
+// Types unified with @/lib/types
 
 // Mock Data is now handled via the database (default_tours table)
 // No longer using hardcoded mockTours in this file.
@@ -224,7 +161,7 @@ function Login() {
       if (authError) {
         setError(mode === 'magic' ? 'Lien magique : ' + authError.message : 'Erreur de mot de passe : ' + authError.message);
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Login error:', err);
       setError('Une erreur est survenue lors de la connexion');
     } finally {
@@ -608,7 +545,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
   const [editingTour, setEditingTour] = useState<Tour | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [activeSession, setActiveSession] = useState<{ tour: Tour; session: any } | null>(null);
+  const [activeSession, setActiveSession] = useState<{ tour: Tour; session: { id: string; current_stop_index: number; status: string; session_code: string } } | null>(null);
   const [isLiveMinimized, setIsLiveMinimized] = useState(false);
   const [sessionLoading, setSessionLoading] = useState(false);
   const [urgentMsg, setUrgentMsg] = useState('');
@@ -631,16 +568,17 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
         .single();
 
       if (error) throw error;
-      setActiveSession({ tour, session: data });
+      setActiveSession({ tour, session: data as any });
       toast.success(`Session Live démarrée ! Code : ${sessionCode}`);
-    } catch (err: any) {
-      toast.error("Erreur lors du démarrage : " + err.message);
+
+    } catch (err) {
+      toast.error("Erreur lors du démarrage : " + (err as Error).message);
     } finally {
       setSessionLoading(false);
     }
   };
 
-  const updateSession = async (updates: any) => {
+  const updateSession = async (updates: Record<string, unknown>) => {
     if (!supabase || !activeSession) return;
     try {
       const { data, error } = await supabase
@@ -649,10 +587,11 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
         .eq('id', activeSession.session.id)
         .select()
         .single();
+
       if (error) throw error;
-      setActiveSession({ ...activeSession, session: data });
-    } catch (err: any) {
-      toast.error("Erreur de mise à jour : " + err.message);
+      setActiveSession({ ...activeSession, session: data as any });
+    } catch (err) {
+      toast.error("Erreur de mise à jour : " + (err as Error).message);
     }
   };
 
@@ -692,9 +631,9 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
           images: newImages
         });
         toast.success(`${files.length} image(s) uploadée(s) avec succès !`, { id: loading });
-      } catch (err: any) {
+      } catch (err) {
         console.error('Upload error:', err);
-        toast.error("Erreur d'upload : " + err.message, { id: loading });
+        toast.error("Erreur d'upload : " + (err as Error).message, { id: loading });
       }
     }
   };
@@ -760,9 +699,9 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
 
         toast.success("Tour enregistré avec succès.");
         setIsEditOpen(false);
-      } catch (err: any) {
+      } catch (err) {
         console.error('Save error:', err);
-        toast.error("Erreur d'enregistrement : " + err.message);
+        toast.error("Erreur d'enregistrement : " + (err as Error).message);
       }
     }
   };
@@ -874,7 +813,8 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
         if (error) throw error;
       }
       toast.success("Tout le catalogue est synchronisé sur Supabase !", { id: loadingToast });
-    } catch (err: any) {
+    } catch (err) {
+      const error = err as Error;
       console.error('Sync error:', err);
       if (err.code === '42P01') {
         toast.error("La table 'tours' n'existe pas. Avez-vous exécuté le SQL dans Supabase ?", { id: loadingToast });
@@ -979,9 +919,9 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
       setTours(updatedTours);
       localStorage.setItem('td-tours', JSON.stringify(updatedTours));
       toast.success("Tour supprimé avec succès.");
-    } catch (err: any) {
+    } catch (err) {
       console.error('Delete error:', err);
-      toast.error("Erreur lors de la suppression : " + err.message);
+      toast.error("Erreur lors de la suppression : " + (err as Error).message);
     }
   };
 
@@ -997,7 +937,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
             </div>
             <div className="flex items-center gap-3">
               <Badge variant="outline" className="text-white border-white text-lg px-4 py-1">
-                CODE : {activeSession.session.session_code}
+                CODE : {(activeSession.session as any).session_code}
               </Badge>
               <Button
                 variant="ghost"
@@ -1016,7 +956,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                 <div className="bg-white p-4 rounded-2xl border border-amber-200 flex flex-col items-center justify-center text-center space-y-3 shadow-sm">
                   <div className="w-32 h-32 rounded-xl overflow-hidden border border-gray-100 flex items-center justify-center">
                     <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${window.location.origin}/live/${activeSession.session.session_code}`)}`}
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${window.location.origin}/live/${(activeSession.session as any).session_code}`)}`}
                       alt="QR Code"
                       className="w-full h-full"
                     />
@@ -1024,7 +964,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                   <p className="text-xs font-medium text-amber-900">Scannez pour rejoindre</p>
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline" className="h-7 text-[10px]" onClick={() => {
-                      const url = `${window.location.origin}/live/${activeSession.session.session_code}`;
+                      const url = `${window.location.origin}/live/${(activeSession.session as any).session_code}`;
                       navigator.clipboard.writeText(url);
                       toast.success("Lien copié !");
                     }}>Copier le lien</Button>
@@ -1183,7 +1123,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                   >
                     <Activity className="w-4 h-4 mr-1" /> Live
                   </Button>
-                  <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300" onClick={() => deleteTour(tour.id)}>
+                  <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300" onClick={() => deleteTour(tour.id.toString())}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -1681,7 +1621,8 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                                             newStops[idx].image = publicUrl;
                                             setEditingTour({ ...editingTour, stops: newStops });
                                             toast.success("Photo étape uploadée !", { id: loading });
-                                          } catch (err: any) {
+                                          } catch (err) {
+                                            const error = err as Error;
                                             toast.error("Erreur upload : " + err.message, { id: loading });
                                           }
                                         };
@@ -1973,10 +1914,6 @@ function AdminsManagement() {
   const [newEmail, setNewEmail] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchAdmins();
-  }, []);
-
   const fetchAdmins = async () => {
     if (!supabase) return;
     const { data, error } = await supabase
@@ -1986,6 +1923,10 @@ function AdminsManagement() {
     if (!error && data) setAdmins(data);
     setIsLoading(false);
   };
+
+  useEffect(() => {
+    fetchAdmins();
+  }, []);
 
   const handleAddAdmin = async () => {
     if (!newEmail || !supabase) return;
@@ -2832,7 +2773,7 @@ export default function AdminApp() {
                         <div className="space-y-2">
                           <Label>Lien image de profil</Label>
                           <div className="flex gap-2">
-                            <Input value={guidePhoto} onChange={(e) => setGuidePhoto(e.target.value)} placeholder="/guide-antoine.jpg" className="flex-1" />
+                            <Input value={guidePhoto} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setGuidePhoto(e.target.value)} placeholder="/guide-antoine.jpg" className="flex-1" />
                             <input type="file" ref={profileFileInputRef} className="hidden" accept="image/*" onChange={handleProfileImageUpload} />
                             <Button variant="outline" onClick={() => profileFileInputRef.current?.click()}>
                               <Upload className="w-4 h-4 mr-2" /> Upload
@@ -2841,7 +2782,7 @@ export default function AdminApp() {
                         </div>
                         <div className="space-y-2">
                           <Label>Lien Instagram</Label>
-                          <Input value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} placeholder="https://www.instagram.com/compte" />
+                          <Input value={instagramUrl} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInstagramUrl(e.target.value)} placeholder="https://www.instagram.com/compte" />
                         </div>
 
                         <div className="space-y-4 pt-4">
@@ -2851,7 +2792,7 @@ export default function AdminApp() {
                             <Label className="flex items-center gap-2">Français <Globe className="w-3 h-3 text-blue-500" /></Label>
                             <Textarea
                               value={guideBio}
-                              onChange={(e) => setGuideBio(e.target.value)}
+                              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setGuideBio(e.target.value)}
                               placeholder="Ma passion pour Barcelone..."
                               rows={6}
                             />
@@ -2861,7 +2802,7 @@ export default function AdminApp() {
                             <Label className="flex items-center gap-2">Anglais <Globe className="w-3 h-3 text-amber-500" /></Label>
                             <Textarea
                               value={guideBioEn}
-                              onChange={(e) => setGuideBioEn(e.target.value)}
+                              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setGuideBioEn(e.target.value)}
                               placeholder="My passion for Barcelona..."
                               rows={6}
                             />
@@ -2871,7 +2812,7 @@ export default function AdminApp() {
                             <Label className="flex items-center gap-2">Espagnol <Globe className="w-3 h-3 text-red-500" /></Label>
                             <Textarea
                               value={guideBioEs}
-                              onChange={(e) => setGuideBioEs(e.target.value)}
+                              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setGuideBioEs(e.target.value)}
                               placeholder="Mi pasión por Barcelona..."
                               rows={6}
                             />

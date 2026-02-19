@@ -7,9 +7,12 @@ import {
     CarouselPrevious,
 } from "@/components/ui/carousel";
 
+import type { Translations } from '@/lib/translations';
+import type { Testimonial } from '@/lib/types';
+
 interface TestimonialsProps {
-    t: any;
-    testimonials: any[];
+    t: Translations;
+    testimonials: Testimonial[];
 }
 
 export const Testimonials = ({ t, testimonials }: TestimonialsProps) => {
