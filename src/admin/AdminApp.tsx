@@ -78,7 +78,7 @@ interface Reservation {
 }
 
 interface Tour {
-  id: string;
+  id: string | number;
   title: string;
   title_en?: string;
   title_es?: string;

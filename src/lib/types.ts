@@ -1,5 +1,5 @@
 export interface Tour {
-    id: number;
+    id: string | number;
     title: string;
     title_en?: string;
     title_es?: string;
