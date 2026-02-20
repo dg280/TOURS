@@ -57,6 +57,19 @@ function App() {
   }, []);
 
   useEffect(() => {
+    const handleHash = () => {
+      if (window.location.hash === '#about') {
+        setView('about');
+      } else if (window.location.hash === '#home' || !window.location.hash) {
+        setView('home');
+      }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
+  useEffect(() => {
     // Debug: reset cookies if URL has ?reset=true
     if (window.location.search.includes('reset=true')) {
       localStorage.removeItem('cookie-consent');

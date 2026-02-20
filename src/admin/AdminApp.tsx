@@ -914,7 +914,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
   };
 
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const handleDeleteTour = async (tour: any) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce tour ?')) return;
 
@@ -2039,7 +2039,7 @@ function Monitoring() {
   const [supabaseStatus, setSupabaseStatus] = useState<'checking' | 'ok' | 'error'>('checking');
   const [latency, setLatency] = useState<number | null>(null);
   const [lastCommit, setLastCommit] = useState<{ message: string; date: string; url?: string } | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const [vercelDeploys, setVercelDeploys] = useState<any[]>([]);
   const [vToken, setVToken] = useState(localStorage.getItem('td-vercel-token') || '');
   const [ghToken, setGhToken] = useState(localStorage.getItem('td-github-token') || '');
@@ -2098,7 +2098,7 @@ function Monitoring() {
       const projectsData = await projectsRes.json();
 
       // Look for a project that matches our domain or is named 'tours'
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       const project = projectsData.projects?.find((p: any) =>
         p.name === 'tours' ||
         p.targets?.production?.alias?.includes('tours-five-olive.vercel.app')

@@ -1,0 +1,19 @@
+
+> my-app@0.0.0 lint
+> eslint .
+
+
+/Users/dgenevois/.gemini/antigravity/scratch/TOURS/src/admin/AdminApp.tsx
+   917:3  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  2042:3  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  2101:7  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/dgenevois/.gemini/antigravity/scratch/TOURS/src/components/ui/navigation-menu.tsx
+  61:1  warning  Unused eslint-disable directive (no problems were reported from 'react-refresh/only-export-components')
+
+/Users/dgenevois/.gemini/antigravity/scratch/TOURS/src/components/ui/sidebar.tsx
+  701:1  warning  Unused eslint-disable directive (no problems were reported from 'react-refresh/only-export-components')
+
+✖ 5 problems (0 errors, 5 warnings)
+  0 errors and 5 warnings potentially fixable with the `--fix` option.
+
