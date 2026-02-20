@@ -954,7 +954,8 @@ export const translations = {
         },
         live: {
             title: '¡Un tour está en curso!',
-            no_session: 'No hay sesión en curso.'
+            no_session: 'No hay sesión en curso.',
+            join_button: 'Unirse'
         },
         whatsapp: {
             floating_text: '¿Una pregunta? ¡Chatea conmigo!',
