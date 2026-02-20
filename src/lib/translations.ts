@@ -237,7 +237,7 @@ export const translations = {
                 groupSize: '1-8',
                 price: 145,
                 image: '/tour-girona.jpg',
-                images: ['/tour-girona.jpg', '/tour-girona-2.jpg', '/tour-girona-3.jpg'],
+                images: ['/tour-girona.jpg', '/tour-girona-2.png', '/tour-girona-3.png'],
                 category: 'Excursion'
             },
             {
@@ -259,7 +259,7 @@ export const translations = {
                 groupSize: '1-8',
                 price: 95,
                 image: '/tour-prepirinees.jpg',
-                images: ['/tour-prepirinees.jpg', '/tour-prepirinees-2.jpg'],
+                images: ['/tour-prepirinees.jpg', '/tour-prepirinees-2.png'],
                 category: 'Nature'
             },
             {
@@ -281,7 +281,7 @@ export const translations = {
                 groupSize: '1-8',
                 price: 75,
                 image: '/tour-kayak.jpg',
-                images: ['/tour-kayak.jpg', '/tour-kayak-2.jpg'],
+                images: ['/tour-kayak.jpg', '/tour-kayak-2.png'],
                 category: 'Aventure'
             },
             {
@@ -303,7 +303,7 @@ export const translations = {
                 groupSize: '1-8',
                 price: 125,
                 image: '/tour-montserrat.jpg',
-                images: ['/tour-montserrat.jpg', '/tour-montserrat-2.jpg'],
+                images: ['/tour-montserrat.jpg', '/tour-montserrat-2.png'],
                 category: 'Culture'
             },
             {
@@ -607,7 +607,7 @@ export const translations = {
                 groupSize: '1-8',
                 price: 145,
                 image: '/tour-girona.jpg',
-                images: ['/tour-girona.jpg', '/tour-girona-2.jpg', '/tour-girona-3.jpg'],
+                images: ['/tour-girona.jpg', '/tour-girona-2.png', '/tour-girona-3.png'],
                 itinerary: [
                     'Departure from your accommodation in Barcelona',
                     'Guided tour of Old Girona and the Jewish Quarter',
@@ -630,7 +630,7 @@ export const translations = {
                 groupSize: '1-8',
                 price: 95,
                 image: '/tour-prepirinees.jpg',
-                images: ['/tour-prepirinees.jpg', '/tour-prepirinees-2.jpg'],
+                images: ['/tour-prepirinees.jpg', '/tour-prepirinees-2.png'],
                 itinerary: [
                     'Transfer to the Pre-Pyrenees',
                     'Orientation in an authentic medieval village',
@@ -652,7 +652,7 @@ export const translations = {
                 groupSize: '1-8',
                 price: 75,
                 image: '/tour-kayak.jpg',
-                images: ['/tour-kayak.jpg', '/tour-kayak-2.jpg'],
+                images: ['/tour-kayak.jpg', '/tour-kayak-2.png'],
                 itinerary: [
                     'Arrival at the Costa Brava nautical base',
                     'Safety briefing and equipment preparation',
@@ -674,7 +674,7 @@ export const translations = {
                 groupSize: '1-8',
                 price: 125,
                 image: '/tour-montserrat.jpg',
-                images: ['/tour-montserrat.jpg', '/tour-montserrat-2.jpg'],
+                images: ['/tour-montserrat.jpg', '/tour-montserrat-2.png'],
                 itinerary: [
                     'Departure from Barcelona to the sacred mountain',
                     'Guided tour of Montserrat Monastery',
@@ -985,7 +985,7 @@ export const translations = {
                 groupSize: '1-8',
                 price: 145,
                 image: '/tour-girona.jpg',
-                images: ['/tour-girona.jpg', '/tour-girona-2.jpg', '/tour-girona-3.jpg'],
+                images: ['/tour-girona.jpg', '/tour-girona-2.png', '/tour-girona-3.png'],
                 itinerary: [
                     'Salida de su alojamiento en Barcelona',
                     'Visita guiada por la Girona vieja y el barrio judío',
@@ -1008,7 +1008,7 @@ export const translations = {
                 groupSize: '1-8',
                 price: 95,
                 image: '/tour-prepirinees.jpg',
-                images: ['/tour-prepirinees.jpg', '/tour-prepirinees-2.jpg'],
+                images: ['/tour-prepirinees.jpg', '/tour-prepirinees-2.png'],
                 itinerary: [
                     'Traslado hacia el Prepirineo',
                     'Orientación en un pueblo medieval auténtico',
@@ -1030,7 +1030,7 @@ export const translations = {
                 groupSize: '1-8',
                 price: 75,
                 image: '/tour-kayak.jpg',
-                images: ['/tour-kayak.jpg', '/tour-kayak-2.jpg'],
+                images: ['/tour-kayak.jpg', '/tour-kayak-2.png'],
                 itinerary: [
                     'Llegada a la base náutica de la Costa Brava',
                     'Briefing de seguridad y preparación del equipo',
@@ -1052,7 +1052,7 @@ export const translations = {
                 groupSize: '1-8',
                 price: 125,
                 image: '/tour-montserrat.jpg',
-                images: ['/tour-montserrat.jpg', '/tour-montserrat-2.jpg'],
+                images: ['/tour-montserrat.jpg', '/tour-montserrat-2.png'],
                 itinerary: [
                     'Salida de Barcelona hacia la montaña sagrada',
                     'Visita guiada al Monasterio de Montserrat',
