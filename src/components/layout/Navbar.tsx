@@ -1,5 +1,5 @@
 import { MapPin, Menu, X, Activity } from 'lucide-react';
-import { type Language } from '@/lib/translations';
+import { type Language, type Translations } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 
 interface NavbarProps {
@@ -10,7 +10,7 @@ interface NavbarProps {
     setLang: (lang: Language) => void;
     scrollToSection: (id: string) => void;
     onLiveClick: () => void;
-    t: any; // translations object
+    t: Translations; // translations object
     view: 'home' | 'about';
     setView: (view: 'home' | 'about') => void;
     activeSection?: string;
@@ -38,7 +38,8 @@ export const Navbar = ({
             return item === 'avis' ? t.nav.avis : item === 'about' ? t.nav.about : item === 'contact' ? t.nav.contact : t.nav.tours;
         } else {
             if (item === 'home') return 'HOME';
-            return t.about[item].label;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            return (t.about as any)[item].label;
         }
     };
 

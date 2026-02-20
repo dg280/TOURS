@@ -1,7 +1,8 @@
 import { MapPin, Instagram, Mail } from 'lucide-react';
+import type { Translations } from '@/lib/translations';
 
 interface FooterProps {
-    t: any;
+    t: Translations;
     instagramUrl: string;
 }
 
@@ -62,7 +63,7 @@ export const Footer = ({ t, instagramUrl }: FooterProps) => {
                     <div className="lg:col-span-4 lg:pl-12">
                         <h4 className="text-xs font-bold mb-10 text-white/40 uppercase tracking-[0.3em] font-sans">{t.nav.tours}</h4>
                         <ul className="space-y-6">
-                            {t.tour_data.slice(0, 4).map((tour: any) => (
+                            {t.tour_data.slice(0, 4).map((tour) => (
                                 <li key={tour.id}>
                                     <span className="text-gray-400 hover:text-amber-500 transition-all cursor-pointer text-lg font-medium block leading-snug">
                                         {tour.title}

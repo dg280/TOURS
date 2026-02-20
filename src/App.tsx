@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { translations, type Language } from './lib/translations';
 import { supabase } from './lib/supabase';
 import { Toaster } from '@/components/ui/sonner';
@@ -33,11 +33,15 @@ function App() {
   const [isTourDialogOpen, setIsTourDialogOpen] = useState(false);
   const [viewedTour, setViewedTour] = useState<Tour | null>(null);
   const [isLiveJoinOpen, setIsLiveJoinOpen] = useState(false);
+  const hasProcessedDeepLink = useRef(false);
 
-  const [guidePhoto, setGuidePhoto] = useState('/guide-portrait.jpg');
+  const [guidePhoto, setGuidePhoto] = useState<string>(() => localStorage.getItem('td-guide-photo') || '/guide-portrait.jpg');
   const [instagramUrl, setInstagramUrl] = useState('https://www.instagram.com/tours_and_detours_bcn/');
   const [guideBio, setGuideBio] = useState('');
-  const [customTours, setCustomTours] = useState<Tour[]>([]);
+  const [customTours] = useState<Tour[]>(() => {
+    const saved = localStorage.getItem('td-tours');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [dbTours, setDbTours] = useState<Tour[]>([]);
   const [dbReviews, setDbReviews] = useState<Testimonial[]>([]);
   // initializes from localStorage to avoid cascading render in useEffect
@@ -60,13 +64,7 @@ function App() {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
 
-    // if (!localStorage.getItem('cookie-consent')) setShowCookieConsent(true); // handled in initializer now
-
-    const savedPhoto = localStorage.getItem('td-guide-photo');
-    if (savedPhoto) setGuidePhoto(savedPhoto);
-
-    const savedTours = localStorage.getItem('td-tours');
-    if (savedTours) setCustomTours(JSON.parse(savedTours));
+    // Initial data load
   }, []);
 
   useEffect(() => {
@@ -84,7 +82,8 @@ function App() {
         else if (toursData && toursData.length > 0) {
           const mapped = toursData.map(t => prepareTourForEditing({
             id: Number(t.id) || t.id,
-            title: t.title,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            title: (t as any).title,
             title_en: t.title_en,
             title_es: t.title_es,
             subtitle: t.subtitle,
@@ -162,86 +161,91 @@ function App() {
     fetchData();
   }, [lang]);
 
-  // Collect all unique IDs from all sources
-  const allIds = Array.from(new Set([
-    ...t.tour_data.map((b: { id: string | number }) => String(b.id)),
-    ...dbTours.map(d => String(d.id)),
-    ...customTours.map(c => String(c.id))
-  ]));
+  const tours: Tour[] = useMemo(() => {
+    const allIds = Array.from(new Set([
+      ...t.tour_data.map((b: { id: string | number }) => String(b.id)),
+      ...dbTours.map(d => String(d.id)),
+      ...customTours.map(c => String(c.id))
+    ]));
 
-  const tours: Tour[] = allIds.map(id => {
-    const base = t.tour_data.find((b: { id: string | number }) => String(b.id) === id) as Partial<Tour> | undefined;
-    const db = dbTours.find(d => String(d.id) === id);
-    const custom = customTours.find(c => String(c.id) === id);
+    return allIds.map(id => {
+      const base = t.tour_data.find((b: { id: string | number }) => String(b.id) === id) as Partial<Tour> | undefined;
+      const db = dbTours.find(d => String(d.id) === id);
+      const custom = customTours.find(c => String(c.id) === id);
 
-    // Helper to merge fields while prioritizing non-empty values
-    const getVal = <T,>(baseVal: T, dbVal: T, customVal: T): T => {
-      const val = customVal ?? dbVal ?? baseVal;
-      if (Array.isArray(val)) return (val.length > 0 ? val : baseVal) as T;
-      if (typeof val === 'string') return (val.trim() !== '' ? val : baseVal) as T;
-      return (val ?? baseVal) as T;
-    };
-
-    // Use DB or Custom as base if not in translations
-    const effectiveBase = base || db || custom;
-
-    // Base merged tour (French by default)
-    const tour: Tour = {
-      ...(effectiveBase as Tour),
-      id: id,
-      title: getVal((base as any)?.title, (db as any)?.title, (custom as any)?.title) || "",
-      subtitle: getVal((base as any)?.subtitle, (db as any)?.subtitle, (custom as any)?.subtitle) || "",
-      description: getVal((base as any)?.description, (db as any)?.description, (custom as any)?.description) || "",
-      highlights: getVal((base as any)?.highlights, (db as any)?.highlights, (custom as any)?.highlights) || [],
-      itinerary: getVal((base as any)?.itinerary, (db as any)?.itinerary, (custom as any)?.itinerary),
-      included: getVal((base as any)?.included, (db as any)?.included, (custom as any)?.included),
-      notIncluded: getVal((base as any)?.notIncluded, (db as any)?.notIncluded, (custom as any)?.notIncluded),
-      meetingPoint: getVal((base as any)?.meetingPoint, (db as any)?.meetingPoint, (custom as any)?.meetingPoint),
-      price: (db as any)?.price ?? (custom as any)?.price ?? (base as any)?.price ?? 0,
-      image: getVal((base as any)?.image, (db as any)?.image, (custom as any)?.image) || "",
-      duration: getVal((base as any)?.duration, (db as any)?.duration, (custom as any)?.duration) || "",
-      groupSize: getVal((base as any)?.groupSize, (db as any)?.groupSize, (custom as any)?.groupSize) || "",
-      category: getVal((base as any)?.category, (db as any)?.category, (custom as any)?.category) || "",
-      pricing_tiers: (db as any)?.pricing_tiers || (custom as any)?.pricing_tiers || (base as any)?.pricing_tiers || {}
-    };
-
-    if (lang === 'en') {
-      return {
-        ...tour,
-        title: getVal((base as any)?.title, (db as any)?.title_en, (custom as any)?.title_en) || tour.title,
-        subtitle: getVal((base as any)?.subtitle, (db as any)?.subtitle_en, (custom as any)?.subtitle_en) || tour.subtitle,
-        description: getVal((base as any)?.description, (db as any)?.description_en, (custom as any)?.description_en) || tour.description,
-        highlights: getVal((base as any)?.highlights, (db as any)?.highlights_en, (custom as any)?.highlights_en) || tour.highlights,
-        itinerary: getVal((base as any)?.itinerary, (db as any)?.itinerary_en, (custom as any)?.itinerary_en),
-        included: getVal((base as any)?.included, (db as any)?.included_en, (custom as any)?.included_en),
-        notIncluded: getVal((base as any)?.notIncluded, (db as any)?.notIncluded_en, (custom as any)?.notIncluded_en),
-        meetingPoint: getVal((base as any)?.meetingPoint, (db as any)?.meetingPoint_en, (custom as any)?.meetingPoint_en),
+      const getVal = <T,>(baseVal: T, dbVal: T, customVal: T): T => {
+        const val = customVal ?? dbVal ?? baseVal;
+        if (Array.isArray(val)) return (val.length > 0 ? val : baseVal) as T;
+        if (typeof val === 'string') return (val.trim() !== '' ? val : baseVal) as T;
+        return (val ?? baseVal) as T;
       };
-    } else if (lang === 'es') {
-      return {
-        ...tour,
-        title: getVal((base as any)?.title, (db as any)?.title_es, (custom as any)?.title_es) || tour.title,
-        subtitle: getVal((base as any)?.subtitle, (db as any)?.subtitle_es, (custom as any)?.subtitle_es) || tour.subtitle,
-        description: getVal((base as any)?.description, (db as any)?.description_es, (custom as any)?.description_es) || tour.description,
-        highlights: getVal((base as any)?.highlights, (db as any)?.highlights_es, (custom as any)?.highlights_es) || tour.highlights,
-        itinerary: getVal((base as any)?.itinerary, (db as any)?.itinerary_es, (custom as any)?.itinerary_es),
-        included: getVal((base as any)?.included, (db as any)?.included_es, (custom as any)?.included_es),
-        notIncluded: getVal((base as any)?.notIncluded, (db as any)?.notIncluded_es, (custom as any)?.notIncluded_es),
-        meetingPoint: getVal((base as any)?.meetingPoint, (db as any)?.meetingPoint_es, (custom as any)?.meetingPoint_es),
+
+      const effectiveBase = base || db || custom;
+      const bObj = (base || {}) as Partial<Tour>;
+      const dObj = (db || {}) as Partial<Tour>;
+      const cObj = (custom || {}) as Partial<Tour>;
+
+      const tour: Tour = {
+        ...(effectiveBase as Tour),
+        id: id,
+        title: getVal(bObj.title, dObj.title, cObj.title) || "",
+        subtitle: getVal(bObj.subtitle, dObj.subtitle, cObj.subtitle) || "",
+        description: getVal(bObj.description, dObj.description, cObj.description) || "",
+        highlights: getVal(bObj.highlights, dObj.highlights, cObj.highlights) || [],
+        itinerary: getVal(bObj.itinerary, dObj.itinerary, cObj.itinerary),
+        included: getVal(bObj.included, dObj.included, cObj.included),
+        notIncluded: getVal(bObj.notIncluded, dObj.notIncluded, cObj.notIncluded),
+        meetingPoint: getVal(bObj.meetingPoint, dObj.meetingPoint, cObj.meetingPoint),
+        price: dObj.price ?? cObj.price ?? bObj.price ?? 0,
+        image: getVal(bObj.image, dObj.image, cObj.image) || "",
+        duration: getVal(bObj.duration, dObj.duration, cObj.duration) || "",
+        groupSize: getVal(bObj.groupSize, dObj.groupSize, cObj.groupSize) || "",
+        category: getVal(bObj.category, dObj.category, cObj.category) || "",
+        pricing_tiers: dObj.pricing_tiers || cObj.pricing_tiers || bObj.pricing_tiers || {}
       };
-    }
-    return tour;
-  });
+
+      if (lang === 'en') {
+        return {
+          ...tour,
+          title: getVal(bObj.title, db?.title_en, custom?.title_en) || tour.title,
+          subtitle: getVal(bObj.subtitle, db?.subtitle_en, custom?.subtitle_en) || tour.subtitle,
+          description: getVal(bObj.description, db?.description_en, custom?.description_en) || tour.description,
+          highlights: getVal(bObj.highlights, db?.highlights_en, custom?.highlights_en) || tour.highlights,
+          itinerary: getVal(bObj.itinerary, db?.itinerary_en, custom?.itinerary_en),
+          included: getVal(bObj.included, db?.included_en, custom?.included_en),
+          notIncluded: getVal(bObj.notIncluded, db?.notIncluded_en, custom?.notIncluded_en),
+          meetingPoint: getVal(bObj.meetingPoint, db?.meetingPoint_en, custom?.meetingPoint_en),
+        };
+      } else if (lang === 'es') {
+        return {
+          ...tour,
+          title: getVal(bObj.title, db?.title_es, custom?.title_es) || tour.title,
+          subtitle: getVal(bObj.subtitle, db?.subtitle_es, custom?.subtitle_es) || tour.subtitle,
+          description: getVal(bObj.description, db?.description_es, custom?.description_es) || tour.description,
+          highlights: getVal(bObj.highlights, db?.highlights_es, custom?.highlights_es) || tour.highlights,
+          itinerary: getVal(bObj.itinerary, db?.itinerary_es, custom?.itinerary_es),
+          included: getVal(bObj.included, db?.included_es, custom?.included_es),
+          notIncluded: getVal(bObj.notIncluded, db?.notIncluded_es, custom?.notIncluded_es),
+          meetingPoint: getVal(bObj.meetingPoint, db?.meetingPoint_es, custom?.meetingPoint_es),
+        };
+      }
+      return tour;
+    });
+  }, [t, dbTours, customTours, lang]);
 
   useEffect(() => {
     // Deep linking to specific tours (e.g. ?tour=1)
+    if (hasProcessedDeepLink.current) return;
+
     const params = new URLSearchParams(window.location.search);
     const tourId = params.get('tour');
     if (tourId && tours.length > 0) {
       const targetTour = tours.find(t => String(t.id) === tourId);
       if (targetTour) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setViewedTour(targetTour);
         setIsTourDialogOpen(true);
+        hasProcessedDeepLink.current = true;
       }
     }
   }, [tours]); // Re-run when tours are fetched
@@ -279,6 +283,7 @@ function App() {
   };
 
   // Use translated testimonials from translations.ts as fallback
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const testimonials = dbReviews.length > 0 ? dbReviews : (t as any).testimonials_data || [];
 
   const [activeSection, setActiveSection] = useState('home');

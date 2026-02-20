@@ -123,8 +123,8 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         });
 
         return res.status(200).json({ success: true });
-    } catch (error: any) {
-        console.error('Email error:', error);
-        return res.status(500).json({ error: error.message });
+    } catch (err: unknown) {
+        console.error('Confirm error:', err);
+        return res.status(500).json({ error: (err as Error).message });
     }
 }

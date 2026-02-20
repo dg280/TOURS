@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import type { Translations } from '@/lib/translations';
 import {
     Dialog,
     DialogContent,
@@ -22,7 +23,7 @@ interface BookingModalProps {
     onOpenChange: (open: boolean) => void;
     tour: Tour | null;
     lang: string;
-    t: any;
+    t: Translations;
 }
 
 export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingModalProps) => {
@@ -40,12 +41,13 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
 
     useEffect(() => {
         if (isOpen) {
-            setStep(1);
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            if (step !== 1) setStep(1);
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             setDate(tomorrow.toISOString().split('T')[0]);
         }
-    }, [isOpen]);
+    }, [isOpen, step]);
 
     useEffect(() => {
         if (tour && step === 3 && !clientSecret) {
@@ -70,7 +72,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                     setStep(2);
                 });
         }
-    }, [tour, step, clientSecret, participants, lang]);
+    }, [tour, step, clientSecret, participants, lang, t.booking.payment_error]);
 
     const calculateSubtotal = () => {
         if (!tour) return 0;
@@ -101,13 +103,15 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
     const nextStep = () => {
         if (step === 1) {
             if (!date) {
-                toast.error(t.booking.date_error || 'Date required');
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                toast.error((t.booking as any).date_error || 'Date required');
                 return;
             }
             setStep(2);
         } else if (step === 2) {
             if (!formData.name || !formData.email) {
-                toast.error(t.booking.info_error || 'Info required');
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                toast.error((t.booking as any).info_error || 'Info required');
                 return;
             }
             setClientSecret('');

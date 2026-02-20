@@ -17,6 +17,7 @@ interface ApiResponse {
 interface ApiRequest {
     method?: string;
     headers: Record<string, string | string[] | undefined>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body?: any;
 }
 
@@ -87,8 +88,8 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
                     .eq('id', reservation.id);
 
                 stats.sent++;
-            } catch (err) {
-                console.error(`Failed to send reminder for ${reservation.id}:`, err);
+            } catch (err: unknown) {
+                console.error(`Failed to send reminder for reservation ${reservation.id}:`, err);
                 stats.failed++;
             }
         }
@@ -97,8 +98,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
             message: `Cron job finished`,
             stats
         });
-    } catch (error: any) {
-        console.error('Cron Error:', error);
-        return res.status(500).json({ error: error.message });
+    } catch (err: unknown) {
+        return res.status(500).json({ error: (err as Error).message });
     }
 }

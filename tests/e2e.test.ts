@@ -155,6 +155,7 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         await page.getByRole('tab', { name: /Rencontre|Meeting/i }).click();
 
         const mapIframe = page.locator('div[role="tabpanel"] iframe');
+        await expect(mapIframe).toBeVisible();
     });
 
     test('UI: Tour Content Translation', async ({ page }) => {

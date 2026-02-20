@@ -7,8 +7,9 @@ let supabase: SupabaseClient | null = null;
 
 function getClients() {
     if (!stripe) {
-        stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-            apiVersion: '2023-10-16' as any,
+        stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            apiVersion: '2025-01-27-preview' as any,
         });
     }
     if (!supabase) {
@@ -96,8 +97,8 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
             stripeFees: Number((totalAmount - baseAmount).toFixed(2))
         });
 
-    } catch (err: any) {
-        console.error('Global API Error:', err);
-        res.status(500).json({ error: err.message || 'Erreur interne du serveur' });
+    } catch (err) {
+        console.error('Payment intent error:', err);
+        return res.status(500).json({ error: (err as Error).message });
     }
 }

@@ -12,7 +12,15 @@ export const translations = {
             reserve: 'Réserver',
             live: 'Live Experience',
             no_live: 'Pas de tour en cours',
-            enter_code: 'Entrez le code du tour'
+            enter_code: 'Entrez le code du tour',
+            home: 'Accueil'
+        },
+        common: {
+            back: 'Retour',
+            next: 'Suivant',
+            finish: 'Terminer',
+            pay: 'Payer et Réserver',
+            error_server: 'Erreur serveur'
         },
         about_hook: {
             title: 'Une approche humaine et authentique pour découvrir la vraie Catalogne.',
@@ -163,11 +171,35 @@ export const translations = {
             processing_fees: 'Frais de traitement du paiement',
             per_person_incl_fees: 'par personne (frais inclus)',
             phone: 'Téléphone',
-            payment_error: 'Erreur de paiement'
+            payment_error: 'Erreur de paiement',
+            initialization: 'Initialisation du paiement...',
+            summary: 'Récapitulatif :',
+            total_paid: 'Total payé :',
+            participants_label: 'Voyageurs :'
+        },
+        tour_dialog: {
+            highlights_label: 'Points forts :',
+            itinerary_label: 'Itinéraire :',
+            included_label: 'Inclus :',
+            not_included_label: 'Non inclus :',
+            quick_info: 'Infos rapides :',
+            instant_confirmation: 'Confirmation instantanée',
+            flexible_cancellation: 'Annulation flexible (24h)',
+            open_maps: 'Ouvrir dans Google Maps',
+            maps_description: 'Visualisez le point de rencontre directement sur Google Maps pour une meilleure expérience.',
+            maps_button: "S'y rendre",
+            view_on_maps: 'Visualiser sur Google Maps'
+        },
+        footer: {
+            made_with: 'Fait avec Passion.',
+            legal: 'Mentions légales',
+            privacy: 'Confidentialité',
+            navigation: 'Navigation'
         },
         live: {
             title: 'Un tour est actuellement en cours !',
-            no_session: 'Aucune session en cours.'
+            no_session: 'Aucune session en cours.',
+            join_button: 'Rejoindre'
         },
         whatsapp: {
             floating_text: 'Une question ? Discutez avec moi !',
@@ -191,12 +223,21 @@ export const translations = {
                 subtitle: 'Profondeur culturelle et paysages marquants',
                 description: 'Un voyage d\'une journée entière, guidé privativement, combinant l\'héritage juif et médiéval de Gérone avec les villages côtiers raffinés de la Costa Brava.',
                 highlights: ['Quartier Juif (El Call)', 'Village médiéval de Pals', 'Calella de Palafrugell & Llafranc', 'Randonnée Camí de Ronda optionnelle', 'Déjeuner méditerranéen'],
+                itinerary: [
+                    'Départ de votre hébergement à Barcelone',
+                    'Visite guidée du vieux Gérone et du quartier juif',
+                    'Exploration du village médiéval de Pals',
+                    'Temps libre et déjeuner à Calella de Palafrugell',
+                    'Petite marche sur le célèbre Camí de Ronda',
+                    'Retour à Barcelone en fin d\'après-midi'
+                ],
                 included: ['Guide privé expert', 'Transport privé AR', 'Visite de Gérone', 'Village médiéval de Pals', 'Assurance voyage'],
                 notIncluded: ['Déjeuner et boissons', 'Entrées aux monuments (optionnel)', 'Dépenses personnelles'],
                 duration: 'Journée entière',
                 groupSize: '1-8',
                 price: 145,
                 image: '/tour-girona.jpg',
+                images: ['/tour-girona.jpg', '/tour-girona-2.jpg', '/tour-girona-3.jpg'],
                 category: 'Excursion'
             },
             {
@@ -205,12 +246,20 @@ export const translations = {
                 subtitle: 'Marche, Nature & Patrimoine',
                 description: 'Une randonnée immersive à faible impact (6km) commençant dans une ville médiévale, avec des chapelles romanes et des vallées forestières. Idéal pour le calme.',
                 highlights: ['Départ village médiéval', 'Chapelles romanes', 'Vallées forestières', 'Paysages paisibles', 'Marche immersive 6km'],
+                itinerary: [
+                    'Transfert vers les Pré-Pyrénées',
+                    'Orientation dans un village médiéval authentique',
+                    'Randonnée guidée à travers les forêts et chapelles',
+                    'Pause snack avec produits locaux',
+                    'Retour à Barcelone'
+                ],
                 included: ['Guide spécialisé outdoor', 'Transport privé', 'Bâtons de marche', 'Snacks locaux', 'Assurance accident'],
                 notIncluded: ['Déjeuner pique-nique', 'Dépenses personnelles'],
                 duration: 'Journée entière',
                 groupSize: '1-8',
                 price: 95,
                 image: '/tour-prepirinees.jpg',
+                images: ['/tour-prepirinees.jpg', '/tour-prepirinees-2.jpg'],
                 category: 'Nature'
             },
             {
@@ -219,12 +268,20 @@ export const translations = {
                 subtitle: 'Aventure, Nature & Activités Nautiques',
                 description: 'Une expérience guidée en kayak explorant grottes marines, vie marine et falaises escarpées. Opéré avec des partenaires locaux audités.',
                 highlights: ['Exploration de grottes', 'Falaises escarpées', 'Vie marine', 'Sécurité auditée', 'Demi ou Journée entière'],
+                itinerary: [
+                    'Arrivée à la base nautique de la Costa Brava',
+                    'Briefing de sécurité et préparation du matériel',
+                    'Navigation le long des falaises et grottes',
+                    'Séquence de snorkeling dans une crique isolée',
+                    'Débriefing et retour'
+                ],
                 included: ['Guide de kayak certifié', 'Équipement complet (kayak, gilet, pagaie)', 'Sac étanche', 'Assurance spécifique'],
                 notIncluded: ['Transport vers le site', 'Repas et boissons', 'Crème solaire'],
                 duration: 'Demi/Journée entière',
                 groupSize: '1-8',
                 price: 75,
                 image: '/tour-kayak.jpg',
+                images: ['/tour-kayak.jpg', '/tour-kayak-2.jpg'],
                 category: 'Aventure'
             },
             {
@@ -233,12 +290,20 @@ export const translations = {
                 subtitle: 'Culture, Décors & Gastronomie',
                 description: 'Une journée combinant le paysage majestueux et la spiritualité de Montserrat avec la visite d\'une bodega familiale et une dégustation.',
                 highlights: ['Exploration du monastère', 'Vues panoramiques', 'Visite cave locale', 'Dégustation', 'Bodega familiale'],
+                itinerary: [
+                    'Départ de Barcelone vers la montagne sacrée',
+                    'Visite guidée du Monastère de Montserrat',
+                    'Transfert vers une bodega familiale du Penedès',
+                    'Visite des vignes et de la cave',
+                    'Dégustation de vins locaux et retour'
+                ],
                 included: ['Guide privé passionné', 'Transport privé AR', 'Visite de Montserrat', 'Visite de cave et dégustation', 'Assurance voyage'],
                 notIncluded: ['Déjeuner', 'Funiculaire de Montserrat', 'Dépenses personnelles'],
                 duration: 'Demi/Journée entière',
                 groupSize: '1-8',
                 price: 125,
                 image: '/tour-montserrat.jpg',
+                images: ['/tour-montserrat.jpg', '/tour-montserrat-2.jpg'],
                 category: 'Culture'
             },
             {
@@ -247,12 +312,21 @@ export const translations = {
                 subtitle: 'Histoire, paysages, gastronomie et architecture',
                 description: 'Une journée complète reliant la profondeur médiévale de la Catalogne au charme côtier du sud de la France.',
                 highlights: ['Cathédrale de Gérone & El Call', 'Traversée des Pyrénées', 'Port & Forteresse de Collioure', 'Dégustation d\'anchois boutique', 'Déjeuner méditerranéen complet'],
+                itinerary: [
+                    'Départ matinal de Barcelone',
+                    'Visite historique de Gérone',
+                    'Route panoramique vers la France',
+                    'Temps libre et déjeuner à Collioure',
+                    'Dégustation d\'anchois traditionnelles',
+                    'Trajet retour vers Barcelone'
+                ],
                 included: ['Guide privé AR', 'Transport confortable', 'Déjeuner complet inclus', 'Dégustation d\'anchois', 'Assurance voyage'],
                 notIncluded: ['Dépenses personnelles', 'Entrées additionnelles'],
                 duration: 'Journée entière',
                 groupSize: '1-8',
                 price: 165,
                 image: '/tour-collioure.jpg',
+                images: ['/tour-collioure.jpg'],
                 category: 'Excursion'
             },
             {
@@ -261,12 +335,20 @@ export const translations = {
                 subtitle: 'Culturel, Voyage Responsable',
                 description: 'Une exploration slow-travel des quartiers Gothique et Born, dévoilant l\'histoire, les légendes et les histoires de quartier loin des circuits bondés.',
                 highlights: ['Quartiers Gothique & Born', 'Histoire cachée', 'Légendes & récits locaux', 'Loin des foules'],
+                itinerary: [
+                    'Rendez-vous dans la Vieille Ville',
+                    'Exploration du quartier Gothique et de ses secrets',
+                    'Traversée vers le Born et son histoire marchande',
+                    'Dégustation d\'un snack traditionnel local',
+                    'Fin du tour avec recommandations personnalisées'
+                ],
                 included: ['Guide local licencié', 'Tour à pied personnalisé', 'Recommandations locales', 'Petit snack traditionnel'],
                 notIncluded: ['Transport public', 'Entrées musées', 'Repas complets'],
                 duration: 'Demi-journée',
                 groupSize: '1-8',
                 price: 55,
                 image: '/tour-barcelona-hidden.jpg',
+                images: ['/tour-barcelona-hidden.jpg'],
                 category: 'Ville'
             },
             {
@@ -275,12 +357,20 @@ export const translations = {
                 subtitle: 'Marche & Trekking',
                 description: 'Une randonnée côtière spectaculaire (6km) sur l\'un des sentiers les plus emblématiques de Catalogne. Forêts de pins et criques turquoises.',
                 highlights: ['Randonnée côtière 6km', 'Criques turquoises', 'Déjeuner de la mer', 'Possibilité de baignade'],
+                itinerary: [
+                    'Départ de Barcelone vers Calella de Palafrugell',
+                    'Début de la marche guidée sur le sentier côtier',
+                    'Arrêt dans une crique pour une pause baignade',
+                    'Fin de la rando et déjeuner marin',
+                    'Temps libre dans le village et retour'
+                ],
                 included: ['Guide de randonnée', 'Transport privé AR', 'Visite de Calella de Palafrugell', 'Assurance outdoor'],
                 notIncluded: ['Déjeuner au restaurant', 'Équipement de snorkeling', 'Boissons'],
                 duration: 'Journée entière',
                 groupSize: '1-8',
                 price: 85,
                 image: '/tour-camironda.jpg',
+                images: ['/tour-camironda.jpg'],
                 category: 'Randonnée'
             }
         ],
@@ -300,7 +390,15 @@ export const translations = {
             reserve: 'Book Now',
             live: 'Live Experience',
             no_live: 'No tour in progress',
-            enter_code: 'Enter tour code'
+            enter_code: 'Enter tour code',
+            home: 'Home'
+        },
+        common: {
+            back: 'Back',
+            next: 'Next',
+            finish: 'Finish',
+            pay: 'Pay & Book',
+            error_server: 'Server error'
         },
         about_hook: {
             title: 'A human and authentic approach to discover the real Catalonia.',
@@ -451,11 +549,32 @@ export const translations = {
             processing_fees: 'Payment processing fees',
             per_person_incl_fees: 'per person (fees included)',
             phone: 'Phone',
-            payment_error: 'Payment Error'
+            payment_error: 'Payment Error',
+            initialization: 'Initializing payment...',
+            summary: 'Summary:',
+            total_paid: 'Total paid:',
+            participants_label: 'Travelers:'
+        },
+        tour_dialog: {
+            highlights_label: 'Highlights:',
+            quick_info: 'Quick info:',
+            instant_confirmation: 'Instant confirmation',
+            flexible_cancellation: 'Flexible cancellation (24h)',
+            open_maps: 'Open in Google Maps',
+            maps_description: 'View the meeting point directly on Google Maps for the best experience.',
+            maps_button: 'Navigate to Point',
+            view_on_maps: 'View on Google Maps'
+        },
+        footer: {
+            made_with: 'Made with Passion.',
+            legal: 'Legal Notice',
+            privacy: 'Privacy Policy',
+            navigation: 'Navigation'
         },
         live: {
             title: 'A tour is currently in progress!',
-            no_session: 'No session in progress.'
+            no_session: 'No session in progress.',
+            join_button: 'Join'
         },
         whatsapp: {
             floating_text: 'Any questions? Chat with me!',
@@ -485,6 +604,15 @@ export const translations = {
                 groupSize: '1-8',
                 price: 145,
                 image: '/tour-girona.jpg',
+                images: ['/tour-girona.jpg', '/tour-girona-2.jpg', '/tour-girona-3.jpg'],
+                itinerary: [
+                    'Departure from your accommodation in Barcelona',
+                    'Guided tour of Old Girona and the Jewish Quarter',
+                    'Exploration of the medieval village of Pals',
+                    'Free time and lunch in Calella de Palafrugell',
+                    'Short walk on the famous Camí de Ronda',
+                    'Return to Barcelona in the late afternoon'
+                ],
                 category: 'Excursion'
             },
             {
@@ -499,6 +627,14 @@ export const translations = {
                 groupSize: '1-8',
                 price: 95,
                 image: '/tour-prepirinees.jpg',
+                images: ['/tour-prepirinees.jpg', '/tour-prepirinees-2.jpg'],
+                itinerary: [
+                    'Transfer to the Pre-Pyrenees',
+                    'Orientation in an authentic medieval village',
+                    'Guided hike through forests and chapels',
+                    'Snack break with local products',
+                    'Return to Barcelona'
+                ],
                 category: 'Nature'
             },
             {
@@ -513,6 +649,14 @@ export const translations = {
                 groupSize: '1-8',
                 price: 75,
                 image: '/tour-kayak.jpg',
+                images: ['/tour-kayak.jpg', '/tour-kayak-2.jpg'],
+                itinerary: [
+                    'Arrival at the Costa Brava nautical base',
+                    'Safety briefing and equipment preparation',
+                    'Navigation along cliffs and sea caves',
+                    'Snorkeling session in a hidden cove',
+                    'Debriefing and return'
+                ],
                 category: 'Aventure'
             },
             {
@@ -527,6 +671,14 @@ export const translations = {
                 groupSize: '1-8',
                 price: 125,
                 image: '/tour-montserrat.jpg',
+                images: ['/tour-montserrat.jpg', '/tour-montserrat-2.jpg'],
+                itinerary: [
+                    'Departure from Barcelona to the sacred mountain',
+                    'Guided tour of Montserrat Monastery',
+                    'Transfer to a family-run Penedès bodega',
+                    'Vineyard and cellar tour',
+                    'Local wine tasting and return'
+                ],
                 category: 'Culture'
             },
             {
@@ -541,6 +693,15 @@ export const translations = {
                 groupSize: '1-8',
                 price: 165,
                 image: '/tour-collioure.jpg',
+                images: ['/tour-collioure.jpg'],
+                itinerary: [
+                    'Early morning departure from Barcelona',
+                    'Historic visit of Girona',
+                    'Scenic drive to France',
+                    'Free time and lunch in Collioure',
+                    'Traditional anchovy tasting',
+                    'Return trip to Barcelona'
+                ],
                 category: 'Excursion'
             },
             {
@@ -555,6 +716,14 @@ export const translations = {
                 groupSize: '1-8',
                 price: 55,
                 image: '/tour-barcelona-hidden.jpg',
+                images: ['/tour-barcelona-hidden.jpg'],
+                itinerary: [
+                    'Meeting in the Old City',
+                    'Exploration of the Gothic Quarter and its secrets',
+                    'Crossing into Born and its merchant history',
+                    'Tasting of a traditional local snack',
+                    'End of tour with personalized recommendations'
+                ],
                 category: 'Ville'
             },
             {
@@ -569,6 +738,14 @@ export const translations = {
                 groupSize: '1-8',
                 price: 85,
                 image: '/tour-camironda.jpg',
+                images: ['/tour-camironda.jpg'],
+                itinerary: [
+                    'Departure from Barcelona to Calella de Palafrugell',
+                    'Start of the guided walk on the coastal path',
+                    'Stop at a cove for a swim break',
+                    'End of hike and seafood lunch',
+                    'Free time in the village and return'
+                ],
                 category: 'Randonnée'
             }
         ],
@@ -588,7 +765,15 @@ export const translations = {
             reserve: 'Reservar',
             live: 'Experiencia Live',
             no_live: 'No hay tour en curso',
-            enter_code: 'Introduce el código del tour'
+            enter_code: 'Introduce el código del tour',
+            home: 'Inicio'
+        },
+        common: {
+            back: 'Volver',
+            next: 'Siguiente',
+            finish: 'Terminar',
+            pay: 'Pagar y Reservar',
+            error_server: 'Error del servidor'
         },
         about_hook: {
             title: 'Un enfoque humano y auténtico para descubrir la verdadera Cataluña.',
@@ -739,7 +924,27 @@ export const translations = {
             processing_fees: 'Gastos de gestión del pago',
             per_person_incl_fees: 'por persona (gastos incluidos)',
             phone: 'Teléfono',
-            payment_error: 'Error de pago'
+            payment_error: 'Error de pago',
+            initialization: 'Inicializando el pago...',
+            summary: 'Resumen:',
+            total_paid: 'Total pagado:',
+            participants_label: 'Viajeros:'
+        },
+        tour_dialog: {
+            highlights_label: 'Puntos destacados:',
+            quick_info: 'Información rápida:',
+            instant_confirmation: 'Confirmación instantánea',
+            flexible_cancellation: 'Cancelación flexible (24h)',
+            open_maps: 'Abrir en Google Maps',
+            maps_description: 'Visualiza el punto de encuentro directamente en Google Maps para una mejor experiencia.',
+            maps_button: 'Cómo llegar',
+            view_on_maps: 'Ver en Google Maps'
+        },
+        footer: {
+            made_with: 'Hecho con Pasión.',
+            legal: 'Aviso Legal',
+            privacy: 'Privacidad',
+            navigation: 'Navegación'
         },
         live: {
             title: '¡Un tour está en curso!',
@@ -773,6 +978,15 @@ export const translations = {
                 groupSize: '1-8',
                 price: 145,
                 image: '/tour-girona.jpg',
+                images: ['/tour-girona.jpg', '/tour-girona-2.jpg', '/tour-girona-3.jpg'],
+                itinerary: [
+                    'Salida de su alojamiento en Barcelona',
+                    'Visita guiada por la Girona vieja y el barrio judío',
+                    'Exploración del pueblo medieval de Pals',
+                    'Tiempo libre y almuerzo en Calella de Palafrugell',
+                    'Pequeña caminata por el famoso Camí de Ronda',
+                    'Regreso a Barcelona al final de la tarde'
+                ],
                 category: 'Excursion'
             },
             {
@@ -787,6 +1001,14 @@ export const translations = {
                 groupSize: '1-8',
                 price: 95,
                 image: '/tour-prepirinees.jpg',
+                images: ['/tour-prepirinees.jpg', '/tour-prepirinees-2.jpg'],
+                itinerary: [
+                    'Traslado hacia el Prepirineo',
+                    'Orientación en un pueblo medieval auténtico',
+                    'Senderismo guiado a través de bosques y capillas',
+                    'Pausa para snack con productos locales',
+                    'Regreso a Barcelona'
+                ],
                 category: 'Nature'
             },
             {
@@ -801,6 +1023,14 @@ export const translations = {
                 groupSize: '1-8',
                 price: 75,
                 image: '/tour-kayak.jpg',
+                images: ['/tour-kayak.jpg', '/tour-kayak-2.jpg'],
+                itinerary: [
+                    'Llegada a la base náutica de la Costa Brava',
+                    'Briefing de seguridad y preparación del equipo',
+                    'Navegación bordeando acantilados y cuevas marinas',
+                    'Sesión de snorkel en una cala aislada',
+                    'Debriefing y regreso'
+                ],
                 category: 'Aventure'
             },
             {
@@ -815,6 +1045,14 @@ export const translations = {
                 groupSize: '1-8',
                 price: 125,
                 image: '/tour-montserrat.jpg',
+                images: ['/tour-montserrat.jpg', '/tour-montserrat-2.jpg'],
+                itinerary: [
+                    'Salida de Barcelona hacia la montaña sagrada',
+                    'Visita guiada al Monasterio de Montserrat',
+                    'Traslado a una bodega familiar del Penedès',
+                    'Visita de los viñedos y la bodega',
+                    'Degustación de vinos locales y regreso'
+                ],
                 category: 'Culture'
             },
             {
@@ -829,6 +1067,15 @@ export const translations = {
                 groupSize: '1-8',
                 price: 165,
                 image: '/tour-collioure.jpg',
+                images: ['/tour-collioure.jpg'],
+                itinerary: [
+                    'Salida temprana de Barcelona',
+                    'Visita histórica de Girona',
+                    'Ruta panorámica hacia Francia',
+                    'Tiempo libre y almuerzo en Collioure',
+                    'Degustación de anchoas tradicionales',
+                    'Trayecto de regreso a Barcelona'
+                ],
                 category: 'Excursion'
             },
             {
@@ -843,6 +1090,14 @@ export const translations = {
                 groupSize: '1-8',
                 price: 55,
                 image: '/tour-barcelona-hidden.jpg',
+                images: ['/tour-barcelona-hidden.jpg'],
+                itinerary: [
+                    'Encuentro en el Casco Antiguo',
+                    'Exploración del Barrio Gótico y sus secretos',
+                    'Cruce hacia el Born y su historia comercial',
+                    'Degustación de un snack tradicional local',
+                    'Fin del tour con recomendaciones personalizadas'
+                ],
                 category: 'Ville'
             },
             {
@@ -857,6 +1112,14 @@ export const translations = {
                 groupSize: '1-8',
                 price: 85,
                 image: '/tour-camironda.jpg',
+                images: ['/tour-camironda.jpg'],
+                itinerary: [
+                    'Salida de Barcelona hacia Calella de Palafrugell',
+                    'Inicio de la caminata guiada por el sendero costero',
+                    'Parada en una cala para bañarse',
+                    'Fin de la caminata y almuerzo marinero',
+                    'Tiempo libre en el pueblo y regreso'
+                ],
                 category: 'Randonnée'
             }
         ],

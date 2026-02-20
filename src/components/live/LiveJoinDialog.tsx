@@ -15,7 +15,7 @@ interface LiveJoinDialogProps {
 
 export const LiveJoinDialog = ({ isOpen, onOpenChange, lang, t }: LiveJoinDialogProps) => {
     const [sessionCode, setSessionCode] = useState('');
-    const [activeSessions, setActiveSessions] = useState<any[]>([]); // Keeping any here for convenience as it's from DB
+    const [activeSessions, setActiveSessions] = useState<{ id: string; session_code: string; tours: { title: string; title_en: string | null; title_es: string | null } | null }[]>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {

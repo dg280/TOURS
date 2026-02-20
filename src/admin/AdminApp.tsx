@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   LayoutDashboard,
   Calendar,
@@ -28,7 +28,8 @@ import {
   ExternalLink,
   Maximize2,
   Minimize2,
-  Camera
+  Camera,
+  Info
 } from 'lucide-react';
 import { translations } from '@/lib/translations';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,8 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 import { supabase } from '@/lib/supabase';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import * as React from "react"
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -568,7 +571,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
         .single();
 
       if (error) throw error;
-      setActiveSession({ tour, session: data as any });
+      setActiveSession({ tour, session: data as { id: string; current_stop_index: number; status: string; session_code: string } });
       toast.success(`Session Live démarrée ! Code : ${sessionCode}`);
 
     } catch (err) {
@@ -589,7 +592,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
         .single();
 
       if (error) throw error;
-      setActiveSession({ ...activeSession, session: data as any });
+      setActiveSession({ ...activeSession, session: data as { id: string; current_stop_index: number; status: string; session_code: string } });
     } catch (err) {
       toast.error("Erreur de mise à jour : " + (err as Error).message);
     }
@@ -638,71 +641,70 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
     }
   };
 
-  const saveTour = async () => {
-    if (editingTour) {
-      try {
-        if (supabase) {
-          const payload = {
-            title: editingTour.title,
-            title_en: editingTour.title_en,
-            title_es: editingTour.title_es,
-            subtitle: editingTour.subtitle,
-            subtitle_en: editingTour.subtitle_en,
-            subtitle_es: editingTour.subtitle_es,
-            description: editingTour.description,
-            description_en: editingTour.description_en,
-            description_es: editingTour.description_es,
-            duration: editingTour.duration,
-            group_size: editingTour.groupSize,
-            price: editingTour.price,
-            image: editingTour.image,
-            category: editingTour.category,
-            highlights: editingTour.highlights,
-            highlights_en: editingTour.highlights_en,
-            highlights_es: editingTour.highlights_es,
-            is_active: editingTour.isActive,
-            itinerary: editingTour.itinerary,
-            itinerary_en: editingTour.itinerary_en,
-            itinerary_es: editingTour.itinerary_es,
-            included: editingTour.included,
-            included_en: editingTour.included_en,
-            included_es: editingTour.included_es,
-            not_included: editingTour.notIncluded,
-            not_included_en: editingTour.notIncluded_en,
-            not_included_es: editingTour.notIncluded_es,
-            meeting_point: editingTour.meetingPoint,
-            meeting_point_en: editingTour.meetingPoint_en,
-            meeting_point_es: editingTour.meetingPoint_es,
-            meeting_point_map_url: extractIframeSrc(editingTour.meetingPointMapUrl || ''),
-            images: editingTour.images,
-            pricing_tiers: editingTour.pricing_tiers || {},
-            stops: editingTour.stops || [],
-            stripe_tip_link: editingTour.stripe_tip_link
-          };
 
-          const { error } = await supabase.from('tours').upsert({
-            id: editingTour.id,
-            ...payload
-          });
-          if (error) throw error;
-        }
+  const handleSaveTour = async (tourData: Tour) => {
+    try {
+      if (supabase) {
+        const payload = {
+          title: tourData.title,
+          title_en: tourData.title_en,
+          title_es: tourData.title_es,
+          subtitle: tourData.subtitle,
+          subtitle_en: tourData.subtitle_en,
+          subtitle_es: tourData.subtitle_es,
+          description: tourData.description,
+          description_en: tourData.description_en,
+          description_es: tourData.description_es,
+          duration: tourData.duration,
+          group_size: tourData.groupSize,
+          price: tourData.price,
+          image: tourData.image,
+          category: tourData.category,
+          highlights: tourData.highlights,
+          highlights_en: tourData.highlights_en,
+          highlights_es: tourData.highlights_es,
+          is_active: tourData.isActive,
+          itinerary: tourData.itinerary,
+          itinerary_en: tourData.itinerary_en,
+          itinerary_es: tourData.itinerary_es,
+          included: tourData.included,
+          included_en: tourData.included_en,
+          included_es: tourData.included_es,
+          not_included: tourData.notIncluded,
+          not_included_en: tourData.notIncluded_en,
+          not_included_es: tourData.notIncluded_es,
+          meeting_point: tourData.meetingPoint,
+          meeting_point_en: tourData.meetingPoint_en,
+          meeting_point_es: tourData.meetingPoint_es,
+          meeting_point_map_url: extractIframeSrc(tourData.meetingPointMapUrl || ''),
+          images: tourData.images,
+          pricing_tiers: tourData.pricing_tiers || {},
+          stops: tourData.stops || [],
+          stripe_tip_link: tourData.stripe_tip_link
+        };
 
-        const tourExists = tours.find(t => t.id === editingTour.id);
-        let updatedTours;
-        if (tourExists) {
-          updatedTours = tours.map(t => t.id === editingTour.id ? editingTour : t);
-        } else {
-          updatedTours = [...tours, editingTour];
-        }
-        setTours(updatedTours);
-        localStorage.setItem('td-tours', JSON.stringify(updatedTours));
-
-        toast.success("Tour enregistré avec succès.");
-        setIsEditOpen(false);
-      } catch (err) {
-        console.error('Save error:', err);
-        toast.error("Erreur d'enregistrement : " + (err as Error).message);
+        const { error } = await supabase.from('tours').upsert({
+          id: tourData.id,
+          ...payload
+        } as any);
+        if (error) throw error;
       }
+
+      const tourExists = tours.find(t => t.id === tourData.id);
+      let updatedTours;
+      if (tourExists) {
+        updatedTours = tours.map(t => t.id === tourData.id ? tourData : t);
+      } else {
+        updatedTours = [...tours, tourData];
+      }
+      setTours(updatedTours);
+      localStorage.setItem('td-tours', JSON.stringify(updatedTours));
+
+      toast.success("Tour enregistré avec succès.");
+      setIsEditOpen(false);
+    } catch (err) {
+      console.error('Save error:', err);
+      toast.error("Erreur d'enregistrement : " + (err as Error).message);
     }
   };
 
@@ -814,7 +816,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
       }
       toast.success("Tout le catalogue est synchronisé sur Supabase !", { id: loadingToast });
     } catch (err) {
-      const error = err as any;
+      const error = err as { code?: string; message: string };
       console.error('Sync error:', error);
       if (error.code === '42P01') {
         toast.error("La table 'tours' n'existe pas. Avez-vous exécuté le SQL dans Supabase ?", { id: loadingToast });
@@ -863,9 +865,9 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
           included: t.included || [],
           included_en: t.included_en || [],
           included_es: t.included_es || [],
-          notIncluded: t.not_included || [],
-          notIncluded_en: t.not_included_en || [],
-          notIncluded_es: t.not_included_es || [],
+          notIncluded: t.notIncluded || [],
+          notIncluded_en: t.notIncluded_en || [],
+          notIncluded_es: t.notIncluded_es || [],
           meetingPoint: t.meeting_point,
           meetingPoint_en: t.meeting_point_en,
           meetingPoint_es: t.meeting_point_es
@@ -906,16 +908,23 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
     }
   };
 
-  const deleteTour = async (id: string) => {
+  const handleEditTour = (tour: Tour) => {
+    setEditingTour(prepareTourForEditing(tour));
+    setIsEditOpen(true);
+  };
+
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleDeleteTour = async (tour: any) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce tour ?')) return;
 
     try {
       if (supabase) {
-        const { error } = await supabase.from('tours').delete().eq('id', id);
+        const { error } = await supabase.from('tours').delete().eq('id', tour.id);
         if (error) throw error;
       }
 
-      const updatedTours = tours.filter(t => t.id !== id);
+      const updatedTours = tours.filter(t => t.id !== tour.id);
       setTours(updatedTours);
       localStorage.setItem('td-tours', JSON.stringify(updatedTours));
       toast.success("Tour supprimé avec succès.");
@@ -937,7 +946,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
             </div>
             <div className="flex items-center gap-3">
               <Badge variant="outline" className="text-white border-white text-lg px-4 py-1">
-                CODE : {(activeSession.session as any).session_code}
+                CODE : {activeSession.session.session_code}
               </Badge>
               <Button
                 variant="ghost"
@@ -956,7 +965,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                 <div className="bg-white p-4 rounded-2xl border border-amber-200 flex flex-col items-center justify-center text-center space-y-3 shadow-sm">
                   <div className="w-32 h-32 rounded-xl overflow-hidden border border-gray-100 flex items-center justify-center">
                     <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${window.location.origin}/live/${(activeSession.session as any).session_code}`)}`}
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${window.location.origin}/live/${activeSession.session.session_code}`)}`}
                       alt="QR Code"
                       className="w-full h-full"
                     />
@@ -964,7 +973,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                   <p className="text-xs font-medium text-amber-900">Scannez pour rejoindre</p>
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline" className="h-7 text-[10px]" onClick={() => {
-                      const url = `${window.location.origin}/live/${(activeSession.session as any).session_code}`;
+                      const url = `${window.location.origin}/live/${activeSession.session.session_code}`;
                       navigator.clipboard.writeText(url);
                       toast.success("Lien copié !");
                     }}>Copier le lien</Button>
@@ -1114,7 +1123,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
               <div className="flex justify-between items-center pt-2">
                 <span className="font-bold text-amber-600">{tour.price}€</span>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => { setEditingTour(prepareTourForEditing(tour)); setIsEditOpen(true); }}>Modifier</Button>
+                  <Button size="sm" variant="outline" onClick={() => handleEditTour(tour)}>Modifier</Button>
                   <Button
                     size="sm"
                     className="bg-amber-600 hover:bg-amber-700"
@@ -1123,7 +1132,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                   >
                     <Activity className="w-4 h-4 mr-1" /> Live
                   </Button>
-                  <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300" onClick={() => deleteTour(tour.id.toString())}>
+                  <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300" onClick={() => handleDeleteTour(tour)}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -1436,10 +1445,14 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                   <div className="space-y-2">
                     <Label>Lien Google Maps (Embed)</Label>
                     <Input
-                      placeholder="https://www.google.com/maps/embed?pb=..."
                       value={editingTour.meetingPointMapUrl || ''}
                       onChange={(e) => setEditingTour({ ...editingTour, meetingPointMapUrl: e.target.value })}
+                      placeholder="https://www.google.com/maps/embed... ou lien court"
                     />
+                    <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                      <Info className="w-3 h-3 text-amber-500" />
+                      Lien interactif : "Partager" &gt; "Intégrer une carte" &gt; copier le lien src. Les liens courts (maps.app.goo.gl) s'afficheront sous forme de bouton.
+                    </p>
                     <p className="text-[10px] text-gray-400 font-medium">Pour afficher une carte, collez l'URL 'src' de l'iframe de partage Google Maps (Embed).</p>
                   </div>
 
@@ -1683,7 +1696,7 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
           )}
           <div className="px-6 py-4 bg-gray-50 border-t flex justify-end gap-3 shrink-0">
             <Button variant="outline" onClick={() => setIsEditOpen(false)}>Annuler</Button>
-            <Button onClick={saveTour} className="bg-amber-600 hover:bg-amber-700 font-bold px-8">Enregistrer</Button>
+            <Button onClick={() => editingTour && handleSaveTour(editingTour)} className="bg-amber-600 hover:bg-amber-700 font-bold px-8">Enregistrer</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -1913,19 +1926,20 @@ function AdminsManagement() {
   const [newEmail, setNewEmail] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchAdmins = async () => {
+  const fetchAdmins = useCallback(async () => {
     if (!supabase) return;
     const { data, error } = await supabase
       .from('authorized_admins')
       .select('email')
       .order('email');
-    if (!error && data) setAdmins(data);
+    if (!error && data) setAdmins(data as { email: string }[]);
     setIsLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchAdmins();
-  }, []);
+  }, [fetchAdmins]);
 
   const handleAddAdmin = async () => {
     if (!newEmail || !supabase) return;
@@ -2025,6 +2039,7 @@ function Monitoring() {
   const [supabaseStatus, setSupabaseStatus] = useState<'checking' | 'ok' | 'error'>('checking');
   const [latency, setLatency] = useState<number | null>(null);
   const [lastCommit, setLastCommit] = useState<{ message: string; date: string; url?: string } | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [vercelDeploys, setVercelDeploys] = useState<any[]>([]);
   const [vToken, setVToken] = useState(localStorage.getItem('td-vercel-token') || '');
   const [ghToken, setGhToken] = useState(localStorage.getItem('td-github-token') || '');
@@ -2083,6 +2098,7 @@ function Monitoring() {
       const projectsData = await projectsRes.json();
 
       // Look for a project that matches our domain or is named 'tours'
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const project = projectsData.projects?.find((p: any) =>
         p.name === 'tours' ||
         p.targets?.production?.alias?.includes('tours-five-olive.vercel.app')
@@ -2106,7 +2122,7 @@ function Monitoring() {
 
   useEffect(() => {
     if (vToken) fetchVercelDeploys(vToken);
-  }, []);
+  }, [vToken]);
 
   useEffect(() => {
     // Check Supabase
@@ -2128,7 +2144,7 @@ function Monitoring() {
       .catch(() => setVercelStatus('error'));
 
     // Fetch Last Git Commit
-    const gitHeaders: any = {};
+    const gitHeaders: Record<string, string> = {};
     if (ghToken) gitHeaders['Authorization'] = `token ${ghToken}`;
 
     fetch('https://api.github.com/repos/dg280/TOURS/commits/main', { headers: gitHeaders })
@@ -2641,8 +2657,8 @@ export default function AdminApp() {
           toast.success("Profil mis à jour");
         }
       }
-    } catch (error) {
-      toast.error("Erreur lors de la sauvegarde");
+    } catch (err) {
+      toast.error("Erreur lors de la sauvegarde : " + (err as Error).message);
     }
   };
 

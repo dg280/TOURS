@@ -1,0 +1,6 @@
+# Exclude large data files from formatting
+src/lib/translations.ts
+package-lock.json
+dist/
+public/
+node_modules/

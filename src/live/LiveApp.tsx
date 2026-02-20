@@ -120,7 +120,7 @@ export default function LiveApp() {
                 message: msg
             });
             if (error) throw error;
-        } catch (err) {
+        } catch {
             toast.error("Échec de l'envoi");
         }
     };

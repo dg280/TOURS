@@ -1,4 +1,4 @@
-import { MapPin, X, Check, CheckCircle2 } from 'lucide-react';
+import { MapPin, X, Check, CheckCircle2, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -20,7 +20,7 @@ import {
     CarouselPrevious,
 } from "@/components/ui/carousel";
 import type { Tour } from '@/lib/types';
-import { extractIframeSrc } from '@/lib/utils';
+import { extractIframeSrc, isEmbeddableMapUrl } from '@/lib/utils';
 import type { Language, Translations } from '@/lib/translations';
 
 interface TourDialogProps {
@@ -94,7 +94,7 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, lang, t, onBookNow }: T
                                             {lang === 'en' ? (tour.description_en || tour.description) : lang === 'es' ? (tour.description_es || tour.description) : tour.description}
                                         </p>
                                         <div className="mt-6">
-                                            <h4 className="font-sans font-bold text-gray-900 mb-4 uppercase tracking-widest text-xs">Points forts :</h4>
+                                            <h4 className="font-sans font-bold text-gray-900 mb-4 uppercase tracking-widest text-xs">{t.tour_dialog.highlights_label}</h4>
                                             <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                 {(lang === 'en' ? (tour.highlights_en || tour.highlights) : lang === 'es' ? (tour.highlights_es || tour.highlights) : tour.highlights).map((h, i) => (
                                                     <li key={i} className="flex items-start gap-2 text-gray-600">
@@ -159,16 +159,43 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, lang, t, onBookNow }: T
                                                 </p>
                                             </div>
                                             {tour.meetingPointMapUrl ? (
-                                                <div className="aspect-video rounded-lg overflow-hidden border border-gray-200">
-                                                    <iframe
-                                                        src={extractIframeSrc(tour.meetingPointMapUrl)}
-                                                        width="100%"
-                                                        height="100%"
-                                                        style={{ border: 0 }}
-                                                        allowFullScreen
-                                                        loading="lazy"
-                                                        referrerPolicy="no-referrer-when-downgrade"
-                                                    ></iframe>
+                                                <div className="rounded-lg overflow-hidden border border-gray-200">
+                                                    {isEmbeddableMapUrl(tour.meetingPointMapUrl) ? (
+                                                        <div className="aspect-video">
+                                                            <iframe
+                                                                src={extractIframeSrc(tour.meetingPointMapUrl)}
+                                                                width="100%"
+                                                                height="100%"
+                                                                style={{ border: 0 }}
+                                                                allowFullScreen
+                                                                loading="lazy"
+                                                                referrerPolicy="no-referrer-when-downgrade"
+                                                            ></iframe>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="p-8 flex flex-col items-center justify-center text-center bg-gray-50 space-y-4">
+                                                              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 mb-2">
+                                                                <MapPin className="w-8 h-8" />
+                                                            </div>
+                                                            <div>
+                                                                <h4 className="text-gray-900 font-semibold mb-1">
+                                                                    {t.tour_dialog.open_maps}
+                                                                </h4>
+                                                                <p className="text-gray-500 text-sm max-w-[250px]">
+                                                                    {t.tour_dialog.maps_description}
+                                                                </p>
+                                                            </div>
+                                                            <a
+                                                                href={tour.meetingPointMapUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-2 px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-xl transition-all shadow-sm active:scale-95"
+                                                            >
+                                                                {t.tour_dialog.maps_button}
+                                                                <ExternalLink className="w-4 h-4" />
+                                                            </a>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             ) : tour.meetingPoint?.startsWith('https://www.google.com/maps/embed') || tour.meetingPoint?.includes('<iframe') ? (
                                                 <div className="aspect-video rounded-lg overflow-hidden border border-gray-200">
@@ -185,8 +212,8 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, lang, t, onBookNow }: T
                                             ) : tour.meetingPoint?.includes('google.com/maps') ? (
                                                 <div className="aspect-video bg-gray-100 rounded-lg flex flex-col items-center justify-center text-gray-600 p-8 text-center border">
                                                     <MapPin className="w-8 h-8 mb-2 opacity-50" />
-                                                    <p className="mb-4">Visualiser sur Google Maps</p>
-                                                    <Button variant="outline" onClick={() => window.open(tour.meetingPoint, '_blank')}>Ouvrir Maps</Button>
+                                                    <p className="mb-4">{t.tour_dialog.view_on_maps}</p>
+                                                    <Button variant="outline" onClick={() => window.open(tour.meetingPoint, '_blank')}>{t.tour_dialog.open_maps}</Button>
                                                 </div>
                                             ) : null}
                                         </div>
@@ -218,7 +245,7 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, lang, t, onBookNow }: T
                                     </div>
 
                                     <div className="space-y-4">
-                                        <h4 className="font-sans font-bold text-gray-900 uppercase tracking-widest text-xs">Infos rapides :</h4>
+                                        <h4 className="font-sans font-bold text-gray-900 uppercase tracking-widest text-xs">{t.tour_dialog.quick_info}</h4>
                                         <div className="grid gap-3">
                                             <div className="flex items-center gap-3 text-gray-600">
                                                 <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"><CheckCircle2 className="w-4 h-4 text-amber-600" /></div>
@@ -228,11 +255,11 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, lang, t, onBookNow }: T
                                             </div>
                                             <div className="flex items-center gap-3 text-gray-600">
                                                 <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"><CheckCircle2 className="w-4 h-4 text-amber-600" /></div>
-                                                <span>Confirmation instantanée</span>
+                                                <span>{t.tour_dialog.instant_confirmation}</span>
                                             </div>
                                             <div className="flex items-center gap-3 text-gray-600">
                                                 <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"><CheckCircle2 className="w-4 h-4 text-amber-600" /></div>
-                                                <span>Annulation flexible (24h)</span>
+                                                <span>{t.tour_dialog.flexible_cancellation}</span>
                                             </div>
                                         </div>
                                     </div>

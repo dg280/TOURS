@@ -103,7 +103,7 @@ export type Database = {
                     meeting_point_en: string | null;
                     meeting_point_es: string | null;
                     meeting_point_map_url: string | null;
-                    stops: any[] | null;
+                    stops: unknown[] | null;
                     stripe_tip_link: string | null;
                 };
                 Insert: {
@@ -142,19 +142,19 @@ export type Database = {
                     meeting_point_en?: string | null;
                     meeting_point_es?: string | null;
                     meeting_point_map_url?: string | null;
-                    stops?: any[] | null;
+                    stops?: unknown[] | null;
                     stripe_tip_link?: string | null;
                 };
             };
             site_config: {
                 Row: {
                     key: string;
-                    value: any;
+                    value: Record<string, unknown>;
                     updated_at: string;
                 };
                 Insert: {
                     key: string;
-                    value: any;
+                    value: Record<string, unknown>;
                     updated_at?: string;
                 };
             };

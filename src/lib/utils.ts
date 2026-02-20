@@ -24,14 +24,15 @@ export const decodeHTMLEntities = (str: string) => {
 export const prepareTourForEditing = <T>(item: T): T => {
   if (!item) return item;
 
-  const decode = (val: any): any => {
+  const decode = (val: unknown): unknown => {
     if (typeof val === 'string') return decodeHTMLEntities(val);
     if (Array.isArray(val)) return val.map(decode);
     if (val && typeof val === 'object') {
-      const result: Record<string, any> = {};
-      for (const k in val) {
-        if (Object.prototype.hasOwnProperty.call(val, k)) {
-          result[k] = decode((val as any)[k]);
+      const result: Record<string, unknown> = {};
+      const obj = val as Record<string, unknown>;
+      for (const k in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, k)) {
+          result[k] = decode(obj[k]);
         }
       }
       return result;
@@ -47,4 +48,11 @@ export const extractIframeSrc = (input: string): string => {
 
   const match = input.match(/src=["']([^"']+)["']/);
   return match ? match[1] : input.trim();
+};
+
+export const isEmbeddableMapUrl = (url: string): boolean => {
+  if (!url) return false;
+  // Standard Google Maps embed URLs contain /embed/ or /maps/embed
+  // shortened links (maps.app.goo.gl) or direct map links are NOT embeddable
+  return url.includes('/embed') || url.includes('/maps/embed') || url.includes('google.com/maps/preview');
 };
