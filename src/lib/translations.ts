@@ -557,6 +557,9 @@ export const translations = {
         },
         tour_dialog: {
             highlights_label: 'Highlights:',
+            itinerary_label: 'Itinerary:',
+            included_label: 'Included:',
+            not_included_label: 'Not Included:',
             quick_info: 'Quick info:',
             instant_confirmation: 'Instant confirmation',
             flexible_cancellation: 'Flexible cancellation (24h)',
@@ -932,6 +935,9 @@ export const translations = {
         },
         tour_dialog: {
             highlights_label: 'Puntos destacados:',
+            itinerary_label: 'Itinerario:',
+            included_label: 'Incluido:',
+            not_included_label: 'No incluido:',
             quick_info: 'Información rápida:',
             instant_confirmation: 'Confirmación instantánea',
             flexible_cancellation: 'Cancelación flexible (24h)',

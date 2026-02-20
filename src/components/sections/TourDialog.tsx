@@ -107,6 +107,7 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, lang, t, onBookNow }: T
                                     </TabsContent>
 
                                     <TabsContent value="itin" className="mt-4">
+                                        <h4 className="font-sans font-bold text-gray-900 mb-4 uppercase tracking-widest text-xs">{t.tour_dialog.itinerary_label}</h4>
                                         <div className="space-y-4">
                                             {(lang === 'en' ? (tour.itinerary_en || tour.itinerary) : lang === 'es' ? (tour.itinerary_es || tour.itinerary) : tour.itinerary)?.map((step, i) => (
                                                 <div key={i} className="flex gap-4 items-start">
@@ -124,7 +125,7 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, lang, t, onBookNow }: T
                                     <TabsContent value="incl" className="mt-4 grid md:grid-cols-2 gap-8">
                                         <div>
                                             <h4 className="font-sans font-bold text-green-700 mb-3 flex items-center gap-2 uppercase tracking-widest text-xs">
-                                                <Check className="w-5 h-5" /> {t.booking.included_label}
+                                                <Check className="w-5 h-5" /> {t.tour_dialog.included_label}
                                             </h4>
                                             <ul className="space-y-2">
                                                 {(lang === 'en' ? (tour.included_en || tour.included) : lang === 'es' ? (tour.included_es || tour.included) : tour.included)?.map((item, i) => (
@@ -137,7 +138,7 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, lang, t, onBookNow }: T
                                         </div>
                                         <div>
                                             <h4 className="font-sans font-bold text-red-700 mb-3 flex items-center gap-2 uppercase tracking-widest text-xs">
-                                                <X className="w-5 h-5" /> {t.booking.not_included_label}
+                                                <X className="w-5 h-5" /> {t.tour_dialog.not_included_label}
                                             </h4>
                                             <ul className="space-y-2">
                                                 {(lang === 'en' ? (tour.notIncluded_en || tour.notIncluded) : lang === 'es' ? (tour.notIncluded_es || tour.notIncluded) : tour.notIncluded)?.map((item, i) => (
