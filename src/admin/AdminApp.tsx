@@ -29,7 +29,8 @@ import {
   Maximize2,
   Minimize2,
   Camera,
-  Info
+  Info,
+  RefreshCw
 } from 'lucide-react';
 import { translations } from '@/lib/translations';
 import { Button } from '@/components/ui/button';
@@ -1456,31 +1457,92 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                     <p className="text-[10px] text-gray-400 font-medium">Pour afficher une carte, collez l'URL 'src' de l'iframe de partage Google Maps (Embed).</p>
                   </div>
 
-                  <div className="space-y-4">
-                    <Label>Photos du tour (Gérez plusieurs photos)</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="URL de l'image principale"
-                        value={editingTour.image}
-                        onChange={(e) => setEditingTour({ ...editingTour, image: e.target.value })}
-                        className="flex-1"
-                      />
-                      <input
-                        type="file"
-                        ref={tourFileRef}
-                        className="hidden"
-                        accept="image/*"
-                        multiple
-                        onChange={handleTourImageUpload}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => tourFileRef.current?.click()}
-                        className="shrink-0"
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                      <Label className="text-sm font-bold">Photos & Médias</Label>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => {
+                          const master = (translations.fr as any).tour_data.find((td: any) => String(td.id) === String(editingTour.id));
+                          const masterEn = (translations.en as any).tour_data.find((td: any) => String(td.id) === String(editingTour.id));
+                          const masterEs = (translations.es as any).tour_data.find((td: any) => String(td.id) === String(editingTour.id));
+                          
+                          if (master) {
+                            setEditingTour({
+                              ...editingTour,
+                              title_en: masterEn?.title || editingTour.title_en,
+                              subtitle_en: masterEn?.subtitle || editingTour.subtitle_en,
+                              description_en: masterEn?.description || editingTour.description_en,
+                              highlights_en: masterEn?.highlights || editingTour.highlights_en,
+                              itinerary_en: masterEn?.itinerary || editingTour.itinerary_en,
+                              included_en: masterEn?.included || editingTour.included_en,
+                              notIncluded_en: masterEn?.notIncluded || editingTour.notIncluded_en,
+                              meetingPoint_en: masterEn?.meetingPoint || editingTour.meetingPoint_en,
+                              title_es: masterEs?.title || editingTour.title_es,
+                              subtitle_es: masterEs?.subtitle || editingTour.subtitle_es,
+                              description_es: masterEs?.description || editingTour.description_es,
+                              highlights_es: masterEs?.highlights || editingTour.highlights_es,
+                              itinerary_es: masterEs?.itinerary || editingTour.itinerary_es,
+                              included_es: masterEs?.included || editingTour.included_es,
+                              notIncluded_es: masterEs?.notIncluded || editingTour.notIncluded_es,
+                              meetingPoint_es: masterEs?.meetingPoint || editingTour.meetingPoint_es
+                            });
+                            toast.success("Traductions synchronisées depuis le Master !");
+                          } else {
+                            toast.error("Aucune donnée Master trouvée pour ce tour.");
+                          }
+                        }}
+                        className="text-[10px] h-7 bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100"
                       >
-                        <Plus className="w-4 h-4 mr-2" /> Ajouter des photos
+                        <RefreshCw className="w-3 h-3 mr-1" /> Remplir via Master
                       </Button>
+                    </div>
+
+                    <div className="space-y-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                      <div className="space-y-2">
+                        <Label>Image principale du tour (URL)</Label>
+                        <div className="flex gap-4 items-start">
+                          <Input
+                            placeholder="URL de l'image principale"
+                            value={editingTour.image}
+                            onChange={(e) => setEditingTour({ ...editingTour, image: e.target.value })}
+                            className="flex-1"
+                          />
+                          {editingTour.image && (
+                            <div className="w-24 h-16 rounded-lg overflow-hidden border border-gray-200 shadow-sm shrink-0 bg-gray-100">
+                              <img 
+                                src={editingTour.image} 
+                                alt="Preview" 
+                                className="w-full h-full object-cover"
+                                onError={(e) => (e.currentTarget.style.display = 'none')}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Ajouter des photos à la galerie</Label>
+                        <div className="flex gap-2">
+                          <input
+                            type="file"
+                            ref={tourFileRef}
+                            className="hidden"
+                            accept="image/*"
+                            multiple
+                            onChange={handleTourImageUpload}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => tourFileRef.current?.click()}
+                            className="w-full h-12 border-dashed border-2 hover:border-amber-300 hover:bg-amber-50"
+                          >
+                            <Plus className="w-4 h-4 mr-2" /> Upload ou Sélectionner plusieurs
+                          </Button>
+                        </div>
+                      </div>
                     </div>
 
                     {editingTour.images && editingTour.images.length > 0 && (
@@ -1596,17 +1658,29 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                                     }}
                                     className="h-9 font-bold"
                                   />
-                                  <div className="flex gap-2">
-                                    <Input
-                                      placeholder="Image URL (optionnelle)"
-                                      value={stop.image || ''}
-                                      onChange={(e) => {
-                                        const newStops = [...(editingTour.stops || [])];
-                                        newStops[idx].image = e.target.value;
-                                        setEditingTour({ ...editingTour, stops: newStops });
-                                      }}
-                                      className="h-8 text-[10px]"
-                                    />
+                                  <div className="flex gap-2 items-start">
+                                    <div className="flex-1 space-y-2">
+                                      <Input
+                                        placeholder="Image URL (optionnelle)"
+                                        value={stop.image || ''}
+                                        onChange={(e) => {
+                                          const newStops = [...(editingTour.stops || [])];
+                                          newStops[idx].image = e.target.value;
+                                          setEditingTour({ ...editingTour, stops: newStops });
+                                        }}
+                                        className="h-8 text-[10px]"
+                                      />
+                                      {stop.image && (
+                                        <div className="w-24 h-16 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 shadow-sm">
+                                          <img 
+                                            src={stop.image} 
+                                            alt={stop.name} 
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => (e.currentTarget.style.display = 'none')}
+                                          />
+                                        </div>
+                                      )}
+                                    </div>
                                     <Button
                                       size="sm"
                                       variant="outline"
