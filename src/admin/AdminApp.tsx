@@ -1159,7 +1159,6 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                 </TabsList>
 
                 {/* Common Fields */}
-                {/* Common Fields */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
                   <div className="space-y-2">
                     <Label className="text-xs uppercase text-gray-400">ID du tour</Label>
@@ -1333,6 +1332,35 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                 </TabsContent>
 
                 <TabsContent value="en" className="space-y-4">
+                  <div className="flex justify-between items-center p-3 bg-amber-50 rounded-lg border border-amber-100 mb-2">
+                    <p className="text-xs text-amber-800 font-medium italic">Synchronisez les textes anglais depuis le catalogue maître.</p>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => {
+                        const masterEn = (translations.en as any).tour_data.find((td: any) => String(td.id) === String(editingTour.id));
+                        if (masterEn) {
+                          setEditingTour({
+                            ...editingTour,
+                            title_en: masterEn.title || editingTour.title_en,
+                            subtitle_en: masterEn.subtitle || editingTour.subtitle_en,
+                            description_en: masterEn.description || editingTour.description_en,
+                            highlights_en: masterEn.highlights || editingTour.highlights_en,
+                            itinerary_en: masterEn.itinerary || editingTour.itinerary_en,
+                            included_en: masterEn.included || editingTour.included_en,
+                            notIncluded_en: masterEn.notIncluded || editingTour.notIncluded_en,
+                            meetingPoint_en: masterEn.meetingPoint || editingTour.meetingPoint_en,
+                          });
+                          toast.success("Traductions EN synchronisées !");
+                        } else {
+                          toast.error("Données EN non trouvées.");
+                        }
+                      }}
+                      className="text-[10px] h-7 bg-white text-amber-600 border-amber-200 hover:bg-amber-100"
+                    >
+                      <RefreshCw className="w-3 h-3 mr-1" /> Sync Master (EN)
+                    </Button>
+                  </div>
                   <div className="space-y-2">
                     <Label>Title (EN)</Label>
                     <Input value={editingTour.title_en || ''} onChange={(e) => setEditingTour({ ...editingTour, title_en: e.target.value })} />
@@ -1388,6 +1416,35 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                 </TabsContent>
 
                 <TabsContent value="es" className="space-y-4">
+                  <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg border border-red-100 mb-2">
+                    <p className="text-xs text-red-800 font-medium italic">Synchronisez les textes espagnols depuis le catalogue maître.</p>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => {
+                        const masterEs = (translations.es as any).tour_data.find((td: any) => String(td.id) === String(editingTour.id));
+                        if (masterEs) {
+                          setEditingTour({
+                            ...editingTour,
+                            title_es: masterEs.title || editingTour.title_es,
+                            subtitle_es: masterEs.subtitle || editingTour.subtitle_es,
+                            description_es: masterEs.description || editingTour.description_es,
+                            highlights_es: masterEs.highlights || editingTour.highlights_es,
+                            itinerary_es: masterEs.itinerary || editingTour.itinerary_es,
+                            included_es: masterEs.included || editingTour.included_es,
+                            notIncluded_es: masterEs.notIncluded || editingTour.notIncluded_es,
+                            meetingPoint_es: masterEs.meetingPoint || editingTour.meetingPoint_es,
+                          });
+                          toast.success("Traductions ES synchronisées !");
+                        } else {
+                          toast.error("Données ES non trouvées.");
+                        }
+                      }}
+                      className="text-[10px] h-7 bg-white text-red-600 border-red-200 hover:bg-red-100"
+                    >
+                      <RefreshCw className="w-3 h-3 mr-1" /> Sync Master (ES)
+                    </Button>
+                  </div>
                   <div className="space-y-2">
                     <Label>Título (ES)</Label>
                     <Input value={editingTour.title_es || ''} onChange={(e) => setEditingTour({ ...editingTour, title_es: e.target.value })} />
@@ -1460,43 +1517,6 @@ function ToursManagement({ tours, setTours }: { tours: Tour[], setTours: React.D
                   <div className="space-y-6">
                     <div className="flex justify-between items-center">
                       <Label className="text-sm font-bold">Photos & Médias</Label>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => {
-                          const master = (translations.fr as any).tour_data.find((td: any) => String(td.id) === String(editingTour.id));
-                          const masterEn = (translations.en as any).tour_data.find((td: any) => String(td.id) === String(editingTour.id));
-                          const masterEs = (translations.es as any).tour_data.find((td: any) => String(td.id) === String(editingTour.id));
-                          
-                          if (master) {
-                            setEditingTour({
-                              ...editingTour,
-                              title_en: masterEn?.title || editingTour.title_en,
-                              subtitle_en: masterEn?.subtitle || editingTour.subtitle_en,
-                              description_en: masterEn?.description || editingTour.description_en,
-                              highlights_en: masterEn?.highlights || editingTour.highlights_en,
-                              itinerary_en: masterEn?.itinerary || editingTour.itinerary_en,
-                              included_en: masterEn?.included || editingTour.included_en,
-                              notIncluded_en: masterEn?.notIncluded || editingTour.notIncluded_en,
-                              meetingPoint_en: masterEn?.meetingPoint || editingTour.meetingPoint_en,
-                              title_es: masterEs?.title || editingTour.title_es,
-                              subtitle_es: masterEs?.subtitle || editingTour.subtitle_es,
-                              description_es: masterEs?.description || editingTour.description_es,
-                              highlights_es: masterEs?.highlights || editingTour.highlights_es,
-                              itinerary_es: masterEs?.itinerary || editingTour.itinerary_es,
-                              included_es: masterEs?.included || editingTour.included_es,
-                              notIncluded_es: masterEs?.notIncluded || editingTour.notIncluded_es,
-                              meetingPoint_es: masterEs?.meetingPoint || editingTour.meetingPoint_es
-                            });
-                            toast.success("Traductions synchronisées depuis le Master !");
-                          } else {
-                            toast.error("Aucune donnée Master trouvée pour ce tour.");
-                          }
-                        }}
-                        className="text-[10px] h-7 bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100"
-                      >
-                        <RefreshCw className="w-3 h-3 mr-1" /> Remplir via Master
-                      </Button>
                     </div>
 
                     <div className="space-y-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
