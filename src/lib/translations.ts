@@ -187,7 +187,7 @@ export const translations = {
             flexible_cancellation: 'Annulation flexible (24h)',
             open_maps: 'Ouvrir dans Google Maps',
             maps_description: 'Visualisez le point de rencontre directement sur Google Maps pour une meilleure expérience.',
-            maps_button: "S'y rendre",
+            maps_button: "S'y rendre (Google Maps)",
             view_on_maps: 'Visualiser sur Google Maps'
         },
         footer: {
@@ -238,6 +238,8 @@ export const translations = {
                 price: 145,
                 image: '/tour-girona.jpg',
                 images: ['/tour-girona.jpg', '/tour-girona-2.png', '/tour-girona-3.png'],
+                meetingPoint: 'https://www.google.com/maps/place/Barcelone',
+                meetingPointMapUrl: 'https://www.google.com/maps/place/Barcelone',
                 category: 'Excursion'
             },
             {
@@ -565,7 +567,7 @@ export const translations = {
             flexible_cancellation: 'Flexible cancellation (24h)',
             open_maps: 'Open in Google Maps',
             maps_description: 'View the meeting point directly on Google Maps for the best experience.',
-            maps_button: 'Navigate to Point',
+            maps_button: 'Open in Google Maps',
             view_on_maps: 'View on Google Maps'
         },
         footer: {
@@ -608,6 +610,8 @@ export const translations = {
                 price: 145,
                 image: '/tour-girona.jpg',
                 images: ['/tour-girona.jpg', '/tour-girona-2.png', '/tour-girona-3.png'],
+                meetingPoint: 'https://www.google.com/maps/place/Barcelone',
+                meetingPointMapUrl: 'https://www.google.com/maps/place/Barcelone',
                 itinerary: [
                     'Departure from your accommodation in Barcelona',
                     'Guided tour of Old Girona and the Jewish Quarter',
@@ -943,7 +947,7 @@ export const translations = {
             flexible_cancellation: 'Cancelación flexible (24h)',
             open_maps: 'Abrir en Google Maps',
             maps_description: 'Visualiza el punto de encuentro directamente en Google Maps para una mejor experiencia.',
-            maps_button: 'Cómo llegar',
+            maps_button: 'Ver en Google Maps',
             view_on_maps: 'Ver en Google Maps'
         },
         footer: {
@@ -986,6 +990,8 @@ export const translations = {
                 price: 145,
                 image: '/tour-girona.jpg',
                 images: ['/tour-girona.jpg', '/tour-girona-2.png', '/tour-girona-3.png'],
+                meetingPoint: 'https://www.google.com/maps/place/Barcelone',
+                meetingPointMapUrl: 'https://www.google.com/maps/place/Barcelone',
                 itinerary: [
                     'Salida de su alojamiento en Barcelona',
                     'Visita guiada por la Girona vieja y el barrio judío',

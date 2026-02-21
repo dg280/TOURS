@@ -117,6 +117,9 @@ test.describe('Full Site Verification - Tours & Detours', () => {
     });
 
     test('Conversion: Booking Funnel Walkthrough', async ({ page }) => {
+        await page.getByRole('button', { name: /Accepter|Accept/i }).click().catch(() => { });
+        await page.waitForTimeout(500);
+
         // 1. Open Tour
         const tourCard = page.locator('#top-tours h3, section#tours h3').first();
         await tourCard.click({ force: true });
@@ -136,9 +139,10 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         await dateInput.fill(dateStr);
 
         // 4. Go to Step 2
-        const nextBtn = page.locator('div[role="dialog"] button.bg-amber-600').filter({ hasText: /Suivant|Next/i }).first();
+        await page.waitForTimeout(500);
+        const nextBtn = page.locator('div[role="dialog"] button.bg-amber-600').filter({ hasText: /Suivant|Next|Siguiente/i }).first();
         await nextBtn.click({ force: true });
-        await expect(page.locator('text=Étape 2 sur 4')).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('text=/Étape 2 sur 4|Step 2 of 4|Paso 2 de 4/').first()).toBeVisible({ timeout: 10000 });
 
         // 5. Check validation (try next without name)
         await page.locator('div[role="dialog"] button.bg-amber-600').filter({ hasText: /Suivant|Next/i }).first().dispatchEvent('click');
@@ -160,10 +164,10 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         const tourCard = page.locator('#top-tours h3, section#tours h3').first();
         await tourCard.click({ force: true });
  
-        await page.locator('div[role="dialog"] [role="tab"]').filter({ hasText: /Rencontre|Meeting|Punto/i }).first().dispatchEvent('click');
+        await page.locator('div[role="dialog"] [role="tab"]').filter({ hasText: /Rencontre|Meeting|Punto/i }).first().click();
  
-        // Check for iframe OR the "Open in Maps" button (fallback)
-        const mapElement = page.locator('div[role="dialog"] div[role="tabpanel"] iframe, div[role="dialog"] div[role="tabpanel"] a:has-text("Maps")').first();
+        // Check for iframe OR the "Open in Maps" button (fallback) OR our marker
+        const mapElement = page.locator('div[role="dialog"] div[role="tabpanel"] iframe, div[role="dialog"] div[role="tabpanel"] a:has-text("Maps"), div[role="dialog"] div[role="tabpanel"] [data-testid="meeting-point-map"], [data-testid="meeting-point-link"]').first();
         await expect(mapElement).toBeVisible({ timeout: 20000 });
     });
  

@@ -41,13 +41,12 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
 
     useEffect(() => {
         if (isOpen) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            if (step !== 1) setStep(1);
+            setStep(1);
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             setDate(tomorrow.toISOString().split('T')[0]);
         }
-    }, [isOpen, step]);
+    }, [isOpen]);
 
     useEffect(() => {
         if (tour && step === 3 && !clientSecret) {
@@ -153,7 +152,10 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px] w-[95vw] p-0 overflow-hidden rounded-2xl border-none shadow-2xl bg-white">
+            <DialogContent 
+                className="sm:max-w-[600px] w-[95vw] p-0 overflow-hidden rounded-2xl border-none shadow-2xl bg-white"
+                data-testid="booking-modal"
+            >
                 <div className="flex flex-col h-full max-h-[90vh]">
                     <div className="bg-gray-900 text-white p-6 sm:p-8">
                         <div className="flex justify-between items-center mb-6">
@@ -171,7 +173,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
 
                     <div className="flex-1 overflow-y-auto p-6 sm:p-8 no-scrollbar">
                         {step === 1 && (
-                            <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                            <div className="space-y-6">
                                 {/* Inclusions Summary */}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 bg-amber-50/30 p-4 rounded-2xl border border-amber-100/50">
                                     <div className="space-y-1.5">
@@ -244,7 +246,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                         )}
 
                         {step === 2 && (
-                            <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                            <div className="space-y-6">
                                 <h3 className="text-xl font-sans font-bold flex items-center gap-2 mb-6 text-gray-900">
                                     <Info className="w-5 h-5 text-amber-600" />
                                     {t.booking.info_title}
@@ -296,7 +298,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                         )}
 
                         {step === 3 && (
-                            <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                            <div className="space-y-6">
                                 <h3 className="text-xl font-sans font-bold flex items-center gap-2 mb-6 text-gray-900">
                                     <CreditCard className="w-5 h-5 text-amber-600" />
                                     {t.booking.payment_title}
@@ -315,7 +317,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                         )}
 
                         {step === 4 && (
-                            <div className="flex flex-col items-center justify-center py-12 text-center space-y-6 animate-in zoom-in-95">
+                            <div className="flex flex-col items-center justify-center py-12 text-center space-y-6">
                                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-2">
                                     <CheckCircle2 className="w-10 h-10 text-green-600" />
                                 </div>
@@ -382,6 +384,7 @@ export const BookingModal = ({ isOpen, onOpenChange, tour, lang, t }: BookingMod
                                 <div className="flex-1" />
                                 <Button
                                     onClick={nextStep}
+                                    data-testid="next-step-button"
                                     className="bg-amber-600 hover:bg-amber-700 text-white px-6 sm:px-12 h-16 text-sm sm:text-base font-bold rounded-2xl shadow-xl shadow-amber-600/30 transition-all active:scale-95 flex items-center justify-center gap-2"
                                 >
                                     {t.booking.next}

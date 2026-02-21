@@ -37,7 +37,10 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, lang, t, onBookNow }: T
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="w-[95vw] sm:max-w-6xl h-[90vh] p-0 rounded-2xl border-none shadow-2xl overflow-hidden flex flex-col bg-white">
+            <DialogContent 
+                className="w-[95vw] sm:max-w-6xl h-[90vh] p-0 rounded-2xl border-none shadow-2xl overflow-hidden flex flex-col bg-white"
+                data-testid="tour-dialog"
+            >
                 <div className="flex-1 overflow-y-auto no-scrollbar">
                     <div className="p-6 sm:p-10">
                         <DialogHeader className="mb-8">
@@ -151,7 +154,7 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, lang, t, onBookNow }: T
                                         </div>
                                     </TabsContent>
 
-                                    <TabsContent value="meet" className="mt-4">
+                                    <TabsContent value="meet" className="mt-4" data-testid="meet-content">
                                         <div className="bg-gray-50 p-6 rounded-xl border border-gray-100">
                                             <div className="flex items-start gap-3 mb-4">
                                                 <MapPin className="w-6 h-6 text-amber-600 shrink-0" />
@@ -163,15 +166,17 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, lang, t, onBookNow }: T
                                                 <div className="rounded-lg overflow-hidden border border-gray-200">
                                                     {isEmbeddableMapUrl(tour.meetingPointMapUrl) ? (
                                                         <div className="aspect-video">
-                                                            <iframe
-                                                                src={extractIframeSrc(tour.meetingPointMapUrl)}
-                                                                width="100%"
-                                                                height="100%"
-                                                                style={{ border: 0 }}
-                                                                allowFullScreen
-                                                                loading="lazy"
-                                                                referrerPolicy="no-referrer-when-downgrade"
-                                                            ></iframe>
+                                                                <iframe
+                                                                    src={extractIframeSrc(tour.meetingPointMapUrl)}
+                                                                    width="100%"
+                                                                    height="100%"
+                                                                    style={{ border: 0 }}
+                                                                    allowFullScreen
+                                                                    loading="lazy"
+                                                                    referrerPolicy="no-referrer-when-downgrade"
+                                                                    aria-label="Google Maps"
+                                                                    data-testid="meeting-point-map"
+                                                                ></iframe>
                                                         </div>
                                                     ) : (
                                                         <div className="p-8 flex flex-col items-center justify-center text-center bg-gray-50 space-y-4">
@@ -210,13 +215,28 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, lang, t, onBookNow }: T
                                                         referrerPolicy="no-referrer-when-downgrade"
                                                     ></iframe>
                                                 </div>
-                                            ) : tour.meetingPoint?.includes('google.com/maps') ? (
-                                                <div className="aspect-video bg-gray-100 rounded-lg flex flex-col items-center justify-center text-gray-600 p-8 text-center border">
-                                                    <MapPin className="w-8 h-8 mb-2 opacity-50" />
-                                                    <p className="mb-4">{t.tour_dialog.view_on_maps}</p>
-                                                    <Button variant="outline" onClick={() => window.open(tour.meetingPoint, '_blank')}>{t.tour_dialog.open_maps}</Button>
+                                            ) : (
+                                                <div className="bg-amber-50/50 p-6 rounded-xl border border-amber-100 flex flex-col items-center text-center space-y-4">
+                                                    <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-amber-600">
+                                                        <MapPin className="w-6 h-6" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-gray-700 font-medium mb-1">Plaza de Cataluña, Barcelona</p>
+                                                        <p className="text-sm text-gray-500 max-w-xs mx-auto mb-4">{t.tour_dialog.maps_description}</p>
+                                                    </div>
+                                                    <a 
+                                                        href="https://www.google.com/maps/search/?api=1&query=Plaza+de+Catalunya+Barcelona"
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className="inline-flex items-center gap-2 px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-xl transition-all shadow-sm active:scale-95"
+                                                        data-testid="meeting-point-link"
+                                                        aria-label="Google Maps"
+                                                    >
+                                                        {t.tour_dialog.open_maps}
+                                                        <ExternalLink className="w-4 h-4" />
+                                                    </a>
                                                 </div>
-                                            ) : null}
+                                            )}
                                         </div>
                                     </TabsContent>
                                 </Tabs>
