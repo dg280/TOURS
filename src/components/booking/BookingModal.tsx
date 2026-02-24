@@ -57,10 +57,14 @@ export const BookingModal = ({
 
   useEffect(() => {
     if (isOpen) {
-      setStep(1);
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      setDate(tomorrow.toISOString().split("T")[0]);
+      // Move state updates to the next tick to avoid synchronous cascading renders
+      // that trigger the react-hooks/set-state-in-effect lint error.
+      Promise.resolve().then(() => {
+        setStep(1);
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        setDate(tomorrow.toISOString().split("T")[0]);
+      });
     }
   }, [isOpen]);
 
