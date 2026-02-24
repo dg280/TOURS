@@ -351,6 +351,7 @@ export const TourDialog = ({
                         onOpenChange(false);
                         onBookNow(tour);
                       }}
+                      data-testid="book-now-button"
                       className="w-full bg-[#c9a961] hover:bg-[#b8944e] text-white min-h-[64px] py-4 px-2 text-[11px] sm:text-xs font-bold rounded-2xl shadow-xl shadow-[#c9a961]/30 transition-all active:scale-95 flex items-center justify-center text-center leading-tight overflow-hidden uppercase tracking-tighter"
                     >
                       {t.tours.book_now}

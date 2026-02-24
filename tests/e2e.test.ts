@@ -56,7 +56,7 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         await tourCard.click({ force: true });
 
         await expect(page.locator('div[role="dialog"]')).toBeVisible({ timeout: 30000 });
-        const bookBtn = page.locator('div[role="dialog"] button').filter({ hasText: /Réserver|Book/i }).first();
+        const bookBtn = page.getByTestId('book-now-button').first();
         await expect(bookBtn).toBeVisible();
 
         // Specific test for MacBook Air overflow (text should not exceed container width)
@@ -125,7 +125,7 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         await tourCard.click({ force: true });
 
         // 2. Click Book Now
-        await page.locator('button').filter({ hasText: /Réserver|Book/i }).first().click();
+        await page.getByTestId('book-now-button').first().click();
 
         // 3. Step 1: Date & Participants
         await expect(page.locator('text=Étape 1 sur 4')).toBeVisible();
@@ -140,12 +140,12 @@ test.describe('Full Site Verification - Tours & Detours', () => {
 
         // 4. Go to Step 2
         await page.waitForTimeout(500);
-        const nextBtn = page.locator('div[role="dialog"] button.bg-amber-600').filter({ hasText: /Suivant|Next|Siguiente/i }).first();
+        const nextBtn = page.getByTestId('next-step-button').first();
         await nextBtn.click({ force: true });
         await expect(page.locator('text=/Étape 2 sur 4|Step 2 of 4|Paso 2 de 4/').first()).toBeVisible({ timeout: 10000 });
 
         // 5. Check validation (try next without name)
-        await page.locator('div[role="dialog"] button.bg-amber-600').filter({ hasText: /Suivant|Next/i }).first().dispatchEvent('click');
+        await page.getByTestId('next-step-button').first().dispatchEvent('click');
         // Should stay on step 2 (no crash)
         await expect(page.locator('text=Étape 2 sur 4')).toBeVisible();
         await expect(page.locator('input#booking-name')).toBeVisible();
