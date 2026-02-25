@@ -36,9 +36,7 @@ import {
   CloudUpload,
   CloudDownload,
   RotateCcw,
-  Wrench,
   Database,
-  Settings,
 } from "lucide-react";
 import { translations } from "@/lib/translations";
 import { Button } from "@/components/ui/button";
@@ -702,7 +700,6 @@ function ToursManagement({
 }) {
   const [editingTour, setEditingTour] = useState<Tour | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
   const [isLiveMinimized, setIsLiveMinimized] = useState(false);
   const [sessionLoading, setSessionLoading] = useState(false);
   const tourFileRef = useRef<HTMLInputElement>(null);
