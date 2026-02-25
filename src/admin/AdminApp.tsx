@@ -791,7 +791,8 @@ function ToursManagement({
             data: { publicUrl },
           } = supabase!.storage.from("tour_images").getPublicUrl(fileName);
 
-          newImages.push(publicUrl);
+          // Prepend new images so the latest upload becomes the "Principal" image
+          newImages.unshift(publicUrl);
         }
 
         setEditingTour({
@@ -2139,11 +2140,29 @@ function ToursManagement({
                             type="button"
                             variant="outline"
                             onClick={() => tourFileRef.current?.click()}
-                            className="w-full h-12 border-dashed border-2 hover:border-amber-300 hover:bg-amber-50"
+                            className="flex-1 h-12 border-dashed border-2 hover:border-amber-300 hover:bg-amber-50"
                           >
                             <Plus className="w-4 h-4 mr-2" /> Upload ou
                             Sélectionner plusieurs
                           </Button>
+                          {editingTour.images && editingTour.images.length > 0 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              onClick={() => {
+                                if (confirm("Voulez-vous vraiment vider toute la galerie de photos ?")) {
+                                  setEditingTour({
+                                    ...editingTour,
+                                    images: [],
+                                    image: ""
+                                  });
+                                }
+                              }}
+                              className="h-12 text-red-500 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" /> Vider la galerie
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>
