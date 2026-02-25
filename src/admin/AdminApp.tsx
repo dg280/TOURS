@@ -865,7 +865,12 @@ function ToursManagement({
   };
 
   const handleEditTour = (tour: Tour) => {
-    setEditingTour(prepareTourForEditing(tour));
+    const prepared = prepareTourForEditing(tour);
+    // Ensure the gallery isn't empty if a main image exists
+    if (prepared.image && (!prepared.images || prepared.images.length === 0)) {
+      prepared.images = [prepared.image];
+    }
+    setEditingTour(prepared);
     setIsEditOpen(true);
   };
 
