@@ -38,6 +38,7 @@ import {
   RotateCcw,
   Wrench,
   Database,
+  Settings,
 } from "lucide-react";
 import { translations } from "@/lib/translations";
 import { Button } from "@/components/ui/button";
@@ -64,7 +65,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { prepareTourForEditing, extractIframeSrc } from "@/lib/utils";
 import type { Tour, Reservation, Review } from "@/lib/types";
 
@@ -682,29 +683,28 @@ function Reservations({
   );
 }
 
-// Tours Management
 function ToursManagement({
   tours,
   setTours,
+  activeSession,
+  setActiveSession,
+  updateSession,
+  urgentMsg,
+  setUrgentMsg,
 }: {
   tours: Tour[];
   setTours: React.Dispatch<React.SetStateAction<Tour[]>>;
+  activeSession: any;
+  setActiveSession: (session: any) => void;
+  updateSession: (updates: any) => Promise<void>;
+  urgentMsg: string;
+  setUrgentMsg: (msg: string) => void;
 }) {
   const [editingTour, setEditingTour] = useState<Tour | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [activeSession, setActiveSession] = useState<{
-    tour: Tour;
-    session: {
-      id: string;
-      current_stop_index: number;
-      status: string;
-      session_code: string;
-    };
-  } | null>(null);
   const [isLiveMinimized, setIsLiveMinimized] = useState(false);
   const [sessionLoading, setSessionLoading] = useState(false);
-  const [urgentMsg, setUrgentMsg] = useState("");
   const tourFileRef = useRef<HTMLInputElement>(null);
 
   const startLiveSession = async (tour: Tour) => {
@@ -744,30 +744,7 @@ function ToursManagement({
     }
   };
 
-  const updateSession = async (updates: Record<string, unknown>) => {
-    if (!supabase || !activeSession) return;
-    try {
-      const { data, error } = await supabase
-        .from("live_sessions")
-        .update(updates)
-        .eq("id", activeSession.session.id)
-        .select()
-        .single();
 
-      if (error) throw error;
-      setActiveSession({
-        ...activeSession,
-        session: data as {
-          id: string;
-          current_stop_index: number;
-          status: string;
-          session_code: string;
-        },
-      });
-    } catch (err) {
-      toast.error("Erreur de mise à jour : " + (err as Error).message);
-    }
-  };
 
   const handleTourImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -884,242 +861,6 @@ function ToursManagement({
     } catch (err) {
       console.error("Save error:", err);
       toast.error("Erreur d'enregistrement : " + (err as Error).message);
-    }
-  };
-
-  const pullFromDb = async () => {
-    if (!supabase) return;
-    setIsSyncing(true);
-    const loadingToast = toast.loading("Récupération des données du cloud...");
-    try {
-      const { data, error } = await supabase
-        .from("tours")
-        .select("*")
-        .order("id");
-      if (error) throw error;
-      if (data && data.length > 0) {
-        const mapped = data.map((t) => ({
-          id: t.id,
-          title: t.title,
-          title_en: t.title_en,
-          title_es: t.title_es,
-          subtitle: t.subtitle,
-          subtitle_en: t.subtitle_en,
-          subtitle_es: t.subtitle_es,
-          description: t.description,
-          description_en: t.description_en,
-          description_es: t.description_es,
-          duration: t.duration,
-          groupSize: t.group_size,
-          price: t.price,
-          image: t.image,
-          images: t.images || [],
-          category: t.category,
-          highlights: t.highlights,
-          highlights_en: t.highlights_en,
-          highlights_es: t.highlights_es,
-          isActive: t.is_active,
-          itinerary: t.itinerary,
-          itinerary_en: t.itinerary_en,
-          itinerary_es: t.itinerary_es,
-          included: t.included,
-          included_en: t.included_en,
-          included_es: t.included_es,
-          notIncluded: t.not_included,
-          notIncluded_en: t.not_included_en,
-          notIncluded_es: t.not_included_es,
-          meetingPoint: t.meeting_point,
-          meetingPoint_en: t.meeting_point_en,
-          meetingPoint_es: t.meeting_point_es,
-          meetingPointMapUrl: t.meeting_point_map_url,
-          stops: t.stops || [],
-          stripe_tip_link: t.stripe_tip_link,
-        }));
-        setTours(mapped as Tour[]);
-        localStorage.setItem("td-tours", JSON.stringify(mapped));
-        toast.success(`${data.length} tours récupérés avec succès.`, {
-          id: loadingToast,
-        });
-      } else {
-        toast.info("Aucun tour trouvé en base de données.", {
-          id: loadingToast,
-        });
-      }
-    } catch (err) {
-      console.error("Pull error:", err);
-      toast.error(
-        "Erreur lors de la récupération : " + (err as Error).message,
-        { id: loadingToast },
-      );
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  const pushAllToDb = async () => {
-    if (!supabase) return;
-    setIsEditOpen(false);
-    setIsSyncing(true);
-    const loadingToast = toast.loading("Synchronisation du catalogue...");
-
-    try {
-      for (const tour of tours) {
-        const dbTour = {
-          id: tour.id,
-          title: tour.title,
-          title_en: tour.title_en,
-          title_es: tour.title_es,
-          subtitle: tour.subtitle,
-          subtitle_en: tour.subtitle_en,
-          subtitle_es: tour.subtitle_es,
-          description: tour.description,
-          description_en: tour.description_en,
-          description_es: tour.description_es,
-          duration: tour.duration,
-          group_size: tour.groupSize,
-          price: tour.price,
-          image: tour.image,
-          images: tour.images || [],
-          category: tour.category,
-          highlights: tour.highlights,
-          highlights_en: tour.highlights_en,
-          highlights_es: tour.highlights_es,
-          is_active: tour.isActive ?? true,
-          itinerary: tour.itinerary || [],
-          itinerary_en: tour.itinerary_en || [],
-          itinerary_es: tour.itinerary_es || [],
-          included: tour.included || [],
-          included_en: tour.included_en || [],
-          included_es: tour.included_es || [],
-          not_included: tour.notIncluded || [],
-          not_included_en: tour.notIncluded_en || [],
-          not_included_es: tour.notIncluded_es || [],
-          meeting_point: tour.meetingPoint || null,
-          meeting_point_en: tour.meetingPoint_en || null,
-          meeting_point_es: tour.meetingPoint_es || null,
-          stops: tour.stops || [],
-          stripe_tip_link: tour.stripe_tip_link || null,
-        };
-        const { error } = await supabase.from("tours").upsert(dbTour);
-        if (error) throw error;
-      }
-      toast.success("Tout le catalogue est synchronisé sur Supabase !", {
-        id: loadingToast,
-      });
-    } catch (err) {
-      const error = err as { code?: string; message: string };
-      console.error("Sync error:", error);
-      if (error.code === "42P01") {
-        toast.error(
-          "La table 'tours' n'existe pas. Avez-vous exécuté le SQL dans Supabase ?",
-          { id: loadingToast },
-        );
-      } else {
-        toast.error(
-          "Échec de la synchronisation : " +
-            (error.message || "Erreur inconnue"),
-          { id: loadingToast },
-        );
-      }
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  const resetFromMaster = async () => {
-    if (!supabase) return;
-    if (
-      !confirm(
-        "ATTENTION: Cela va écraser vos tours LOCAUX par les tours standards de la base de données. Continuer ?",
-      )
-    )
-      return;
-
-    setIsSyncing(true);
-    const loadingToast = toast.loading("Récupération du catalogue standard...");
-    try {
-      const { data, error } = await supabase
-        .from("default_tours")
-        .select("*")
-        .order("id");
-      if (error) throw error;
-      if (data && data.length > 0) {
-        const mapped = data.map((t) => ({
-          id: t.id,
-          title: t.title,
-          title_en: t.title_en,
-          title_es: t.title_es,
-          subtitle: t.subtitle,
-          subtitle_en: t.subtitle_en,
-          subtitle_es: t.subtitle_es,
-          description: t.description,
-          description_en: t.description_en,
-          description_es: t.description_es,
-          duration: t.duration,
-          groupSize: t.group_size,
-          price: t.price,
-          image: t.image,
-          images: t.images || [],
-          category: t.category,
-          highlights: t.highlights,
-          highlights_en: t.highlights_en,
-          highlights_es: t.highlights_es,
-          isActive: t.is_active,
-          itinerary: t.itinerary || [],
-          itinerary_en: t.itinerary_en || [],
-          itinerary_es: t.itinerary_es || [],
-          included: t.included || [],
-          included_en: t.included_en || [],
-          included_es: t.included_es || [],
-          notIncluded: t.notIncluded || [],
-          notIncluded_en: t.notIncluded_en || [],
-          notIncluded_es: t.notIncluded_es || [],
-          meetingPoint: t.meeting_point,
-          meetingPoint_en: t.meeting_point_en,
-          meetingPoint_es: t.meeting_point_es,
-        }));
-        setTours(mapped as Tour[]);
-        localStorage.setItem("td-tours", JSON.stringify(mapped));
-        toast.success(
-          `${data.length} tours standards chargés. Cliquez sur "Push vers DB" pour mettre à jour le site public.`,
-          { id: loadingToast },
-        );
-      } else {
-        toast.error("Aucun tour standard trouvé en base de données.", {
-          id: loadingToast,
-        });
-      }
-    } catch (err) {
-      console.error("Reset error:", err);
-      toast.error("Erreur lors du reset : " + (err as Error).message, {
-        id: loadingToast,
-      });
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  const fixImagePaths = () => {
-    let fixCount = 0;
-    const fixedTours = tours.map((t) => {
-      let updatedImage = t.image;
-      if (t.image === "/tour-walking.jpg") {
-        updatedImage = "/tour-barcelona-hidden.jpg";
-        fixCount++;
-      } else if (t.image === "/tour-cami.jpg") {
-        updatedImage = "/tour-camironda.jpg";
-        fixCount++;
-      }
-      return { ...t, image: updatedImage };
-    });
-
-    if (fixCount > 0) {
-      setTours(fixedTours);
-      toast.success(
-        `${fixCount} chemin(s) d'image(s) réparé(s) localement. N'oubliez pas de faire "Push vers DB" !`,
-      );
-    } else {
-      toast.info("Aucun chemin d'image erroné détecté.");
     }
   };
 
@@ -1306,119 +1047,75 @@ function ToursManagement({
         </Card>
       )}
 
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 p-6 bg-white rounded-3xl border border-amber-100 shadow-sm mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-6 p-8 bg-white/50 backdrop-blur-xl rounded-[2rem] border border-amber-100/50 shadow-xl mb-12 shadow-amber-500/5">
         <div className="space-y-1">
-          <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Catalogue des Tours</h2>
-          <p className="text-sm text-gray-500 font-medium italic">Gérez les offres affichées sur votre site public.</p>
+          <h2 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
+             Catalogue des Tours
+          </h2>
+          <p className="text-gray-500 font-medium italic">
+            Gérez vos offres et diffusez vos expériences.
+          </p>
         </div>
 
-        <div className="flex flex-wrap gap-4 w-full lg:w-auto items-center">
-          {/* Publication Group */}
-          <div className="flex bg-amber-50/50 p-1.5 rounded-2xl border border-amber-100 gap-2 items-center">
-            <div className="px-2 hidden sm:block">
-              <Database className="w-4 h-4 text-amber-600" />
-            </div>
-            {supabase && (
-              <>
-                <Button
-                  variant="default"
-                  onClick={pushAllToDb}
-                  className="bg-amber-600 hover:bg-amber-700 text-white shadow-md font-bold h-11 px-5 rounded-xl transition-all hover:scale-[1.02]"
-                  disabled={isSyncing}
-                  title="Enregistre tous les changements locaux sur le site en ligne"
-                >
-                  {isSyncing ? (
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  ) : (
-                    <CloudUpload className="w-5 h-5 mr-2" />
-                  )}
-                  Publier sur le site
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={pullFromDb}
-                  className="border-amber-200 bg-white text-amber-700 hover:bg-amber-50 h-11 px-5 font-bold rounded-xl transition-all"
-                  disabled={isSyncing}
-                  title="Récupère la dernière version sauvegardée dans le cloud"
-                >
-                  {isSyncing ? (
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  ) : (
-                    <CloudDownload className="w-5 h-5 mr-2" />
-                  )}
-                  Importer du Cloud
-                </Button>
-              </>
-            )}
-          </div>
-
-          <div className="h-8 w-[1px] bg-gray-200 hidden lg:block" />
-
-          {/* Maintenance Group */}
-          <div className="flex bg-gray-50/80 p-1.5 rounded-2xl border border-gray-100 gap-2 items-center">
-            <div className="px-2 hidden sm:block">
-              <Wrench className="w-4 h-4 text-gray-400" />
-            </div>
-            <Button
-              variant="ghost"
-              className="text-gray-500 hover:text-gray-900 hover:bg-white h-11 px-4 font-bold text-xs rounded-xl transition-all"
-              onClick={fixImagePaths}
-              title="Nettoie les anciens liens d'images erronés"
-            >
-              <ImageIcon className="w-4 h-4 mr-2 opacity-70" />
-              Réparer Images
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={resetFromMaster}
-              disabled={isSyncing}
-              className="text-red-400 hover:text-red-700 hover:bg-white h-11 px-4 font-bold text-xs rounded-xl transition-all"
-              title="ATTENTION: Réinitialise votre catalogue aux valeurs d'usine"
-            >
-              {isSyncing ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <RotateCcw className="w-4 h-4 mr-2 opacity-70" />
-              )}
-              Reset Usine
-            </Button>
-          </div>
-
-          <Button
-            className="bg-[#c9a961] hover:bg-[#b8944e] text-white font-bold h-11 px-6 rounded-xl shadow-lg transition-all hover:scale-[1.05]"
-            onClick={() => {
-              setEditingTour({
-                id: Math.random().toString(36).substr(2, 9),
-                title: "",
-                subtitle: "",
-                description: "",
-                duration: "",
-                groupSize: "",
-                price: 0,
-                image: "",
-                images: [],
-                highlights: [],
-                category: [],
-                pricing_tiers: {},
-                isActive: true,
-              });
-              setIsEditOpen(true);
-            }}
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Nouveau Tour
-          </Button>
-        </div>
+        <Button
+          className="bg-amber-600 hover:bg-amber-700 text-white font-bold h-12 px-8 rounded-2xl shadow-lg shadow-amber-200 transition-all hover:scale-105 active:scale-95 flex items-center gap-3"
+          onClick={() => {
+            setEditingTour({
+              id: Math.random().toString(36).substr(2, 9),
+              title: "",
+              subtitle: "",
+              description: "",
+              duration: "",
+              groupSize: "",
+              price: 0,
+              image: "",
+              images: [],
+              highlights: [],
+              category: [],
+              pricing_tiers: {},
+              isActive: true,
+            });
+            setIsEditOpen(true);
+          }}
+        >
+          <Plus className="w-6 h-6" />
+          Nouveau Tour
+        </Button>
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {tours.map((tour) => (
-          <Card key={tour.id}>
-            <img
-              src={tour.image}
-              className="w-full h-40 object-cover rounded-t-lg"
-              alt={tour.title}
-            />
+          <Card key={tour.id} className="overflow-hidden group hover:shadow-2xl transition-all duration-500 rounded-[2rem] border-amber-100/50 flex flex-col h-full bg-white">
+            <div className="relative h-48 sm:h-56 overflow-hidden">
+              <img
+                src={tour.image}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                alt={tour.title}
+              />
+              <div className="absolute top-4 right-4">
+                <div className="px-3 py-1 bg-black/40 backdrop-blur-md rounded-full text-[10px] font-bold text-white border border-white/20 flex items-center gap-1.5 shadow-xl">
+                  <Camera className="w-3 h-3" />
+                  {tour.images?.length || 1} MEDIA
+                </div>
+              </div>
+            </div>
+
+            {/* Galerie horizontale */}
+            <div className="flex gap-2 p-3 pb-4 bg-gradient-to-b from-gray-50/80 to-white border-b border-gray-100/50 overflow-x-auto scrollbar-hide">
+              {tour.images && tour.images.length > 0 ? (
+                tour.images.map((img, i) => (
+                  <div key={i} className="flex-shrink-0 w-16 h-16 rounded-2xl border-2 border-white shadow-lg overflow-hidden transition-all duration-300 hover:scale-110 hover:rotate-2 hover:z-10 cursor-pointer group/thumb">
+                    <img src={img} className="w-full h-full object-cover transition-all" />
+                    <div className="absolute inset-0 bg-amber-600/0 group-hover/thumb:bg-amber-600/10" />
+                  </div>
+                ))
+              ) : (
+                <div className="flex-shrink-0 w-16 h-16 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-[10px] text-gray-300 gap-1 bg-gray-50/50">
+                   <ImageIcon className="w-4 h-4 opacity-40" />
+                   VIDE
+                </div>
+              )}
+            </div>
             <CardContent className="p-4 space-y-2">
               <h3 className="font-bold">{tour.title}</h3>
               <p className="text-sm text-gray-500 line-clamp-2">
@@ -2816,7 +2513,19 @@ function Reviews({
 }
 
 // Config Component
-function Config() {
+function Config({
+  onPull,
+  onPush,
+  onReset,
+  onFixImages,
+  isSyncing,
+}: {
+  onPull: () => void;
+  onPush: () => void;
+  onReset: () => void;
+  onFixImages: () => void;
+  isSyncing: boolean;
+}) {
   return (
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -2870,6 +2579,73 @@ function Config() {
                 </div>
                 <div className="w-full bg-gray-200 h-1 rounded-full overflow-hidden">
                   <div className="bg-green-500 h-full w-[100%]" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900 text-white overflow-hidden shadow-2xl border-none">
+            <CardHeader className="pb-4 border-b border-gray-800 bg-gray-900/50">
+              <CardTitle className="text-lg font-bold flex items-center gap-2">
+                <Database className="w-5 h-5 text-amber-500" /> Maintenance & Sync
+              </CardTitle>
+              <CardDescription className="text-gray-400 text-xs font-medium">
+                Outils de récupération et synchronisation forcée
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div className="grid gap-3">
+                <Button
+                  variant="secondary"
+                  className="w-full justify-start bg-gray-800 hover:bg-gray-700 text-white border-none h-12 px-4"
+                  onClick={onPull}
+                  disabled={isSyncing}
+                >
+                  <CloudDownload className="w-4 h-4 mr-3 text-blue-400" />
+                  <div className="text-left">
+                    <div className="font-bold text-sm">Importer du Cloud</div>
+                    <div className="text-[10px] text-gray-400">Force la récupération des données en ligne</div>
+                  </div>
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  className="w-full justify-start bg-gray-800 hover:bg-gray-700 text-white border-none h-12 px-4"
+                  onClick={onPush}
+                  disabled={isSyncing}
+                >
+                  <CloudUpload className="w-4 h-4 mr-3 text-amber-400" />
+                  <div className="text-left">
+                    <div className="font-bold text-sm">Publier tout le catalogue</div>
+                    <div className="text-[10px] text-gray-400">Écrase le Cloud avec vos données locales</div>
+                  </div>
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  className="w-full justify-start bg-gray-800 hover:bg-gray-700 text-white border-none h-12 px-4"
+                  onClick={onFixImages}
+                >
+                  <ImageIcon className="w-4 h-4 mr-3 text-green-400" />
+                  <div className="text-left">
+                    <div className="font-bold text-sm">Réparer les liens photos</div>
+                    <div className="text-[10px] text-gray-400">Nettoyage automatique des chemins legacy</div>
+                  </div>
+                </Button>
+
+                <div className="pt-4 mt-2 border-t border-gray-800">
+                  <Button
+                    variant="destructive"
+                    className="w-full justify-start bg-red-950/30 hover:bg-red-900/50 text-red-500 border border-red-900/50 h-12 px-4"
+                    onClick={onReset}
+                    disabled={isSyncing}
+                  >
+                    <RotateCcw className="w-4 h-4 mr-3" />
+                    <div className="text-left">
+                      <div className="font-bold text-sm">Reset Usine</div>
+                      <div className="text-[10px] text-red-400 opacity-70">Réinstallation du catalogue standard</div>
+                    </div>
+                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -3552,6 +3328,277 @@ export default function AdminApp() {
       localStorage.getItem("td-instagram-url") ||
       "https://www.instagram.com/tours_and_detours_bcn/",
   );
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [activeSession, setActiveSession] = useState<{
+    tour: Tour;
+    session: {
+      id: string;
+      current_stop_index: number;
+      status: string;
+      session_code: string;
+    };
+  } | null>(null);
+  const [urgentMsg, setUrgentMsg] = useState("");
+
+  const updateSession = async (updates: Record<string, unknown>) => {
+    if (!supabase || !activeSession) return;
+    try {
+      const { data, error } = await supabase
+        .from("live_sessions")
+        .update(updates)
+        .eq("id", activeSession.session.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      setActiveSession({
+        ...activeSession,
+        session: data as {
+          id: string;
+          current_stop_index: number;
+          status: string;
+          session_code: string;
+        },
+      });
+    } catch (err) {
+      toast.error("Erreur de mise à jour : " + (err as Error).message);
+    }
+  };
+
+  const pullFromDb = async () => {
+    if (!supabase) return;
+    setIsSyncing(true);
+    const loadingToast = toast.loading("Récupération des données du cloud...");
+    try {
+      const { data, error } = await supabase
+        .from("tours")
+        .select("*")
+        .order("id");
+      if (error) throw error;
+      if (data && data.length > 0) {
+        const mapped = data.map((t) => ({
+          id: t.id,
+          title: t.title,
+          title_en: t.title_en,
+          title_es: t.title_es,
+          subtitle: t.subtitle,
+          subtitle_en: t.subtitle_en,
+          subtitle_es: t.subtitle_es,
+          description: t.description,
+          description_en: t.description_en,
+          description_es: t.description_es,
+          duration: t.duration,
+          groupSize: t.group_size,
+          price: t.price,
+          image: t.image,
+          images: (t.images && t.images.length > 0) ? t.images : (t.image ? [t.image] : []),
+          category: t.category,
+          highlights: t.highlights,
+          highlights_en: t.highlights_en,
+          highlights_es: t.highlights_es,
+          isActive: t.is_active,
+          itinerary: t.itinerary,
+          itinerary_en: t.itinerary_en,
+          itinerary_es: t.itinerary_es,
+          included: t.included,
+          included_en: t.included_en,
+          included_es: t.included_es,
+          notIncluded: t.not_included,
+          notIncluded_en: t.not_included_en,
+          notIncluded_es: t.not_included_es,
+          meetingPoint: t.meeting_point,
+          meetingPoint_en: t.meeting_point_en,
+          meetingPoint_es: t.meeting_point_es,
+          meetingPointMapUrl: t.meeting_point_map_url,
+          stops: t.stops || [],
+          stripe_tip_link: t.stripe_tip_link,
+        }));
+        setTours(mapped as Tour[]);
+        localStorage.setItem("td-tours", JSON.stringify(mapped));
+        toast.success(`${data.length} tours récupérés avec succès.`, {
+          id: loadingToast,
+        });
+      } else {
+        toast.info("Aucun tour trouvé en base de données.", {
+          id: loadingToast,
+        });
+      }
+    } catch (err) {
+      console.error("Pull error:", err);
+      toast.error(
+        "Erreur lors de la récupération : " + (err as Error).message,
+        { id: loadingToast },
+      );
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const pushAllToDb = async () => {
+    if (!supabase) return;
+    setIsSyncing(true);
+    const loadingToast = toast.loading("Synchronisation du catalogue...");
+
+    try {
+      for (const tour of tours) {
+        const dbTour = {
+          id: tour.id,
+          title: tour.title,
+          title_en: tour.title_en,
+          title_es: tour.title_es,
+          subtitle: tour.subtitle,
+          subtitle_en: tour.subtitle_en,
+          subtitle_es: tour.subtitle_es,
+          description: tour.description,
+          description_en: tour.description_en,
+          description_es: tour.description_es,
+          duration: tour.duration,
+          group_size: tour.groupSize,
+          price: tour.price,
+          image: tour.image,
+          images: tour.images || [],
+          category: tour.category,
+          highlights: tour.highlights,
+          highlights_en: tour.highlights_en,
+          highlights_es: tour.highlights_es,
+          is_active: tour.isActive ?? true,
+          itinerary: tour.itinerary || [],
+          itinerary_en: tour.itinerary_en || [],
+          itinerary_es: tour.itinerary_es || [],
+          included: tour.included || [],
+          included_en: tour.included_en || [],
+          included_es: tour.included_es || [],
+          not_included: tour.notIncluded || [],
+          not_included_en: tour.notIncluded_en || [],
+          not_included_es: tour.notIncluded_es || [],
+          meeting_point: tour.meetingPoint || null,
+          meeting_point_en: tour.meetingPoint_en || null,
+          meeting_point_es: tour.meetingPoint_es || null,
+          stops: tour.stops || [],
+          stripe_tip_link: tour.stripe_tip_link || null,
+        };
+        const { error } = await supabase.from("tours").upsert(dbTour);
+        if (error) throw error;
+      }
+      toast.success("Tout le catalogue est synchronisé sur Supabase !", {
+        id: loadingToast,
+      });
+    } catch (err) {
+      const error = err as { code?: string; message: string };
+      console.error("Sync error:", error);
+      if (error.code === "42P01") {
+        toast.error(
+          "La table 'tours' n'existe pas. Avez-vous exécuté le SQL dans Supabase ?",
+          { id: loadingToast },
+        );
+      } else {
+        toast.error(
+          "Échec de la synchronisation : " +
+            (error.message || "Erreur inconnue"),
+          { id: loadingToast },
+        );
+      }
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const resetFromMaster = async () => {
+    if (!supabase) return;
+    if (
+      !confirm(
+        "ATTENTION: Cela va écraser vos tours LOCAUX par les tours standards de la base de données. Continuer ?",
+      )
+    )
+      return;
+
+    setIsSyncing(true);
+    const loadingToast = toast.loading("Récupération du catalogue standard...");
+    try {
+      const { data, error } = await supabase
+        .from("default_tours")
+        .select("*")
+        .order("id");
+      if (error) throw error;
+      if (data && data.length > 0) {
+        const mapped = data.map((t) => ({
+          id: t.id,
+          title: t.title,
+          title_en: t.title_en,
+          title_es: t.title_es,
+          subtitle: t.subtitle,
+          subtitle_en: t.subtitle_en,
+          subtitle_es: t.subtitle_es,
+          description: t.description,
+          description_en: t.description_en,
+          description_es: t.description_es,
+          duration: t.duration,
+          groupSize: t.group_size,
+          price: t.price,
+          image: t.image,
+          images: t.images || [],
+          category: t.category,
+          highlights: t.highlights,
+          highlights_en: t.highlights_en,
+          highlights_es: t.highlights_es,
+          isActive: t.is_active,
+          itinerary: t.itinerary || [],
+          itinerary_en: t.itinerary_en || [],
+          itinerary_es: t.itinerary_es || [],
+          included: t.included || [],
+          included_en: t.included_en || [],
+          included_es: t.included_es || [],
+          notIncluded: t.notIncluded || [],
+          notIncluded_en: t.notIncluded_en || [],
+          notIncluded_es: t.notIncluded_es || [],
+          meetingPoint: t.meeting_point,
+          meetingPoint_en: t.meeting_point_en,
+          meetingPoint_es: t.meeting_point_es,
+        }));
+        setTours(mapped as Tour[]);
+        localStorage.setItem("td-tours", JSON.stringify(mapped));
+        toast.success(
+          `${data.length} tours standards chargés.`,
+          { id: loadingToast },
+        );
+      } else {
+        toast.error("Aucun tour standard trouvé en base de données.", {
+          id: loadingToast,
+        });
+      }
+    } catch (err) {
+      console.error("Reset error:", err);
+      toast.error("Erreur lors du reset : " + (err as Error).message, {
+        id: loadingToast,
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const fixImagePaths = () => {
+    let fixCount = 0;
+    const fixedTours = tours.map((t) => {
+      let updatedImage = t.image;
+      if (t.image === "/tour-walking.jpg") {
+        updatedImage = "/tour-barcelona-hidden.jpg";
+        fixCount++;
+      } else if (t.image === "/tour-cami.jpg") {
+        updatedImage = "/tour-camironda.jpg";
+        fixCount++;
+      }
+      return { ...t, image: updatedImage };
+    });
+
+    if (fixCount > 0) {
+      setTours(fixedTours);
+      toast.success(
+        `${fixCount} chemin(s) d'image(s) réparé(s) localement.`,
+      );
+    } else {
+      toast.info("Aucun chemin d'image erroné détecté.");
+    }
+  };
   const [guideBio, setGuideBio] = useState(
     () => localStorage.getItem("td-guide-bio") || translations.fr.guide.bio,
   );
@@ -3690,10 +3737,9 @@ export default function AdminApp() {
             meetingPoint: t.meeting_point,
             meetingPoint_en: t.meeting_point_en,
             meetingPoint_es: t.meeting_point_es,
-            meetingPointMapUrl: t.meeting_point_map_url,
+              meetingPointMapUrl: t.meeting_point_map_url,
           }));
           setTours(mapped as Tour[]);
-          toast.success(`${data.length} tours chargés.`);
         } else if (error) {
           console.error("Fetch tours error:", error);
           toast.error("Erreur de chargement des tours (Cloud).");
@@ -3945,13 +3991,29 @@ export default function AdminApp() {
               />
             )}
             {activeTab === "tours" && (
-              <ToursManagement tours={tours} setTours={setTours} />
+              <ToursManagement
+                tours={tours}
+                setTours={setTours}
+                activeSession={activeSession}
+                setActiveSession={setActiveSession}
+                updateSession={updateSession}
+                urgentMsg={urgentMsg}
+                setUrgentMsg={setUrgentMsg}
+              />
             )}
             {activeTab === "reviews" && (
               <Reviews reviews={reviews} setReviews={setReviews} />
             )}
             {activeTab === "admins" && <AdminsManagement />}
-            {activeTab === "config" && <Config />}
+            {activeTab === "config" && (
+              <Config
+                onPull={pullFromDb}
+                onPush={pushAllToDb}
+                onReset={resetFromMaster}
+                onFixImages={fixImagePaths}
+                isSyncing={isSyncing}
+              />
+            )}
             {activeTab === "marketing" && (
               <Marketing subscribers={subscribers} />
             )}
