@@ -33,6 +33,11 @@ import {
   RefreshCw,
   ChevronLeft,
   ChevronRight,
+  CloudUpload,
+  CloudDownload,
+  RotateCcw,
+  Wrench,
+  Database,
 } from "lucide-react";
 import { translations } from "@/lib/translations";
 import { Button } from "@/components/ui/button";
@@ -1301,60 +1306,86 @@ function ToursManagement({
         </Card>
       )}
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-2xl font-bold">Catalogue des Tours</h2>
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-          {supabase && (
-            <>
-              <Button
-                variant="outline"
-                onClick={pushAllToDb}
-                className="border-amber-600 text-amber-600"
-                disabled={isSyncing}
-              >
-                {isSyncing ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Upload className="w-4 h-4 mr-2" />
-                )}
-                Push vers DB
-              </Button>
-              <Button
-                variant="outline"
-                onClick={pullFromDb}
-                className="border-blue-600 text-blue-600"
-                disabled={isSyncing}
-              >
-                {isSyncing ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Compass className="w-4 h-4 mr-2" />
-                )}
-                Pull de DB
-              </Button>
-            </>
-          )}
-          <Button
-            variant="outline"
-            className="border-green-600 text-green-600"
-            onClick={fixImagePaths}
-          >
-            <Check className="w-4 h-4 mr-2" /> Réparer Images
-          </Button>
-          <Button
-            variant="outline"
-            onClick={resetFromMaster}
-            disabled={isSyncing}
-          >
-            {isSyncing ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Compass className="w-4 h-4 mr-2" />
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 p-6 bg-white rounded-3xl border border-amber-100 shadow-sm mb-8">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Catalogue des Tours</h2>
+          <p className="text-sm text-gray-500 font-medium italic">Gérez les offres affichées sur votre site public.</p>
+        </div>
+
+        <div className="flex flex-wrap gap-4 w-full lg:w-auto items-center">
+          {/* Publication Group */}
+          <div className="flex bg-amber-50/50 p-1.5 rounded-2xl border border-amber-100 gap-2 items-center">
+            <div className="px-2 hidden sm:block">
+              <Database className="w-4 h-4 text-amber-600" />
+            </div>
+            {supabase && (
+              <>
+                <Button
+                  variant="default"
+                  onClick={pushAllToDb}
+                  className="bg-amber-600 hover:bg-amber-700 text-white shadow-md font-bold h-11 px-5 rounded-xl transition-all hover:scale-[1.02]"
+                  disabled={isSyncing}
+                  title="Enregistre tous les changements locaux sur le site en ligne"
+                >
+                  {isSyncing ? (
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  ) : (
+                    <CloudUpload className="w-5 h-5 mr-2" />
+                  )}
+                  Publier sur le site
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={pullFromDb}
+                  className="border-amber-200 bg-white text-amber-700 hover:bg-amber-50 h-11 px-5 font-bold rounded-xl transition-all"
+                  disabled={isSyncing}
+                  title="Récupère la dernière version sauvegardée dans le cloud"
+                >
+                  {isSyncing ? (
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  ) : (
+                    <CloudDownload className="w-5 h-5 mr-2" />
+                  )}
+                  Importer du Cloud
+                </Button>
+              </>
             )}
-            Réinitialiser Défaut
-          </Button>
+          </div>
+
+          <div className="h-8 w-[1px] bg-gray-200 hidden lg:block" />
+
+          {/* Maintenance Group */}
+          <div className="flex bg-gray-50/80 p-1.5 rounded-2xl border border-gray-100 gap-2 items-center">
+            <div className="px-2 hidden sm:block">
+              <Wrench className="w-4 h-4 text-gray-400" />
+            </div>
+            <Button
+              variant="ghost"
+              className="text-gray-500 hover:text-gray-900 hover:bg-white h-11 px-4 font-bold text-xs rounded-xl transition-all"
+              onClick={fixImagePaths}
+              title="Nettoie les anciens liens d'images erronés"
+            >
+              <ImageIcon className="w-4 h-4 mr-2 opacity-70" />
+              Réparer Images
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={resetFromMaster}
+              disabled={isSyncing}
+              className="text-red-400 hover:text-red-700 hover:bg-white h-11 px-4 font-bold text-xs rounded-xl transition-all"
+              title="ATTENTION: Réinitialise votre catalogue aux valeurs d'usine"
+            >
+              {isSyncing ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <RotateCcw className="w-4 h-4 mr-2 opacity-70" />
+              )}
+              Reset Usine
+            </Button>
+          </div>
+
           <Button
-            className="bg-[#c9a961]"
+            className="bg-[#c9a961] hover:bg-[#b8944e] text-white font-bold h-11 px-6 rounded-xl shadow-lg transition-all hover:scale-[1.05]"
             onClick={() => {
               setEditingTour({
                 id: Math.random().toString(36).substr(2, 9),
@@ -1374,7 +1405,8 @@ function ToursManagement({
               setIsEditOpen(true);
             }}
           >
-            + Nouveau Tour
+            <Plus className="w-5 h-5 mr-2" />
+            Nouveau Tour
           </Button>
         </div>
       </div>
