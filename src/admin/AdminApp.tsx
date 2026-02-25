@@ -3722,6 +3722,7 @@ export default function AdminApp() {
             groupSize: t.group_size,
             price: t.price,
             image: t.image,
+            images: (t.images && t.images.length > 0) ? t.images : (t.image ? [t.image] : []),
             category: t.category,
             highlights: t.highlights,
             highlights_en: t.highlights_en,
@@ -3739,7 +3740,7 @@ export default function AdminApp() {
             meetingPoint: t.meeting_point,
             meetingPoint_en: t.meeting_point_en,
             meetingPoint_es: t.meeting_point_es,
-              meetingPointMapUrl: t.meeting_point_map_url,
+            meetingPointMapUrl: t.meeting_point_map_url,
           }));
           setTours(mapped as Tour[]);
         } else if (error) {
