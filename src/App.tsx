@@ -211,6 +211,7 @@ function App() {
         meetingPoint: getVal(bObj.meetingPoint, dObj.meetingPoint, cObj.meetingPoint),
         price: dObj.price ?? cObj.price ?? bObj.price ?? 0,
         image: getVal(bObj.image, dObj.image, cObj.image) || "",
+        images: getVal(bObj.images, dObj.images, cObj.images) || [],
         duration: getVal(bObj.duration, dObj.duration, cObj.duration) || "",
         groupSize: getVal(bObj.groupSize, dObj.groupSize, cObj.groupSize) || "",
         category: getVal(bObj.category, dObj.category, cObj.category) || "",
