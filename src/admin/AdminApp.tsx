@@ -31,6 +31,8 @@ import {
   Camera,
   Info,
   RefreshCw,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { translations } from "@/lib/translations";
 import { Button } from "@/components/ui/button";
@@ -2088,45 +2090,16 @@ function ToursManagement({
                     </p>
                   </div>
 
-                  <div className="space-y-6">
-                    <div className="flex justify-between items-center">
-                      <Label className="text-sm font-bold">
-                        Photos & Médias
-                      </Label>
-                    </div>
-
-                    <div className="space-y-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                      <div className="space-y-2">
-                        <Label>Image principale du tour (URL)</Label>
-                        <div className="flex gap-4 items-start">
-                          <Input
-                            placeholder="URL de l'image principale"
-                            value={editingTour.image}
-                            onChange={(e) =>
-                              setEditingTour({
-                                ...editingTour,
-                                image: e.target.value,
-                              })
-                            }
-                            className="flex-1"
-                          />
-                          {editingTour.image && (
-                            <div className="w-24 h-16 rounded-lg overflow-hidden border border-gray-200 shadow-sm shrink-0 bg-gray-100">
-                              <img
-                                src={editingTour.image}
-                                alt="Preview"
-                                className="w-full h-full object-cover"
-                                onError={(e) =>
-                                  (e.currentTarget.style.display = "none")
-                                }
-                              />
-                            </div>
-                          )}
+                    <div className="space-y-6">
+                      <div className="flex justify-between items-center bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+                        <div>
+                          <Label className="text-base font-extrabold text-gray-900 block">
+                            Galerie Médias
+                          </Label>
+                          <p className="text-[10px] text-gray-500 font-medium">
+                            Gérez les photos de votre tour. La première image est l'image principale.
+                          </p>
                         </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Ajouter des photos à la galerie</Label>
                         <div className="flex gap-2">
                           <input
                             type="file"
@@ -2138,19 +2111,21 @@ function ToursManagement({
                           />
                           <Button
                             type="button"
+                            size="sm"
                             variant="outline"
                             onClick={() => tourFileRef.current?.click()}
-                            className="flex-1 h-12 border-dashed border-2 hover:border-amber-300 hover:bg-amber-50"
+                            className="bg-white border-dashed border-2 hover:border-amber-400 hover:bg-amber-50 h-9"
                           >
-                            <Plus className="w-4 h-4 mr-2" /> Upload ou
-                            Sélectionner plusieurs
+                            <Plus className="w-4 h-4 mr-2 text-amber-600" />
+                            Ajouter des photos
                           </Button>
                           {editingTour.images && editingTour.images.length > 0 && (
                             <Button
                               type="button"
+                              size="sm"
                               variant="ghost"
                               onClick={() => {
-                                if (confirm("Voulez-vous vraiment vider toute la galerie de photos ?")) {
+                                if (confirm("Voulez-vous vraiment vider toute la galerie ?")) {
                                   setEditingTour({
                                     ...editingTour,
                                     images: [],
@@ -2158,84 +2133,161 @@ function ToursManagement({
                                   });
                                 }
                               }}
-                              className="h-12 text-red-500 hover:text-red-700 hover:bg-red-50"
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50 h-9"
                             >
-                              <Trash2 className="w-4 h-4 mr-2" /> Vider la galerie
+                              <Trash2 className="w-4 h-4 mr-1" />
+                              Vider
                             </Button>
                           )}
                         </div>
                       </div>
-                    </div>
 
-                    {editingTour.images && editingTour.images.length > 0 && (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                        {editingTour.images.map((img, idx) => (
-                          <div
-                            key={idx}
-                            className="relative group aspect-video rounded-lg overflow-hidden border border-white shadow-sm"
-                          >
-                            <img
-                              src={img}
-                              alt={`Tour photo ${idx + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                              <Button
-                                size="icon"
-                                variant="destructive"
-                                className="h-8 w-8"
-                                onClick={() => {
-                                  const newImages =
-                                    editingTour.images?.filter(
-                                      (_, i) => i !== idx,
-                                    ) || [];
-                                  setEditingTour({
-                                    ...editingTour,
-                                    images: newImages,
-                                    image:
-                                      idx === 0
-                                        ? newImages[0] || ""
-                                        : editingTour.image,
-                                  });
-                                }}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                              {idx !== 0 && (
-                                <Button
-                                  size="icon"
-                                  variant="secondary"
-                                  className="h-8 w-8"
-                                  onClick={() => {
-                                    const newImages = [
-                                      ...(editingTour.images || []),
-                                    ];
-                                    const [moved] = newImages.splice(idx, 1);
-                                    newImages.unshift(moved);
-                                    setEditingTour({
-                                      ...editingTour,
-                                      images: newImages,
-                                      image: moved,
-                                    });
-                                  }}
-                                  title="Définir comme photo principale"
-                                >
-                                  <Star className="w-4 h-4" />
-                                </Button>
-                              )}
-                            </div>
-                            {idx === 0 && (
-                              <div className="absolute top-1 left-1">
-                                <Badge className="bg-amber-500 text-[8px] h-4 px-1 uppercase tracking-tighter">
-                                  Principale
-                                </Badge>
-                              </div>
-                            )}
+                      {(!editingTour.images || editingTour.images.length === 0) ? (
+                        <div 
+                          className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-gray-200 rounded-3xl bg-gray-50/30 text-center group cursor-pointer hover:border-amber-300 hover:bg-amber-50/50 transition-all duration-300"
+                          onClick={() => tourFileRef.current?.click()}
+                        >
+                          <div className="w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <ImageIcon className="w-8 h-8 text-gray-400 group-hover:text-amber-500" />
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                          <h4 className="font-bold text-gray-900">Aucune photo</h4>
+                          <p className="text-xs text-gray-500 max-w-[200px] mt-1">
+                            Ajoutez des photos pour illustrer ce tour sur le catalogue.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                          {editingTour.images.map((img, idx) => (
+                            <div
+                              key={`${img}-${idx}`}
+                              className={cn(
+                                "group relative aspect-[4/3] rounded-2xl overflow-hidden border-2 transition-all duration-300 shadow-sm",
+                                idx === 0 
+                                  ? "border-amber-400 ring-4 ring-amber-400/10 shadow-md" 
+                                  : "border-white hover:border-amber-200 hover:shadow-lg"
+                              )}
+                            >
+                              <img
+                                src={img}
+                                alt={`Tour photo ${idx + 1}`}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              />
+                              
+                              {/* Overlay Gradient */}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                              {/* Action Buttons */}
+                              <div className="absolute inset-0 flex flex-col justify-between p-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                                <div className="flex justify-end gap-1.5">
+                                  <Button
+                                    size="icon"
+                                    variant="secondary"
+                                    className="h-8 w-8 bg-white/90 backdrop-blur-md hover:bg-white text-gray-900 shadow-xl border-none"
+                                    onClick={() => window.open(img, "_blank")}
+                                    title="Agrandir"
+                                  >
+                                    <Maximize2 className="w-3.5 h-3.5" />
+                                  </Button>
+                                  <Button
+                                    size="icon"
+                                    variant="destructive"
+                                    className="h-8 w-8 bg-red-500/90 backdrop-blur-md hover:bg-red-600 text-white shadow-xl border-none"
+                                    onClick={() => {
+                                      const newImages = editingTour.images?.filter((_, i) => i !== idx) || [];
+                                      setEditingTour({
+                                        ...editingTour,
+                                        images: newImages,
+                                        image: idx === 0 ? newImages[0] || "" : editingTour.image,
+                                      });
+                                    }}
+                                    title="Supprimer"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </Button>
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                  <div className="flex gap-1">
+                                    {idx > 0 && (
+                                      <Button
+                                        size="icon"
+                                        variant="secondary"
+                                        className="h-8 w-8 bg-white/90 backdrop-blur-md hover:bg-white text-gray-900 shadow-xl border-none"
+                                        onClick={() => {
+                                          const newImages = [...(editingTour.images || [])];
+                                          [newImages[idx], newImages[idx - 1]] = [newImages[idx - 1], newImages[idx]];
+                                          setEditingTour({
+                                            ...editingTour,
+                                            images: newImages,
+                                            image: newImages[0],
+                                          });
+                                        }}
+                                        title="Déplacer vers la gauche"
+                                      >
+                                        <ChevronLeft className="w-4 h-4" />
+                                      </Button>
+                                    )}
+                                    {idx < editingTour.images.length - 1 && (
+                                      <Button
+                                        size="icon"
+                                        variant="secondary"
+                                        className="h-8 w-8 bg-white/90 backdrop-blur-md hover:bg-white text-gray-900 shadow-xl border-none"
+                                        onClick={() => {
+                                          const newImages = [...(editingTour.images || [])];
+                                          [newImages[idx], newImages[idx + 1]] = [newImages[idx + 1], newImages[idx]];
+                                          setEditingTour({
+                                            ...editingTour,
+                                            images: newImages,
+                                            image: newImages[0],
+                                          });
+                                        }}
+                                        title="Déplacer vers la droite"
+                                      >
+                                        <ChevronRight className="w-4 h-4" />
+                                      </Button>
+                                    )}
+                                  </div>
+                                  
+                                  {idx !== 0 && (
+                                    <Button
+                                      size="sm"
+                                      variant="secondary"
+                                      className="h-8 px-3 text-[10px] font-bold uppercase tracking-wider bg-amber-500 text-white hover:bg-amber-600 border-none shadow-xl"
+                                      onClick={() => {
+                                        const newImages = [...(editingTour.images || [])];
+                                        const [moved] = newImages.splice(idx, 1);
+                                        newImages.unshift(moved);
+                                        setEditingTour({
+                                          ...editingTour,
+                                          images: newImages,
+                                          image: moved,
+                                        });
+                                      }}
+                                    >
+                                      <Star className="w-3 h-3 mr-1 fill-current" />
+                                      Principal
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Indicators */}
+                              {idx === 0 && (
+                                <div className="absolute top-3 left-3 flex gap-2">
+                                  <Badge className="bg-amber-500 text-white border-none text-[9px] h-5 px-2 uppercase font-extrabold tracking-widest shadow-lg">
+                                    Photo Principale
+                                  </Badge>
+                                </div>
+                              )}
+                              
+                              <div className="absolute bottom-3 left-3 px-2 py-1 bg-black/40 backdrop-blur-sm rounded-lg border border-white/20 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span className="text-white text-[10px] font-bold">#{idx + 1}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                 </div>
                 <TabsContent value="live" className="space-y-6">
                   <div className="bg-amber-50 p-6 rounded-2xl border border-amber-100 space-y-4">
