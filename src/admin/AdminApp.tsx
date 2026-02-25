@@ -2227,7 +2227,7 @@ function ToursManagement({
                                         <ChevronLeft className="w-4 h-4" />
                                       </Button>
                                     )}
-                                    {idx < editingTour.images.length - 1 && (
+                                    {idx < (editingTour.images?.length || 0) - 1 && (
                                       <Button
                                         size="icon"
                                         variant="secondary"
