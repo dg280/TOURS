@@ -33,6 +33,9 @@ export interface Tour {
     meetingPoint_en?: string;
     meetingPoint_es?: string;
     meetingPointMapUrl?: string;
+    goodToKnow?: string[];
+    goodToKnow_en?: string[];
+    goodToKnow_es?: string[];
     stops?: { name: string; description: string; image?: string }[];
     stripe_tip_link?: string;
     isActive?: boolean;

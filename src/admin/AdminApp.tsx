@@ -63,6 +63,8 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageEditor } from "./components/ImageEditor";
+import { translateText, translateArray, SupportedLanguage } from "./utils/translation-service";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { prepareTourForEditing, extractIframeSrc } from "@/lib/utils";
 import type { Tour, Reservation, Review } from "@/lib/types";
@@ -704,6 +706,60 @@ function ToursManagement({
   const [sessionLoading, setSessionLoading] = useState(false);
   const tourFileRef = useRef<HTMLInputElement>(null);
 
+  // Photo Editor State
+  const [imageToEdit, setImageToEdit] = useState<{
+    url: string;
+    index: number;
+    files: File[];
+  } | null>(null);
+
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  const handleTranslate = async (sourceLang: SupportedLanguage, field: string) => {
+    if (!editingTour) return;
+    setIsTranslating(true);
+    const loading = toast.loading("Traduction en cours...");
+    try {
+      const targetLangs: SupportedLanguage[] = (["fr", "en", "es"] as SupportedLanguage[]).filter(
+        (l) => l !== sourceLang
+      );
+
+      const sourceValue = (editingTour as any)[
+        field + (sourceLang === "fr" ? "" : `_${sourceLang}`)
+      ];
+
+      if (!sourceValue) {
+        toast.error("Le champ source est vide", { id: loading });
+        setIsTranslating(false);
+        return;
+      }
+
+      const updates: any = {};
+      
+      for (const targetLang of targetLangs) {
+        const targetField = field + (targetLang === "fr" ? "" : `_${targetLang}`);
+        
+        if (Array.isArray(sourceValue)) {
+          updates[targetField] = await translateArray(sourceValue, sourceLang, targetLang);
+        } else {
+          updates[targetField] = await translateText(sourceValue, sourceLang, targetLang);
+        }
+      }
+
+      setEditingTour({
+        ...editingTour,
+        ...updates,
+      });
+
+      toast.success("Traduction terminée !", { id: loading });
+    } catch (err) {
+      console.error("Translation error:", err);
+      toast.error("Erreur de traduction", { id: loading });
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   const startLiveSession = async (tour: Tour) => {
     if (!supabase) return;
     setSessionLoading(true);
@@ -743,53 +799,76 @@ function ToursManagement({
 
 
 
-  const handleTourImageUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleTourImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0 && editingTour) {
-      const loading = toast.loading(`Upload de ${files.length} image(s)...`);
-      try {
-        const newImages = [...(editingTour.images || [])];
-
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          if (file.size > 10 * 1024 * 1024) {
-            toast.error(`${file.name} est trop volumineuse (max 10MB)`);
-            continue;
-          }
-
-          const fileExt = file.name.split(".").pop();
-          const fileName = `tours/${editingTour.id}/${Date.now()}-${i}.${fileExt}`;
-
-          const { error: uploadError } = await supabase!.storage
-            .from("tour_images")
-            .upload(fileName, file);
-
-          if (uploadError) throw uploadError;
-
-          const {
-            data: { publicUrl },
-          } = supabase!.storage.from("tour_images").getPublicUrl(fileName);
-
-          // Prepend new images so the latest upload becomes the "Principal" image
-          newImages.unshift(publicUrl);
-        }
-
-        setEditingTour({
-          ...editingTour,
-          image: newImages[0] || editingTour.image,
-          images: newImages,
+      const fileArray = Array.from(files);
+      const firstFile = fileArray[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImageToEdit({
+          url: reader.result as string,
+          index: 0,
+          files: fileArray,
         });
-        toast.success(`${files.length} image(s) uploadée(s) avec succès !`, {
-          id: loading,
-        });
-      } catch (err) {
-        console.error("Upload error:", err);
-        toast.error("Erreur d'upload : " + (err as Error).message, {
-          id: loading,
-        });
+      };
+      reader.readAsDataURL(firstFile);
+    }
+  };
+
+  const onSaveEditedImage = async (blob: Blob) => {
+    if (!imageToEdit || !editingTour) return;
+
+    const loading = toast.loading(`Upload de l'image retouchée...`);
+    try {
+      const { index, files } = imageToEdit;
+      const file = files[index];
+      const fileExt = file.name.split(".").pop() || "jpg";
+      const fileName = `tours/${editingTour.id}/${Date.now()}-${index}.${fileExt}`;
+
+      const { error: uploadError } = await supabase!.storage
+        .from("tour_images")
+        .upload(fileName, blob, { contentType: `image/${fileExt}` });
+
+      if (uploadError) throw uploadError;
+
+      const {
+        data: { publicUrl },
+      } = supabase!.storage.from("tour_images").getPublicUrl(fileName);
+
+      const newImages = [...(editingTour.images || [])];
+      newImages.unshift(publicUrl);
+
+      setEditingTour({
+        ...editingTour,
+        image: newImages[0] || editingTour.image,
+        images: newImages,
+      });
+
+      toast.success(`Image uploadée avec succès !`, { id: loading });
+
+      // Handle next in queue
+      const nextIndex = index + 1;
+      if (nextIndex < files.length) {
+        const nextFile = files[nextIndex];
+        const reader = new FileReader();
+        reader.onload = () => {
+          setImageToEdit({
+            url: reader.result as string,
+            index: nextIndex,
+            files: files,
+          });
+        };
+        reader.readAsDataURL(nextFile);
+      } else {
+        setImageToEdit(null);
       }
+    } catch (err) {
+      console.error("Upload error:", err);
+      toast.error("Erreur d'upload : " + (err as Error).message, {
+        id: loading,
+      });
+      setImageToEdit(null);
     }
   };
 
@@ -827,9 +906,9 @@ function ToursManagement({
           meeting_point: tourData.meetingPoint,
           meeting_point_en: tourData.meetingPoint_en,
           meeting_point_es: tourData.meetingPoint_es,
-          meeting_point_map_url: extractIframeSrc(
-            tourData.meetingPointMapUrl || "",
-          ),
+          good_to_know: tourData.goodToKnow || [],
+          good_to_know_en: tourData.goodToKnow_en || [],
+          good_to_know_es: tourData.goodToKnow_es || [],
           images: tourData.images,
           pricing_tiers: tourData.pricing_tiers || {},
           stops: tourData.stops || [],
@@ -1358,7 +1437,19 @@ function ToursManagement({
 
                 <TabsContent value="fr" className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Titre (FR)</Label>
+                    <div className="flex justify-between items-center">
+                      <Label>Titre (FR)</Label>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px] px-2"
+                        onClick={() => handleTranslate("fr", "title")}
+                        disabled={isTranslating}
+                      >
+                        <Globe className="w-3 h-3" />
+                        Traduire vers EN/ES
+                      </Button>
+                    </div>
                     <Input
                       value={editingTour.title}
                       onChange={(e) =>
@@ -1370,7 +1461,19 @@ function ToursManagement({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Sous-titre (FR)</Label>
+                    <div className="flex justify-between items-center">
+                      <Label>Sous-titre (FR)</Label>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px] px-2"
+                        onClick={() => handleTranslate("fr", "subtitle")}
+                        disabled={isTranslating}
+                      >
+                        <Globe className="w-3 h-3" />
+                        Traduire vers EN/ES
+                      </Button>
+                    </div>
                     <Input
                       value={editingTour.subtitle}
                       onChange={(e) =>
@@ -1382,7 +1485,19 @@ function ToursManagement({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Description (FR)</Label>
+                    <div className="flex justify-between items-center">
+                      <Label>Description (FR)</Label>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px] px-2"
+                        onClick={() => handleTranslate("fr", "description")}
+                        disabled={isTranslating}
+                      >
+                        <Globe className="w-3 h-3" />
+                        Traduire vers EN/ES
+                      </Button>
+                    </div>
                     <Textarea
                       rows={4}
                       value={editingTour.description}
@@ -1427,7 +1542,19 @@ function ToursManagement({
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Point de rencontre (FR)</Label>
+                    <div className="flex justify-between items-center">
+                      <Label>Point de rencontre (FR)</Label>
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
+                        onClick={() => handleTranslate("fr", "meetingPoint")}
+                        disabled={isTranslating}
+                      >
+                        <Globe className="w-3 h-3" />
+                        Traduire
+                      </Button>
+                    </div>
                     <Input
                       value={editingTour.meetingPoint || ""}
                       onChange={(e) =>
@@ -1440,7 +1567,19 @@ function ToursManagement({
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Inclusions (FR)</Label>
+                      <div className="flex justify-between items-center">
+                        <Label>Inclusions (FR)</Label>
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
+                          onClick={() => handleTranslate("fr", "included")}
+                          disabled={isTranslating}
+                        >
+                          <Globe className="w-3 h-3" />
+                          Traduire
+                        </Button>
+                      </div>
                       <Textarea
                         className="text-xs min-h-[100px]"
                         value={(editingTour.included || []).join("\n")}
@@ -1455,7 +1594,19 @@ function ToursManagement({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Exclusions (FR)</Label>
+                      <div className="flex justify-between items-center">
+                        <Label>Exclusions (FR)</Label>
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
+                          onClick={() => handleTranslate("fr", "notIncluded")}
+                          disabled={isTranslating}
+                        >
+                          <Globe className="w-3 h-3" />
+                          Traduire
+                        </Button>
+                      </div>
                       <Textarea
                         className="text-xs min-h-[100px]"
                         value={(editingTour.notIncluded || []).join("\n")}
@@ -1469,6 +1620,34 @@ function ToursManagement({
                         }
                       />
                     </div>
+                  </div>
+                  <div className="space-y-2 mt-4">
+                    <div className="flex justify-between items-center">
+                      <Label>Bon à savoir (FR)</Label>
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
+                        onClick={() => handleTranslate("fr", "goodToKnow")}
+                        disabled={isTranslating}
+                      >
+                        <Globe className="w-3 h-3" />
+                        Traduire
+                      </Button>
+                    </div>
+                    <Textarea
+                      className="text-xs min-h-[100px]"
+                      placeholder="Une info par ligne..."
+                      value={(editingTour.goodToKnow || []).join("\n")}
+                      onChange={(e) =>
+                        setEditingTour({
+                          ...editingTour,
+                          goodToKnow: e.target.value
+                            .split("\n")
+                            .filter((l) => l.trim()),
+                        })
+                      }
+                    />
                   </div>
                 </TabsContent>
 
@@ -1520,7 +1699,19 @@ function ToursManagement({
                     </Button>
                   </div>
                   <div className="space-y-2">
-                    <Label>Title (EN)</Label>
+                    <div className="flex justify-between items-center">
+                      <Label>Title (EN)</Label>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px] px-2"
+                        onClick={() => handleTranslate("en", "title")}
+                        disabled={isTranslating}
+                      >
+                        <Globe className="w-3 h-3" />
+                        Translate to FR/ES
+                      </Button>
+                    </div>
                     <Input
                       value={editingTour.title_en || ""}
                       onChange={(e) =>
@@ -1532,7 +1723,19 @@ function ToursManagement({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Subtitle (EN)</Label>
+                    <div className="flex justify-between items-center">
+                      <Label>Subtitle (EN)</Label>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px] px-2"
+                        onClick={() => handleTranslate("en", "subtitle")}
+                        disabled={isTranslating}
+                      >
+                        <Globe className="w-3 h-3" />
+                        Translate to FR/ES
+                      </Button>
+                    </div>
                     <Input
                       value={editingTour.subtitle_en || ""}
                       onChange={(e) =>
@@ -1544,7 +1747,19 @@ function ToursManagement({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Description (EN)</Label>
+                    <div className="flex justify-between items-center">
+                      <Label>Description (EN)</Label>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px] px-2"
+                        onClick={() => handleTranslate("en", "description")}
+                        disabled={isTranslating}
+                      >
+                        <Globe className="w-3 h-3" />
+                        Translate to FR/ES
+                      </Button>
+                    </div>
                     <Textarea
                       rows={4}
                       value={editingTour.description_en || ""}
@@ -1589,7 +1804,19 @@ function ToursManagement({
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Meeting Point (EN)</Label>
+                    <div className="flex justify-between items-center">
+                      <Label>Meeting Point (EN)</Label>
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
+                        onClick={() => handleTranslate("en", "meetingPoint")}
+                        disabled={isTranslating}
+                      >
+                        <Globe className="w-3 h-3" />
+                        Translate
+                      </Button>
+                    </div>
                     <Input
                       value={editingTour.meetingPoint_en || ""}
                       onChange={(e) =>
@@ -1602,7 +1829,19 @@ function ToursManagement({
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Inclusions (EN)</Label>
+                      <div className="flex justify-between items-center">
+                        <Label>Inclusions (EN)</Label>
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
+                          onClick={() => handleTranslate("en", "included")}
+                          disabled={isTranslating}
+                        >
+                          <Globe className="w-3 h-3" />
+                          Translate
+                        </Button>
+                      </div>
                       <Textarea
                         className="text-xs min-h-[100px]"
                         value={(editingTour.included_en || []).join("\n")}
@@ -1617,7 +1856,19 @@ function ToursManagement({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Exclusions (EN)</Label>
+                      <div className="flex justify-between items-center">
+                        <Label>Exclusions (EN)</Label>
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
+                          onClick={() => handleTranslate("en", "notIncluded")}
+                          disabled={isTranslating}
+                        >
+                          <Globe className="w-3 h-3" />
+                          Translate
+                        </Button>
+                      </div>
                       <Textarea
                         className="text-xs min-h-[100px]"
                         value={(editingTour.notIncluded_en || []).join("\n")}
@@ -1631,6 +1882,34 @@ function ToursManagement({
                         }
                       />
                     </div>
+                  </div>
+                  <div className="space-y-2 mt-4">
+                    <div className="flex justify-between items-center">
+                      <Label>Good to know (EN)</Label>
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
+                        onClick={() => handleTranslate("en", "goodToKnow")}
+                        disabled={isTranslating}
+                      >
+                        <Globe className="w-3 h-3" />
+                        Translate
+                      </Button>
+                    </div>
+                    <Textarea
+                      className="text-xs min-h-[100px]"
+                      placeholder="One tip per line..."
+                      value={(editingTour.goodToKnow_en || []).join("\n")}
+                      onChange={(e) =>
+                        setEditingTour({
+                          ...editingTour,
+                          goodToKnow_en: e.target.value
+                            .split("\n")
+                            .filter((l) => l.trim()),
+                        })
+                      }
+                    />
                   </div>
                 </TabsContent>
 
@@ -1682,7 +1961,19 @@ function ToursManagement({
                     </Button>
                   </div>
                   <div className="space-y-2">
-                    <Label>Título (ES)</Label>
+                    <div className="flex justify-between items-center">
+                      <Label>Título (ES)</Label>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px] px-2"
+                        onClick={() => handleTranslate("es", "title")}
+                        disabled={isTranslating}
+                      >
+                        <Globe className="w-3 h-3" />
+                        Traducir a FR/EN
+                      </Button>
+                    </div>
                     <Input
                       value={editingTour.title_es || ""}
                       onChange={(e) =>
@@ -1694,7 +1985,19 @@ function ToursManagement({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Subtítulo (ES)</Label>
+                    <div className="flex justify-between items-center">
+                      <Label>Subtítulo (ES)</Label>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px] px-2"
+                        onClick={() => handleTranslate("es", "subtitle")}
+                        disabled={isTranslating}
+                      >
+                        <Globe className="w-3 h-3" />
+                        Traducir a FR/EN
+                      </Button>
+                    </div>
                     <Input
                       value={editingTour.subtitle_es || ""}
                       onChange={(e) =>
@@ -1706,7 +2009,19 @@ function ToursManagement({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Descripción (ES)</Label>
+                    <div className="flex justify-between items-center">
+                      <Label>Descripción (ES)</Label>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px] px-2"
+                        onClick={() => handleTranslate("es", "description")}
+                        disabled={isTranslating}
+                      >
+                        <Globe className="w-3 h-3" />
+                        Traducir a FR/EN
+                      </Button>
+                    </div>
                     <Textarea
                       rows={4}
                       value={editingTour.description_es || ""}
@@ -1720,7 +2035,19 @@ function ToursManagement({
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Puntos fuertes (ES)</Label>
+                      <div className="flex justify-between items-center">
+                        <Label>Puntos fuertes (ES)</Label>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px] px-2"
+                          onClick={() => handleTranslate("es", "highlights")}
+                          disabled={isTranslating}
+                        >
+                          <Globe className="w-3 h-3" />
+                          Traducir a FR/EN
+                        </Button>
+                      </div>
                       <Textarea
                         className="text-xs min-h-[100px]"
                         value={(editingTour.highlights_es || []).join("\n")}
@@ -1735,7 +2062,19 @@ function ToursManagement({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Itinerario (ES)</Label>
+                      <div className="flex justify-between items-center">
+                        <Label>Itinerario (ES)</Label>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px] px-2"
+                          onClick={() => handleTranslate("es", "itinerary")}
+                          disabled={isTranslating}
+                        >
+                          <Globe className="w-3 h-3" />
+                          Traducir a FR/EN
+                        </Button>
+                      </div>
                       <Textarea
                         className="text-xs min-h-[100px]"
                         value={(editingTour.itinerary_es || []).join("\n")}
@@ -1751,7 +2090,19 @@ function ToursManagement({
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Punto de encuentro (ES)</Label>
+                    <div className="flex justify-between items-center">
+                      <Label>Punto de encuentro (ES)</Label>
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
+                        onClick={() => handleTranslate("es", "meetingPoint")}
+                        disabled={isTranslating}
+                      >
+                        <Globe className="w-3 h-3" />
+                        Traducir
+                      </Button>
+                    </div>
                     <Input
                       value={editingTour.meetingPoint_es || ""}
                       onChange={(e) =>
@@ -1764,7 +2115,19 @@ function ToursManagement({
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Inclusiones (ES)</Label>
+                      <div className="flex justify-between items-center">
+                        <Label>Inclusiones (ES)</Label>
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
+                          onClick={() => handleTranslate("es", "included")}
+                          disabled={isTranslating}
+                        >
+                          <Globe className="w-3 h-3" />
+                          Traducir
+                        </Button>
+                      </div>
                       <Textarea
                         className="text-xs min-h-[100px]"
                         value={(editingTour.included_es || []).join("\n")}
@@ -1779,7 +2142,19 @@ function ToursManagement({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Exclusiones (ES)</Label>
+                      <div className="flex justify-between items-center">
+                        <Label>Exclusiones (ES)</Label>
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
+                          onClick={() => handleTranslate("es", "notIncluded")}
+                          disabled={isTranslating}
+                        >
+                          <Globe className="w-3 h-3" />
+                          Traducir
+                        </Button>
+                      </div>
                       <Textarea
                         className="text-xs min-h-[100px]"
                         value={(editingTour.notIncluded_es || []).join("\n")}
@@ -1794,32 +2169,34 @@ function ToursManagement({
                       />
                     </div>
                   </div>
-                </TabsContent>
-
-                <div className="mt-8 space-y-6 border-t pt-6">
                   <div className="space-y-2">
-                    <Label>Lien Google Maps (Embed)</Label>
-                    <Input
-                      value={editingTour.meetingPointMapUrl || ""}
+                    <div className="flex justify-between items-center">
+                      <Label>A saber (ES)</Label>
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
+                        onClick={() => handleTranslate("es", "goodToKnow")}
+                        disabled={isTranslating}
+                      >
+                        <Globe className="w-3 h-3" />
+                        Traducir
+                      </Button>
+                    </div>
+                    <Textarea
+                      className="text-xs min-h-[100px]"
+                      value={(editingTour.goodToKnow_es || []).join("\n")}
                       onChange={(e) =>
                         setEditingTour({
                           ...editingTour,
-                          meetingPointMapUrl: e.target.value,
+                          goodToKnow_es: e.target.value
+                            .split("\n")
+                            .filter((l) => l.trim()),
                         })
                       }
-                      placeholder="https://www.google.com/maps/embed... ou lien court"
                     />
-                    <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                      <Info className="w-3 h-3 text-amber-500" />
-                      Lien interactif : "Partager" &gt; "Intégrer une carte"
-                      &gt; copier le lien src. Les liens courts
-                      (maps.app.goo.gl) s'afficheront sous forme de bouton.
-                    </p>
-                    <p className="text-[10px] text-gray-400 font-medium">
-                      Pour afficher une carte, collez l'URL 'src' de l'iframe de
-                      partage Google Maps (Embed).
-                    </p>
                   </div>
+                </TabsContent>
 
                     <div className="space-y-6">
                       <div className="flex justify-between items-center bg-gray-50/50 p-4 rounded-xl border border-gray-100">
@@ -2019,7 +2396,6 @@ function ToursManagement({
                         </div>
                       )}
                     </div>
-                </div>
                 <TabsContent value="live" className="space-y-6">
                   <div className="bg-amber-50 p-6 rounded-2xl border border-amber-100 space-y-4">
                     <div className="flex justify-between items-center">
@@ -2282,6 +2658,16 @@ function ToursManagement({
           </div>
         </DialogContent>
       </Dialog>
+
+      {imageToEdit && (
+        <ImageEditor
+          image={imageToEdit.url}
+          isOpen={!!imageToEdit}
+          onClose={() => setImageToEdit(null)}
+          onSave={onSaveEditedImage}
+          title={`Retoucher l'image (${imageToEdit.index + 1}/${imageToEdit.files.length})`}
+        />
+      )}
     </div>
   );
 }
@@ -2613,13 +2999,21 @@ function Config({
                 <Button
                   variant="secondary"
                   className="w-full justify-start bg-gray-800 hover:bg-gray-700 text-white border-none h-12 px-4"
-                  onClick={onPush}
+                  onClick={() => {
+                    if (
+                      confirm(
+                        "⚠️ ATTENTION : Cette action va écraser TOUTES les données du site public avec votre version actuelle.\n\nÊtes-vous sûr de vouloir continuer ?"
+                      )
+                    ) {
+                      onPush();
+                    }
+                  }}
                   disabled={isSyncing}
                 >
                   <CloudUpload className="w-4 h-4 mr-3 text-amber-400" />
                   <div className="text-left">
-                    <div className="font-bold text-sm">Publier tout le catalogue</div>
-                    <div className="text-[10px] text-gray-400">Écrase le Cloud avec vos données locales</div>
+                    <div className="font-bold text-sm">Mettre à jour le site public</div>
+                    <div className="text-[10px] text-gray-400">Écrase le Cloud avec vos données d'administration</div>
                   </div>
                 </Button>
 
@@ -3342,6 +3736,8 @@ export default function AdminApp() {
   } | null>(null);
   const [urgentMsg, setUrgentMsg] = useState("");
 
+  const [profileImageToEdit, setProfileImageToEdit] = useState<string | null>(null);
+
   const updateSession = async (updates: Record<string, unknown>) => {
     if (!supabase || !activeSession) return;
     try {
@@ -3411,7 +3807,9 @@ export default function AdminApp() {
           meetingPoint: t.meeting_point,
           meetingPoint_en: t.meeting_point_en,
           meetingPoint_es: t.meeting_point_es,
-          meetingPointMapUrl: t.meeting_point_map_url,
+          goodToKnow: t.good_to_know || [],
+          goodToKnow_en: t.good_to_know_en || [],
+          goodToKnow_es: t.good_to_know_es || [],
           stops: t.stops || [],
           stripe_tip_link: t.stripe_tip_link,
         }));
@@ -3476,6 +3874,9 @@ export default function AdminApp() {
           meeting_point: tour.meetingPoint || null,
           meeting_point_en: tour.meetingPoint_en || null,
           meeting_point_es: tour.meetingPoint_es || null,
+          good_to_know: tour.goodToKnow || [],
+          good_to_know_en: tour.goodToKnow_en || [],
+          good_to_know_es: tour.goodToKnow_es || [],
           stops: tour.stops || [],
           stripe_tip_link: tour.stripe_tip_link || null,
         };
@@ -3556,6 +3957,9 @@ export default function AdminApp() {
           meetingPoint: t.meeting_point,
           meetingPoint_en: t.meeting_point_en,
           meetingPoint_es: t.meeting_point_es,
+          goodToKnow: t.good_to_know || [],
+          goodToKnow_en: t.good_to_know_en || [],
+          goodToKnow_es: t.good_to_know_es || [],
         }));
         setTours(mapped as Tour[]);
         localStorage.setItem("td-tours", JSON.stringify(mapped));
@@ -3740,7 +4144,9 @@ export default function AdminApp() {
             meetingPoint: t.meeting_point,
             meetingPoint_en: t.meeting_point_en,
             meetingPoint_es: t.meeting_point_es,
-            meetingPointMapUrl: t.meeting_point_map_url,
+            goodToKnow: t.good_to_know || [],
+            goodToKnow_en: t.good_to_know_en || [],
+            goodToKnow_es: t.good_to_know_es || [],
           }));
           setTours(mapped as Tour[]);
         } else if (error) {
@@ -3808,34 +4214,22 @@ export default function AdminApp() {
       }
 
       const reader = new FileReader();
-      reader.onloadend = () => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          let width = img.width;
-          let height = img.height;
-          const maxDim = 800;
-
-          if (width > height && width > maxDim) {
-            height *= maxDim / width;
-            width = maxDim;
-          } else if (height > maxDim) {
-            width *= maxDim / height;
-            height = maxDim;
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          ctx?.drawImage(img, 0, 0, width, height);
-          const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7);
-          setGuidePhoto(compressedBase64);
-          toast.success("Photo de profil prête");
-        };
-        img.src = reader.result as string;
+      reader.onload = () => {
+        setProfileImageToEdit(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const onSaveProfileImage = async (blob: Blob) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const compressedBase64 = reader.result as string;
+      setGuidePhoto(compressedBase64);
+      setProfileImageToEdit(null);
+      toast.success("Photo de profil mise à jour");
+    };
+    reader.readAsDataURL(blob);
   };
 
   const saveProfile = async () => {
@@ -4102,10 +4496,32 @@ export default function AdminApp() {
                           </h4>
 
                           <div className="space-y-2">
-                            <Label className="flex items-center gap-2">
-                              Français{" "}
-                              <Globe className="w-3 h-3 text-blue-500" />
-                            </Label>
+                            <div className="flex justify-between items-center">
+                              <Label className="flex items-center gap-2">
+                                Français{" "}
+                                <Globe className="w-3 h-3 text-blue-500" />
+                              </Label>
+                              <Button
+                                variant="ghost"
+                                size="xs"
+                                className="h-6 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[9px]"
+                                onClick={async () => {
+                                  if (!guideBio) return;
+                                  const loadingTranslate = toast.loading("Traduction bio...");
+                                  try {
+                                    const bioEn = await translateText(guideBio, "fr", "en");
+                                    const bioEs = await translateText(guideBio, "fr", "es");
+                                    setGuideBioEn(bioEn);
+                                    setGuideBioEs(bioEs);
+                                    toast.success("Bio traduite !", { id: loadingTranslate });
+                                  } catch (e) {
+                                    toast.error("Erreur traduction", { id: loadingTranslate });
+                                  }
+                                }}
+                              >
+                                ✨ Traduire vers EN/ES
+                              </Button>
+                            </div>
                             <Textarea
                               value={guideBio}
                               onChange={(
@@ -4117,10 +4533,32 @@ export default function AdminApp() {
                           </div>
 
                           <div className="space-y-2">
-                            <Label className="flex items-center gap-2">
-                              Anglais{" "}
-                              <Globe className="w-3 h-3 text-amber-500" />
-                            </Label>
+                            <div className="flex justify-between items-center">
+                              <Label className="flex items-center gap-2">
+                                Anglais{" "}
+                                <Globe className="w-3 h-3 text-amber-500" />
+                              </Label>
+                              <Button
+                                variant="ghost"
+                                size="xs"
+                                className="h-6 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[9px]"
+                                onClick={async () => {
+                                  if (!guideBioEn) return;
+                                  const loadingTranslate = toast.loading("Bio translation...");
+                                  try {
+                                    const bioFr = await translateText(guideBioEn, "en", "fr");
+                                    const bioEs = await translateText(guideBioEn, "en", "es");
+                                    setGuideBio(bioFr);
+                                    setGuideBioEs(bioEs);
+                                    toast.success("Bio translated !", { id: loadingTranslate });
+                                  } catch (e) {
+                                    toast.error("Translation error", { id: loadingTranslate });
+                                  }
+                                }}
+                              >
+                                ✨ Translate to FR/ES
+                              </Button>
+                            </div>
                             <Textarea
                               value={guideBioEn}
                               onChange={(
@@ -4132,10 +4570,32 @@ export default function AdminApp() {
                           </div>
 
                           <div className="space-y-2">
-                            <Label className="flex items-center gap-2">
-                              Espagnol{" "}
-                              <Globe className="w-3 h-3 text-red-500" />
-                            </Label>
+                            <div className="flex justify-between items-center">
+                              <Label className="flex items-center gap-2">
+                                Espagnol{" "}
+                                <Globe className="w-3 h-3 text-red-500" />
+                              </Label>
+                              <Button
+                                variant="ghost"
+                                size="xs"
+                                className="h-6 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[9px]"
+                                onClick={async () => {
+                                  if (!guideBioEs) return;
+                                  const loadingTranslate = toast.loading("Traducción bio...");
+                                  try {
+                                    const bioFr = await translateText(guideBioEs, "es", "fr");
+                                    const bioEn = await translateText(guideBioEs, "es", "en");
+                                    setGuideBio(bioFr);
+                                    setGuideBioEn(bioEn);
+                                    toast.success("Bio traducida !", { id: loadingTranslate });
+                                  } catch (e) {
+                                    toast.error("Error traducción", { id: loadingTranslate });
+                                  }
+                                }}
+                              >
+                                ✨ Traducir a FR/EN
+                              </Button>
+                            </div>
                             <Textarea
                               value={guideBioEs}
                               onChange={(
@@ -4172,6 +4632,17 @@ export default function AdminApp() {
         </div>
       </main>
       <Toaster position="top-right" richColors />
+
+      {profileImageToEdit && (
+        <ImageEditor
+          image={profileImageToEdit}
+          isOpen={!!profileImageToEdit}
+          onClose={() => setProfileImageToEdit(null)}
+          onSave={onSaveProfileImage}
+          aspectRatio={1}
+          title="Retoucher la photo de profil"
+        />
+      )}
     </div>
   );
 }

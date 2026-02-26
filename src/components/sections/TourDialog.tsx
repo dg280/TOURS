@@ -1,4 +1,4 @@
-import { MapPin, X, Check, CheckCircle2, ExternalLink } from "lucide-react";
+import { MapPin, X, Check, CheckCircle2, ExternalLink, Info, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -242,87 +242,39 @@ export const TourDialog = ({
                               : tour.meetingPoint}
                         </p>
                       </div>
-                      {tour.meetingPointMapUrl ? (
-                        <div className="rounded-lg overflow-hidden border border-gray-200">
-                          {isEmbeddableMapUrl(tour.meetingPointMapUrl) ? (
-                            <div className="aspect-video">
-                              <iframe
-                                src={extractIframeSrc(tour.meetingPointMapUrl)}
-                                width="100%"
-                                height="100%"
-                                style={{ border: 0 }}
-                                allowFullScreen
-                                loading="lazy"
-                                referrerPolicy="no-referrer-when-downgrade"
-                                aria-label="Google Maps"
-                                data-testid="meeting-point-map"
-                              ></iframe>
-                            </div>
-                          ) : (
-                            <div className="p-8 flex flex-col items-center justify-center text-center bg-gray-50 space-y-4">
-                              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 mb-2">
-                                <MapPin className="w-8 h-8" />
-                              </div>
-                              <div>
-                                <h4 className="text-gray-900 font-semibold mb-1">
-                                  {t.tour_dialog.open_maps}
-                                </h4>
-                                <p className="text-gray-500 text-sm max-w-[250px]">
-                                  {t.tour_dialog.maps_description}
+                      {(lang === "en"
+                        ? tour.goodToKnow_en
+                        : lang === "es"
+                          ? tour.goodToKnow_es
+                          : tour.goodToKnow
+                      )?.length ? (
+                        <div className="mt-8 pt-6 border-t border-gray-100">
+                          <h4 className="font-sans font-bold text-amber-700 mb-4 flex items-center gap-2 uppercase tracking-widest text-xs">
+                            <Sparkles className="w-4 h-4" />{" "}
+                            {t.tour_dialog.good_to_know_label}
+                          </h4>
+                          <div className="grid grid-cols-1 gap-3">
+                            {(lang === "en"
+                              ? tour.goodToKnow_en
+                              : lang === "es"
+                                ? tour.goodToKnow_es
+                                : tour.goodToKnow
+                            )?.map((item, i) => (
+                              <div
+                                key={i}
+                                className="flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-100 shadow-sm group hover:border-amber-200 transition-colors"
+                              >
+                                <div className="w-5 h-5 rounded-full bg-amber-50 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-amber-100">
+                                  <Info className="w-3 h-3 text-amber-600" />
+                                </div>
+                                <p className="text-sm text-gray-600 leading-relaxed">
+                                  {item}
                                 </p>
                               </div>
-                              <a
-                                href={tour.meetingPointMapUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-[#c9a961] hover:bg-[#b8944e] text-white font-medium rounded-xl transition-all shadow-sm active:scale-95"
-                              >
-                                {t.tour_dialog.maps_button}
-                                <ExternalLink className="w-4 h-4" />
-                              </a>
-                            </div>
-                          )}
-                        </div>
-                      ) : tour.meetingPoint?.startsWith(
-                          "https://www.google.com/maps/embed",
-                        ) || tour.meetingPoint?.includes("<iframe") ? (
-                        <div className="aspect-video rounded-lg overflow-hidden border border-gray-200">
-                          <iframe
-                            src={extractIframeSrc(tour.meetingPoint || "")}
-                            width="100%"
-                            height="100%"
-                            style={{ border: 0 }}
-                            allowFullScreen
-                            loading="lazy"
-                            referrerPolicy="no-referrer-when-downgrade"
-                          ></iframe>
-                        </div>
-                      ) : (
-                        <div className="bg-amber-50/50 p-6 rounded-xl border border-amber-100 flex flex-col items-center text-center space-y-4">
-                          <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-amber-600">
-                            <MapPin className="w-6 h-6" />
+                            ))}
                           </div>
-                          <div>
-                            <p className="text-gray-700 font-medium mb-1">
-                              Plaza de Cataluña, Barcelona
-                            </p>
-                            <p className="text-sm text-gray-500 max-w-xs mx-auto mb-4">
-                              {t.tour_dialog.maps_description}
-                            </p>
-                          </div>
-                          <a
-                            href="https://www.google.com/maps/search/?api=1&query=Plaza+de+Catalunya+Barcelona"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-[#c9a961] hover:bg-[#b8944e] text-white font-medium rounded-xl transition-all shadow-sm active:scale-95"
-                            data-testid="meeting-point-link"
-                            aria-label="Google Maps"
-                          >
-                            {t.tour_dialog.open_maps}
-                            <ExternalLink className="w-4 h-4" />
-                          </a>
                         </div>
-                      )}
+                      ) : null}
                     </div>
                   </TabsContent>
                 </Tabs>
