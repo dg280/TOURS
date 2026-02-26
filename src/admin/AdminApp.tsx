@@ -3947,7 +3947,7 @@ export default function AdminApp() {
       </aside>
 
       <main className="flex-1 flex flex-col min-w-0 h-full relative">
-        <header className="h-16 bg-white border-b border-gray-200 px-4 sm:px-8 flex items-center justify-between flex-shrink-0 sticky top-0 z-30">
+        <header className="h-16 bg-white border-b border-gray-200 px-4 sm:px-8 flex items-center justify-between flex-shrink-0 relative z-30">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -3979,7 +3979,7 @@ export default function AdminApp() {
           </div>
         </header>
 
-        <div className="flex-1 h-0 overflow-y-auto p-4 sm:p-8 relative">
+        <div className="flex-1 h-0 overflow-y-scroll p-4 sm:p-8 relative">
           <div className="max-w-6xl mx-auto">
             {activeTab === "dashboard" && (
               <Dashboard
