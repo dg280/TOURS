@@ -29,7 +29,6 @@ import {
   Maximize2,
   Minimize2,
   Camera,
-  Info,
   RefreshCw,
   ChevronLeft,
   ChevronRight,
@@ -64,9 +63,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageEditor } from "./components/ImageEditor";
-import { translateText, translateArray, SupportedLanguage } from "./utils/translation-service";
+import { translateText, translateArray, type SupportedLanguage } from "./utils/translation-service";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { prepareTourForEditing, extractIframeSrc } from "@/lib/utils";
+import { prepareTourForEditing } from "@/lib/utils";
 import type { Tour, Reservation, Review } from "@/lib/types";
 
 // Types unified with @/lib/types
@@ -1546,7 +1545,7 @@ function ToursManagement({
                       <Label>Point de rencontre (FR)</Label>
                       <Button
                         variant="ghost"
-                        size="xs"
+                        size="sm"
                         className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
                         onClick={() => handleTranslate("fr", "meetingPoint")}
                         disabled={isTranslating}
@@ -1571,7 +1570,7 @@ function ToursManagement({
                         <Label>Inclusions (FR)</Label>
                         <Button
                           variant="ghost"
-                          size="xs"
+                          size="sm"
                           className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
                           onClick={() => handleTranslate("fr", "included")}
                           disabled={isTranslating}
@@ -1598,7 +1597,7 @@ function ToursManagement({
                         <Label>Exclusions (FR)</Label>
                         <Button
                           variant="ghost"
-                          size="xs"
+                          size="sm"
                           className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
                           onClick={() => handleTranslate("fr", "notIncluded")}
                           disabled={isTranslating}
@@ -1626,7 +1625,7 @@ function ToursManagement({
                       <Label>Bon à savoir (FR)</Label>
                       <Button
                         variant="ghost"
-                        size="xs"
+                        size="sm"
                         className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
                         onClick={() => handleTranslate("fr", "goodToKnow")}
                         disabled={isTranslating}
@@ -1808,7 +1807,7 @@ function ToursManagement({
                       <Label>Meeting Point (EN)</Label>
                       <Button
                         variant="ghost"
-                        size="xs"
+                        size="sm"
                         className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
                         onClick={() => handleTranslate("en", "meetingPoint")}
                         disabled={isTranslating}
@@ -1833,7 +1832,7 @@ function ToursManagement({
                         <Label>Inclusions (EN)</Label>
                         <Button
                           variant="ghost"
-                          size="xs"
+                          size="sm"
                           className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
                           onClick={() => handleTranslate("en", "included")}
                           disabled={isTranslating}
@@ -1860,7 +1859,7 @@ function ToursManagement({
                         <Label>Exclusions (EN)</Label>
                         <Button
                           variant="ghost"
-                          size="xs"
+                          size="sm"
                           className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
                           onClick={() => handleTranslate("en", "notIncluded")}
                           disabled={isTranslating}
@@ -1888,7 +1887,7 @@ function ToursManagement({
                       <Label>Good to know (EN)</Label>
                       <Button
                         variant="ghost"
-                        size="xs"
+                        size="sm"
                         className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
                         onClick={() => handleTranslate("en", "goodToKnow")}
                         disabled={isTranslating}
@@ -2094,7 +2093,7 @@ function ToursManagement({
                       <Label>Punto de encuentro (ES)</Label>
                       <Button
                         variant="ghost"
-                        size="xs"
+                        size="sm"
                         className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
                         onClick={() => handleTranslate("es", "meetingPoint")}
                         disabled={isTranslating}
@@ -2119,7 +2118,7 @@ function ToursManagement({
                         <Label>Inclusiones (ES)</Label>
                         <Button
                           variant="ghost"
-                          size="xs"
+                          size="sm"
                           className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
                           onClick={() => handleTranslate("es", "included")}
                           disabled={isTranslating}
@@ -2146,7 +2145,7 @@ function ToursManagement({
                         <Label>Exclusiones (ES)</Label>
                         <Button
                           variant="ghost"
-                          size="xs"
+                          size="sm"
                           className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
                           onClick={() => handleTranslate("es", "notIncluded")}
                           disabled={isTranslating}
@@ -2174,7 +2173,7 @@ function ToursManagement({
                       <Label>A saber (ES)</Label>
                       <Button
                         variant="ghost"
-                        size="xs"
+                        size="sm"
                         className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
                         onClick={() => handleTranslate("es", "goodToKnow")}
                         disabled={isTranslating}
@@ -4503,7 +4502,7 @@ export default function AdminApp() {
                               </Label>
                               <Button
                                 variant="ghost"
-                                size="xs"
+                                size="sm"
                                 className="h-6 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[9px]"
                                 onClick={async () => {
                                   if (!guideBio) return;
@@ -4540,7 +4539,7 @@ export default function AdminApp() {
                               </Label>
                               <Button
                                 variant="ghost"
-                                size="xs"
+                                size="sm"
                                 className="h-6 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[9px]"
                                 onClick={async () => {
                                   if (!guideBioEn) return;
@@ -4577,7 +4576,7 @@ export default function AdminApp() {
                               </Label>
                               <Button
                                 variant="ghost"
-                                size="xs"
+                                size="sm"
                                 className="h-6 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[9px]"
                                 onClick={async () => {
                                   if (!guideBioEs) return;

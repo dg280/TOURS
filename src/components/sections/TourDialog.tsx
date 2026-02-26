@@ -1,4 +1,4 @@
-import { MapPin, X, Check, CheckCircle2, ExternalLink, Info, Sparkles } from "lucide-react";
+import { MapPin, X, Check, CheckCircle2, Info, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,7 +15,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import type { Tour } from "@/lib/types";
-import { extractIframeSrc, isEmbeddableMapUrl } from "@/lib/utils";
 import type { Language, Translations } from "@/lib/translations";
 
 interface TourDialogProps {
