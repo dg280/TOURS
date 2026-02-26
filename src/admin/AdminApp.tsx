@@ -4017,6 +4017,16 @@ export default function AdminApp() {
   const profileFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    // E2E Test Bypass: allow forcing login state via localStorage in dev/test mode
+    // Moved before the supabase check so it works even if supabase is not initialized
+    if (
+      localStorage.getItem("isLoggedIn") === "true" &&
+      import.meta.env.MODE === "development"
+    ) {
+      setIsLoggedIn(true);
+      return;
+    }
+
     if (!supabase) return;
 
     // Check session
@@ -4310,6 +4320,7 @@ export default function AdminApp() {
           {menuItems.map((item) => (
             <button
               key={item.id}
+              aria-label={item.label}
               onClick={() => {
                 setActiveTab(item.id);
                 if (window.innerWidth < 1024) setIsSidebarOpen(false);

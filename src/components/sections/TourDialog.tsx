@@ -233,13 +233,32 @@ export const TourDialog = ({
                     <div className="bg-gray-50 p-6 rounded-xl border border-gray-100">
                       <div className="flex items-start gap-3 mb-4">
                         <MapPin className="w-6 h-6 text-amber-600 shrink-0" />
-                        <p className="text-gray-700 font-medium">
-                          {lang === "en"
-                            ? tour.meetingPoint_en || tour.meetingPoint
-                            : lang === "es"
-                              ? tour.meetingPoint_es || tour.meetingPoint
-                              : tour.meetingPoint}
-                        </p>
+                        <div className="space-y-3">
+                          <p className="text-gray-700 font-medium">
+                            {lang === "en"
+                              ? tour.meetingPoint_en || tour.meetingPoint
+                              : lang === "es"
+                                ? tour.meetingPoint_es || tour.meetingPoint
+                                : tour.meetingPoint}
+                          </p>
+                          {tour.meetingPointMapUrl && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 text-xs border-amber-200 text-amber-700 hover:bg-amber-50 hover:text-amber-800"
+                              onClick={() =>
+                                window.open(tour.meetingPointMapUrl, "_blank")
+                              }
+                            >
+                              <MapPin className="w-3 h-3 mr-2" />
+                              {lang === "en"
+                                ? "View on Google Maps"
+                                : lang === "es"
+                                  ? "Ver en Google Maps"
+                                  : "Voir sur Google Maps"}
+                            </Button>
+                          )}
+                        </div>
                       </div>
                       {(lang === "en"
                         ? tour.goodToKnow_en

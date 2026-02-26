@@ -43,7 +43,10 @@ export default function LiveApp() {
     if (!sessionCode) return;
 
     const fetchSession = async () => {
-      if (!supabase) return;
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
       try {
         const { data: sess, error: sessError } = await supabase
           .from("live_sessions")
