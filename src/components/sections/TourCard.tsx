@@ -95,7 +95,6 @@ export const TourCard = ({ tour, index, lang, t, onClick }: TourCardProps) => {
         </div>
 
         <div className="mb-4">
-          <p className="text-xs text-gray-500 mb-2">{t.tours.learn_more} :</p>
           <div className="flex flex-wrap gap-1">
             {(lang === "en"
               ? tour.highlights_en || tour.highlights

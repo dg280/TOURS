@@ -52,11 +52,11 @@ export const Navbar = ({
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 pointer-events-none ${
         isScrolled ? "scrolled shadow-md py-4" : "bg-transparent py-8"
       }`}
     >
-      <div className="container-custom flex items-center justify-between">
+      <div className="container-custom flex items-center justify-between pointer-events-auto">
         <button
           onClick={() => {
             setView("home");
@@ -171,7 +171,7 @@ export const Navbar = ({
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg py-4">
+        <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg py-4 pointer-events-auto">
           <div className="container-custom flex flex-col gap-4">
             {/* Language switcher for mobile */}
             <div className="flex gap-4 border-b border-gray-100 pb-2">
