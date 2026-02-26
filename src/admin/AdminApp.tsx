@@ -4513,7 +4513,7 @@ export default function AdminApp() {
                                     setGuideBioEn(bioEn);
                                     setGuideBioEs(bioEs);
                                     toast.success("Bio traduite !", { id: loadingTranslate });
-                                  } catch (e) {
+                                  } catch (_e) {
                                     toast.error("Erreur traduction", { id: loadingTranslate });
                                   }
                                 }}
@@ -4550,7 +4550,7 @@ export default function AdminApp() {
                                     setGuideBio(bioFr);
                                     setGuideBioEs(bioEs);
                                     toast.success("Bio translated !", { id: loadingTranslate });
-                                  } catch (e) {
+                                  } catch (_e) {
                                     toast.error("Translation error", { id: loadingTranslate });
                                   }
                                 }}
@@ -4587,7 +4587,7 @@ export default function AdminApp() {
                                     setGuideBio(bioFr);
                                     setGuideBioEn(bioEn);
                                     toast.success("Bio traducida !", { id: loadingTranslate });
-                                  } catch (e) {
+                                  } catch (_e) {
                                     toast.error("Error traducción", { id: loadingTranslate });
                                   }
                                 }}
