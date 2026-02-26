@@ -1165,7 +1165,7 @@ function ToursManagement({
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {tours.map((tour) => (
-          <Card key={tour.id} className="overflow-hidden group hover:shadow-2xl transition-all duration-500 rounded-[2rem] border-amber-100/50 flex flex-col h-full bg-white">
+          <Card key={tour.id} className="relative overflow-hidden group hover:shadow-2xl transition-all duration-500 rounded-[2rem] border-amber-100/50 flex flex-col h-full bg-white">
             <div className="relative h-48 sm:h-56 overflow-hidden">
               <img
                 src={tour.image}
@@ -1184,7 +1184,7 @@ function ToursManagement({
             <div className="flex gap-2 p-3 pb-4 bg-gradient-to-b from-gray-50/80 to-white border-b border-gray-100/50 overflow-x-auto scrollbar-hide">
               {tour.images && tour.images.length > 0 ? (
                 tour.images.map((img, i) => (
-                  <div key={i} className="flex-shrink-0 w-16 h-16 rounded-2xl border-2 border-white shadow-lg overflow-hidden transition-all duration-300 hover:scale-110 hover:rotate-2 hover:z-10 cursor-pointer group/thumb">
+                  <div key={i} className="relative flex-shrink-0 w-16 h-16 rounded-2xl border-2 border-white shadow-lg overflow-hidden transition-all duration-300 hover:scale-110 hover:rotate-2 hover:z-10 cursor-pointer group/thumb">
                     <img src={img} className="w-full h-full object-cover transition-all" />
                     <div className="absolute inset-0 bg-amber-600/0 group-hover/thumb:bg-amber-600/10" />
                   </div>

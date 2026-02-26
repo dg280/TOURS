@@ -16,7 +16,7 @@ export const TourCard = ({ tour, index, lang, t, onClick }: TourCardProps) => {
   return (
     <div
       onClick={onClick}
-      className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col cursor-pointer"
+      className="relative group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col cursor-pointer"
       style={{ animationDelay: `${index * 0.1}s` }}
     >
       <div className="relative h-64 overflow-hidden">
