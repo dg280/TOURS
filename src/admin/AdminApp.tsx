@@ -3946,7 +3946,7 @@ export default function AdminApp() {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col overflow-hidden w-full">
+      <main className="flex-1 flex flex-col overflow-hidden w-full min-h-0">
         <header className="h-16 bg-white border-b border-gray-200 px-4 sm:px-8 flex items-center justify-between flex-shrink-0 sticky top-0 z-30">
           <div className="flex items-center gap-4">
             <button
@@ -3979,7 +3979,7 @@ export default function AdminApp() {
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-4 sm:p-8">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8 min-h-0">
           <div className="max-w-6xl mx-auto">
             {activeTab === "dashboard" && (
               <Dashboard
