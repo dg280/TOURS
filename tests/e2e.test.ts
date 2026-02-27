@@ -182,7 +182,7 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         await categorySection.scrollIntoViewIfNeeded();
 
         // Count tours in initial category (nature)
-        const initialCount = await categorySection.locator('.embla__slide').count();
+        await categorySection.locator('.embla__slide').count();
 
         // Click on another category (e.g., 'rando' or 'culture')
         // We look for the button text
