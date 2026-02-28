@@ -427,7 +427,25 @@ export const BookingModal = ({
                 ) : (
                   <div className="flex flex-col items-center justify-center py-12 text-gray-500">
                     <Loader2 className="w-10 h-10 animate-spin mb-4 text-amber-600" />
-                    <p>Initialisation du paiement...</p>
+                    <p className="font-bold">Initialisation du paiement...</p>
+                    <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-100 text-[10px] font-mono text-left max-w-xs overflow-hidden">
+                      <p className="text-gray-400 mb-1">DÉBOGAGE :</p>
+                      <p>Stripe Key: {STRIPE_KEY ? `${STRIPE_KEY.substring(0, 7)}...` : "(VIDE)"}</p>
+                      <p>Intent: {clientSecret ? "REÇU" : "EN ATTENTE..."}</p>
+                      <p>Tour ID: {tour.id}</p>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="mt-4 text-gray-400 hover:text-amber-600"
+                      onClick={() => {
+                        setClientSecret("");
+                        setPaymentError(null);
+                        setStep(2);
+                      }}
+                    >
+                      Délai trop long ? Recharger
+                    </Button>
                   </div>
                 )}
               </div>
