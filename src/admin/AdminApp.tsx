@@ -281,6 +281,14 @@ function Dashboard({
   reservations: Reservation[];
   setActiveTab: (tab: string) => void;
 }) {
+  const [systemStatus, setSystemStatus] = useState<'loading' | 'ok' | 'error'>('loading');
+
+  useEffect(() => {
+    fetch('/api/health-check')
+      .then(res => res.ok ? setSystemStatus('ok') : setSystemStatus('error'))
+      .catch(() => setSystemStatus('error'));
+  }, []);
+
   const stats = {
     totalReservations: reservations.length,
     pendingReservations: reservations.filter((r) => r.status === "pending")
@@ -320,6 +328,21 @@ function Dashboard({
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-xl font-bold text-gray-900">Vue d'ensemble</h2>
+        <div className={cn(
+          "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm",
+          systemStatus === 'loading' ? "bg-gray-100 text-gray-500" :
+          systemStatus === 'ok' ? "bg-green-100 text-green-700 ring-1 ring-green-600/20" :
+          "bg-red-100 text-red-700 ring-1 ring-red-600/20 animate-pulse"
+        )}>
+          <Activity className={cn("w-3.5 h-3.5", systemStatus === 'loading' && "animate-spin")} />
+          {systemStatus === 'loading' ? "Vérification système..." :
+           systemStatus === 'ok' ? "Système Opérationnel" : 
+           "Erreur Configuration (Stripe/DB)"}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 sm:p-6">
