@@ -384,8 +384,11 @@ export const BookingModal = ({
                     <X className="w-10 h-10 mb-4" />
                     <p className="font-bold mb-2">Clé Stripe Invalide</p>
                     <p className="text-sm opacity-80">
-                      La clé publique Stripe configurée ({STRIPE_KEY.substring(0, 10)}...) semble incorrecte. 
+                      La clé publique ({STRIPE_KEY ? `${STRIPE_KEY.substring(0, 7)}...` : "VIDE"}) est incorrecte. 
                       Elle doit commencer par 'pk_test_' ou 'pk_live_'.
+                    </p>
+                    <p className="text-xs mt-4 opacity-60">
+                      NB: Si vous venez de changer les réglages Vercel, vous devez **RE-DÉPLOYER** la branche.
                     </p>
                   </div>
                 ) : (
