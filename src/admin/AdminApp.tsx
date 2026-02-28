@@ -36,6 +36,7 @@ import {
   CloudDownload,
   RotateCcw,
   Database,
+  Scissors,
 } from "lucide-react";
 import { translations } from "@/lib/translations";
 import { Button } from "@/components/ui/button";
