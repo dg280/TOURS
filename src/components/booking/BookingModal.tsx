@@ -370,10 +370,15 @@ export const BookingModal = ({
 
             {step === 3 && (
               <div className="space-y-6">
-                <h3 className="text-xl font-sans font-bold flex items-center gap-2 mb-6 text-gray-900">
-                  <CreditCard className="w-5 h-5 text-amber-600" />
-                  {t.booking.payment_title}
-                </h3>
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-xl font-sans font-bold flex items-center gap-2 text-gray-900">
+                    <CreditCard className="w-5 h-5 text-amber-600" />
+                    {t.booking.payment_title}
+                  </h3>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${STRIPE_KEY.startsWith('pk_test_') ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>
+                    {STRIPE_KEY.startsWith('pk_test_') ? 'Mode Test' : 'Mode Live'}
+                  </span>
+                </div>
                 {clientSecret ? (
                   <Elements
                     stripe={stripePromise}

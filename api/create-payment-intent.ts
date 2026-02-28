@@ -16,6 +16,8 @@ function getClients() {
         const secretKey = process.env.STRIPE_SECRET_KEY || process.env.test_stripe_pv;
         if (!secretKey) {
             console.error("CRITICAL: Stripe Secret Key is missing (checked STRIPE_SECRET_KEY and test_stripe_pv)");
+        } else {
+            console.log(`[Stripe] Initialized using ${secretKey.startsWith('sk_test_') ? 'TEST' : 'LIVE'} key.`);
         }
         stripe = new Stripe(secretKey!, {
             apiVersion: '2024-06-20',

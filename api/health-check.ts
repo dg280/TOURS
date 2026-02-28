@@ -18,10 +18,6 @@ export default async function handler(req: any, res: any) {
 
     // 1. Check Stripe
     try {
-        if (!process.env.STRIPE_SECRET_KEY) {
-            health.checks.stripe = { status: 'error', message: 'Missing STRIPE_SECRET_KEY' };
-            health.status = 'error';
-        }
         // 1. Stripe check
         const secretKey = process.env.STRIPE_SECRET_KEY || process.env.test_stripe_pv;
         if (secretKey) {
@@ -30,9 +26,13 @@ export default async function handler(req: any, res: any) {
             });
             // Simple call to verify key validity
             await stripe.balance.retrieve();
-            health.checks.stripe = { status: 'ok', version: '2024-06-20' };
+            const isTest = secretKey.startsWith('sk_test_');
+            health.checks.stripe = { 
+                status: 'ok', 
+                version: '2024-06-20',
+                mode: isTest ? 'test' : 'live'
+            };
         } else {
-            // If neither STRIPE_SECRET_KEY nor test_stripe_pv is found
             health.checks.stripe = { status: 'error', message: 'Missing STRIPE_SECRET_KEY or test_stripe_pv' };
             health.status = 'error';
         }
