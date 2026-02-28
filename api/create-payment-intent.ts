@@ -8,8 +8,7 @@ let supabase: SupabaseClient | null = null;
 function getClients() {
     if (!stripe) {
         stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            apiVersion: '2025-01-27-preview' as any,
+            apiVersion: '2025-01-27',
         });
     }
     if (!supabase) {
