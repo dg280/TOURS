@@ -1,3 +1,9 @@
+/**
+ * CRITICAL: Payment Intent Creation
+ * This file handles real financial transactions. 
+ * - Do NOT change Stripe API Version without full regression testing.
+ * - Pricing tiers must be handled correctly (see Supabase 'tours' table).
+ */
 import Stripe from 'stripe';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 

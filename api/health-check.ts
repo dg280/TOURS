@@ -1,3 +1,8 @@
+/**
+ * SAFETY MONITOR: System Health Check
+ * This endpoint is used by the Admin Dashboard status indicator.
+ * Removing or breaking this will disable real-time connectivity monitoring.
+ */
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
