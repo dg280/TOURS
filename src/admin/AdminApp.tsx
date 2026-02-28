@@ -709,7 +709,8 @@ function ToursManagement({
   const [imageToEdit, setImageToEdit] = useState<{
     url: string;
     index: number;
-    files: File[];
+    files?: File[];
+    isExisting?: boolean;
   } | null>(null);
 
   const [isTranslating, setIsTranslating] = useState(false);
@@ -818,12 +819,25 @@ function ToursManagement({
   const onSaveEditedImage = async (blob: Blob) => {
     if (!imageToEdit || !editingTour) return;
 
-    const loading = toast.loading(`Upload de l'image retouchée...`);
+    const loading = toast.loading(`Enregistrement de l'image...`);
     try {
-      const { index, files } = imageToEdit;
-      const file = files[index];
-      const fileExt = file.name.split(".").pop() || "jpg";
-      const fileName = `tours/${editingTour.id}/${Date.now()}-${index}.${fileExt}`;
+      const { index, files, isExisting } = imageToEdit;
+      let fileExt = "jpg";
+      let fileName = "";
+      
+      if (isExisting) {
+        // Try to get extension from URL or use jpg
+        const urlParts = imageToEdit.url.split('?')[0].split('.');
+        fileExt = urlParts[urlParts.length - 1] || "jpg";
+        if (fileExt.length > 4) fileExt = "jpg"; // Handle weird URLs
+        fileName = `tours/${editingTour.id}/${Date.now()}-edit.${fileExt}`;
+      } else if (files && files[index]) {
+        const file = files[index];
+        fileExt = file.name.split(".").pop() || "jpg";
+        fileName = `tours/${editingTour.id}/${Date.now()}-${index}.${fileExt}`;
+      } else {
+        fileName = `tours/${editingTour.id}/${Date.now()}-generic.jpg`;
+      }
 
       const { error: uploadError } = await supabase!.storage
         .from("tour_images")
@@ -836,7 +850,12 @@ function ToursManagement({
       } = supabase!.storage.from("tour_images").getPublicUrl(fileName);
 
       const newImages = [...(editingTour.images || [])];
-      newImages.unshift(publicUrl);
+      
+      if (isExisting) {
+        newImages[index] = publicUrl;
+      } else {
+        newImages.unshift(publicUrl);
+      }
 
       setEditingTour({
         ...editingTour,
@@ -844,11 +863,11 @@ function ToursManagement({
         images: newImages,
       });
 
-      toast.success(`Image uploadée avec succès !`, { id: loading });
+      toast.success(isExisting ? `Image modifiée !` : `Image ajoutée !`, { id: loading });
 
-      // Handle next in queue
+      // Handle next in queue for new uploads
       const nextIndex = index + 1;
-      if (nextIndex < files.length) {
+      if (!isExisting && files && nextIndex < files.length) {
         const nextFile = files[nextIndex];
         const reader = new FileReader();
         reader.onload = () => {
@@ -856,6 +875,7 @@ function ToursManagement({
             url: reader.result as string,
             index: nextIndex,
             files: files,
+            isExisting: false
           });
         };
         reader.readAsDataURL(nextFile);
@@ -1510,7 +1530,19 @@ function ToursManagement({
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Points forts (FR)</Label>
+                      <div className="flex justify-between items-center">
+                        <Label>Points forts (FR)</Label>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px] px-2"
+                          onClick={() => handleTranslate("fr", "highlights")}
+                          disabled={isTranslating}
+                        >
+                          <Globe className="w-3 h-3" />
+                          Traduire
+                        </Button>
+                      </div>
                       <Textarea
                         className="text-xs min-h-[100px]"
                         value={editingTour.highlights.join("\n")}
@@ -1525,7 +1557,19 @@ function ToursManagement({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Itinéraire (FR)</Label>
+                      <div className="flex justify-between items-center">
+                        <Label>Itinéraire (FR)</Label>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px] px-2"
+                          onClick={() => handleTranslate("fr", "itinerary")}
+                          disabled={isTranslating}
+                        >
+                          <Globe className="w-3 h-3" />
+                          Traduire
+                        </Button>
+                      </div>
                       <Textarea
                         className="text-xs min-h-[100px]"
                         value={(editingTour.itinerary || []).join("\n")}
@@ -2297,6 +2341,21 @@ function ToursManagement({
                                   </Button>
                                   <Button
                                     size="icon"
+                                    variant="secondary"
+                                    className="h-8 w-8 bg-white/90 backdrop-blur-md hover:bg-white text-amber-600 shadow-xl border-none"
+                                    onClick={() => {
+                                      setImageToEdit({
+                                        url: img,
+                                        index: idx,
+                                        isExisting: true
+                                      });
+                                    }}
+                                    title="Modifier / Recadrer"
+                                  >
+                                    <Scissors className="w-3.5 h-3.5" />
+                                  </Button>
+                                  <Button
+                                    size="icon"
                                     variant="destructive"
                                     className="h-8 w-8 bg-red-500/90 backdrop-blur-md hover:bg-red-600 text-white shadow-xl border-none"
                                     onClick={() => {
@@ -2664,7 +2723,9 @@ function ToursManagement({
           isOpen={!!imageToEdit}
           onClose={() => setImageToEdit(null)}
           onSave={onSaveEditedImage}
-          title={`Retoucher l'image (${imageToEdit.index + 1}/${imageToEdit.files.length})`}
+          title={imageToEdit.isExisting 
+            ? "Modifier l'image" 
+            : `Retoucher l'image (${imageToEdit.index + 1}/${imageToEdit.files?.length || 1})`}
         />
       )}
     </div>
@@ -2878,10 +2939,18 @@ function Reviews({
               <Button
                 size="sm"
                 variant="destructive"
-                onClick={() => {
+                onClick={async () => {
                   if (confirm("Supprimer cet avis ?")) {
                     if (supabase) {
-                      supabase.from("reviews").delete().eq("id", review.id);
+                      const { error } = await supabase
+                        .from("reviews")
+                        .delete()
+                        .eq("id", review.id);
+                      if (error) {
+                        toast.error("Erreur lors de la suppression");
+                        return;
+                      }
+                      toast.success("Avis supprimé");
                     }
                     setReviews((prev) =>
                       prev.filter((r) => r.id !== review.id),

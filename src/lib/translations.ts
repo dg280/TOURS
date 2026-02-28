@@ -84,7 +84,7 @@ export const translations = {
                 desc: 'Description',
                 itin: 'Itinéraire',
                 incl: 'Inclus / Non Inclus',
-                meet: 'Point de Rencontre'
+                meet: 'Bon à savoir'
             },
             duration_labels: {
                 "Journée entière": "Journée entière",
@@ -465,7 +465,7 @@ export const translations = {
                 desc: 'Description',
                 itin: 'Itinerary',
                 incl: 'Included / Not Included',
-                meet: 'Meeting Point'
+                meet: 'Good to Know'
             },
             duration_labels: {
                 "Journée entière": "Full Day",
@@ -846,7 +846,7 @@ export const translations = {
                 desc: 'Descripción',
                 itin: 'Itinerario',
                 incl: 'Incluido / No Incluido',
-                meet: 'Punto de Encuentro'
+                meet: 'Información útil'
             },
             duration_labels: {
                 "Journée entière": "Día completo",

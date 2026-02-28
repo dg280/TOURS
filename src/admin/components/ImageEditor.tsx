@@ -10,7 +10,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { RotateCcw, ZoomIn, Scissors, RotateCw } from "lucide-react";
+import { RotateCcw, ZoomIn, Scissors, RotateCw, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import getCroppedImg from "../utils/image-utils";
 
 interface ImageEditorProps {
@@ -39,9 +40,16 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const handleSave = async () => {
+    setIsProcessing(true);
     try {
-      if (!croppedAreaPixels) return;
+      if (!croppedAreaPixels) {
+        toast.error("Veuillez sélectionner une zone de l'image");
+        setIsProcessing(false);
+        return;
+      }
       const croppedImage = await getCroppedImg(
         image,
         croppedAreaPixels,
@@ -49,9 +57,14 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
       );
       if (croppedImage) {
         onSave(croppedImage);
+      } else {
+        throw new Error("Erreur lors de la génération de l'image");
       }
     } catch (e) {
       console.error(e);
+      toast.error("Erreur technique lors du recadrage : " + (e as Error).message);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -142,9 +155,17 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
           </Button>
           <Button
             onClick={handleSave}
+            disabled={isProcessing}
             className="flex-1 bg-[#c9a961] hover:bg-[#b8944e] text-white font-bold"
           >
-            Appliquer
+            {isProcessing ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Traitement...
+              </>
+            ) : (
+              "Appliquer"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
