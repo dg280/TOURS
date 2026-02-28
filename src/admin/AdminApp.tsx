@@ -1133,7 +1133,7 @@ function ToursManagement({
                   className="text-gray-400 hover:text-red-600"
                   onClick={async () => {
                     if (confirm("Terminer la session live ?")) {
-                      await updateSession({ status: "completed" });
+                      await updateSession({ status: "completed", is_active: false });
                       setActiveSession(null);
                       toast.info("Session terminée.");
                     }

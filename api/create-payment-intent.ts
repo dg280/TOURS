@@ -62,7 +62,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
 
         const { data: tour, error: fetchError } = await supabase
             .from('tours')
-            .select('price')
+            .select('price, pricing_tiers')
             .eq('id', tourId)
             .single();
 
@@ -71,7 +71,15 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
             return res.status(404).json({ error: 'Tour non trouvé en base de données' });
         }
 
-        const baseAmount = tour.price * participants;
+        // Tiered pricing logic
+        let baseAmount = tour.price * participants;
+        if (tour.pricing_tiers && typeof tour.pricing_tiers === 'object') {
+            const tiers = tour.pricing_tiers as Record<string, number>;
+            if (tiers[participants.toString()]) {
+                baseAmount = tiers[participants.toString()];
+            }
+        }
+
         // Formule : (Prix tour + 0.30) / 0.956
         const totalAmount = (baseAmount + 0.30) / 0.956;
         const amountInCents = Math.round(totalAmount * 100);

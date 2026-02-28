@@ -79,15 +79,19 @@ export const BookingModal = ({
         }),
       })
         .then(async (res) => {
-          if (!res.ok) throw new Error("Erreur serveur");
-          return res.json();
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.error || "Erreur serveur");
+          }
+          return data;
         })
         .then((data) => {
           if (data.clientSecret) setClientSecret(data.clientSecret);
         })
         .catch((err) => {
-          console.error(err);
-          toast.error(t.booking.payment_error);
+          console.error("Payment init error:", err);
+          toast.error(`${t.booking.payment_error}${err.message ? `: ${err.message}` : ""}`);
+          setClientSecret(""); // Reset to allow retry
           setStep(2);
         });
     }

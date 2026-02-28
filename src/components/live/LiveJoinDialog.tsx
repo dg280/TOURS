@@ -52,7 +52,7 @@ export const LiveJoinDialog = ({
       const { data, error } = await supabase
         .from("live_sessions")
         .select("*, tours(title, title_en, title_es)")
-        .eq("is_active", true);
+        .eq("status", "active");
 
       if (error) throw error;
       setActiveSessions(data || []);
