@@ -21,15 +21,12 @@ export default async function handler(req: any, res: any) {
         // 1. Stripe check
         const secretKey = process.env.STRIPE_SECRET_KEY || process.env.test_stripe_pv;
         if (secretKey) {
-            const stripe = new Stripe(secretKey, {
-                apiVersion: '2024-06-20',
-            });
+            const stripe = new Stripe(secretKey);
             // Simple call to verify key validity
             await stripe.balance.retrieve();
             const isTest = secretKey.startsWith('sk_test_');
             health.checks.stripe = { 
                 status: 'ok', 
-                version: '2024-06-20',
                 mode: isTest ? 'test' : 'live'
             };
         } else {

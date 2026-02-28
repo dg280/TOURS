@@ -19,9 +19,7 @@ function getClients() {
         } else {
             console.log(`[Stripe] Initialized using ${secretKey.startsWith('sk_test_') ? 'TEST' : 'LIVE'} key.`);
         }
-        stripe = new Stripe(secretKey!, {
-            apiVersion: '2024-06-20',
-        });
+        stripe = new Stripe(secretKey!);
     }
     if (!supabase) {
         supabase = createClient(
@@ -55,8 +53,8 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
     try {
         const { stripe, supabase } = getClients();
 
-        if (!process.env.STRIPE_SECRET_KEY) {
-            console.error('Missing STRIPE_SECRET_KEY');
+        if (!process.env.STRIPE_SECRET_KEY && !process.env.test_stripe_pv) {
+            console.error('Missing STRIPE_SECRET_KEY and test_stripe_pv');
             return res.status(500).json({ error: 'Configuration Stripe manquante (Secret Key)' });
         }
         if (!process.env.VITE_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {

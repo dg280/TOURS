@@ -81,9 +81,16 @@ export const BookingModal = ({
         }),
       })
         .then(async (res) => {
-          const data = await res.json();
+          let data;
+          try {
+            data = await res.json();
+          } catch (e) {
+            console.error("Failed to parse JSON response:", e);
+            throw new Error(`Erreur serveur (${res.status})`);
+          }
+          
           if (!res.ok) {
-            throw new Error(data.error || "Erreur serveur");
+            throw new Error(data.error || `Erreur serveur (${res.status})`);
           }
           return data;
         })
@@ -91,13 +98,15 @@ export const BookingModal = ({
           if (data.clientSecret) {
             setClientSecret(data.clientSecret);
             setPaymentError(null);
+          } else {
+            throw new Error("Client secret manquant dans la réponse");
           }
         })
         .catch((err) => {
           console.error("Payment init error:", err);
           const errMsg = err.message || "Erreur de chargement";
           setPaymentError(errMsg);
-          toast.error(`${t.booking.payment_error}${errMsg}`);
+          toast.error(`${t.booking.payment_error} : ${errMsg}`);
           setClientSecret(""); 
         });
     }
