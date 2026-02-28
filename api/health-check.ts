@@ -21,13 +21,20 @@ export default async function handler(req: any, res: any) {
         if (!process.env.STRIPE_SECRET_KEY) {
             health.checks.stripe = { status: 'error', message: 'Missing STRIPE_SECRET_KEY' };
             health.status = 'error';
-        } else {
-            const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+        }
+        // 1. Stripe check
+        const secretKey = process.env.STRIPE_SECRET_KEY || process.env.test_stripe_pv;
+        if (secretKey) {
+            const stripe = new Stripe(secretKey, {
                 apiVersion: '2024-06-20',
             });
             // Simple call to verify key validity
             await stripe.balance.retrieve();
             health.checks.stripe = { status: 'ok', version: '2024-06-20' };
+        } else {
+            // If neither STRIPE_SECRET_KEY nor test_stripe_pv is found
+            health.checks.stripe = { status: 'error', message: 'Missing STRIPE_SECRET_KEY or test_stripe_pv' };
+            health.status = 'error';
         }
     } catch (err: any) {
         health.checks.stripe = { status: 'error', message: err.message };

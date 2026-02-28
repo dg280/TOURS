@@ -24,7 +24,7 @@ import { toast } from "sonner";
 import type { Tour } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 
-const STRIPE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "";
+const STRIPE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || (import.meta as any).env?.test_stripe_PK || "";
 const isValidStripeKey = STRIPE_KEY.startsWith("pk_test_") || STRIPE_KEY.startsWith("pk_live_");
 
 const stripePromise = isValidStripeKey ? loadStripe(STRIPE_KEY) : Promise.resolve(null);

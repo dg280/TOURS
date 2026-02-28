@@ -13,7 +13,11 @@ let supabase: SupabaseClient | null = null;
 
 function getClients() {
     if (!stripe) {
-        stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+        const secretKey = process.env.STRIPE_SECRET_KEY || process.env.test_stripe_pv;
+        if (!secretKey) {
+            console.error("CRITICAL: Stripe Secret Key is missing (checked STRIPE_SECRET_KEY and test_stripe_pv)");
+        }
+        stripe = new Stripe(secretKey!, {
             apiVersion: '2024-06-20',
         });
     }
