@@ -111,7 +111,8 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
             clientSecret: paymentIntent.client_secret,
             amount: Number(totalAmount.toFixed(2)),
             baseAmount: baseAmount,
-            stripeFees: Number((totalAmount - baseAmount).toFixed(2))
+            stripeFees: Number((totalAmount - baseAmount).toFixed(2)),
+            mode: (process.env.STRIPE_SECRET_KEY || process.env.test_stripe_pv || '').startsWith('sk_test_') ? 'test' : 'live'
         });
 
     } catch (err) {

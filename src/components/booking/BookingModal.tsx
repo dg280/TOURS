@@ -56,6 +56,7 @@ export const BookingModal = ({
 
   const [clientSecret, setClientSecret] = useState("");
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [serverMode, setServerMode] = useState<"test" | "live" | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -97,6 +98,7 @@ export const BookingModal = ({
         .then((data) => {
           if (data.clientSecret) {
             setClientSecret(data.clientSecret);
+            setServerMode(data.mode);
             setPaymentError(null);
           } else {
             throw new Error("Client secret manquant dans la réponse");
@@ -396,6 +398,7 @@ export const BookingModal = ({
                     <CheckoutForm
                       onSuccess={handleSuccess}
                       amount={calculateTotal()}
+                      serverMode={serverMode}
                     />
                   </Elements>
                 ) : !isValidStripeKey || paymentError ? (

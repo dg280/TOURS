@@ -6,9 +6,10 @@ import { Loader2 } from 'lucide-react';
 interface CheckoutFormProps {
     onSuccess: () => void;
     amount: number;
+    serverMode: "test" | "live" | null;
 }
 
-export function CheckoutForm({ onSuccess, amount }: CheckoutFormProps) {
+export function CheckoutForm({ onSuccess, amount, serverMode }: CheckoutFormProps) {
     const stripe = useStripe();
     const elements = useElements();
     const [message, setMessage] = useState<string | null>(null);
@@ -56,6 +57,7 @@ export function CheckoutForm({ onSuccess, amount }: CheckoutFormProps) {
                         <p>Stripe JS: {!!stripe ? "CHARGÉ" : "CHARGEMENT..."}</p>
                         <p>Elements: {!!elements ? "OK" : "EN ATTENTE"}</p>
                         <p>Key Prefix: {import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.substring(0, 8) || "pk_test (fallback)"}</p>
+                        <p>Server Mode: {serverMode ? serverMode.toUpperCase() : "..."}</p>
                     </div>
                 </div>
             )}
