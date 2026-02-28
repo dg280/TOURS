@@ -55,6 +55,7 @@ export const BookingModal = ({
   });
 
   const [clientSecret, setClientSecret] = useState("");
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -70,7 +71,7 @@ export const BookingModal = ({
   }, [isOpen]);
 
   useEffect(() => {
-    if (tour && step === 3 && !clientSecret) {
+    if (tour && step === 3 && !clientSecret && !paymentError) {
       fetch("/api/create-payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -87,16 +88,20 @@ export const BookingModal = ({
           return data;
         })
         .then((data) => {
-          if (data.clientSecret) setClientSecret(data.clientSecret);
+          if (data.clientSecret) {
+            setClientSecret(data.clientSecret);
+            setPaymentError(null);
+          }
         })
         .catch((err) => {
           console.error("Payment init error:", err);
-          toast.error(`${t.booking.payment_error}${err.message ? `: ${err.message}` : ""}`);
-          setClientSecret(""); // Reset to allow retry
-          setStep(2);
+          const errMsg = err.message || "Erreur de chargement";
+          setPaymentError(errMsg);
+          toast.error(`${t.booking.payment_error}${errMsg}`);
+          setClientSecret(""); 
         });
     }
-  }, [tour, step, clientSecret, participants, lang, t.booking.payment_error]);
+  }, [tour, step, clientSecret, paymentError, participants, lang, t.booking.payment_error]);
 
   const calculateSubtotal = () => {
     if (!tour) return 0;
@@ -379,16 +384,30 @@ export const BookingModal = ({
                       amount={calculateTotal()}
                     />
                   </Elements>
-                ) : !isValidStripeKey ? (
+                ) : !isValidStripeKey || paymentError ? (
                   <div className="flex flex-col items-center justify-center py-12 text-red-600 bg-red-50 rounded-2xl border border-red-100 p-6 text-center">
                     <X className="w-10 h-10 mb-4" />
-                    <p className="font-bold mb-2">Clé Stripe Invalide</p>
-                    <p className="text-sm opacity-80">
-                      La clé publique ({STRIPE_KEY ? `${STRIPE_KEY.substring(0, 7)}...` : "VIDE"}) est incorrecte. 
-                      Elle doit commencer par 'pk_test_' ou 'pk_live_'.
+                    <p className="font-bold mb-2">Problème de Paiement</p>
+                    <p className="text-sm opacity-80 mb-4">
+                      {!isValidStripeKey 
+                        ? `La clé publique (${STRIPE_KEY ? `${STRIPE_KEY.substring(0, 7)}...` : "VIDE"}) est incorrecte. Elle doit commencer par 'pk_test_' ou 'pk_live_'.`
+                        : `Erreur : ${paymentError}`
+                      }
                     </p>
-                    <p className="text-xs mt-4 opacity-60">
-                      NB: Si vous venez de changer les réglages Vercel, vous devez **RE-DÉPLOYER** la branche.
+                    <div className="flex flex-col gap-2 w-full">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setPaymentError(null);
+                          setStep(2);
+                        }}
+                        className="border-red-200 text-red-700 hover:bg-red-100"
+                      >
+                        Retour aux réglages
+                      </Button>
+                    </div>
+                    <p className="text-xs mt-6 opacity-60">
+                      💡 NB: Si vous venez de changer les réglages Vercel, vous devez **RÉ-DÉPLOYER** la branche pour que ce soit pris en compte.
                     </p>
                   </div>
                 ) : (
