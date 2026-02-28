@@ -51,6 +51,12 @@ export function CheckoutForm({ onSuccess, amount }: CheckoutFormProps) {
                 <div className="flex flex-col items-center justify-center py-8 text-gray-400">
                     <Loader2 className="w-8 h-8 animate-spin mb-2" />
                     <p className="text-sm">Chargement du formulaire sécurisé...</p>
+                    <div className="mt-4 p-3 bg-gray-900/5 rounded text-[9px] font-mono text-gray-500 w-full max-w-[250px]">
+                        <p className="border-b border-gray-200 pb-1 mb-1 font-bold">INFO SYSTÈME</p>
+                        <p>Stripe JS: {!!stripe ? "CHARGÉ" : "CHARGEMENT..."}</p>
+                        <p>Elements: {!!elements ? "OK" : "EN ATTENTE"}</p>
+                        <p>Key Prefix: {import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.substring(0, 8) || "pk_test (fallback)"}</p>
+                    </div>
                 </div>
             )}
             <div className={isElementsReady ? "block" : "hidden"}>
@@ -66,7 +72,7 @@ export function CheckoutForm({ onSuccess, amount }: CheckoutFormProps) {
             
             {(!stripe || !elements) && (
                 <div className="text-amber-600 text-sm mt-2 bg-amber-50 p-3 rounded-lg border border-amber-200">
-                    En attente de Stripe... {!!stripe ? "(Stripe OK)" : "(Stripe en attente)"} {!!elements ? "(Elements OK)" : "(Elements en attente)"}
+                    En attente de Stripe... {!!stripe ? "(Stripe JS OK)" : "(Stripe JS en attente)"}
                 </div>
             )}
             {message && <div id="payment-message" className="text-red-500 text-sm mt-2">{message}</div>}
