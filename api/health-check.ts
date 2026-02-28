@@ -23,11 +23,11 @@ export default async function handler(req: any, res: any) {
             health.status = 'error';
         } else {
             const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-                apiVersion: '2025-01-27',
+                apiVersion: '2024-06-20',
             });
             // Simple call to verify key validity
             await stripe.balance.retrieve();
-            health.checks.stripe = { status: 'ok', version: '2025-01-27' };
+            health.checks.stripe = { status: 'ok', version: '2024-06-20' };
         }
     } catch (err: any) {
         health.checks.stripe = { status: 'error', message: err.message };
