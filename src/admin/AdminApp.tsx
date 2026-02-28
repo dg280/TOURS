@@ -282,10 +282,19 @@ function Dashboard({
   setActiveTab: (tab: string) => void;
 }) {
   const [systemStatus, setSystemStatus] = useState<'loading' | 'ok' | 'error'>('loading');
-
+  const [stripeMode, setStripeMode] = useState<'test' | 'live' | null>(null);
+  
   useEffect(() => {
     fetch('/api/health-check')
-      .then(res => res.ok ? setSystemStatus('ok') : setSystemStatus('error'))
+      .then(async res => {
+        if (res.ok) {
+          const data = await res.json();
+          setSystemStatus('ok');
+          setStripeMode(data.checks?.stripe?.mode || null);
+        } else {
+          setSystemStatus('error');
+        }
+      })
       .catch(() => setSystemStatus('error'));
   }, []);
 
@@ -338,7 +347,7 @@ function Dashboard({
         )}>
           <Activity className={cn("w-3.5 h-3.5", systemStatus === 'loading' && "animate-spin")} />
           {systemStatus === 'loading' ? "Vérification système..." :
-           systemStatus === 'ok' ? "Système Opérationnel" : 
+           systemStatus === 'ok' ? `Système Opérationnel (${stripeMode?.toUpperCase() || 'MODE INCONNU'})` : 
            "Erreur Configuration (Stripe/DB)"}
         </div>
       </div>
