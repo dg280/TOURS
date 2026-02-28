@@ -24,9 +24,10 @@ import { toast } from "sonner";
 import type { Tour } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 
-const stripePromise = loadStripe(
-  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "",
-);
+const STRIPE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "";
+const isValidStripeKey = STRIPE_KEY.startsWith("pk_test_") || STRIPE_KEY.startsWith("pk_live_");
+
+const stripePromise = isValidStripeKey ? loadStripe(STRIPE_KEY) : Promise.resolve(null);
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -378,6 +379,15 @@ export const BookingModal = ({
                       amount={calculateTotal()}
                     />
                   </Elements>
+                ) : !isValidStripeKey ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-red-600 bg-red-50 rounded-2xl border border-red-100 p-6 text-center">
+                    <X className="w-10 h-10 mb-4" />
+                    <p className="font-bold mb-2">Clé Stripe Invalide</p>
+                    <p className="text-sm opacity-80">
+                      La clé publique Stripe configurée ({STRIPE_KEY.substring(0, 10)}...) semble incorrecte. 
+                      Elle doit commencer par 'pk_test_' ou 'pk_live_'.
+                    </p>
+                  </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-12 text-gray-500">
                     <Loader2 className="w-10 h-10 animate-spin mb-4 text-amber-600" />

@@ -45,6 +45,11 @@ export function CheckoutForm({ onSuccess, amount }: CheckoutFormProps) {
     return (
         <form id="payment-form" onSubmit={handleSubmit} className="space-y-6">
             <PaymentElement id="payment-element" options={{ layout: 'tabs' }} />
+            {(!stripe || !elements) && (
+                <div className="text-amber-600 text-sm mt-2 bg-amber-50 p-3 rounded-lg border border-amber-200">
+                    En attente de Stripe... Si ce message persiste, vérifiez votre connexion ou la configuration de la clé API.
+                </div>
+            )}
             {message && <div id="payment-message" className="text-red-500 text-sm mt-2">{message}</div>}
             <Button
                 disabled={isLoading || !stripe || !elements}
