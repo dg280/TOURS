@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { Translations } from "@/lib/translations";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -57,6 +57,15 @@ export const BookingModal = ({
   const [clientSecret, setClientSecret] = useState("");
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [serverMode, setServerMode] = useState<"test" | "live" | null>(null);
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Reset scroll position when step changes
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [step]);
 
   useEffect(() => {
     if (isOpen) {
@@ -224,7 +233,10 @@ export const BookingModal = ({
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6 sm:p-8 no-scrollbar">
+          <div 
+            ref={scrollContainerRef}
+            className="flex-1 overflow-y-auto p-6 sm:p-8 no-scrollbar scroll-smooth"
+          >
             {step === 1 && (
               <div className="space-y-6">
                 {/* Inclusions Summary */}
