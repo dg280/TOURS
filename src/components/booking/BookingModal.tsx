@@ -56,6 +56,7 @@ export const BookingModal = ({
     zip: "",
     country: "",
     pickupAddress: "",
+    pickupTime: "09:00",
     comment: "",
   });
 
@@ -244,7 +245,7 @@ export const BookingModal = ({
           >
             {step === 1 && (
               <div className="space-y-6">
-                {/* Itinerary & Inclusions Summary */}
+                {/* Itinerary & Inclusions/Exclusions Summary */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-3 bg-gray-50 p-4 rounded-2xl border border-gray-100">
                     <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-amber-600 flex items-center gap-2">
@@ -259,18 +260,30 @@ export const BookingModal = ({
                       ))}
                     </div>
                   </div>
-                  
-                  <div className="space-y-3 bg-amber-50/30 p-4 rounded-2xl border border-amber-100/50">
+
+                  <div className="space-y-3 p-4 rounded-2xl border border-gray-100 bg-gray-50/50">
                     <div className="space-y-2">
-                      <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-green-700 flex items-center gap-1.5 opacity-80">
+                      <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-green-700 flex items-center gap-1.5">
                         <Check className="w-3 h-3" /> {t.booking.included_label}
                       </h4>
                       <ul className="space-y-1">
                         {(lang === 'fr' ? tour.included : lang === 'es' ? tour.included_es : tour.included_en)?.slice(0, 3).map((item, i) => (
-                          <li key={i} className="text-[11px] text-gray-700 leading-tight opacity-90">• {item}</li>
+                          <li key={i} className="text-[11px] text-gray-700 leading-tight">• {item}</li>
                         ))}
                       </ul>
                     </div>
+                    {(lang === 'fr' ? tour.notIncluded : lang === 'es' ? tour.notIncluded_es : tour.notIncluded_en)?.length ? (
+                      <div className="space-y-2 pt-2 border-t border-gray-100">
+                        <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-red-500 flex items-center gap-1.5">
+                          <X className="w-3 h-3" /> {lang === 'en' ? 'Not included' : lang === 'es' ? 'No incluido' : 'Non inclus'}
+                        </h4>
+                        <ul className="space-y-1">
+                          {(lang === 'fr' ? tour.notIncluded : lang === 'es' ? tour.notIncluded_es : tour.notIncluded_en)?.slice(0, 3).map((item, i) => (
+                            <li key={i} className="text-[11px] text-gray-500 leading-tight">• {item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
 
@@ -289,6 +302,18 @@ export const BookingModal = ({
                         onChange={(e) => setDate(e.target.value)}
                         className="h-12 text-base rounded-xl border-gray-200"
                         min={new Date().toISOString().split("T")[0]}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="pickup-time" className="text-xs uppercase tracking-wider text-gray-500">
+                        {lang === 'en' ? 'Pick-up time' : lang === 'es' ? 'Hora de recogida' : 'Heure de pick-up'}
+                      </Label>
+                      <Input
+                        id="pickup-time"
+                        type="time"
+                        value={formData.pickupTime}
+                        onChange={(e) => setFormData({ ...formData, pickupTime: e.target.value })}
+                        className="h-12 text-base rounded-xl border-gray-200"
                       />
                     </div>
                   </div>
@@ -411,24 +436,42 @@ export const BookingModal = ({
                   <div className="space-y-4">
                     <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 border-b pb-2">{t.booking.tour_details}</h4>
                     <div className="space-y-2 text-sm text-gray-700">
-                      <p className="flex justify-between font-medium"><span>{tour.title}</span></p>
-                      <p className="flex justify-between"><span>Date:</span> <span className="font-bold">{date}</span></p>
-                      <p className="flex justify-between"><span>Voyageurs:</span> <span className="font-bold">{participants}</span></p>
-                      {formData.pickupAddress && (
-                        <p className="flex flex-col gap-1 mt-2 p-2 bg-gray-50 rounded-lg">
-                          <span className="text-[10px] uppercase font-bold text-amber-600">{t.booking.pickup_address}</span>
-                          <span className="font-medium">{formData.pickupAddress}</span>
-                        </p>
-                      )}
+                      <p className="font-bold text-gray-900">{tour.title}</p>
+                      <p className="flex justify-between"><span>Date :</span> <span className="font-bold">{date}</span></p>
+                      <p className="flex justify-between">
+                        <span>{lang === 'en' ? 'Pick-up time' : lang === 'es' ? 'Hora de recogida' : 'Heure de pick-up'} :</span>
+                        <span className="font-bold">{formData.pickupTime || "—"}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span>{lang === 'en' ? 'Est. duration' : lang === 'es' ? 'Duración est.' : 'Durée estimée'} :</span>
+                        <span className="font-bold">{tour.duration}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span>{lang === 'en' ? 'Travelers' : lang === 'es' ? 'Viajeros' : 'Voyageurs'} :</span>
+                        <span className="font-bold">{participants}</span>
+                      </p>
+                      <p className="flex flex-col gap-1 mt-2 p-2 bg-gray-50 rounded-lg">
+                        <span className="text-[10px] uppercase font-bold text-amber-600">{t.booking.pickup_address}</span>
+                        <span className="font-medium">{formData.pickupAddress || (lang === 'en' ? 'To confirm' : lang === 'es' ? 'Por confirmar' : 'À confirmer')}</span>
+                      </p>
                     </div>
                   </div>
 
-                   <div className="space-y-4">
+                  <div className="space-y-4">
                     <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 border-b pb-2">{t.booking.personal_info}</h4>
                     <div className="space-y-2 text-sm text-gray-700">
-                      <p className="flex justify-between"><span>{t.contact.name}:</span> <span className="font-bold">{formData.name}</span></p>
-                      <p className="flex justify-between"><span>{t.contact.email}:</span> <span className="font-bold">{formData.email}</span></p>
-                      <p className="flex justify-between"><span>{t.booking.phone}:</span> <span className="font-bold">{formData.phone || "-"}</span></p>
+                      <p className="flex justify-between"><span>{t.contact.name} :</span> <span className="font-bold">{formData.name}</span></p>
+                      <p className="flex justify-between"><span>{t.contact.email} :</span> <span className="font-bold">{formData.email}</span></p>
+                      <p className="flex justify-between"><span>{t.booking.phone} :</span> <span className="font-bold">{formData.phone || "—"}</span></p>
+                      {formData.pickupAddress && (
+                        <p className="flex justify-between"><span>Pick-up :</span> <span className="font-bold text-right max-w-[60%]">{formData.pickupAddress}</span></p>
+                      )}
+                      {formData.address && (
+                        <p className="flex flex-col gap-0.5 mt-2 p-2 bg-gray-50 rounded-lg text-xs">
+                          <span className="text-[10px] uppercase font-bold text-gray-400">{t.booking.billing_address}</span>
+                          <span>{formData.address}{formData.city ? `, ${formData.city}` : ""}{formData.zip ? ` ${formData.zip}` : ""}{formData.country ? `, ${formData.country}` : ""}</span>
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -448,7 +491,19 @@ export const BookingModal = ({
 
             {step === 4 && (
               <div className="space-y-6">
-                <div className="flex justify-between items-center mb-6">
+                {/* Booking summary ribbon */}
+                <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 text-sm text-gray-700 grid grid-cols-2 gap-x-6 gap-y-1.5">
+                  <p className="col-span-2 font-bold text-gray-900 text-base mb-1">{tour.title}</p>
+                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{t.contact.name}</span>{formData.name}</p>
+                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{lang === 'en' ? 'Travelers' : lang === 'es' ? 'Viajeros' : 'Voyageurs'}</span>{participants}</p>
+                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">Date</span>{date}</p>
+                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{lang === 'en' ? 'Pick-up time' : lang === 'es' ? 'Hora recogida' : 'Heure pick-up'}</span>{formData.pickupTime || "—"}</p>
+                  <p className="col-span-2"><span className="text-[10px] uppercase font-bold text-amber-600 block">{t.booking.pickup_address}</span>{formData.pickupAddress || (lang === 'en' ? 'To confirm' : lang === 'es' ? 'Por confirmar' : 'À confirmer')}</p>
+                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{lang === 'en' ? 'Est. duration' : lang === 'es' ? 'Duración' : 'Durée'}</span>{tour.duration}</p>
+                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">Total</span><span className="font-bold text-amber-700">{calculateTotal()}€</span></p>
+                </div>
+
+                <div className="flex justify-between items-center">
                   <h3 className="text-xl font-sans font-bold flex items-center gap-2 text-gray-900">
                     <CreditCard className="w-5 h-5 text-amber-600" />
                     {t.booking.payment_title}
