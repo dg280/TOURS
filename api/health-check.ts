@@ -12,7 +12,8 @@ export default async function handler(req: { method?: string }, res: { status: (
         status: 'ok',
         checks: {
             stripe: { status: 'unknown' as string, message: undefined as string | undefined, mode: undefined as string | undefined },
-            supabase: { status: 'unknown' as string, message: undefined as string | undefined }
+            supabase: { status: 'unknown' as string, message: undefined as string | undefined },
+            resend: { status: 'unknown' as string, message: undefined as string | undefined }
         }
     };
 
@@ -55,6 +56,14 @@ export default async function handler(req: { method?: string }, res: { status: (
     } catch (err) {
         health.checks.supabase = { status: 'error', message: (err as Error).message };
         health.status = 'error';
+    }
+
+    // 3. Check Resend
+    if (!process.env.RESEND_API_KEY) {
+        health.checks.resend = { status: 'error', message: 'Missing RESEND_API_KEY' };
+        health.status = 'error';
+    } else {
+        health.checks.resend = { status: 'ok' };
     }
 
     return res.status(health.status === 'ok' ? 200 : 500).json(health);

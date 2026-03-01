@@ -206,9 +206,18 @@ export const BookingModal = ({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ reservationId: data.id }),
-        }).catch((err) =>
-          console.error("Failed to trigger confirmation email:", err),
-        );
+        })
+          .then(async (res) => {
+            if (!res.ok) {
+              const body = await res.json().catch(() => ({}));
+              console.error("confirm-booking error:", res.status, body);
+              toast.error(`Erreur email de confirmation (${res.status}) : ${body.error || "inconnu"}`);
+            }
+          })
+          .catch((err) => {
+            console.error("Failed to trigger confirmation email:", err);
+            toast.error("Impossible d'envoyer l'email de confirmation.");
+          });
       }
     }
 
