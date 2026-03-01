@@ -232,14 +232,14 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
 
         // 8. Send both emails
         await resend.emails.send({
-            from: 'Tours & Détours <info@toursandetours.com>',
+            from: 'Tours & Détours <onboarding@resend.dev>',
             to: reservation.email,
             subject: `✓ Réservation confirmée : ${reservation.tour_name} — ${dateFormatted}`,
             html: customerEmail,
         });
 
         await resend.emails.send({
-            from: 'System <info@toursandetours.com>',
+            from: 'Tours & Détours <onboarding@resend.dev>',
             to: 'info@toursandetours.com',
             subject: `RÉSA : ${reservation.tour_name} · ${reservation.name} · ${dateFormatted}`,
             html: adminEmail,
