@@ -24,7 +24,7 @@ import { toast } from "sonner";
 import type { Tour } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 
-const STRIPE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || (import.meta as any).env?.test_stripe_PK || "";
+const STRIPE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || (import.meta as unknown as { env: Record<string, string> }).env?.test_stripe_PK || "";
 const isValidStripeKey = STRIPE_KEY.startsWith("pk_test_") || STRIPE_KEY.startsWith("pk_live_");
 
 const stripePromise = isValidStripeKey ? loadStripe(STRIPE_KEY) : Promise.resolve(null);
@@ -153,13 +153,13 @@ export const BookingModal = ({
   const nextStep = () => {
     if (step === 1) {
       if (!date) {
-        toast.error((t.booking as any).date_error || "Date required");
+        toast.error(t.booking.date_error || "Date required");
         return;
       }
       setStep(2);
     } else if (step === 2) {
       if (!formData.name || !formData.email) {
-        toast.error((t.booking as any).info_error || "Name and Email are required");
+        toast.error(t.booking.info_error || "Name and Email are required");
         return;
       }
       setClientSecret("");

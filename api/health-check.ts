@@ -6,13 +6,13 @@
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-export default async function handler(req: any, res: any) {
-    const health: any = {
+export default async function handler(req: { method?: string }, res: { status: (code: number) => { json: (data: unknown) => void } }) {
+    const health = {
         timestamp: new Date().toISOString(),
         status: 'ok',
         checks: {
-            stripe: { status: 'unknown' },
-            supabase: { status: 'unknown' }
+            stripe: { status: 'unknown' as string, message: undefined as string | undefined, mode: undefined as string | undefined },
+            supabase: { status: 'unknown' as string, message: undefined as string | undefined }
         }
     };
 
@@ -33,8 +33,8 @@ export default async function handler(req: any, res: any) {
             health.checks.stripe = { status: 'error', message: 'Missing STRIPE_SECRET_KEY or test_stripe_pv' };
             health.status = 'error';
         }
-    } catch (err: any) {
-        health.checks.stripe = { status: 'error', message: err.message };
+    } catch (err) {
+        health.checks.stripe = { status: 'error', message: (err as Error).message, mode: undefined };
         health.status = 'error';
     }
 
@@ -52,8 +52,8 @@ export default async function handler(req: any, res: any) {
             if (error) throw error;
             health.checks.supabase = { status: 'ok' };
         }
-    } catch (err: any) {
-        health.checks.supabase = { status: 'error', message: err.message };
+    } catch (err) {
+        health.checks.supabase = { status: 'error', message: (err as Error).message };
         health.status = 'error';
     }
 

@@ -128,7 +128,7 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         await page.getByTestId('book-now-button').first().click();
 
         // 3. Step 1: Date & Participants
-        await expect(page.locator('text=Étape 1 sur 4')).toBeVisible();
+        await expect(page.locator('text=Étape 1 sur 5')).toBeVisible();
         const dateInput = page.locator('input[type="date"]');
         await expect(dateInput).toBeVisible();
         
@@ -142,12 +142,12 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         await page.waitForTimeout(500);
         const nextBtn = page.getByTestId('next-step-button').first();
         await nextBtn.click({ force: true });
-        await expect(page.locator('text=/Étape 2 sur 4|Step 2 of 4|Paso 2 de 4/').first()).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('text=/Étape 2 sur 5|Step 2 of 5|Paso 2 de 5/').first()).toBeVisible({ timeout: 10000 });
 
         // 5. Check validation (try next without name)
         await page.getByTestId('next-step-button').first().dispatchEvent('click');
         // Should stay on step 2 (no crash)
-        await expect(page.locator('text=Étape 2 sur 4')).toBeVisible();
+        await expect(page.locator('text=Étape 2 sur 5')).toBeVisible();
         await expect(page.locator('input#booking-name')).toBeVisible();
     });
 
@@ -164,7 +164,7 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         const tourCard = page.locator('#top-tours h3, section#tours h3').first();
         await tourCard.click({ force: true });
  
-        await page.locator('div[role="dialog"] [role="tab"]').filter({ hasText: /Rencontre|Meeting|Punto/i }).first().click();
+        await page.locator('div[role="dialog"] [role="tab"]').filter({ hasText: /Rencontre|Meeting|Punto|Savoir|Know|Útil/i }).first().click();
  
         // Check for address text
         await expect(page.locator('div[role="dialog"] div[role="tabpanel"] p').first()).toBeVisible();
