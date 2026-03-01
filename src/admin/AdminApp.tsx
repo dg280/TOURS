@@ -1644,30 +1644,6 @@ function ToursManagement({
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <Label>Point de rencontre (FR)</Label>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
-                        onClick={() => handleTranslate("fr", "meetingPoint")}
-                        disabled={isTranslating}
-                      >
-                        <Globe className="w-3 h-3" />
-                        Traduire
-                      </Button>
-                    </div>
-                    <Input
-                      value={editingTour.meetingPoint || ""}
-                      onChange={(e) =>
-                        setEditingTour({
-                          ...editingTour,
-                          meetingPoint: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
@@ -1905,30 +1881,6 @@ function ToursManagement({
                         }
                       />
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <Label>Meeting Point (EN)</Label>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
-                        onClick={() => handleTranslate("en", "meetingPoint")}
-                        disabled={isTranslating}
-                      >
-                        <Globe className="w-3 h-3" />
-                        Translate
-                      </Button>
-                    </div>
-                    <Input
-                      value={editingTour.meetingPoint_en || ""}
-                      onChange={(e) =>
-                        setEditingTour({
-                          ...editingTour,
-                          meetingPoint_en: e.target.value,
-                        })
-                      }
-                    />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -2191,30 +2143,6 @@ function ToursManagement({
                         }
                       />
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <Label>Punto de encuentro (ES)</Label>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
-                        onClick={() => handleTranslate("es", "meetingPoint")}
-                        disabled={isTranslating}
-                      >
-                        <Globe className="w-3 h-3" />
-                        Traducir
-                      </Button>
-                    </div>
-                    <Input
-                      value={editingTour.meetingPoint_es || ""}
-                      onChange={(e) =>
-                        setEditingTour({
-                          ...editingTour,
-                          meetingPoint_es: e.target.value,
-                        })
-                      }
-                    />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
