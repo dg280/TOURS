@@ -186,6 +186,12 @@ export const BookingModal = ({
       total_price: calculateTotal(),
       status: "pending" as const,
       message: formData.comment,
+      pickup_address: formData.pickupAddress,
+      pickup_time: formData.pickupTime,
+      billing_address: formData.address,
+      billing_city: formData.city,
+      billing_zip: formData.zip,
+      billing_country: formData.country,
     };
 
     if (supabase) {
