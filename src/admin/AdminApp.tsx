@@ -746,6 +746,8 @@ function ToursManagement({
     isExisting?: boolean;
   } | null>(null);
 
+  const [pendingImages, setPendingImages] = useState<{ file: File; previewUrl: string }[]>([]);
+
   const [isTranslating, setIsTranslating] = useState(false);
 
   const handleTranslate = async (sourceLang: SupportedLanguage, field: string) => {
@@ -834,18 +836,43 @@ function ToursManagement({
 
   const handleTourImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files.length > 0 && editingTour) {
-      const fileArray = Array.from(files);
-      const firstFile = fileArray[0];
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImageToEdit({
-          url: reader.result as string,
-          index: 0,
-          files: fileArray,
-        });
-      };
-      reader.readAsDataURL(firstFile);
+    if (files && files.length > 0) {
+      const newPending = Array.from(files).map((file) => ({
+        file,
+        previewUrl: URL.createObjectURL(file),
+      }));
+      setPendingImages((prev) => [...prev, ...newPending]);
+      e.target.value = "";
+    }
+  };
+
+  const handleConfirmUpload = async () => {
+    if (!editingTour || pendingImages.length === 0) return;
+    const loading = toast.loading(`Upload de ${pendingImages.length} image(s)...`);
+    try {
+      const uploadedUrls: string[] = [];
+      for (const { file, previewUrl } of pendingImages) {
+        const fileExt = file.name.split(".").pop() || "jpg";
+        const fileName = `tours/${editingTour.id}/${Date.now()}-${Math.random().toString(36).substr(2, 5)}.${fileExt}`;
+        const { error: uploadError } = await supabase!.storage
+          .from("tour_images")
+          .upload(fileName, file, { contentType: file.type });
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase!.storage.from("tour_images").getPublicUrl(fileName);
+        uploadedUrls.push(publicUrl);
+        URL.revokeObjectURL(previewUrl);
+      }
+      const newImages = [...uploadedUrls, ...(editingTour.images || [])];
+      setEditingTour({
+        ...editingTour,
+        images: newImages,
+        image: newImages[0] || editingTour.image,
+      });
+      setPendingImages([]);
+      toast.success(`${uploadedUrls.length} image(s) ajoutée(s) !`, { id: loading });
+    } catch (err) {
+      console.error("Upload error:", err);
+      toast.error("Erreur d'upload : " + (err as Error).message, { id: loading });
     }
   };
 
@@ -2325,6 +2352,76 @@ function ToursManagement({
                           )}
                         </div>
                       </div>
+
+                      {pendingImages.length > 0 && (
+                        <div className="rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50/50 p-4 space-y-3">
+                          <div className="flex items-center justify-between flex-wrap gap-2">
+                            <div>
+                              <p className="font-bold text-sm text-blue-900">
+                                {pendingImages.length} image(s) en attente
+                              </p>
+                              <p className="text-xs text-blue-600">
+                                Vérifiez les aperçus puis cliquez sur "Accepter l'upload".
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => {
+                                  pendingImages.forEach(({ previewUrl }) => URL.revokeObjectURL(previewUrl));
+                                  setPendingImages([]);
+                                }}
+                                className="text-gray-500 hover:text-gray-700 h-9"
+                              >
+                                <X className="w-4 h-4 mr-1" />
+                                Annuler
+                              </Button>
+                              <Button
+                                type="button"
+                                size="sm"
+                                onClick={handleConfirmUpload}
+                                className="bg-blue-600 hover:bg-blue-700 text-white h-9 font-bold"
+                              >
+                                <CloudUpload className="w-4 h-4 mr-2" />
+                                Accepter l'upload
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                            {pendingImages.map(({ previewUrl, file }, idx) => (
+                              <div
+                                key={idx}
+                                className="group relative aspect-[4/3] rounded-xl overflow-hidden border-2 border-blue-300 shadow-sm"
+                              >
+                                <img
+                                  src={previewUrl}
+                                  alt={file.name}
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-blue-900/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Button
+                                    type="button"
+                                    size="icon"
+                                    variant="destructive"
+                                    className="h-7 w-7 bg-red-500/90"
+                                    onClick={() => {
+                                      URL.revokeObjectURL(previewUrl);
+                                      setPendingImages((prev) => prev.filter((_, i) => i !== idx));
+                                    }}
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                                <div className="absolute bottom-0 left-0 right-0 bg-blue-900/60 px-2 py-1">
+                                  <p className="text-[9px] text-white truncate">{file.name}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       {(!editingTour.images || editingTour.images.length === 0) ? (
                         <div 

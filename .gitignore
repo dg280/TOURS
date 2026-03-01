@@ -32,3 +32,6 @@ dist-ssr
 /coverage
 
 lint_output.txt
+
+# Git worktrees (agents isolés)
+.worktrees/
