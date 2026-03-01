@@ -51,6 +51,11 @@ export const BookingModal = ({
     name: "",
     email: "",
     phone: "",
+    address: "",
+    city: "",
+    zip: "",
+    country: "",
+    pickupAddress: "",
     comment: "",
   });
 
@@ -143,29 +148,29 @@ export const BookingModal = ({
     return Number(total.toFixed(2));
   };
 
-  const calculateFees = () => {
-    const total = calculateTotal();
-    const subtotal = calculateSubtotal();
-    return Number((total - subtotal).toFixed(2));
-  };
+
 
   const nextStep = () => {
     if (step === 1) {
       if (!date) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         toast.error((t.booking as any).date_error || "Date required");
         return;
       }
       setStep(2);
     } else if (step === 2) {
       if (!formData.name || !formData.email) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        toast.error((t.booking as any).info_error || "Info required");
+        toast.error((t.booking as any).info_error || "Name and Email are required");
         return;
       }
       setClientSecret("");
       setStep(3);
+    } else if (step === 3) {
+      setStep(4);
     }
+  };
+
+  const prevStep = () => {
+    if (step > 1) setStep(step - 1);
   };
 
   const handleSuccess = async () => {
@@ -200,7 +205,7 @@ export const BookingModal = ({
       }
     }
 
-    setStep(4);
+    setStep(5);
   };
 
   if (!tour) return null;
@@ -208,15 +213,15 @@ export const BookingModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-[600px] w-[95vw] p-0 overflow-hidden rounded-2xl border-none shadow-2xl bg-white"
+        className="sm:max-w-[700px] w-full h-full sm:h-auto sm:max-h-[95vh] p-0 overflow-hidden sm:rounded-2xl border-none shadow-2xl bg-white flex flex-col"
         data-testid="booking-modal"
       >
-        <div className="flex flex-col h-full max-h-[90vh]">
+        <div className="flex flex-col h-full overflow-hidden">
           <div className="bg-gray-900 text-white p-6 sm:p-8">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <p className="text-amber-400 text-xs font-bold uppercase tracking-widest mb-1">
-                  {t.booking.step} {step} {t.booking.step_of} 4
+                <p className="text-amber-400 text-[10px] font-bold uppercase tracking-widest mb-1">
+                  {t.booking.step} {step} {t.booking.step_of} 5
                 </p>
                 <DialogTitle className="text-2xl font-serif">
                   {tour.title}
@@ -224,10 +229,10 @@ export const BookingModal = ({
               </div>
             </div>
             <div className="flex gap-2">
-              {[1, 2, 3, 4].map((i) => (
+              {[1, 2, 3, 4, 5].map((i) => (
                 <div
                   key={i}
-                  className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${i <= step ? "bg-amber-500" : "bg-white/10"}`}
+                  className={`h-1 flex-1 rounded-full transition-all duration-500 ${i <= step ? "bg-amber-500" : "bg-white/10"}`}
                 />
               ))}
             </div>
@@ -239,90 +244,85 @@ export const BookingModal = ({
           >
             {step === 1 && (
               <div className="space-y-6">
-                {/* Inclusions Summary */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 bg-amber-50/30 p-4 rounded-2xl border border-amber-100/50">
-                  <div className="space-y-1.5">
-                    <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-green-700 flex items-center gap-1.5 opacity-80">
-                      <Check className="w-3 h-3" /> {t.booking.included_label}
+                {/* Itinerary & Inclusions Summary */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                    <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-amber-600 flex items-center gap-2">
+                       <ChevronRight className="w-3 h-3" /> {t.booking.itinerary}
                     </h4>
-                    <ul className="space-y-1">
-                      {tour.included?.slice(0, 3).map((item, i) => (
-                        <li
-                          key={i}
-                          className="text-[11px] text-gray-700 leading-tight"
-                        >
-                          • {item}
-                        </li>
+                    <div className="relative pl-3 border-l-2 border-amber-100 space-y-3">
+                      {(lang === 'fr' ? tour.itinerary : lang === 'es' ? tour.itinerary_es : tour.itinerary_en)?.slice(0, 5).map((item, i) => (
+                        <div key={i} className="relative">
+                          <div className="absolute -left-[17px] top-1 w-2 h-2 rounded-full bg-amber-400" />
+                          <p className="text-[11px] text-gray-700 leading-tight">{item}</p>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-red-600 flex items-center gap-1.5 opacity-80">
-                      <X className="w-3 h-3" /> {t.booking.not_included_label}
-                    </h4>
-                    <ul className="space-y-1">
-                      {tour.notIncluded?.slice(0, 3).map((item, i) => (
-                        <li
-                          key={i}
-                          className="text-[11px] text-gray-600/80 leading-tight"
-                        >
-                          • {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <h3 className="text-xl font-sans font-bold flex items-center gap-2 text-gray-900">
-                    <CalendarIcon className="w-5 h-5 text-amber-600" />
-                    {t.booking.date_title}
-                  </h3>
-                  <div className="grid gap-2">
-                    <Label htmlFor="date">{t.booking.date_label}</Label>
-                    <Input
-                      id="date"
-                      type="date"
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      className="h-12 text-lg"
-                      min={new Date().toISOString().split("T")[0]}
-                    />
+                  
+                  <div className="space-y-3 bg-amber-50/30 p-4 rounded-2xl border border-amber-100/50">
+                    <div className="space-y-2">
+                      <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-green-700 flex items-center gap-1.5 opacity-80">
+                        <Check className="w-3 h-3" /> {t.booking.included_label}
+                      </h4>
+                      <ul className="space-y-1">
+                        {(lang === 'fr' ? tour.included : lang === 'es' ? tour.included_es : tour.included_en)?.slice(0, 3).map((item, i) => (
+                          <li key={i} className="text-[11px] text-gray-700 leading-tight opacity-90">• {item}</li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <h3 className="text-xl font-sans font-bold flex items-center gap-2 text-gray-900">
-                    <Users className="w-5 h-5 text-amber-600" />
-                    {t.booking.participants}
-                  </h3>
-                  <div className="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100">
-                    <span className="font-medium">
-                      {participants}{" "}
-                      {participants > 1
-                        ? t.booking.travelers
-                        : t.booking.traveler}
-                    </span>
-                    <div className="flex items-center gap-4">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() =>
-                          setParticipants(Math.max(1, participants - 1))
-                        }
-                        className="rounded-full w-10 h-10"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() =>
-                          setParticipants(Math.min(8, participants + 1))
-                        }
-                        className="rounded-full w-10 h-10"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </Button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-sans font-bold flex items-center gap-2 text-gray-900">
+                      <CalendarIcon className="w-5 h-5 text-amber-600" />
+                      {t.booking.date_title}
+                    </h3>
+                    <div className="grid gap-2">
+                      <Label htmlFor="date" className="text-xs uppercase tracking-wider text-gray-500">{t.booking.date_label}</Label>
+                      <Input
+                        id="date"
+                        type="date"
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        className="h-12 text-base rounded-xl border-gray-200"
+                        min={new Date().toISOString().split("T")[0]}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-sans font-bold flex items-center gap-2 text-gray-900">
+                      <Users className="w-5 h-5 text-amber-600" />
+                      {t.booking.participants}
+                    </h3>
+                    <div className="flex items-center justify-between bg-gray-50 p-3 rounded-xl border border-gray-100">
+                      <span className="font-bold text-lg">
+                        {participants}{" "}
+                        <span className="text-sm font-normal text-gray-500 uppercase tracking-tighter">
+                          {participants > 1 ? t.booking.travelers : t.booking.traveler}
+                        </span>
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setParticipants(Math.max(1, participants - 1))}
+                          className="rounded-full w-8 h-8 bg-white shadow-sm border border-gray-100"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setParticipants(Math.min(8, participants + 1))}
+                          className="rounded-full w-8 h-8 bg-white shadow-sm border border-gray-100"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -331,67 +331,122 @@ export const BookingModal = ({
 
             {step === 2 && (
               <div className="space-y-6">
-                <h3 className="text-xl font-sans font-bold flex items-center gap-2 mb-6 text-gray-900">
-                  <Info className="w-5 h-5 text-amber-600" />
-                  {t.booking.info_title}
-                </h3>
-                <div className="space-y-4">
+                <div className="flex items-center gap-3 mb-2">
+                   <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
+                    <Info className="w-5 h-5 text-amber-600" />
+                   </div>
+                   <h3 className="text-xl font-sans font-bold text-gray-900">
+                    {t.booking.info_title}
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="booking-name">{t.contact.name}</Label>
-                    <Input
-                      id="booking-name"
-                      placeholder="Jean Dupont"
-                      value={formData.name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
-                      className="h-12"
-                    />
+                    <Label htmlFor="booking-name" className="text-xs uppercase tracking-wider text-gray-500 font-bold">{t.contact.name}*</Label>
+                    <Input id="booking-name" placeholder="Jean Dupont" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="h-12 rounded-xl" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="booking-email">{t.contact.email}</Label>
-                    <Input
-                      id="booking-email"
-                      type="email"
-                      placeholder="jean@example.com"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
-                      className="h-12"
-                    />
+                    <Label htmlFor="booking-email" className="text-xs uppercase tracking-wider text-gray-500 font-bold">{t.contact.email}*</Label>
+                    <Input id="booking-email" type="email" placeholder="jean@example.com" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="h-12 rounded-xl" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="booking-phone">{t.booking.phone}</Label>
-                    <Input
-                      id="booking-phone"
-                      placeholder="+33 6 ..."
-                      value={formData.phone}
-                      onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
-                      }
-                      className="h-12"
-                    />
+                    <Label htmlFor="booking-phone" className="text-xs uppercase tracking-wider text-gray-500 font-bold">{t.booking.phone}</Label>
+                    <Input id="booking-phone" placeholder="+33 6 ..." value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="h-12 rounded-xl" />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="booking-comment">
-                      {t.booking.comment_label}
-                    </Label>
-                    <textarea
-                      id="booking-comment"
-                      placeholder={t.booking.comment_placeholder}
-                      value={formData.comment}
-                      onChange={(e) =>
-                        setFormData({ ...formData, comment: e.target.value })
-                      }
-                      className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    />
+                   <div className="space-y-2">
+                    <Label htmlFor="booking-pickup" className="text-xs uppercase tracking-wider text-gray-500 font-bold">{t.booking.pickup_address}</Label>
+                    <Input id="booking-pickup" placeholder="Hôtel / Adresse exacte" value={formData.pickupAddress} onChange={(e) => setFormData({ ...formData, pickupAddress: e.target.value })} className="h-12 rounded-xl" />
                   </div>
+                </div>
+
+                <div className="space-y-4 pt-4 border-t border-gray-100">
+                  <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400">{t.booking.billing_address} (Optionnel)</h4>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="billing-address" className="text-xs uppercase tracking-wider text-gray-500">{t.booking.billing_address}</Label>
+                      <Input id="billing-address" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className="h-12 rounded-xl" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="billing-city" className="text-xs uppercase tracking-wider text-gray-500">{t.booking.city}</Label>
+                        <Input id="billing-city" value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} className="h-12 rounded-xl" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="billing-zip" className="text-xs uppercase tracking-wider text-gray-500">{t.booking.zip}</Label>
+                        <Input id="billing-zip" value={formData.zip} onChange={(e) => setFormData({ ...formData, zip: e.target.value })} className="h-12 rounded-xl" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="billing-country" className="text-xs uppercase tracking-wider text-gray-500">{t.booking.country}</Label>
+                      <Input id="billing-country" value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} className="h-12 rounded-xl" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-4">
+                  <Label htmlFor="booking-comment" className="text-xs uppercase tracking-wider text-gray-500 font-bold">{t.booking.comment_label}</Label>
+                  <textarea
+                    id="booking-comment"
+                    placeholder={t.booking.comment_placeholder}
+                    value={formData.comment}
+                    onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+                    className="flex min-h-[60px] w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  />
                 </div>
               </div>
             )}
 
             {step === 3 && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                   <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
+                    <CheckCircle2 className="w-5 h-5 text-amber-600" />
+                   </div>
+                   <h3 className="text-xl font-sans font-bold text-gray-900">
+                    {t.booking.summary_title}
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 border-b pb-2">{t.booking.tour_details}</h4>
+                    <div className="space-y-2 text-sm text-gray-700">
+                      <p className="flex justify-between font-medium"><span>{tour.title}</span></p>
+                      <p className="flex justify-between"><span>Date:</span> <span className="font-bold">{date}</span></p>
+                      <p className="flex justify-between"><span>Voyageurs:</span> <span className="font-bold">{participants}</span></p>
+                      {formData.pickupAddress && (
+                        <p className="flex flex-col gap-1 mt-2 p-2 bg-gray-50 rounded-lg">
+                          <span className="text-[10px] uppercase font-bold text-amber-600">{t.booking.pickup_address}</span>
+                          <span className="font-medium">{formData.pickupAddress}</span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                   <div className="space-y-4">
+                    <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 border-b pb-2">{t.booking.personal_info}</h4>
+                    <div className="space-y-2 text-sm text-gray-700">
+                      <p className="flex justify-between"><span>{t.contact.name}:</span> <span className="font-bold">{formData.name}</span></p>
+                      <p className="flex justify-between"><span>{t.contact.email}:</span> <span className="font-bold">{formData.email}</span></p>
+                      <p className="flex justify-between"><span>{t.booking.phone}:</span> <span className="font-bold">{formData.phone || "-"}</span></p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex justify-between items-center mt-4">
+                  <div className="space-y-1">
+                    <p className="text-xs text-amber-800 font-bold uppercase tracking-wider">{t.booking.total_paid}</p>
+                    <p className="text-3xl font-serif font-bold text-amber-900">{calculateTotal()}€</p>
+                  </div>
+                  <div className="text-right text-[10px] text-amber-700/60 leading-tight italic">
+                    {t.booking.per_person_incl_fees}<br/>
+                    ({(calculateTotal() / participants).toFixed(2)}€ /pers)
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {step === 4 && (
               <div className="space-y-6">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-xl font-sans font-bold flex items-center gap-2 text-gray-900">
@@ -435,39 +490,18 @@ export const BookingModal = ({
                         Retour aux réglages
                       </Button>
                     </div>
-                    <p className="text-xs mt-6 opacity-60">
-                      💡 NB: Si vous venez de changer les réglages Vercel, vous devez **RÉ-DÉPLOYER** la branche pour que ce soit pris en compte.
-                    </p>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-12 text-gray-500">
                     <Loader2 className="w-10 h-10 animate-spin mb-4 text-amber-600" />
                     <p className="font-bold">Initialisation du paiement...</p>
-                    <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-100 text-[10px] font-mono text-left max-w-xs overflow-hidden">
-                      <p className="text-gray-400 mb-1">DÉBOGAGE :</p>
-                      <p>Stripe Key: {STRIPE_KEY ? `${STRIPE_KEY.substring(0, 7)}...` : "(VIDE)"}</p>
-                      <p>Intent: {clientSecret ? "REÇU" : "EN ATTENTE..."}</p>
-                      <p>Tour ID: {tour.id}</p>
-                    </div>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="mt-4 text-gray-400 hover:text-amber-600"
-                      onClick={() => {
-                        setClientSecret("");
-                        setPaymentError(null);
-                        setStep(2);
-                      }}
-                    >
-                      Délai trop long ? Recharger
-                    </Button>
                   </div>
                 )}
               </div>
             )}
 
-            {step === 4 && (
-              <div className="flex flex-col items-center justify-center py-12 text-center space-y-6">
+            {step === 5 && (
+              <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center space-y-6">
                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-2">
                   <CheckCircle2 className="w-10 h-10 text-green-600" />
                 </div>
@@ -478,59 +512,37 @@ export const BookingModal = ({
                   <p className="text-gray-600 max-w-sm mx-auto">
                     {lang === "fr"
                       ? `Merci ${formData.name}. Un email de confirmation a été envoyé à ${formData.email}.`
-                      : lang === "es"
-                        ? `Gracias ${formData.name}. Se ha enviado un correo de confirmación a ${formData.email}.`
-                        : `Thank you ${formData.name}. A confirmation email has been sent to ${formData.email}.`}
+                      : `Thank you ${formData.name}. A confirmation email has been sent to ${formData.email}.`}
                   </p>
                 </div>
-                <div className="bg-amber-50 p-6 rounded-2xl w-full border border-amber-100 text-left">
-                  <p className="text-amber-800 font-bold mb-4">
-                    Récapitulatif :
-                  </p>
-                  <div className="space-y-2 text-sm text-amber-900/80">
-                    <p className="flex justify-between">
-                      <span>{t.booking.subtotal}:</span>{" "}
-                      <span className="font-bold text-amber-900">
-                        {calculateSubtotal()}€
-                      </span>
-                    </p>
-                    <p className="flex justify-between">
-                      <span>{t.booking.processing_fees}:</span>{" "}
-                      <span className="font-bold text-amber-900">
-                        {calculateFees()}€
-                      </span>
-                    </p>
-                    <p className="flex justify-between">
-                      <span>Date:</span>{" "}
-                      <span className="font-bold text-amber-900">{date}</span>
-                    </p>
-                    <p className="flex justify-between">
-                      <span>Voyageurs:</span>{" "}
-                      <span className="font-bold text-amber-900">
-                        {participants}
-                      </span>
-                    </p>
-                    <div className="pt-2 border-t border-amber-200 mt-2 space-y-1">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-amber-700/50">
-                        Inclus :
-                      </p>
-                      <p className="text-xs text-amber-900/60 leading-tight">
-                        {tour.included?.join(", ")}
-                      </p>
+
+                <div className="bg-amber-50 p-6 rounded-2xl w-full border border-amber-100 text-left space-y-4">
+                  <h4 className="text-amber-800 font-bold uppercase tracking-widest text-xs border-b border-amber-200 pb-2">{t.booking.summary}</h4>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-amber-900/80">
+                    <div className="space-y-2">
+                      <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">{t.booking.tour_details}</span> <span className="font-bold text-amber-900">{tour.title}</span></p>
+                      <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">Date & Heure</span> <span className="font-bold text-amber-900">{date} • {tour.duration} (Approx)</span></p>
                     </div>
-                    <div className="pt-2 border-t border-amber-200 mt-2">
-                      <p className="flex justify-between text-base">
-                        <span>Total payé:</span>{" "}
-                        <span className="font-bold text-amber-900">
-                          {calculateTotal()}€
-                        </span>
-                      </p>
+                    <div className="space-y-2">
+                      <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">Client</span> <span className="font-bold text-amber-900">{formData.name}</span></p>
+                      <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">{t.booking.pickup_address}</span> <span className="font-bold text-amber-900">{formData.pickupAddress || "À confirmer"}</span></p>
                     </div>
                   </div>
+
+                  <div className="pt-2 border-t border-amber-200 mt-2">
+                    <p className="flex justify-between text-base">
+                      <span>Total payé:</span>{" "}
+                      <span className="font-bold text-amber-900">
+                        {calculateTotal()}€
+                      </span>
+                    </p>
+                  </div>
                 </div>
+
                 <Button
                   onClick={() => onOpenChange(false)}
-                  className="w-full bg-[#c9a961] hover:bg-[#b8944e] h-16 text-sm sm:text-base font-bold rounded-2xl shadow-xl shadow-[#c9a961]/30 transition-all active:scale-95"
+                  className="w-full bg-[#c9a961] hover:bg-[#b8944e] h-14 text-base font-bold rounded-xl shadow-xl shadow-[#c9a961]/30 transition-all active:scale-95"
                 >
                   {t.booking.finish}
                 </Button>
@@ -538,44 +550,35 @@ export const BookingModal = ({
             )}
           </div>
 
-          {step < 3 && (
-            <div className="p-6 sm:p-8 bg-gray-50 border-t flex flex-col gap-4 shrink-0">
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between text-gray-500">
-                  <span>{t.booking.subtotal}</span>
-                  <span>{calculateSubtotal()}€</span>
+          {step < 5 && (
+            <div className="p-4 sm:p-6 bg-gray-50 border-t flex flex-col gap-4 shrink-0 pb-safe">
+              <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <div className="flex flex-col">
+                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none">Total</p>
+                  <p className="text-xl font-bold text-gray-900">{calculateTotal()}€</p>
                 </div>
-                <div className="flex justify-between text-gray-500">
-                  <span>{t.booking.processing_fees}</span>
-                  <span>{calculateFees()}€</span>
+                
+                <div className="flex w-full sm:w-auto gap-3">
+                  {step > 1 && (
+                    <Button
+                      variant="outline"
+                      onClick={prevStep}
+                      className="flex-1 sm:flex-none h-12 px-6 rounded-xl font-bold border-gray-200"
+                    >
+                      {t.common.back}
+                    </Button>
+                  )}
+                  {step < 4 && (
+                    <Button
+                      onClick={nextStep}
+                      data-testid="next-step-button"
+                      className="flex-1 sm:flex-none bg-[#c9a961] hover:bg-[#b8944e] text-white px-8 h-12 font-bold rounded-xl shadow-lg shadow-[#c9a961]/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+                    >
+                      {step === 3 ? t.booking.pay : t.booking.next}
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  )}
                 </div>
-                <div className="flex justify-between pt-1 border-t border-gray-200 font-bold text-gray-900 text-lg">
-                  <span>{t.booking.total}</span>
-                  <span>{calculateTotal()}€</span>
-                </div>
-                <p className="text-[10px] text-gray-400 text-right italic">
-                  ({(calculateTotal() / participants).toFixed(2)}€{" "}
-                  {t.booking.per_person_incl_fees})
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="text-left hidden">
-                  <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">
-                    {t.booking.total}
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {calculateTotal()}€
-                  </p>
-                </div>
-                <div className="flex-1" />
-                <Button
-                  onClick={nextStep}
-                  data-testid="next-step-button"
-                  className="bg-[#c9a961] hover:bg-[#b8944e] text-white px-6 sm:px-12 h-16 text-sm sm:text-base font-bold rounded-2xl shadow-xl shadow-[#c9a961]/30 transition-all active:scale-95 flex items-center justify-center gap-2"
-                >
-                  {t.booking.next}
-                  <ChevronRight className="w-5 h-5" />
-                </Button>
               </div>
             </div>
           )}

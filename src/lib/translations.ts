@@ -175,7 +175,18 @@ export const translations = {
             initialization: 'Initialisation du paiement...',
             summary: 'Récapitulatif :',
             total_paid: 'Total payé :',
-            participants_label: 'Voyageurs :'
+            participants_label: 'Voyageurs :',
+            billing_address: 'Adresse de facturation',
+            city: 'Ville',
+            zip: 'Code postal',
+            country: 'Pays',
+            pickup_address: 'Adresse de pick-up (Barcelone)',
+            summary_title: 'Récapitulatif de votre commande',
+            personal_info: 'Informations personnelles',
+            tour_details: 'Détails du tour',
+            pickup_time: 'Heure de pick-up',
+            return_time: 'Heure de retour',
+            itinerary: 'Itinéraire'
         },
         tour_dialog: {
             highlights_label: 'Points forts :',
@@ -556,7 +567,18 @@ export const translations = {
             initialization: 'Initializing payment...',
             summary: 'Summary:',
             total_paid: 'Total paid:',
-            participants_label: 'Travelers:'
+            participants_label: 'Travelers:',
+            billing_address: 'Billing Address',
+            city: 'City',
+            zip: 'Zip Code',
+            country: 'Country',
+            pickup_address: 'Pickup Address (Barcelona)',
+            summary_title: 'Order Summary',
+            personal_info: 'Personal Information',
+            tour_details: 'Tour Details',
+            pickup_time: 'Pickup Time',
+            return_time: 'Return Time',
+            itinerary: 'Itinerary'
         },
         tour_dialog: {
             highlights_label: 'Highlights:',
