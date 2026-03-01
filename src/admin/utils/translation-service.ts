@@ -34,23 +34,35 @@ async function translateSingleChunk(
   from: SupportedLanguage,
   to: SupportedLanguage
 ): Promise<string> {
-  try {
-    const response = await fetch(
-      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
-        text
-      )}&langpair=${from}|${to}`
-    );
+  const response = await fetch(
+    `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
+      text
+    )}&langpair=${from}|${to}`
+  );
 
-    if (!response.ok) {
-      throw new Error("Translation service responded with an error");
-    }
-
-    const data = await response.json();
-    return data.responseData.translatedText || text;
-  } catch (error) {
-    console.error("Translation error for chunk:", error);
-    return text;
+  if (!response.ok) {
+    throw new Error(`Erreur réseau (${response.status})`);
   }
+
+  const data = await response.json();
+
+  if (data.quotaFinished) {
+    throw new Error("Quota journalier MyMemory dépassé. Réessayez demain ou utilisez un email dans l'URL.");
+  }
+
+  const translated: string = data.responseData?.translatedText ?? "";
+
+  // MyMemory returns error messages as the translation text when something goes wrong
+  if (
+    !translated ||
+    translated.toUpperCase().includes("QUERY LENGTH LIMIT") ||
+    translated.toUpperCase().includes("MYMEMORY WARNING") ||
+    translated.toUpperCase().includes("YOU USED ALL AVAILABLE")
+  ) {
+    throw new Error("MyMemory : " + (translated || "réponse vide"));
+  }
+
+  return translated;
 }
 
 /**
