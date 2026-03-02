@@ -19,6 +19,7 @@ import { prepareTourForEditing } from './lib/utils';
 import { AboutPage } from './pages/AboutPage';
 import { TopToursCarousel } from './components/sections/TopToursCarousel';
 import { CategoryToursCarousel } from './components/sections/CategoryToursCarousel';
+import { LegalModal } from './components/modals/LegalModal';
 import './App.css';
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
   });
   const [dbTours, setDbTours] = useState<Tour[]>([]);
   const [dbReviews, setDbReviews] = useState<Testimonial[]>([]);
+  const [legalModal, setLegalModal] = useState<'legal' | 'privacy' | null>(null);
   // initializes from localStorage to avoid cascading render in useEffect
   const [showCookieConsent, setShowCookieConsent] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -444,7 +446,14 @@ function App() {
         )}
       </main>
 
-      <Footer t={t} instagramUrl={instagramUrl} />
+      <Footer
+        t={t}
+        instagramUrl={instagramUrl}
+        onLegalClick={() => setLegalModal('legal')}
+        onPrivacyClick={() => setLegalModal('privacy')}
+      />
+
+      <LegalModal type={legalModal} onClose={() => setLegalModal(null)} />
 
       <TourDialog
         tour={viewedTour}
