@@ -187,7 +187,7 @@ test.describe('Full Site Verification - Tours & Detours', () => {
             await page.waitForTimeout(500);
             
             // Check that the list updated (even if count is same, we assume logic works if it doesn't crash)
-            await expect(categorySection.locator('.embla__slide')).toBeVisible();
+            await expect(categorySection.locator('.embla__slide').first()).toBeVisible();
         }
     });
 
@@ -209,6 +209,8 @@ test.describe('Full Site Verification - Tours & Detours', () => {
     });
 
     test('Admin: Tour Management Flow', async ({ page }) => {
+        // localStorage bypass only works in local dev build (import.meta.env.DEV)
+        test.skip(!!process.env.BASE_URL, 'Admin localStorage bypass disabled in production builds');
         await page.goto('/admin.html');
         // Bypass login
         await page.evaluate(() => localStorage.setItem('isLoggedIn', 'true'));
