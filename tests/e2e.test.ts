@@ -530,4 +530,38 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         const btnCount = await changeButtons.count();
         expect(btnCount).toBeGreaterThanOrEqual(1);
     });
+
+    test('UI: Footer Nav Links & Legal Modals', async ({ page }) => {
+        await page.goto('/');
+        await page.getByRole('button', { name: /Accepter|Accept/i }).click().catch(() => {});
+
+        // Scroll to footer
+        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+        await page.waitForTimeout(500);
+
+        // Footer navigation links must be visible
+        const footer = page.locator('footer');
+        await expect(footer.getByRole('link', { name: /Nos Tours|Tours/i }).first()).toBeVisible();
+        await expect(footer.getByRole('link', { name: /Guide|Votre Guide/i }).first()).toBeVisible();
+        await expect(footer.getByRole('link', { name: /Avis/i }).first()).toBeVisible();
+        await expect(footer.getByRole('link', { name: /Contact/i }).first()).toBeVisible();
+
+        // At least 4 tour names listed in footer
+        const tourLinks = footer.locator('ul').last().locator('span, li');
+        const count = await tourLinks.count();
+        expect(count).toBeGreaterThanOrEqual(4);
+
+        // Mentions légales modal
+        await footer.getByRole('button', { name: /Mentions légales/i }).click();
+        await expect(page.locator('div[role="dialog"]')).toBeVisible({ timeout: 5000 });
+        await expect(page.locator('div[role="dialog"]')).toContainText(/Mentions légales|Éditeur|Hébergement/i);
+        await page.keyboard.press('Escape');
+        await page.waitForTimeout(300);
+
+        // Confidentialité modal
+        await footer.getByRole('button', { name: /Confidentialité/i }).click();
+        await expect(page.locator('div[role="dialog"]')).toBeVisible({ timeout: 5000 });
+        await expect(page.locator('div[role="dialog"]')).toContainText(/Confidentialité|RGPD|données/i);
+        await page.keyboard.press('Escape');
+    });
 });

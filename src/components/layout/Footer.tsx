@@ -4,9 +4,11 @@ import type { Translations } from "@/lib/translations";
 interface FooterProps {
   t: Translations;
   instagramUrl: string;
+  onLegalClick: () => void;
+  onPrivacyClick: () => void;
 }
 
-export const Footer = ({ t, instagramUrl }: FooterProps) => {
+export const Footer = ({ t, instagramUrl, onLegalClick, onPrivacyClick }: FooterProps) => {
   return (
     <footer
       className="text-gray-800 pt-32 pb-16 border-t border-gray-200"
@@ -90,15 +92,18 @@ export const Footer = ({ t, instagramUrl }: FooterProps) => {
             <span className="mx-2 opacity-20">|</span> Made with Passion.
           </p>
           <div className="flex gap-10">
-            <a href="#legal" className="hover:text-gray-900 transition-colors">
+            <button
+              onClick={onLegalClick}
+              className="hover:text-gray-900 transition-colors"
+            >
               Mentions légales
-            </a>
-            <a
-              href="#privacy"
+            </button>
+            <button
+              onClick={onPrivacyClick}
               className="hover:text-gray-900 transition-colors"
             >
               Confidentialité
-            </a>
+            </button>
           </div>
         </div>
       </div>
