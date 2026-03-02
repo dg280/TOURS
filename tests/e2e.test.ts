@@ -151,6 +151,56 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         await expect(page.locator('input#booking-name')).toBeVisible();
     });
 
+    test('Regression: Booking Funnel in EN — calendar + step navigation', async ({ page }) => {
+        // Non-regression: switching to EN must not break the booking funnel
+        // (itinerary_en / included_en were previously lost in the tour merge)
+        const enBtn = page.locator('nav button').filter({ hasText: /^en$/i });
+        await enBtn.click();
+        await page.waitForTimeout(300);
+
+        const tourCard = page.locator('#top-tours h3, section#tours h3').first();
+        await tourCard.waitFor({ state: 'visible', timeout: 15000 });
+        await tourCard.click({ force: true });
+
+        await page.getByTestId('book-now-button').first().click();
+
+        // Step 1 must render in EN
+        await expect(page.locator('text=Step 1 of 5')).toBeVisible({ timeout: 10000 });
+        const calendar = page.getByTestId('availability-calendar');
+        await expect(calendar).toBeVisible({ timeout: 10000 });
+
+        // Advance to step 2
+        await page.getByTestId('next-step-button').first().click({ force: true });
+        await expect(page.locator('text=/Step 2 of 5/').first()).toBeVisible({ timeout: 10000 });
+
+        // Step 2 form fields must be visible (no crash from undefined tour data)
+        await expect(page.locator('input#booking-name')).toBeVisible();
+    });
+
+    test('Regression: Booking Funnel in ES — calendar + step navigation', async ({ page }) => {
+        // Non-regression: switching to ES must not break the booking funnel
+        const esBtn = page.locator('nav button').filter({ hasText: /^es$/i });
+        await esBtn.click();
+        await page.waitForTimeout(300);
+
+        const tourCard = page.locator('#top-tours h3, section#tours h3').first();
+        await tourCard.waitFor({ state: 'visible', timeout: 15000 });
+        await tourCard.click({ force: true });
+
+        await page.getByTestId('book-now-button').first().click();
+
+        // Step 1 must render in ES
+        await expect(page.locator('text=Paso 1 de 5')).toBeVisible({ timeout: 10000 });
+        const calendar = page.getByTestId('availability-calendar');
+        await expect(calendar).toBeVisible({ timeout: 10000 });
+
+        // Advance to step 2
+        await page.getByTestId('next-step-button').first().click({ force: true });
+        await expect(page.locator('text=/Paso 2 de 5/').first()).toBeVisible({ timeout: 10000 });
+
+        await expect(page.locator('input#booking-name')).toBeVisible();
+    });
+
     test('Security: Outbound Links Safety', async ({ page }) => {
         const externalLinks = await page.locator('a[target="_blank"]').all();
         for (const link of externalLinks) {
