@@ -488,6 +488,17 @@ function Dashboard({
   );
 }
 
+// Helper component — must be declared outside Reservations to avoid react-hooks/static-components
+function InfoRow({ label, value }: { label: string; value?: string | number }) {
+  if (!value) return null;
+  return (
+    <div className="flex flex-col sm:flex-row sm:gap-2 py-1">
+      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide w-32 shrink-0">{label}</span>
+      <span className="text-sm text-gray-900">{value}</span>
+    </div>
+  );
+}
+
 // Reservations Component
 function Reservations({
   reservations,
@@ -545,14 +556,6 @@ function Reservations({
     }
     setIsUpdating(false);
   };
-
-  const InfoRow = ({ label, value }: { label: string; value?: string | number }) =>
-    value ? (
-      <div className="flex flex-col sm:flex-row sm:gap-2 py-1">
-        <span className="text-xs font-medium text-gray-500 uppercase tracking-wide w-32 shrink-0">{label}</span>
-        <span className="text-sm text-gray-900">{value}</span>
-      </div>
-    ) : null;
 
   return (
     <div className="space-y-6">
