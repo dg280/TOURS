@@ -11,6 +11,7 @@ export interface Tour {
     description_es?: string;
     duration: string;
     groupSize: string;
+    maxCapacity?: number;
     price: number;
     image: string;
     images?: string[];

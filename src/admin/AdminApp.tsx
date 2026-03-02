@@ -1343,6 +1343,7 @@ function ToursManagement({
           description_es: tourData.description_es,
           duration: tourData.duration,
           group_size: tourData.groupSize,
+          max_capacity: tourData.maxCapacity ?? 8,
           price: tourData.price,
           image: tourData.image,
           category: tourData.category,
@@ -2079,8 +2080,20 @@ function ToursManagement({
                       />
                     </div>
                   </div>
-                  {/* Departure time & estimated duration */}
-                  <div className="grid grid-cols-2 gap-4 mt-4">
+                  {/* Capacity + Departure time + Duration */}
+                  <div className="grid grid-cols-3 gap-4 mt-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs">Capacité max (pers.)</Label>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={50}
+                        className="text-xs"
+                        value={editingTour.maxCapacity ?? 8}
+                        onChange={(e) => setEditingTour({ ...editingTour, maxCapacity: parseInt(e.target.value) || 8 })}
+                      />
+                      <p className="text-[10px] text-gray-400">Bloque le calendrier quand atteint</p>
+                    </div>
                     <div className="space-y-2">
                       <Label className="text-xs">Heure de départ fixe</Label>
                       <Input
@@ -4317,6 +4330,7 @@ export default function AdminApp() {
           description_es: t.description_es,
           duration: t.duration,
           groupSize: t.group_size,
+          maxCapacity: t.max_capacity ?? 8,
           price: t.price,
           image: t.image,
           images: (t.images && t.images.length > 0) ? t.images : (t.image ? [t.image] : []),
@@ -4386,6 +4400,7 @@ export default function AdminApp() {
           description_es: tour.description_es,
           duration: tour.duration,
           group_size: tour.groupSize,
+          max_capacity: tour.maxCapacity ?? 8,
           price: tour.price,
           image: tour.image,
           images: tour.images || [],
@@ -4471,6 +4486,7 @@ export default function AdminApp() {
           description_es: t.description_es,
           duration: t.duration,
           groupSize: t.group_size,
+          maxCapacity: t.max_capacity ?? 8,
           price: t.price,
           image: t.image,
           images: t.images || [],
@@ -4685,6 +4701,7 @@ export default function AdminApp() {
             description_es: t.description_es,
             duration: t.duration,
             groupSize: t.group_size,
+            maxCapacity: t.max_capacity ?? 8,
             price: t.price,
             image: t.image,
             images: (t.images && t.images.length > 0) ? t.images : (t.image ? [t.image] : []),
