@@ -7,6 +7,7 @@ interface AboutPageProps {
   t: Translations;
   guidePhoto: string;
   guideBio: string;
+  differentPhotos?: [string, string, string];
   onBackToHome: () => void;
 }
 
@@ -14,6 +15,7 @@ export const AboutPage = ({
   t,
   guidePhoto,
   guideBio,
+  differentPhotos,
   onBackToHome,
 }: AboutPageProps) => {
   useEffect(() => {
@@ -21,6 +23,7 @@ export const AboutPage = ({
   }, []);
 
   const at = t.about;
+  const [dp1, dp2, dp3] = differentPhotos ?? ["/tour-prepirinees.jpg", "/tour-beach.jpg", "/tour-camironda.jpg"];
 
   return (
     <div className="pb-16 bg-white selection:bg-amber-200">
@@ -177,21 +180,21 @@ export const AboutPage = ({
               <div className="relative w-full aspect-square md:aspect-auto md:h-full grid grid-cols-2 grid-rows-2 gap-4">
                 <div className="relative row-span-2 rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white animate-fade-in-up">
                   <img
-                    src="/tour-prepirinees.jpg"
+                    src={dp1}
                     className="w-full h-full object-cover hover:scale-110 transition-transform duration-1000"
                     alt="Nature"
                   />
                 </div>
                 <div className="relative rounded-[2rem] overflow-hidden shadow-xl border-4 border-white animate-fade-in-up delay-100">
                   <img
-                    src="/tour-beach.jpg"
+                    src={dp2}
                     className="w-full h-full object-cover hover:scale-110 transition-transform duration-1000"
                     alt="Beach"
                   />
                 </div>
                 <div className="relative rounded-[2rem] overflow-hidden shadow-xl border-4 border-white animate-fade-in-up delay-200">
                   <img
-                    src="/tour-camironda.jpg"
+                    src={dp3}
                     className="w-full h-full object-cover hover:scale-110 transition-transform duration-1000"
                     alt="Costa Brava"
                   />

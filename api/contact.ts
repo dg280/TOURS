@@ -53,9 +53,14 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
 </table>
 <p style="margin-top:16px;font-size:12px;color:#6b7280;">Répondre directement à : <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>`;
 
+    // RESEND_FROM_EMAIL must use a verified domain (e.g. noreply@toursandetours.com).
+    // Without a verified domain, Resend can only send to the account owner's email.
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+    const fromAddress = `Tours & Détours <${fromEmail}>`;
+
     try {
         await resend.emails.send({
-            from: 'Tours & Détours <onboarding@resend.dev>',
+            from: fromAddress,
             to: process.env.ADMIN_EMAIL || 'info@toursandetours.com',
             replyTo: email,
             subject: `Contact : ${escapeHtml(name)}${tour ? ` — ${escapeHtml(tour)}` : ''}`,

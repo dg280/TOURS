@@ -38,6 +38,9 @@ function App() {
   const [guidePhoto, setGuidePhoto] = useState<string>(() => localStorage.getItem('td-guide-photo') || '/guide-portrait.jpg');
   const [instagramUrl, setInstagramUrl] = useState('https://www.instagram.com/tours_and_detours_bcn/');
   const [guideBio, setGuideBio] = useState('');
+  const [differentPhotos, setDifferentPhotos] = useState<[string, string, string]>([
+    '/tour-prepirinees.jpg', '/tour-beach.jpg', '/tour-camironda.jpg',
+  ]);
   const [customTours] = useState<Tour[]>(() => {
     const saved = localStorage.getItem('td-tours');
     return saved ? JSON.parse(saved) : [];
@@ -171,6 +174,10 @@ function App() {
           const dbBio = lang === 'en' ? profile.bio_en : lang === 'es' ? profile.bio_es : (profile.bio || profile.bio1);
           if (dbBio) setGuideBio(dbBio);
           else if (profile.bio1) setGuideBio(profile.bio1 + (profile.bio2 ? '\n\n' + profile.bio2 : ''));
+
+          if (profile.different_photos && Array.isArray(profile.different_photos) && profile.different_photos.length === 3) {
+            setDifferentPhotos(profile.different_photos as [string, string, string]);
+          }
         }
       } catch (err) {
         console.error('Fetch error:', err);
@@ -223,12 +230,29 @@ function App() {
         category: getVal(bObj.category, dObj.category, cObj.category) || "",
         pricing_tiers: dObj.pricing_tiers || cObj.pricing_tiers || bObj.pricing_tiers || {},
         goodToKnow: getVal(bObj.goodToKnow, dObj.goodToKnow, cObj.goodToKnow) || [],
-        goodToKnow_en: dObj.goodToKnow_en || cObj.goodToKnow_en || bObj.goodToKnow_en || [],
-        goodToKnow_es: dObj.goodToKnow_es || cObj.goodToKnow_es || bObj.goodToKnow_es || [],
+        goodToKnow_en: dObj.goodToKnow_en ?? cObj.goodToKnow_en ?? bObj.goodToKnow_en ?? [],
+        goodToKnow_es: dObj.goodToKnow_es ?? cObj.goodToKnow_es ?? bObj.goodToKnow_es ?? [],
         maxCapacity: dObj.maxCapacity ?? cObj.maxCapacity ?? bObj.maxCapacity ?? 8,
         departureTime: dObj.departureTime || cObj.departureTime || bObj.departureTime || "",
         estimatedDuration: dObj.estimatedDuration || cObj.estimatedDuration || bObj.estimatedDuration || "",
         meetingPointMapUrl: dObj.meetingPointMapUrl || cObj.meetingPointMapUrl || bObj.meetingPointMapUrl || "",
+        // Language variants — required by BookingModal and TourDialog when they read _en/_es fields directly
+        title_en: dObj.title_en || cObj.title_en || bObj.title_en || "",
+        title_es: dObj.title_es || cObj.title_es || bObj.title_es || "",
+        subtitle_en: dObj.subtitle_en || cObj.subtitle_en || bObj.subtitle_en || "",
+        subtitle_es: dObj.subtitle_es || cObj.subtitle_es || bObj.subtitle_es || "",
+        highlights_en: dObj.highlights_en ?? cObj.highlights_en ?? bObj.highlights_en ?? [],
+        highlights_es: dObj.highlights_es ?? cObj.highlights_es ?? bObj.highlights_es ?? [],
+        itinerary_en: dObj.itinerary_en ?? cObj.itinerary_en ?? bObj.itinerary_en,
+        itinerary_es: dObj.itinerary_es ?? cObj.itinerary_es ?? bObj.itinerary_es,
+        included_en: dObj.included_en ?? cObj.included_en ?? bObj.included_en,
+        included_es: dObj.included_es ?? cObj.included_es ?? bObj.included_es,
+        notIncluded_en: dObj.notIncluded_en ?? cObj.notIncluded_en ?? bObj.notIncluded_en,
+        notIncluded_es: dObj.notIncluded_es ?? cObj.notIncluded_es ?? bObj.notIncluded_es,
+        meetingPoint_en: dObj.meetingPoint_en || cObj.meetingPoint_en || bObj.meetingPoint_en || "",
+        meetingPoint_es: dObj.meetingPoint_es || cObj.meetingPoint_es || bObj.meetingPoint_es || "",
+        isActive: dObj.isActive ?? cObj.isActive ?? bObj.isActive,
+        stripeLink: dObj.stripeLink || cObj.stripeLink || bObj.stripeLink || "",
       };
 
       if (lang === 'en') {
@@ -414,6 +438,7 @@ function App() {
             t={t}
             guidePhoto={guidePhoto}
             guideBio={guideBio}
+            differentPhotos={differentPhotos}
             onBackToHome={() => setView('home')}
           />
         )}
