@@ -63,10 +63,19 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         }
 
         const { tourId, participants, currency = 'eur' } = req.body;
-        console.log('Payment request for tour:', tourId, 'participants:', participants);
 
         if (!tourId || !participants) {
             return res.status(400).json({ error: 'Données manquantes (tourId ou participants)' });
+        }
+
+        const participantsInt = parseInt(String(participants), 10);
+        if (isNaN(participantsInt) || participantsInt < 1 || participantsInt > 50) {
+            return res.status(400).json({ error: 'Nombre de participants invalide (1–50)' });
+        }
+
+        const allowedCurrencies = ['eur', 'usd', 'gbp'];
+        if (!allowedCurrencies.includes(currency)) {
+            return res.status(400).json({ error: 'Devise non supportée' });
         }
 
         const { data: tour, error: fetchError } = await supabase
@@ -81,11 +90,11 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         }
 
         // Tiered pricing logic
-        let baseAmount = tour.price * participants;
+        let baseAmount = tour.price * participantsInt;
         if (tour.pricing_tiers && typeof tour.pricing_tiers === 'object') {
             const tiers = tour.pricing_tiers as Record<string, number>;
-            if (tiers[participants.toString()]) {
-                baseAmount = tiers[participants.toString()];
+            if (tiers[participantsInt.toString()]) {
+                baseAmount = tiers[participantsInt.toString()];
             }
         }
 
@@ -100,8 +109,8 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
                 enabled: true,
             },
             metadata: {
-                tourId,
-                participants: participants.toString(),
+                tourId: String(tourId),
+                participants: participantsInt.toString(),
                 baseAmount: baseAmount.toString(),
                 stripeFees: (totalAmount - baseAmount).toFixed(2)
             }
@@ -109,6 +118,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
 
         res.status(200).json({
             clientSecret: paymentIntent.client_secret,
+            paymentIntentId: paymentIntent.id,
             amount: Number(totalAmount.toFixed(2)),
             baseAmount: baseAmount,
             stripeFees: Number((totalAmount - baseAmount).toFixed(2)),

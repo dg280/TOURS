@@ -1,6 +1,16 @@
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 
+function escapeHtml(str: unknown): string {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;');
+}
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 const supabase = createClient(
     process.env.VITE_SUPABASE_URL || '',
@@ -41,6 +51,11 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
 
         if (resError || !reservation) {
             throw new Error('Reservation not found');
+        }
+
+        // Idempotency: skip if already confirmed by Stripe webhook
+        if (reservation.status === 'confirmed') {
+            return res.status(200).json({ success: true, skipped: 'already_confirmed' });
         }
 
         // 2. Fetch tour details
@@ -90,14 +105,14 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         <!-- Green success bar -->
         <tr>
           <td style="background:#d1fae5;padding:14px 40px;text-align:center;">
-            <p style="margin:0;color:#065f46;font-weight:700;font-size:14px;">✓ Paiement reçu — Merci ${reservation.name} !</p>
+            <p style="margin:0;color:#065f46;font-weight:700;font-size:14px;">✓ Paiement reçu — Merci ${escapeHtml(reservation.name)} !</p>
           </td>
         </tr>
 
         <!-- Tour name -->
         <tr>
           <td style="padding:32px 40px 0;">
-            <h2 style="margin:0;font-size:22px;color:#111827;font-weight:700;">${reservation.tour_name}</h2>
+            <h2 style="margin:0;font-size:22px;color:#111827;font-weight:700;">${escapeHtml(reservation.tour_name)}</h2>
           </td>
         </tr>
 
@@ -110,11 +125,11 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
               </tr>
               <tr style="border-top:1px solid #e5e7eb;">
                 <td style="padding:12px 16px;color:#6b7280;font-size:14px;width:40%;">Date</td>
-                <td style="padding:12px 16px;color:#111827;font-weight:700;font-size:14px;">${dateFormatted}</td>
+                <td style="padding:12px 16px;color:#111827;font-weight:700;font-size:14px;">${escapeHtml(dateFormatted)}</td>
               </tr>
               <tr style="border-top:1px solid #e5e7eb;background:#fffbeb;">
                 <td style="padding:12px 16px;color:#6b7280;font-size:14px;">Heure de pick-up</td>
-                <td style="padding:12px 16px;color:#92400e;font-weight:700;font-size:14px;">${reservation.pickup_time || 'À confirmer'}</td>
+                <td style="padding:12px 16px;color:#92400e;font-weight:700;font-size:14px;">${escapeHtml(reservation.pickup_time) || 'À confirmer'}</td>
               </tr>
               <tr style="border-top:1px solid #e5e7eb;">
                 <td style="padding:12px 16px;color:#6b7280;font-size:14px;">Voyageurs</td>
@@ -127,7 +142,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
               </tr>` : ''}
               <tr style="border-top:1px solid #e5e7eb;background:#fffbeb;">
                 <td style="padding:12px 16px;color:#6b7280;font-size:14px;">Adresse de pick-up</td>
-                <td style="padding:12px 16px;color:#92400e;font-weight:700;font-size:14px;">${reservation.pickup_address || 'À confirmer avec le guide'}</td>
+                <td style="padding:12px 16px;color:#92400e;font-weight:700;font-size:14px;">${escapeHtml(reservation.pickup_address) || 'À confirmer avec le guide'}</td>
               </tr>
               <tr style="border-top:2px solid #e5e7eb;background:#f9fafb;">
                 <td style="padding:14px 16px;color:#6b7280;font-size:14px;font-weight:700;">Total payé</td>
@@ -146,16 +161,16 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
               </tr>
               <tr style="border-top:1px solid #e5e7eb;">
                 <td style="padding:12px 16px;color:#6b7280;font-size:14px;width:40%;">Nom</td>
-                <td style="padding:12px 16px;color:#111827;font-weight:600;font-size:14px;">${reservation.name}</td>
+                <td style="padding:12px 16px;color:#111827;font-weight:600;font-size:14px;">${escapeHtml(reservation.name)}</td>
               </tr>
               <tr style="border-top:1px solid #e5e7eb;">
                 <td style="padding:12px 16px;color:#6b7280;font-size:14px;">Email</td>
-                <td style="padding:12px 16px;color:#111827;font-size:14px;">${reservation.email}</td>
+                <td style="padding:12px 16px;color:#111827;font-size:14px;">${escapeHtml(reservation.email)}</td>
               </tr>
               ${reservation.phone ? `
               <tr style="border-top:1px solid #e5e7eb;">
                 <td style="padding:12px 16px;color:#6b7280;font-size:14px;">Téléphone</td>
-                <td style="padding:12px 16px;color:#111827;font-size:14px;">${reservation.phone}</td>
+                <td style="padding:12px 16px;color:#111827;font-size:14px;">${escapeHtml(reservation.phone)}</td>
               </tr>` : ''}
               ${billingBlock ? `
               <tr style="border-top:1px solid #e5e7eb;">
@@ -183,7 +198,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
           <td style="padding:0 40px 24px;">
             <div style="background:#f3f4f6;border-radius:12px;padding:16px 20px;">
               <p style="margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7280;">Votre commentaire</p>
-              <p style="margin:0;color:#374151;font-size:14px;font-style:italic;">"${reservation.message}"</p>
+              <p style="margin:0;color:#374151;font-size:14px;font-style:italic;">"${escapeHtml(reservation.message)}"</p>
             </div>
           </td>
         </tr>` : ''}
@@ -217,17 +232,17 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         const adminEmail = `
 <h2 style="color:#111827;">🎉 Nouvelle réservation confirmée</h2>
 <table style="border-collapse:collapse;width:100%;max-width:500px;">
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Tour</td><td style="padding:8px;">${reservation.tour_name}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Client</td><td style="padding:8px;">${reservation.name}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Email</td><td style="padding:8px;">${reservation.email}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Téléphone</td><td style="padding:8px;">${reservation.phone || '—'}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Date</td><td style="padding:8px;">${dateFormatted}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Heure pick-up</td><td style="padding:8px;">${reservation.pickup_time || '—'}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Adresse pick-up</td><td style="padding:8px;">${reservation.pickup_address || '—'}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Participants</td><td style="padding:8px;">${reservation.participants}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Total</td><td style="padding:8px;font-weight:700;color:#c9a961;">${reservation.total_price}€</td></tr>
-  ${billingBlock ? `<tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Facturation</td><td style="padding:8px;">${billingBlock}</td></tr>` : ''}
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Commentaire</td><td style="padding:8px;font-style:italic;">${reservation.message || 'Aucun'}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Tour</td><td style="padding:8px;">${escapeHtml(reservation.tour_name)}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Client</td><td style="padding:8px;">${escapeHtml(reservation.name)}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Email</td><td style="padding:8px;">${escapeHtml(reservation.email)}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Téléphone</td><td style="padding:8px;">${escapeHtml(reservation.phone) || '—'}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Date</td><td style="padding:8px;">${escapeHtml(dateFormatted)}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Heure pick-up</td><td style="padding:8px;">${escapeHtml(reservation.pickup_time) || '—'}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Adresse pick-up</td><td style="padding:8px;">${escapeHtml(reservation.pickup_address) || '—'}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Participants</td><td style="padding:8px;">${escapeHtml(reservation.participants)}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Total</td><td style="padding:8px;font-weight:700;color:#c9a961;">${escapeHtml(reservation.total_price)}€</td></tr>
+  ${billingBlock ? `<tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Facturation</td><td style="padding:8px;">${escapeHtml(billingBlock)}</td></tr>` : ''}
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Commentaire</td><td style="padding:8px;font-style:italic;">${escapeHtml(reservation.message) || 'Aucun'}</td></tr>
 </table>`;
 
         // 8. Send both emails

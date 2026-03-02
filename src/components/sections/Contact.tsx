@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { Phone, Mail, Instagram } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,6 +14,35 @@ interface ContactProps {
 }
 
 export const Contact = ({ t, instagramUrl }: ContactProps) => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [tour, setTour] = useState("");
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !email.trim() || !message.trim()) {
+      toast.error("Merci de remplir les champs nom, email et message.");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, tour, message }),
+      });
+      if (!res.ok) throw new Error("Erreur serveur");
+      toast.success("Message envoyé ! Nous vous répondrons rapidement.");
+      setName(""); setEmail(""); setTour(""); setMessage("");
+    } catch {
+      toast.error("Impossible d'envoyer le message. Réessayez ou contactez-nous par WhatsApp.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section id="contact" className="section-padding bg-white">
       <div className="container-custom">
@@ -90,7 +121,7 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
               <h3 className="text-2xl font-bold text-gray-900 mb-8">
                 {t.contact.form_title}
               </h3>
-              <form className="space-y-6">
+              <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="name">{t.contact.name}</Label>
@@ -98,6 +129,9 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                       id="name"
                       placeholder="Votre nom"
                       className="bg-white border-gray-200 focus:border-amber-600 h-12"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -107,6 +141,9 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                       type="email"
                       placeholder="votre@email.com"
                       className="bg-white border-gray-200 focus:border-amber-600 h-12"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
                     />
                   </div>
                 </div>
@@ -119,12 +156,14 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                   </Label>
                   <select
                     id="tour"
+                    value={tour}
+                    onChange={(e) => setTour(e.target.value)}
                     className="w-full h-14 px-5 rounded-2xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-600 focus:border-transparent text-base transition-all appearance-none cursor-pointer"
                   >
                     <option value="">{t.contact.select_tour}</option>
-                    {t.tour_data.map((tour: Tour) => (
-                      <option key={tour.id} value={tour.id}>
-                        {tour.title}
+                    {t.tour_data.map((tourItem: Tour) => (
+                      <option key={tourItem.id} value={tourItem.title}>
+                        {tourItem.title}
                       </option>
                     ))}
                   </select>
@@ -140,10 +179,17 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                     id="message"
                     rows={4}
                     className="bg-white border-gray-200 focus:border-amber-600 rounded-2xl p-5 text-base"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    required
                   />
                 </div>
-                <Button className="w-full bg-[#c9a961] hover:bg-[#b8944e] text-white font-bold h-16 rounded-2xl shadow-xl shadow-[#c9a961]/30 transition-all active:scale-95 text-lg uppercase tracking-wide">
-                  {t.contact.cta}
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-[#c9a961] hover:bg-[#b8944e] text-white font-bold h-16 rounded-2xl shadow-xl shadow-[#c9a961]/30 transition-all active:scale-95 text-lg uppercase tracking-wide disabled:opacity-60"
+                >
+                  {isSubmitting ? "Envoi en cours…" : t.contact.cta}
                 </Button>
               </form>
             </div>

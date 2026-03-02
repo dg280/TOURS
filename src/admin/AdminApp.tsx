@@ -129,24 +129,9 @@ function Login() {
     setMessage("");
 
     try {
-      // 1. Check if email is in authorized_admins
-      const { data: admin, error: adminError } = await supabase
-        .from("authorized_admins")
-        .select("*")
-        .eq("email", email.toLowerCase().trim())
-        .single();
-
-      if (adminError || !admin) {
-        setError(
-          "Cet email n'est pas autorisé à accéder à l'interface d'administration.",
-        );
-        setIsLoading(false);
-        return;
-      }
-
       let authError = null;
 
-      // 2. Auth Flow
+      // Auth Flow (authorization is verified server-side after session is established)
       if (mode === "magic") {
         const { error } = await supabase.auth.signInWithOtp({
           email: email.toLowerCase().trim(),
@@ -308,7 +293,11 @@ function Dashboard({
       .length,
     totalRevenue: reservations.reduce((sum, r) => sum + r.totalPrice, 0),
     thisMonthRevenue: reservations
-      .filter((r) => r.createdAt.startsWith("2024-02"))
+      .filter((r) => {
+        const now = new Date();
+        const prefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+        return r.createdAt.startsWith(prefix);
+      })
       .reduce((sum, r) => sum + r.totalPrice, 0),
   };
 
@@ -408,7 +397,7 @@ function Dashboard({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs sm:text-sm text-gray-500">
-                  Revenus (février)
+                  Revenus ({new Date().toLocaleDateString("fr-FR", { month: "long" })})
                 </p>
                 <p className="text-2xl sm:text-3xl font-bold">
                   {stats.thisMonthRevenue}€
@@ -4144,28 +4133,36 @@ export default function AdminApp() {
   const profileFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // E2E Test Bypass: allow forcing login state via localStorage in dev/test mode
-    // Moved before the supabase check so it works even if supabase is not initialized
-    if (
-      localStorage.getItem("isLoggedIn") === "true" &&
-      import.meta.env.MODE === "development"
-    ) {
+    // E2E Test Bypass: import.meta.env.DEV is compiled to `false` by Vite at
+    // production build time — this block is completely removed in prod bundles.
+    if (import.meta.env.DEV && localStorage.getItem("isLoggedIn") === "true") {
       setIsLoggedIn(true);
       return;
     }
 
     if (!supabase) return;
 
-    // Check session
+    // Check session + verify admin authorization via server-side RPC
+    const verifyAndSetSession = async (session: unknown) => {
+      if (!session) { setIsLoggedIn(false); return; }
+      const { data: isAdmin } = await supabase!.rpc("is_authorized_admin");
+      if (isAdmin) {
+        setIsLoggedIn(true);
+      } else {
+        await supabase!.auth.signOut();
+        setIsLoggedIn(false);
+      }
+    };
+
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsLoggedIn(!!session);
+      verifyAndSetSession(session);
     });
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsLoggedIn(!!session);
+      verifyAndSetSession(session);
     });
 
     return () => subscription.unsubscribe();

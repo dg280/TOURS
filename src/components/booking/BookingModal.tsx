@@ -61,6 +61,7 @@ export const BookingModal = ({
   });
 
   const [clientSecret, setClientSecret] = useState("");
+  const [paymentIntentId, setPaymentIntentId] = useState("");
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [serverMode, setServerMode] = useState<"test" | "live" | null>(null);
 
@@ -113,6 +114,7 @@ export const BookingModal = ({
         .then((data) => {
           if (data.clientSecret) {
             setClientSecret(data.clientSecret);
+            setPaymentIntentId(data.paymentIntentId || "");
             setServerMode(data.mode);
             setPaymentError(null);
           } else {
@@ -192,6 +194,7 @@ export const BookingModal = ({
       billing_city: formData.city,
       billing_zip: formData.zip,
       billing_country: formData.country,
+      payment_intent_id: paymentIntentId || null,
     };
 
     if (supabase) {
