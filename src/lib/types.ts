@@ -53,6 +53,13 @@ export interface Reservation {
     message: string;
     createdAt: string;
     totalPrice: number;
+    pickupTime?: string;
+    pickupAddress?: string;
+    billingAddress?: string;
+    billingCity?: string;
+    billingZip?: string;
+    billingCountry?: string;
+    paymentIntentId?: string;
 }
 
 export interface Review {

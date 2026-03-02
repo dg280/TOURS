@@ -66,6 +66,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ImageEditor } from "./components/ImageEditor";
 import { translateText, translateArray, type SupportedLanguage } from "./utils/translation-service";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { prepareTourForEditing } from "@/lib/utils";
 import type { Tour, Reservation, Review } from "@/lib/types";
 
@@ -487,6 +488,17 @@ function Dashboard({
   );
 }
 
+// Helper component — must be declared outside Reservations to avoid react-hooks/static-components
+function InfoRow({ label, value }: { label: string; value?: string | number }) {
+  if (!value) return null;
+  return (
+    <div className="flex flex-col sm:flex-row sm:gap-2 py-1">
+      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide w-32 shrink-0">{label}</span>
+      <span className="text-sm text-gray-900">{value}</span>
+    </div>
+  );
+}
+
 // Reservations Component
 function Reservations({
   reservations,
@@ -499,23 +511,50 @@ function Reservations({
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedRes, setSelectedRes] = useState<Reservation | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const filtered = reservations.filter((res) => {
     const matchesSearch =
       res.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      res.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      res.tourName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       res.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || res.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
+  const statusConfig: Record<string, { style: string; label: string }> = {
+    pending:   { style: "bg-yellow-100 text-yellow-800", label: "En attente" },
+    confirmed: { style: "bg-green-100 text-green-800",  label: "Confirmée" },
+    cancelled: { style: "bg-red-100 text-red-800",      label: "Annulée" },
+    completed: { style: "bg-blue-100 text-blue-800",    label: "Terminée" },
+  };
+
   const getStatusBadge = (status: string) => {
-    const styles: Record<string, string> = {
-      pending: "bg-yellow-100 text-yellow-800",
-      confirmed: "bg-green-100 text-green-800",
-      cancelled: "bg-red-100 text-red-800",
-      completed: "bg-blue-100 text-blue-800",
-    };
-    return <Badge className={styles[status]}>{status}</Badge>;
+    const cfg = statusConfig[status] ?? { style: "bg-gray-100 text-gray-700", label: status };
+    return <Badge className={cfg.style}>{cfg.label}</Badge>;
+  };
+
+  const handleStatusUpdate = async (res: Reservation, newStatus: string) => {
+    if (!supabase) return;
+    setIsUpdating(true);
+    const { error } = await supabase
+      .from("reservations")
+      .update({ status: newStatus })
+      .eq("id", res.id);
+    if (error) {
+      toast.error("Erreur lors de la mise à jour du statut");
+    } else {
+      const updated = newStatus as Reservation["status"];
+      setReservations((prev) =>
+        prev.map((r) => r.id === res.id ? { ...r, status: updated } : r)
+      );
+      setSelectedRes((prev) =>
+        prev?.id === res.id ? { ...prev, status: updated } : prev
+      );
+      toast.success(newStatus === "confirmed" ? "Réservation confirmée ✓" : "Réservation annulée");
+    }
+    setIsUpdating(false);
   };
 
   return (
@@ -524,7 +563,7 @@ function Reservations({
         <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <Input
-            placeholder="Rechercher..."
+            placeholder="Rechercher par nom, email, tour..."
             className="pl-10"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -546,58 +585,51 @@ function Reservations({
 
       <Card>
         <CardContent className="p-0">
+          {/* Desktop Table */}
           <div className="overflow-x-auto hidden sm:block">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b">
                 <tr>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">
-                    Client
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">
-                    Date
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 lg:table-cell hidden">
-                    Tour
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">
-                    Statut
-                  </th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-500">
-                    Action
-                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">Client</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500 hidden md:table-cell">Tour</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
+                  <th className="text-center py-3 px-4 font-medium text-gray-500">Voy.</th>
+                  <th className="text-right py-3 px-4 font-medium text-gray-500">Montant</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">Statut</th>
+                  <th className="text-right py-3 px-4 font-medium text-gray-500">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((res) => (
-                  <tr key={res.id} className="border-b hover:bg-gray-50">
+                  <tr key={res.id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => { setSelectedRes(res); setIsDetailOpen(true); }}>
                     <td className="py-3 px-4">
-                      <div className="font-medium text-gray-900">
-                        {res.name}
-                      </div>
-                      <div className="text-gray-500 text-xs hidden sm:block">
-                        {res.email}
-                      </div>
+                      <div className="font-medium text-gray-900">{res.name}</div>
+                      <div className="text-gray-400 text-xs">{res.email}</div>
                     </td>
-                    <td className="py-3 px-4 text-gray-600">{res.date}</td>
-                    <td className="py-3 px-4 text-gray-600 lg:table-cell hidden">
-                      {res.tourName}
-                    </td>
+                    <td className="py-3 px-4 text-gray-600 hidden md:table-cell max-w-[180px] truncate">{res.tourName}</td>
+                    <td className="py-3 px-4 text-gray-600 whitespace-nowrap">{res.date}</td>
+                    <td className="py-3 px-4 text-center text-gray-600">{res.participants}</td>
+                    <td className="py-3 px-4 text-right font-semibold text-amber-600 whitespace-nowrap">{res.totalPrice}€</td>
                     <td className="py-3 px-4">{getStatusBadge(res.status)}</td>
                     <td className="py-3 px-4 text-right">
                       <Button
                         variant="ghost"
                         size="sm"
                         className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                        onClick={() => {
-                          setSelectedRes(res);
-                          setIsDetailOpen(true);
-                        }}
+                        onClick={(e) => { e.stopPropagation(); setSelectedRes(res); setIsDetailOpen(true); }}
                       >
                         Voir
                       </Button>
                     </td>
                   </tr>
                 ))}
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="py-10 text-center text-gray-400 italic text-sm">
+                      Aucune réservation trouvée
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -605,7 +637,7 @@ function Reservations({
           {/* Mobile Card View */}
           <div className="sm:hidden divide-y divide-gray-100">
             {filtered.map((res) => (
-              <div key={res.id} className="p-4 space-y-3">
+              <div key={res.id} className="p-4 space-y-3" onClick={() => { setSelectedRes(res); setIsDetailOpen(true); }}>
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="font-bold text-gray-900">{res.name}</div>
@@ -613,24 +645,13 @@ function Reservations({
                   </div>
                   {getStatusBadge(res.status)}
                 </div>
-                <div className="text-sm text-gray-600 italic">
-                  "{res.tourName}"
-                </div>
+                <div className="text-sm text-gray-600 italic">"{res.tourName}"</div>
                 <div className="flex justify-between items-center pt-1">
-                  <span className="font-bold text-amber-600">
-                    {res.totalPrice}€
-                  </span>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-8"
-                    onClick={() => {
-                      setSelectedRes(res);
-                      setIsDetailOpen(true);
-                    }}
-                  >
-                    Détails
-                  </Button>
+                  <div>
+                    <span className="font-bold text-amber-600">{res.totalPrice}€</span>
+                    <span className="text-xs text-gray-400 ml-2">{res.participants} voy.</span>
+                  </div>
+                  <Button size="sm" variant="outline" className="h-8">Détails</Button>
                 </div>
               </div>
             ))}
@@ -643,63 +664,109 @@ function Reservations({
         </CardContent>
       </Card>
 
-      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Détails Réservation</DialogTitle>
-          </DialogHeader>
+      {/* Detail Sheet */}
+      <Sheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-lg flex flex-col p-0 overflow-y-auto">
           {selectedRes && (
-            <div className="space-y-4 py-4 text-sm">
-              <div className="grid grid-cols-2 gap-2">
-                <span className="text-gray-500">Client:</span>{" "}
-                <span>{selectedRes.name}</span>
-                <span className="text-gray-500">Email:</span>{" "}
-                <span>{selectedRes.email}</span>
-                <span className="text-gray-500">Téléphone:</span>{" "}
-                <span>{selectedRes.phone}</span>
-                <span className="text-gray-500">Participants:</span>{" "}
-                <span>{selectedRes.participants}</span>
-                <span className="text-gray-500">Montant:</span>{" "}
-                <span className="font-bold">{selectedRes.totalPrice}€</span>
+            <>
+              <SheetHeader className="px-6 pt-6 pb-4 border-b bg-gray-50">
+                <SheetTitle className="text-base font-bold text-gray-900 leading-tight">
+                  {selectedRes.tourName}
+                </SheetTitle>
+                <div className="flex items-center gap-3 mt-1">
+                  {getStatusBadge(selectedRes.status)}
+                  <span className="text-xs text-gray-400">
+                    Créée le {new Date(selectedRes.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+                  </span>
+                </div>
+              </SheetHeader>
+
+              <div className="flex-1 px-6 py-5 space-y-5 text-sm">
+                {/* CLIENT */}
+                <div className="rounded-lg bg-gray-50 p-4 space-y-1">
+                  <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Client</p>
+                  <InfoRow label="Nom" value={selectedRes.name} />
+                  <InfoRow label="Email" value={selectedRes.email} />
+                  <InfoRow label="Téléphone" value={selectedRes.phone} />
+                </div>
+
+                {/* RÉSERVATION */}
+                <div className="rounded-lg border border-gray-200 p-4 space-y-1">
+                  <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Réservation</p>
+                  <InfoRow label="Date" value={selectedRes.date} />
+                  <InfoRow label="Voyageurs" value={`${selectedRes.participants} personne${selectedRes.participants > 1 ? "s" : ""}`} />
+                  <div className="flex flex-col sm:flex-row sm:gap-2 py-1">
+                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide w-32 shrink-0">Total payé</span>
+                    <span className="text-sm font-bold text-amber-600">{selectedRes.totalPrice}€</span>
+                  </div>
+                </div>
+
+                {/* PICKUP */}
+                {(selectedRes.pickupTime || selectedRes.pickupAddress) && (
+                  <div className="rounded-lg bg-amber-50 border border-amber-200 p-4 space-y-1">
+                    <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-2">Pick-up</p>
+                    <InfoRow label="Heure" value={selectedRes.pickupTime} />
+                    <InfoRow label="Adresse" value={selectedRes.pickupAddress} />
+                  </div>
+                )}
+
+                {/* MESSAGE */}
+                {selectedRes.message && (
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Message client</p>
+                    <p className="text-sm text-gray-700 italic">"{selectedRes.message}"</p>
+                  </div>
+                )}
+
+                {/* FACTURATION */}
+                {(selectedRes.billingAddress || selectedRes.billingCity) && (
+                  <div className="rounded-lg border border-gray-200 p-4 space-y-1">
+                    <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Facturation</p>
+                    <p className="text-sm text-gray-700">
+                      {[selectedRes.billingAddress, selectedRes.billingZip, selectedRes.billingCity, selectedRes.billingCountry]
+                        .filter(Boolean).join(", ")}
+                    </p>
+                  </div>
+                )}
+
+                {/* PAIEMENT */}
+                {selectedRes.paymentIntentId && (
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">Stripe Payment Intent</p>
+                    <p className="text-xs font-mono text-gray-500 break-all">{selectedRes.paymentIntentId}</p>
+                  </div>
+                )}
               </div>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    setReservations((prev) =>
-                      prev.map((r) =>
-                        r.id === selectedRes.id
-                          ? { ...r, status: "confirmed" }
-                          : r,
-                      ),
-                    );
-                    setIsDetailOpen(false);
-                  }}
-                >
-                  Confirmer
+
+              <SheetFooter className="px-6 py-4 border-t bg-gray-50 flex flex-row gap-2 justify-end">
+                {selectedRes.status === "pending" && (
+                  <Button
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    disabled={isUpdating}
+                    onClick={() => handleStatusUpdate(selectedRes, "confirmed")}
+                  >
+                    {isUpdating ? "..." : "Confirmer"}
+                  </Button>
+                )}
+                {selectedRes.status !== "cancelled" && selectedRes.status !== "completed" && (
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    disabled={isUpdating}
+                    onClick={() => handleStatusUpdate(selectedRes, "cancelled")}
+                  >
+                    {isUpdating ? "..." : "Annuler"}
+                  </Button>
+                )}
+                <Button size="sm" variant="outline" onClick={() => setIsDetailOpen(false)}>
+                  Fermer
                 </Button>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => {
-                    setReservations((prev) =>
-                      prev.map((r) =>
-                        r.id === selectedRes.id
-                          ? { ...r, status: "cancelled" }
-                          : r,
-                      ),
-                    );
-                    setIsDetailOpen(false);
-                  }}
-                >
-                  Annuler
-                </Button>
-              </div>
-            </div>
+              </SheetFooter>
+            </>
           )}
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
@@ -4210,6 +4277,13 @@ export default function AdminApp() {
             message: r.message || "",
             createdAt: r.created_at,
             totalPrice: r.total_price,
+            pickupTime: r.pickup_time || "",
+            pickupAddress: r.pickup_address || "",
+            billingAddress: r.billing_address || "",
+            billingCity: r.billing_city || "",
+            billingZip: r.billing_zip || "",
+            billingCountry: r.billing_country || "",
+            paymentIntentId: r.payment_intent_id || "",
           }));
           setReservations(mapped);
         }
