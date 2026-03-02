@@ -4568,6 +4568,15 @@ export default function AdminApp() {
   );
 
   const profileFileInputRef = useRef<HTMLInputElement>(null);
+  const differentPhoto1Ref = useRef<HTMLInputElement>(null);
+  const differentPhoto2Ref = useRef<HTMLInputElement>(null);
+  const differentPhoto3Ref = useRef<HTMLInputElement>(null);
+  const [differentPhotos, setDifferentPhotos] = useState<[string, string, string]>([
+    "/tour-prepirinees.jpg",
+    "/tour-beach.jpg",
+    "/tour-camironda.jpg",
+  ]);
+  const [differentPhotoToEdit, setDifferentPhotoToEdit] = useState<{ src: string; idx: number } | null>(null);
 
   useEffect(() => {
     // E2E Test Bypass: import.meta.env.DEV is compiled to `false` by Vite at
@@ -4761,6 +4770,15 @@ export default function AdminApp() {
 
           if (val.bio_en) setGuideBioEn(val.bio_en);
           if (val.bio_es) setGuideBioEs(val.bio_es);
+
+          if ((val as Record<string, unknown>).different_photos) {
+            const dp = (val as Record<string, unknown>).different_photos as string[];
+            setDifferentPhotos([
+              dp[0] || "/tour-prepirinees.jpg",
+              dp[1] || "/tour-beach.jpg",
+              dp[2] || "/tour-camironda.jpg",
+            ]);
+          }
         }
       });
   }, [isLoggedIn]);
@@ -4812,6 +4830,31 @@ export default function AdminApp() {
     reader.readAsDataURL(blob);
   };
 
+  const handleDifferentPhotoUpload = (idx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image trop volumineuse (max 5MB)"); return; }
+    const reader = new FileReader();
+    reader.onload = () => setDifferentPhotoToEdit({ src: reader.result as string, idx });
+    reader.readAsDataURL(file);
+  };
+
+  const onSaveDifferentPhoto = async (blob: Blob) => {
+    if (!differentPhotoToEdit) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const url = reader.result as string;
+      setDifferentPhotos(prev => {
+        const next = [...prev] as [string, string, string];
+        next[differentPhotoToEdit.idx] = url;
+        return next;
+      });
+      setDifferentPhotoToEdit(null);
+      toast.success("Photo mise à jour — cliquez Enregistrer pour sauvegarder");
+    };
+    reader.readAsDataURL(blob);
+  };
+
   const saveProfile = async () => {
     try {
       if (supabase) {
@@ -4823,6 +4866,7 @@ export default function AdminApp() {
             bio: guideBio,
             bio_en: guideBioEn,
             bio_es: guideBioEs,
+            different_photos: differentPhotos,
           },
           updated_at: new Date().toISOString(),
         });
@@ -5207,6 +5251,36 @@ export default function AdminApp() {
                         </div>
                       </div>
 
+                      {/* Photos "Ce qui nous rend différent" */}
+                      <div className="space-y-4 pt-4">
+                        <h4 className="font-bold text-gray-900 border-b pb-2">
+                          Photos — "Ce qui nous rend différent"
+                        </h4>
+                        <p className="text-xs text-gray-400">3 photos affichées en collage sur la page À propos.</p>
+                        <div className="grid grid-cols-3 gap-3">
+                          {differentPhotos.map((src, idx) => (
+                            <div key={idx} className="space-y-2">
+                              <div
+                                className="relative group h-28 rounded-xl overflow-hidden border border-gray-200 cursor-pointer bg-gray-50"
+                                onClick={() => [differentPhoto1Ref, differentPhoto2Ref, differentPhoto3Ref][idx].current?.click()}
+                              >
+                                <img src={src} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <ImageIcon className="w-6 h-6 text-white" />
+                                </div>
+                              </div>
+                              <input
+                                type="file"
+                                ref={[differentPhoto1Ref, differentPhoto2Ref, differentPhoto3Ref][idx]}
+                                className="hidden"
+                                accept="image/*"
+                                onChange={(e) => handleDifferentPhotoUpload(idx, e)}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
                       <div className="pt-4 flex gap-3">
                         <Button
                           className="flex-1 bg-[#c9a961]"
@@ -5240,6 +5314,16 @@ export default function AdminApp() {
           onSave={onSaveProfileImage}
           aspectRatio={1}
           title="Retoucher la photo de profil"
+        />
+      )}
+      {differentPhotoToEdit && (
+        <ImageEditor
+          image={differentPhotoToEdit.src}
+          isOpen={!!differentPhotoToEdit}
+          onClose={() => setDifferentPhotoToEdit(null)}
+          onSave={onSaveDifferentPhoto}
+          aspectRatio={4 / 3}
+          title={`Photo ${differentPhotoToEdit.idx + 1} — "Ce qui nous rend différent"`}
         />
       )}
     </div>

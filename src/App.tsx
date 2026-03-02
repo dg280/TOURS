@@ -38,6 +38,9 @@ function App() {
   const [guidePhoto, setGuidePhoto] = useState<string>(() => localStorage.getItem('td-guide-photo') || '/guide-portrait.jpg');
   const [instagramUrl, setInstagramUrl] = useState('https://www.instagram.com/tours_and_detours_bcn/');
   const [guideBio, setGuideBio] = useState('');
+  const [differentPhotos, setDifferentPhotos] = useState<[string, string, string]>([
+    '/tour-prepirinees.jpg', '/tour-beach.jpg', '/tour-camironda.jpg',
+  ]);
   const [customTours] = useState<Tour[]>(() => {
     const saved = localStorage.getItem('td-tours');
     return saved ? JSON.parse(saved) : [];
@@ -171,6 +174,10 @@ function App() {
           const dbBio = lang === 'en' ? profile.bio_en : lang === 'es' ? profile.bio_es : (profile.bio || profile.bio1);
           if (dbBio) setGuideBio(dbBio);
           else if (profile.bio1) setGuideBio(profile.bio1 + (profile.bio2 ? '\n\n' + profile.bio2 : ''));
+
+          if (profile.different_photos && Array.isArray(profile.different_photos) && profile.different_photos.length === 3) {
+            setDifferentPhotos(profile.different_photos as [string, string, string]);
+          }
         }
       } catch (err) {
         console.error('Fetch error:', err);
@@ -244,6 +251,8 @@ function App() {
         notIncluded_es: dObj.notIncluded_es ?? cObj.notIncluded_es ?? bObj.notIncluded_es,
         meetingPoint_en: dObj.meetingPoint_en || cObj.meetingPoint_en || bObj.meetingPoint_en || "",
         meetingPoint_es: dObj.meetingPoint_es || cObj.meetingPoint_es || bObj.meetingPoint_es || "",
+        isActive: dObj.isActive ?? cObj.isActive ?? bObj.isActive,
+        stripeLink: dObj.stripeLink || cObj.stripeLink || bObj.stripeLink || "",
       };
 
       if (lang === 'en') {
@@ -429,6 +438,7 @@ function App() {
             t={t}
             guidePhoto={guidePhoto}
             guideBio={guideBio}
+            differentPhotos={differentPhotos}
             onBackToHome={() => setView('home')}
           />
         )}

@@ -484,9 +484,10 @@ export const BookingModal = ({
               <div className="space-y-6">
                 {/* Itinerary & Inclusions/Exclusions Summary — only shown when data exists */}
                 {(() => {
-                  const itinerary = (lang === 'fr' ? tour.itinerary : lang === 'es' ? tour.itinerary_es : tour.itinerary_en) ?? [];
-                  const included = (lang === 'fr' ? tour.included : lang === 'es' ? tour.included_es : tour.included_en) ?? [];
-                  const notIncluded = (lang === 'fr' ? tour.notIncluded : lang === 'es' ? tour.notIncluded_es : tour.notIncluded_en) ?? [];
+                  // App.tsx already resolves the correct language into tour.itinerary/included/notIncluded
+                  const itinerary = tour.itinerary ?? [];
+                  const included = tour.included ?? [];
+                  const notIncluded = tour.notIncluded ?? [];
                   if (itinerary.length === 0 && included.length === 0) return null;
                   return (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

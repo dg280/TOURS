@@ -47,6 +47,7 @@ export const CategoryToursCarousel = ({
 
   const filteredTours = useMemo(() => {
     return tours.filter((tour) => {
+      if (tour.isActive === false) return false;
       if (!tour.category) return false;
 
       const tourCats = Array.isArray(tour.category)
@@ -75,7 +76,10 @@ export const CategoryToursCarousel = ({
   );
 
   useEffect(() => {
-    if (emblaApi) emblaApi.reInit();
+    if (emblaApi) {
+      emblaApi.reInit();
+      emblaApi.scrollTo(0, true);
+    }
   }, [filteredTours, emblaApi]);
 
   return (
