@@ -543,7 +543,7 @@ export const BookingModal = ({
                     </h3>
                     <div className="grid gap-2">
                       <Label className="text-xs uppercase tracking-wider text-gray-500">{t.booking.date_label}</Label>
-                      <div className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm">
+                      <div className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm" data-testid="availability-calendar">
                         <AvailabilityCalendar
                           selectedDate={date}
                           onSelect={setDate}

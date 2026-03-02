@@ -129,14 +129,14 @@ test.describe('Full Site Verification - Tours & Detours', () => {
 
         // 3. Step 1: Date & Participants
         await expect(page.locator('text=Étape 1 sur 5')).toBeVisible();
-        const dateInput = page.locator('input[type="date"]');
-        await expect(dateInput).toBeVisible();
-        
-        // Ensure date is filled (fallback if state initialization is slow)
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const dateStr = tomorrow.toISOString().split('T')[0];
-        await dateInput.fill(dateStr);
+        // Calendar replaces the old date input — verify it is visible
+        const calendar = page.getByTestId('availability-calendar');
+        await expect(calendar).toBeVisible({ timeout: 10000 });
+        // Date is pre-selected to tomorrow on open; click the selected day to confirm
+        const selectedDay = calendar.locator('button[class*="bg-amber-500"]').first();
+        if (await selectedDay.isVisible()) {
+            await selectedDay.click();
+        }
 
         // 4. Go to Step 2
         await page.waitForTimeout(500);

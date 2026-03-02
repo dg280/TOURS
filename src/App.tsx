@@ -221,7 +221,14 @@ function App() {
         duration: getVal(bObj.duration, dObj.duration, cObj.duration) || "",
         groupSize: getVal(bObj.groupSize, dObj.groupSize, cObj.groupSize) || "",
         category: getVal(bObj.category, dObj.category, cObj.category) || "",
-        pricing_tiers: dObj.pricing_tiers || cObj.pricing_tiers || bObj.pricing_tiers || {}
+        pricing_tiers: dObj.pricing_tiers || cObj.pricing_tiers || bObj.pricing_tiers || {},
+        goodToKnow: getVal(bObj.goodToKnow, dObj.goodToKnow, cObj.goodToKnow) || [],
+        goodToKnow_en: dObj.goodToKnow_en || cObj.goodToKnow_en || bObj.goodToKnow_en || [],
+        goodToKnow_es: dObj.goodToKnow_es || cObj.goodToKnow_es || bObj.goodToKnow_es || [],
+        maxCapacity: dObj.maxCapacity ?? cObj.maxCapacity ?? bObj.maxCapacity ?? 8,
+        departureTime: dObj.departureTime || cObj.departureTime || bObj.departureTime || "",
+        estimatedDuration: dObj.estimatedDuration || cObj.estimatedDuration || bObj.estimatedDuration || "",
+        meetingPointMapUrl: dObj.meetingPointMapUrl || cObj.meetingPointMapUrl || bObj.meetingPointMapUrl || "",
       };
 
       if (lang === 'en') {
