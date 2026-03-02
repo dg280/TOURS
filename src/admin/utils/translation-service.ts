@@ -1,9 +1,80 @@
 /**
- * Simple translation service using MyMemory API
- * Documentation: https://mymemory.translated.net/doc/spec.php
+ * Translation service using Google Translate unofficial client endpoint.
+ * No API key required. Suitable for moderate internal usage.
  */
 
 export type SupportedLanguage = "fr" | "en" | "es";
+
+const LANG_MAP: Record<SupportedLanguage, string> = {
+  fr: "fr",
+  en: "en",
+  es: "es",
+};
+
+/**
+ * Translates a single chunk of text via Google Translate client endpoint.
+ */
+async function translateSingleChunk(
+  text: string,
+  from: SupportedLanguage,
+  to: SupportedLanguage
+): Promise<string> {
+  const url =
+    `https://translate.googleapis.com/translate_a/single` +
+    `?client=gtx&sl=${LANG_MAP[from]}&tl=${LANG_MAP[to]}&dt=t` +
+    `&q=${encodeURIComponent(text)}`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Erreur réseau Google Translate (${response.status})`);
+  }
+
+  // Response shape: [[[translatedText, originalText, ...], ...], null, sourceLang, ...]
+  const data = await response.json();
+
+  if (!Array.isArray(data) || !Array.isArray(data[0])) {
+    throw new Error("Réponse inattendue de Google Translate");
+  }
+
+  // Join all translation segments
+  const translated: string = (data[0] as [string, string][])
+    .map((segment) => segment[0] ?? "")
+    .join("");
+
+  if (!translated) {
+    throw new Error("Google Translate a renvoyé une traduction vide");
+  }
+
+  return translated;
+}
+
+/**
+ * Splits text into chunks ≤ maxLen, respecting sentence boundaries.
+ */
+function splitTextIntoChunks(text: string, maxLen: number): string[] {
+  const chunks: string[] = [];
+  let current = text;
+
+  while (current.length > 0) {
+    if (current.length <= maxLen) {
+      chunks.push(current);
+      break;
+    }
+    const area = current.substring(0, maxLen);
+    let idx = area.lastIndexOf(". ");
+    if (idx === -1) idx = area.lastIndexOf("! ");
+    if (idx === -1) idx = area.lastIndexOf("? ");
+    if (idx === -1) idx = area.lastIndexOf("\n");
+    if (idx === -1) idx = area.lastIndexOf(" ");
+    if (idx === -1 || idx < maxLen * 0.5) idx = maxLen;
+    else idx += 1;
+    chunks.push(current.substring(0, idx));
+    current = current.substring(idx);
+  }
+
+  return chunks;
+}
 
 export const translateText = async (
   text: string,
@@ -13,108 +84,18 @@ export const translateText = async (
   if (!text.trim()) return "";
   if (from === to) return text;
 
-  // MyMemory free tier has a ~500 character limit per request.
-  // We split the text into chunks to safely stay within limits.
-  const MAX_CHUNK_LENGTH = 450;
-  
-  // Split by sentences to avoid cutting in the middle of a word if possible
-  const chunks = splitTextIntoChunks(text, MAX_CHUNK_LENGTH);
-  const translatedChunks = await Promise.all(
+  const chunks = splitTextIntoChunks(text, 1000);
+  const translated = await Promise.all(
     chunks.map((chunk) => translateSingleChunk(chunk, from, to))
   );
-
-  return translatedChunks.join("");
+  return translated.join("");
 };
 
-/**
- * Translates a single chunk of text (< 500 chars)
- */
-async function translateSingleChunk(
-  text: string,
-  from: SupportedLanguage,
-  to: SupportedLanguage
-): Promise<string> {
-  const response = await fetch(
-    `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
-      text
-    )}&langpair=${from}|${to}`
-  );
-
-  if (!response.ok) {
-    throw new Error(`Erreur réseau (${response.status})`);
-  }
-
-  const data = await response.json();
-
-  if (data.quotaFinished) {
-    throw new Error("Quota journalier MyMemory dépassé. Réessayez demain ou utilisez un email dans l'URL.");
-  }
-
-  const translated: string = data.responseData?.translatedText ?? "";
-
-  // MyMemory returns error messages as the translation text when something goes wrong
-  if (
-    !translated ||
-    translated.toUpperCase().includes("QUERY LENGTH LIMIT") ||
-    translated.toUpperCase().includes("MYMEMORY WARNING") ||
-    translated.toUpperCase().includes("YOU USED ALL AVAILABLE")
-  ) {
-    throw new Error("MyMemory : " + (translated || "réponse vide"));
-  }
-
-  return translated;
-}
-
-/**
- * Splits a text into chunks of roughly maxLen, trying to respect sentences.
- */
-function splitTextIntoChunks(text: string, maxLen: number): string[] {
-  const chunks: string[] = [];
-  let currentText = text;
-
-  while (currentText.length > 0) {
-    if (currentText.length <= maxLen) {
-      chunks.push(currentText);
-      break;
-    }
-
-    // Look for the last sentence end (., !, ?) or space within the limit
-    let splitIndex = -1;
-    const searchArea = currentText.substring(0, maxLen);
-    
-    // Try to find a period followed by a space
-    splitIndex = searchArea.lastIndexOf(". ");
-    if (splitIndex === -1) splitIndex = searchArea.lastIndexOf("! ");
-    if (splitIndex === -1) splitIndex = searchArea.lastIndexOf("? ");
-    if (splitIndex === -1) splitIndex = searchArea.lastIndexOf("\n");
-    if (splitIndex === -1) splitIndex = searchArea.lastIndexOf(" ");
-
-    // If no good split point found, just hard cut at maxLen
-    if (splitIndex === -1 || splitIndex < maxLen * 0.5) {
-      splitIndex = maxLen;
-    } else {
-      splitIndex += 1; // Include the space, punctuation or newline
-    }
-
-    chunks.push(currentText.substring(0, splitIndex));
-    currentText = currentText.substring(splitIndex);
-  }
-
-  return chunks;
-}
-
-/**
- * Translates an array of strings
- */
 export const translateArray = async (
   items: string[],
   from: SupportedLanguage,
   to: SupportedLanguage
 ): Promise<string[]> => {
   if (!items || items.length === 0) return [];
-  
-  // To avoid hitting rate limits or making too many requests, we join and translate if suitable,
-  // or translate items individually if they are short.
-  // For simplicity, we translate one by one here.
   return Promise.all(items.map((item) => translateText(item, from, to)));
 };

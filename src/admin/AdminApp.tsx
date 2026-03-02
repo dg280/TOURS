@@ -1166,7 +1166,7 @@ function ToursManagement({
       toast.success("Traduction terminée !", { id: loading });
     } catch (err) {
       console.error("Translation error:", err);
-      toast.error("Erreur de traduction", { id: loading });
+      toast.error("Erreur de traduction : " + (err as Error).message, { id: loading });
     } finally {
       setIsTranslating(false);
     }
@@ -1253,7 +1253,7 @@ function ToursManagement({
     }
   };
 
-  const onSaveEditedImage = async (blob: Blob) => {
+  const onSaveEditedImage = async (blob: Blob): Promise<void> => {
     if (!imageToEdit || !editingTour) return;
 
     const loading = toast.loading(`Enregistrement de l'image...`);
@@ -1362,6 +1362,8 @@ function ToursManagement({
           meeting_point: tourData.meetingPoint,
           meeting_point_en: tourData.meetingPoint_en,
           meeting_point_es: tourData.meetingPoint_es,
+          departure_time: tourData.departureTime || null,
+          estimated_duration: tourData.estimatedDuration || null,
           good_to_know: tourData.goodToKnow || [],
           good_to_know_en: tourData.goodToKnow_en || [],
           good_to_know_es: tourData.goodToKnow_es || [],
@@ -2077,6 +2079,31 @@ function ToursManagement({
                       />
                     </div>
                   </div>
+                  {/* Departure time & estimated duration */}
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs">Heure de départ fixe</Label>
+                      <Input
+                        type="time"
+                        className="text-xs"
+                        value={editingTour.departureTime || ""}
+                        onChange={(e) => setEditingTour({ ...editingTour, departureTime: e.target.value })}
+                        placeholder="09:00"
+                      />
+                      <p className="text-[10px] text-gray-400">Affiché en lecture seule dans le formulaire de réservation</p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs">Durée estimée</Label>
+                      <Input
+                        className="text-xs"
+                        value={editingTour.estimatedDuration || ""}
+                        onChange={(e) => setEditingTour({ ...editingTour, estimatedDuration: e.target.value })}
+                        placeholder="ex: 8h, Journée entière"
+                      />
+                      <p className="text-[10px] text-gray-400">Durée affichée dans le résumé de réservation</p>
+                    </div>
+                  </div>
+
                   <div className="space-y-2 mt-4">
                     <div className="flex justify-between items-center">
                       <Label>Bon à savoir (FR)</Label>
@@ -4310,6 +4337,8 @@ export default function AdminApp() {
           meetingPoint: t.meeting_point,
           meetingPoint_en: t.meeting_point_en,
           meetingPoint_es: t.meeting_point_es,
+          departureTime: t.departure_time || "",
+          estimatedDuration: t.estimated_duration || t.duration || "",
           goodToKnow: t.good_to_know || [],
           goodToKnow_en: t.good_to_know_en || [],
           goodToKnow_es: t.good_to_know_es || [],
@@ -4377,6 +4406,8 @@ export default function AdminApp() {
           meeting_point: tour.meetingPoint || null,
           meeting_point_en: tour.meetingPoint_en || null,
           meeting_point_es: tour.meetingPoint_es || null,
+          departure_time: tour.departureTime || null,
+          estimated_duration: tour.estimatedDuration || null,
           good_to_know: tour.goodToKnow || [],
           good_to_know_en: tour.goodToKnow_en || [],
           good_to_know_es: tour.goodToKnow_es || [],
@@ -4460,6 +4491,8 @@ export default function AdminApp() {
           meetingPoint: t.meeting_point,
           meetingPoint_en: t.meeting_point_en,
           meetingPoint_es: t.meeting_point_es,
+          departureTime: t.departure_time || "",
+          estimatedDuration: t.estimated_duration || t.duration || "",
           goodToKnow: t.good_to_know || [],
           goodToKnow_en: t.good_to_know_en || [],
           goodToKnow_es: t.good_to_know_es || [],
@@ -4672,6 +4705,8 @@ export default function AdminApp() {
             meetingPoint: t.meeting_point,
             meetingPoint_en: t.meeting_point_en,
             meetingPoint_es: t.meeting_point_es,
+            departureTime: t.departure_time || "",
+            estimatedDuration: t.estimated_duration || t.duration || "",
             goodToKnow: t.good_to_know || [],
             goodToKnow_en: t.good_to_know_en || [],
             goodToKnow_es: t.good_to_know_es || [],

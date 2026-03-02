@@ -33,6 +33,8 @@ export interface Tour {
     meetingPoint_en?: string;
     meetingPoint_es?: string;
     meetingPointMapUrl?: string;
+    departureTime?: string;
+    estimatedDuration?: string;
     goodToKnow?: string[];
     goodToKnow_en?: string[];
     goodToKnow_es?: string[];
