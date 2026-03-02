@@ -37,6 +37,170 @@ interface BookingModalProps {
   t: Translations;
 }
 
+// ---------------------------------------------------------------------------
+// Availability Calendar
+// ---------------------------------------------------------------------------
+interface AvailabilityCalendarProps {
+  selectedDate: string;
+  onSelect: (date: string) => void;
+  bookedByDate: Record<string, number>;
+  maxCapacity: number;
+  month: Date;
+  onMonthChange: (d: Date) => void;
+  loading: boolean;
+  lang: string;
+}
+
+function AvailabilityCalendar({
+  selectedDate,
+  onSelect,
+  bookedByDate,
+  maxCapacity,
+  month,
+  onMonthChange,
+  loading,
+  lang,
+}: AvailabilityCalendarProps) {
+  const dayLabels =
+    lang === "en" ? ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
+    : lang === "es" ? ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"]
+    : ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"];
+
+  const monthLabel = month.toLocaleDateString(
+    lang === "en" ? "en-US" : lang === "es" ? "es-ES" : "fr-FR",
+    { month: "long", year: "numeric" }
+  );
+
+  // Build 6-week grid starting from the Monday before the 1st
+  const firstDay = new Date(month.getFullYear(), month.getMonth(), 1);
+  const startOffset = (firstDay.getDay() + 6) % 7; // Mon=0
+  const gridStart = new Date(firstDay);
+  gridStart.setDate(1 - startOffset);
+
+  const cells: Date[] = [];
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(gridStart);
+    d.setDate(gridStart.getDate() + i);
+    cells.push(d);
+  }
+
+  const todayStr = new Date().toISOString().split("T")[0];
+  const toDateStr = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  };
+
+  const now = new Date();
+  const isPrevDisabled =
+    month.getFullYear() === now.getFullYear() &&
+    month.getMonth() === now.getMonth();
+
+  return (
+    <div className="w-full select-none">
+      {/* Month navigation */}
+      <div className="flex items-center justify-between mb-3">
+        <button
+          type="button"
+          onClick={() => { const d = new Date(month); d.setMonth(d.getMonth() - 1); onMonthChange(d); }}
+          disabled={isPrevDisabled}
+          className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6" /></svg>
+        </button>
+        <span className="text-sm font-bold capitalize text-gray-800 flex items-center gap-2">
+          {monthLabel}
+          {loading && <span className="inline-block w-3 h-3 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />}
+        </span>
+        <button
+          type="button"
+          onClick={() => { const d = new Date(month); d.setMonth(d.getMonth() + 1); onMonthChange(d); }}
+          className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
+        </button>
+      </div>
+
+      {/* Day headers */}
+      <div className="grid grid-cols-7 mb-1">
+        {dayLabels.map((d) => (
+          <div key={d} className="text-center text-[10px] font-bold uppercase text-gray-400 py-1">{d}</div>
+        ))}
+      </div>
+
+      {/* Date cells */}
+      <div className="grid grid-cols-7 gap-y-1">
+        {cells.map((cell) => {
+          const dateStr = toDateStr(cell);
+          const isCurrentMonth = cell.getMonth() === month.getMonth();
+          const isPast = dateStr < todayStr;
+          const booked = bookedByDate[dateStr] ?? 0;
+          const cap = maxCapacity > 0 ? maxCapacity : 8;
+          const fillRatio = booked / cap;
+          const isFull = fillRatio >= 1;
+          const isSelected = dateStr === selectedDate;
+          const remaining = cap - booked;
+
+          let dotColor = "";
+          if (isCurrentMonth && !isPast && !isFull && booked > 0) {
+            dotColor = fillRatio >= 0.75 ? "bg-orange-400" : "bg-green-500";
+          }
+
+          let tooltip = "";
+          if (isCurrentMonth && !isPast && fillRatio >= 0.75 && fillRatio < 1) {
+            tooltip = lang === "en" ? `${remaining} spot${remaining > 1 ? "s" : ""} left`
+              : lang === "es" ? `${remaining} plaza${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""}`
+              : `${remaining} place${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""}`;
+          }
+
+          const isClickable = isCurrentMonth && !isPast && !isFull;
+
+          return (
+            <div key={dateStr} className="flex justify-center">
+              <button
+                type="button"
+                disabled={!isClickable}
+                onClick={() => isClickable && onSelect(dateStr)}
+                title={tooltip || undefined}
+                className={[
+                  "relative w-9 h-9 rounded-xl text-sm font-medium transition-all duration-150 flex flex-col items-center justify-center gap-0.5",
+                  !isCurrentMonth ? "opacity-20 pointer-events-none text-gray-400" : "",
+                  isCurrentMonth && isPast ? "text-gray-300 cursor-not-allowed" : "",
+                  isCurrentMonth && !isPast && isFull ? "bg-red-100 text-red-400 line-through cursor-not-allowed" : "",
+                  isSelected && !isFull ? "bg-amber-500 text-white shadow-md shadow-amber-200 scale-105" : "",
+                  isClickable && !isSelected ? "hover:bg-amber-50 hover:text-amber-700 cursor-pointer text-gray-700" : "",
+                ].filter(Boolean).join(" ")}
+              >
+                <span className="leading-none text-xs">{cell.getDate()}</span>
+                {dotColor && <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Legend */}
+      <div className="flex items-center gap-4 mt-3 px-1">
+        <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
+          <span className="w-2 h-2 rounded-full bg-green-500" />
+          {lang === "en" ? "Available" : lang === "es" ? "Disponible" : "Disponible"}
+        </div>
+        <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
+          <span className="w-2 h-2 rounded-full bg-orange-400" />
+          {lang === "en" ? "Filling up" : lang === "es" ? "Casi lleno" : "Presque plein"}
+        </div>
+        <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
+          <span className="w-2 h-2 rounded-full bg-red-400" />
+          {lang === "en" ? "Full" : lang === "es" ? "Completo" : "Complet"}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+
 export const BookingModal = ({
   isOpen,
   onOpenChange,
@@ -65,6 +229,15 @@ export const BookingModal = ({
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [serverMode, setServerMode] = useState<"test" | "live" | null>(null);
 
+  // Availability calendar state
+  const [calendarMonth, setCalendarMonth] = useState<Date>(() => {
+    const d = new Date();
+    d.setDate(1);
+    return d;
+  });
+  const [bookedByDate, setBookedByDate] = useState<Record<string, number>>({});
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Reset scroll position when step changes
@@ -76,16 +249,51 @@ export const BookingModal = ({
 
   useEffect(() => {
     if (isOpen) {
-      // Move state updates to the next tick to avoid synchronous cascading renders
-      // that trigger the react-hooks/set-state-in-effect lint error.
       Promise.resolve().then(() => {
         setStep(1);
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         setDate(tomorrow.toISOString().split("T")[0]);
+        // Reset calendar to current month
+        const m = new Date();
+        m.setDate(1);
+        setCalendarMonth(m);
       });
     }
   }, [isOpen]);
+
+  // Fetch availability for this tour
+  useEffect(() => {
+    if (!isOpen || !tour || !supabase) return;
+    let cancelled = false;
+
+    const fetchAvailability = async () => {
+      setAvailabilityLoading(true);
+      setBookedByDate({});
+      const todayStr = new Date().toISOString().split("T")[0];
+      const { data, error } = await supabase!
+        .from("reservations")
+        .select("date, participants")
+        .eq("tour_id", tour.id.toString())
+        .in("status", ["pending", "confirmed"])
+        .gte("date", todayStr);
+
+      if (!cancelled) {
+        if (!error && data) {
+          const agg: Record<string, number> = {};
+          for (const row of data) {
+            const d = row.date as string;
+            agg[d] = (agg[d] ?? 0) + (row.participants as number);
+          }
+          setBookedByDate(agg);
+        }
+        setAvailabilityLoading(false);
+      }
+    };
+
+    fetchAvailability();
+    return () => { cancelled = true; };
+  }, [isOpen, tour]);
 
   useEffect(() => {
     if (tour && step === 3 && !clientSecret && !paymentError) {
@@ -157,6 +365,17 @@ export const BookingModal = ({
     if (step === 1) {
       if (!date) {
         toast.error(t.booking.date_error || "Date required");
+        return;
+      }
+      // Guard: check if selected date has become full
+      const booked = bookedByDate[date] ?? 0;
+      const cap = tour?.maxCapacity ?? 8;
+      if (booked >= cap) {
+        toast.error(
+          lang === "en" ? "This date is fully booked. Please select another date."
+          : lang === "es" ? "Esta fecha está completa. Por favor elige otra fecha."
+          : "Cette date est complète. Veuillez en choisir une autre."
+        );
         return;
       }
       setStep(2);
@@ -323,15 +542,27 @@ export const BookingModal = ({
                       {t.booking.date_title}
                     </h3>
                     <div className="grid gap-2">
-                      <Label htmlFor="date" className="text-xs uppercase tracking-wider text-gray-500">{t.booking.date_label}</Label>
-                      <Input
-                        id="date"
-                        type="date"
-                        value={date}
-                        onChange={(e) => setDate(e.target.value)}
-                        className="h-12 text-base rounded-xl border-gray-200"
-                        min={new Date().toISOString().split("T")[0]}
-                      />
+                      <Label className="text-xs uppercase tracking-wider text-gray-500">{t.booking.date_label}</Label>
+                      <div className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm">
+                        <AvailabilityCalendar
+                          selectedDate={date}
+                          onSelect={setDate}
+                          bookedByDate={bookedByDate}
+                          maxCapacity={tour.maxCapacity ?? 8}
+                          month={calendarMonth}
+                          onMonthChange={setCalendarMonth}
+                          loading={availabilityLoading}
+                          lang={lang}
+                        />
+                      </div>
+                      {date && (
+                        <p className="text-xs text-amber-700 font-medium mt-1">
+                          {new Date(date + "T00:00:00").toLocaleDateString(
+                            lang === "en" ? "en-US" : lang === "es" ? "es-ES" : "fr-FR",
+                            { weekday: "long", year: "numeric", month: "long", day: "numeric" }
+                          )}
+                        </p>
+                      )}
                     </div>
                     {/* Pick-up time: read-only from tour data */}
                     {tour.departureTime && (
@@ -380,7 +611,7 @@ export const BookingModal = ({
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => setParticipants(Math.min(8, participants + 1))}
+                          onClick={() => setParticipants(Math.min(tour.maxCapacity ?? 8, participants + 1))}
                           className="rounded-full w-8 h-8 bg-white shadow-sm border border-gray-100"
                         >
                           <Plus className="w-3 h-3" />

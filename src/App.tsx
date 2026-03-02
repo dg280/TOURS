@@ -107,6 +107,7 @@ function App() {
             description_es: t.description_es,
             duration: t.duration,
             groupSize: t.group_size,
+            maxCapacity: t.max_capacity ?? 8,
             price: t.price,
             image: t.image,
             category: t.category,
