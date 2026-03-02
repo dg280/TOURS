@@ -2,6 +2,16 @@ import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 import { addDays, format } from 'date-fns';
 
+function escapeHtml(str: unknown): string {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;');
+}
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 const supabase = createClient(
     process.env.VITE_SUPABASE_URL || '',
@@ -22,10 +32,10 @@ interface ApiRequest {
 }
 
 export default async function handler(req: ApiRequest, res: ApiResponse) {
-    // Vercel Cron protection (optional but recommended)
-    // if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
-    //     return res.status(401).json({ error: 'Unauthorized' });
-    // }
+    // Vercel Cron protection
+    if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
 
     try {
         const targetDate = format(addDays(new Date(), 2), 'yyyy-MM-dd');
@@ -58,14 +68,14 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
 
                 const emailContent = `
                     <h1>Tout est prêt pour votre excursion !</h1>
-                    <p>Bonjour ${reservation.name},</p>
-                    <p>Ce petit message pour vous rappeler votre excursion <strong>${reservation.tour_name}</strong> prévue dans deux jours, le ${format(new Date(reservation.date), 'dd/MM/yyyy')}.</p>
+                    <p>Bonjour ${escapeHtml(reservation.name)},</p>
+                    <p>Ce petit message pour vous rappeler votre excursion <strong>${escapeHtml(reservation.tour_name)}</strong> prévue dans deux jours, le ${escapeHtml(format(new Date(reservation.date), 'dd/MM/yyyy'))}.</p>
                     
                     <p>Nous avons hâte de vous retrouver !</p>
 
                     <h3>Rappel du point de rencontre :</h3>
-                    <p>${tour?.meeting_point || 'Point de rencontre habituel'}</p>
-                    ${tour?.meeting_point_map_url ? `<p><a href="${tour.meeting_point_map_url}">Lien Google Maps</a></p>` : ''}
+                    <p>${escapeHtml(tour?.meeting_point) || 'Point de rencontre habituel'}</p>
+                    ${tour?.meeting_point_map_url ? `<p><a href="${escapeHtml(tour.meeting_point_map_url)}">Lien Google Maps</a></p>` : ''}
 
                     <p><strong>Derniers conseils :</strong> Vérifiez la météo, portez des chaussures adaptées et n'oubliez pas votre bouteille d'eau.</p>
 

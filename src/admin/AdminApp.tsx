@@ -129,24 +129,9 @@ function Login() {
     setMessage("");
 
     try {
-      // 1. Check if email is in authorized_admins
-      const { data: admin, error: adminError } = await supabase
-        .from("authorized_admins")
-        .select("*")
-        .eq("email", email.toLowerCase().trim())
-        .single();
-
-      if (adminError || !admin) {
-        setError(
-          "Cet email n'est pas autorisé à accéder à l'interface d'administration.",
-        );
-        setIsLoading(false);
-        return;
-      }
-
       let authError = null;
 
-      // 2. Auth Flow
+      // Auth Flow (authorization is verified server-side after session is established)
       if (mode === "magic") {
         const { error } = await supabase.auth.signInWithOtp({
           email: email.toLowerCase().trim(),
@@ -308,7 +293,11 @@ function Dashboard({
       .length,
     totalRevenue: reservations.reduce((sum, r) => sum + r.totalPrice, 0),
     thisMonthRevenue: reservations
-      .filter((r) => r.createdAt.startsWith("2024-02"))
+      .filter((r) => {
+        const now = new Date();
+        const prefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+        return r.createdAt.startsWith(prefix);
+      })
       .reduce((sum, r) => sum + r.totalPrice, 0),
   };
 
@@ -408,7 +397,7 @@ function Dashboard({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs sm:text-sm text-gray-500">
-                  Revenus (février)
+                  Revenus ({new Date().toLocaleDateString("fr-FR", { month: "long" })})
                 </p>
                 <p className="text-2xl sm:text-3xl font-bold">
                   {stats.thisMonthRevenue}€
@@ -746,6 +735,8 @@ function ToursManagement({
     isExisting?: boolean;
   } | null>(null);
 
+  const [pendingImages, setPendingImages] = useState<{ file: File; previewUrl: string }[]>([]);
+
   const [isTranslating, setIsTranslating] = useState(false);
 
   const handleTranslate = async (sourceLang: SupportedLanguage, field: string) => {
@@ -834,18 +825,43 @@ function ToursManagement({
 
   const handleTourImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files.length > 0 && editingTour) {
-      const fileArray = Array.from(files);
-      const firstFile = fileArray[0];
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImageToEdit({
-          url: reader.result as string,
-          index: 0,
-          files: fileArray,
-        });
-      };
-      reader.readAsDataURL(firstFile);
+    if (files && files.length > 0) {
+      const newPending = Array.from(files).map((file) => ({
+        file,
+        previewUrl: URL.createObjectURL(file),
+      }));
+      setPendingImages((prev) => [...prev, ...newPending]);
+      e.target.value = "";
+    }
+  };
+
+  const handleConfirmUpload = async () => {
+    if (!editingTour || pendingImages.length === 0) return;
+    const loading = toast.loading(`Upload de ${pendingImages.length} image(s)...`);
+    try {
+      const uploadedUrls: string[] = [];
+      for (const { file, previewUrl } of pendingImages) {
+        const fileExt = file.name.split(".").pop() || "jpg";
+        const fileName = `tours/${editingTour.id}/${Date.now()}-${Math.random().toString(36).substr(2, 5)}.${fileExt}`;
+        const { error: uploadError } = await supabase!.storage
+          .from("tour_images")
+          .upload(fileName, file, { contentType: file.type });
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase!.storage.from("tour_images").getPublicUrl(fileName);
+        uploadedUrls.push(publicUrl);
+        URL.revokeObjectURL(previewUrl);
+      }
+      const newImages = [...uploadedUrls, ...(editingTour.images || [])];
+      setEditingTour({
+        ...editingTour,
+        images: newImages,
+        image: newImages[0] || editingTour.image,
+      });
+      setPendingImages([]);
+      toast.success(`${uploadedUrls.length} image(s) ajoutée(s) !`, { id: loading });
+    } catch (err) {
+      console.error("Upload error:", err);
+      toast.error("Erreur d'upload : " + (err as Error).message, { id: loading });
     }
   };
 
@@ -1617,30 +1633,6 @@ function ToursManagement({
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <Label>Point de rencontre (FR)</Label>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
-                        onClick={() => handleTranslate("fr", "meetingPoint")}
-                        disabled={isTranslating}
-                      >
-                        <Globe className="w-3 h-3" />
-                        Traduire
-                      </Button>
-                    </div>
-                    <Input
-                      value={editingTour.meetingPoint || ""}
-                      onChange={(e) =>
-                        setEditingTour({
-                          ...editingTour,
-                          meetingPoint: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
@@ -1878,30 +1870,6 @@ function ToursManagement({
                         }
                       />
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <Label>Meeting Point (EN)</Label>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
-                        onClick={() => handleTranslate("en", "meetingPoint")}
-                        disabled={isTranslating}
-                      >
-                        <Globe className="w-3 h-3" />
-                        Translate
-                      </Button>
-                    </div>
-                    <Input
-                      value={editingTour.meetingPoint_en || ""}
-                      onChange={(e) =>
-                        setEditingTour({
-                          ...editingTour,
-                          meetingPoint_en: e.target.value,
-                        })
-                      }
-                    />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -2165,30 +2133,6 @@ function ToursManagement({
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <Label>Punto de encuentro (ES)</Label>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[10px]"
-                        onClick={() => handleTranslate("es", "meetingPoint")}
-                        disabled={isTranslating}
-                      >
-                        <Globe className="w-3 h-3" />
-                        Traducir
-                      </Button>
-                    </div>
-                    <Input
-                      value={editingTour.meetingPoint_es || ""}
-                      onChange={(e) =>
-                        setEditingTour({
-                          ...editingTour,
-                          meetingPoint_es: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
@@ -2325,6 +2269,76 @@ function ToursManagement({
                           )}
                         </div>
                       </div>
+
+                      {pendingImages.length > 0 && (
+                        <div className="rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50/50 p-4 space-y-3">
+                          <div className="flex items-center justify-between flex-wrap gap-2">
+                            <div>
+                              <p className="font-bold text-sm text-blue-900">
+                                {pendingImages.length} image(s) en attente
+                              </p>
+                              <p className="text-xs text-blue-600">
+                                Vérifiez les aperçus puis cliquez sur "Accepter l'upload".
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => {
+                                  pendingImages.forEach(({ previewUrl }) => URL.revokeObjectURL(previewUrl));
+                                  setPendingImages([]);
+                                }}
+                                className="text-gray-500 hover:text-gray-700 h-9"
+                              >
+                                <X className="w-4 h-4 mr-1" />
+                                Annuler
+                              </Button>
+                              <Button
+                                type="button"
+                                size="sm"
+                                onClick={handleConfirmUpload}
+                                className="bg-blue-600 hover:bg-blue-700 text-white h-9 font-bold"
+                              >
+                                <CloudUpload className="w-4 h-4 mr-2" />
+                                Accepter l'upload
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                            {pendingImages.map(({ previewUrl, file }, idx) => (
+                              <div
+                                key={idx}
+                                className="group relative aspect-[4/3] rounded-xl overflow-hidden border-2 border-blue-300 shadow-sm"
+                              >
+                                <img
+                                  src={previewUrl}
+                                  alt={file.name}
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-blue-900/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Button
+                                    type="button"
+                                    size="icon"
+                                    variant="destructive"
+                                    className="h-7 w-7 bg-red-500/90"
+                                    onClick={() => {
+                                      URL.revokeObjectURL(previewUrl);
+                                      setPendingImages((prev) => prev.filter((_, i) => i !== idx));
+                                    }}
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                                <div className="absolute bottom-0 left-0 right-0 bg-blue-900/60 px-2 py-1">
+                                  <p className="text-[9px] text-white truncate">{file.name}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       {(!editingTour.images || editingTour.images.length === 0) ? (
                         <div 
@@ -4119,28 +4133,36 @@ export default function AdminApp() {
   const profileFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // E2E Test Bypass: allow forcing login state via localStorage in dev/test mode
-    // Moved before the supabase check so it works even if supabase is not initialized
-    if (
-      localStorage.getItem("isLoggedIn") === "true" &&
-      import.meta.env.MODE === "development"
-    ) {
+    // E2E Test Bypass: import.meta.env.DEV is compiled to `false` by Vite at
+    // production build time — this block is completely removed in prod bundles.
+    if (import.meta.env.DEV && localStorage.getItem("isLoggedIn") === "true") {
       setIsLoggedIn(true);
       return;
     }
 
     if (!supabase) return;
 
-    // Check session
+    // Check session + verify admin authorization via server-side RPC
+    const verifyAndSetSession = async (session: unknown) => {
+      if (!session) { setIsLoggedIn(false); return; }
+      const { data: isAdmin } = await supabase!.rpc("is_authorized_admin");
+      if (isAdmin) {
+        setIsLoggedIn(true);
+      } else {
+        await supabase!.auth.signOut();
+        setIsLoggedIn(false);
+      }
+    };
+
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsLoggedIn(!!session);
+      verifyAndSetSession(session);
     });
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsLoggedIn(!!session);
+      verifyAndSetSession(session);
     });
 
     return () => subscription.unsubscribe();

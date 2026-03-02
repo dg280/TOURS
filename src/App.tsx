@@ -126,6 +126,9 @@ function App() {
             meetingPoint_en: t.meeting_point_en,
             meetingPoint_es: t.meeting_point_es,
             meetingPointMapUrl: t.meeting_point_map_url,
+            goodToKnow: t.good_to_know || [],
+            goodToKnow_en: t.good_to_know_en || [],
+            goodToKnow_es: t.good_to_know_es || [],
             images: t.images || [],
             pricing_tiers: t.pricing_tiers || {}
           }));

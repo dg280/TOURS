@@ -159,21 +159,16 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         }
     });
  
-    test('UI: Meeting Point & Map Link', async ({ page }) => {
+    test('UI: Bon à savoir tab loads correctly', async ({ page }) => {
         await page.goto('/');
         const tourCard = page.locator('#top-tours h3, section#tours h3').first();
         await tourCard.click({ force: true });
- 
-        await page.locator('div[role="dialog"] [role="tab"]').filter({ hasText: /Rencontre|Meeting|Punto|Savoir|Know|Útil/i }).first().click();
- 
-        // Check for address text
-        await expect(page.locator('div[role="dialog"] div[role="tabpanel"] p').first()).toBeVisible();
-        
-        // Check for Google Maps button (might be optional depending on tour data)
-        const mapElement = page.locator('div[role="dialog"] div[role="tabpanel"] button:has-text("Google Maps"), [data-testid="meeting-point-link"]').first();
-        if (await mapElement.count() > 0) {
-            await expect(mapElement).toBeVisible();
-        }
+
+        // Click the "Bon à savoir / Meet" tab
+        await page.locator('div[role="dialog"] [role="tab"]').filter({ hasText: /Savoir|Know|Útil/i }).first().click();
+
+        // The active tab panel should be visible
+        await expect(page.locator('div[role="dialog"] div[role="tabpanel"][data-state="active"]')).toBeVisible();
     });
 
     test('Features: Category Filtering', async ({ page }) => {
@@ -192,7 +187,7 @@ test.describe('Full Site Verification - Tours & Detours', () => {
             await page.waitForTimeout(500);
             
             // Check that the list updated (even if count is same, we assume logic works if it doesn't crash)
-            await expect(categorySection.locator('.embla__slide')).toBeVisible();
+            await expect(categorySection.locator('.embla__slide').first()).toBeVisible();
         }
     });
 
@@ -214,6 +209,8 @@ test.describe('Full Site Verification - Tours & Detours', () => {
     });
 
     test('Admin: Tour Management Flow', async ({ page }) => {
+        // localStorage bypass only works in local dev build (import.meta.env.DEV)
+        test.skip(!!process.env.BASE_URL, 'Admin localStorage bypass disabled in production builds');
         await page.goto('/admin.html');
         // Bypass login
         await page.evaluate(() => localStorage.setItem('isLoggedIn', 'true'));
