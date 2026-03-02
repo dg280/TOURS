@@ -126,6 +126,8 @@ function App() {
             meetingPoint_en: t.meeting_point_en,
             meetingPoint_es: t.meeting_point_es,
             meetingPointMapUrl: t.meeting_point_map_url,
+            departureTime: t.departure_time || "",
+            estimatedDuration: t.estimated_duration || "",
             goodToKnow: t.good_to_know || [],
             goodToKnow_en: t.good_to_know_en || [],
             goodToKnow_es: t.good_to_know_es || [],

@@ -18,7 +18,7 @@ interface ImageEditorProps {
   image: string;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (croppedImage: Blob) => void;
+  onSave: (croppedImage: Blob) => Promise<void>;
   aspectRatio?: number;
   title?: string;
 }
@@ -56,7 +56,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
         rotation
       );
       if (croppedImage) {
-        onSave(croppedImage);
+        await onSave(croppedImage);
       } else {
         throw new Error("Erreur lors de la génération de l'image");
       }

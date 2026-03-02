@@ -263,47 +263,58 @@ export const BookingModal = ({
           >
             {step === 1 && (
               <div className="space-y-6">
-                {/* Itinerary & Inclusions/Exclusions Summary */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-3 bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                    <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-amber-600 flex items-center gap-2">
-                       <ChevronRight className="w-3 h-3" /> {t.booking.itinerary}
-                    </h4>
-                    <div className="relative pl-3 border-l-2 border-amber-100 space-y-3">
-                      {(lang === 'fr' ? tour.itinerary : lang === 'es' ? tour.itinerary_es : tour.itinerary_en)?.slice(0, 5).map((item, i) => (
-                        <div key={i} className="relative">
-                          <div className="absolute -left-[17px] top-1 w-2 h-2 rounded-full bg-amber-400" />
-                          <p className="text-[11px] text-gray-700 leading-tight">{item}</p>
+                {/* Itinerary & Inclusions/Exclusions Summary — only shown when data exists */}
+                {(() => {
+                  const itinerary = (lang === 'fr' ? tour.itinerary : lang === 'es' ? tour.itinerary_es : tour.itinerary_en) ?? [];
+                  const included = (lang === 'fr' ? tour.included : lang === 'es' ? tour.included_es : tour.included_en) ?? [];
+                  const notIncluded = (lang === 'fr' ? tour.notIncluded : lang === 'es' ? tour.notIncluded_es : tour.notIncluded_en) ?? [];
+                  if (itinerary.length === 0 && included.length === 0) return null;
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {itinerary.length > 0 && (
+                        <div className="space-y-3 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                          <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-amber-600 flex items-center gap-2">
+                            <ChevronRight className="w-3 h-3" /> {t.booking.itinerary}
+                          </h4>
+                          <div className="relative pl-3 border-l-2 border-amber-100 space-y-3">
+                            {itinerary.slice(0, 5).map((item, i) => (
+                              <div key={i} className="relative">
+                                <div className="absolute -left-[17px] top-1 w-2 h-2 rounded-full bg-amber-400" />
+                                <p className="text-[11px] text-gray-700 leading-tight">{item}</p>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      ))}
+                      )}
+                      {included.length > 0 && (
+                        <div className="space-y-3 p-4 rounded-2xl border border-gray-100 bg-gray-50/50">
+                          <div className="space-y-2">
+                            <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-green-700 flex items-center gap-1.5">
+                              <Check className="w-3 h-3" /> {t.booking.included_label}
+                            </h4>
+                            <ul className="space-y-1">
+                              {included.slice(0, 3).map((item, i) => (
+                                <li key={i} className="text-[11px] text-gray-700 leading-tight">• {item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          {notIncluded.length > 0 && (
+                            <div className="space-y-2 pt-2 border-t border-gray-100">
+                              <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-red-500 flex items-center gap-1.5">
+                                <X className="w-3 h-3" /> {lang === 'en' ? 'Not included' : lang === 'es' ? 'No incluido' : 'Non inclus'}
+                              </h4>
+                              <ul className="space-y-1">
+                                {notIncluded.slice(0, 3).map((item, i) => (
+                                  <li key={i} className="text-[11px] text-gray-500 leading-tight">• {item}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  </div>
-
-                  <div className="space-y-3 p-4 rounded-2xl border border-gray-100 bg-gray-50/50">
-                    <div className="space-y-2">
-                      <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-green-700 flex items-center gap-1.5">
-                        <Check className="w-3 h-3" /> {t.booking.included_label}
-                      </h4>
-                      <ul className="space-y-1">
-                        {(lang === 'fr' ? tour.included : lang === 'es' ? tour.included_es : tour.included_en)?.slice(0, 3).map((item, i) => (
-                          <li key={i} className="text-[11px] text-gray-700 leading-tight">• {item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    {(lang === 'fr' ? tour.notIncluded : lang === 'es' ? tour.notIncluded_es : tour.notIncluded_en)?.length ? (
-                      <div className="space-y-2 pt-2 border-t border-gray-100">
-                        <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-red-500 flex items-center gap-1.5">
-                          <X className="w-3 h-3" /> {lang === 'en' ? 'Not included' : lang === 'es' ? 'No incluido' : 'Non inclus'}
-                        </h4>
-                        <ul className="space-y-1">
-                          {(lang === 'fr' ? tour.notIncluded : lang === 'es' ? tour.notIncluded_es : tour.notIncluded_en)?.slice(0, 3).map((item, i) => (
-                            <li key={i} className="text-[11px] text-gray-500 leading-tight">• {item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
+                  );
+                })()}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-4">
@@ -322,18 +333,27 @@ export const BookingModal = ({
                         min={new Date().toISOString().split("T")[0]}
                       />
                     </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="pickup-time" className="text-xs uppercase tracking-wider text-gray-500">
-                        {lang === 'en' ? 'Pick-up time' : lang === 'es' ? 'Hora de recogida' : 'Heure de pick-up'}
-                      </Label>
-                      <Input
-                        id="pickup-time"
-                        type="time"
-                        value={formData.pickupTime}
-                        onChange={(e) => setFormData({ ...formData, pickupTime: e.target.value })}
-                        className="h-12 text-base rounded-xl border-gray-200"
-                      />
-                    </div>
+                    {/* Pick-up time: read-only from tour data */}
+                    {tour.departureTime && (
+                      <div className="grid gap-2">
+                        <Label className="text-xs uppercase tracking-wider text-gray-500">
+                          {lang === 'en' ? 'Departure time' : lang === 'es' ? 'Hora de salida' : 'Heure de départ'}
+                        </Label>
+                        <div className="h-12 flex items-center px-4 rounded-xl bg-amber-50 border border-amber-100 font-semibold text-amber-800">
+                          {tour.departureTime}
+                        </div>
+                      </div>
+                    )}
+                    {tour.estimatedDuration && (
+                      <div className="grid gap-2">
+                        <Label className="text-xs uppercase tracking-wider text-gray-500">
+                          {lang === 'en' ? 'Estimated duration' : lang === 'es' ? 'Duración estimada' : 'Durée estimée'}
+                        </Label>
+                        <div className="h-10 flex items-center text-sm text-gray-700">
+                          {tour.estimatedDuration}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-4">
