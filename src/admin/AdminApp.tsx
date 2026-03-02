@@ -269,7 +269,7 @@ function Dashboard({
 }) {
   const [systemStatus, setSystemStatus] = useState<'loading' | 'ok' | 'error'>('loading');
   const [stripeMode, setStripeMode] = useState<'test' | 'live' | null>(null);
-  
+
   useEffect(() => {
     fetch('/api/health-check')
       .then(async res => {
@@ -286,12 +286,9 @@ function Dashboard({
 
   const stats = {
     totalReservations: reservations.length,
-    pendingReservations: reservations.filter((r) => r.status === "pending")
-      .length,
-    confirmedReservations: reservations.filter((r) => r.status === "confirmed")
-      .length,
-    completedReservations: reservations.filter((r) => r.status === "completed")
-      .length,
+    pendingReservations: reservations.filter((r) => r.status === "pending").length,
+    confirmedReservations: reservations.filter((r) => r.status === "confirmed").length,
+    completedReservations: reservations.filter((r) => r.status === "completed").length,
     totalRevenue: reservations.reduce((sum, r) => sum + r.totalPrice, 0),
     thisMonthRevenue: reservations
       .filter((r) => {
@@ -303,11 +300,21 @@ function Dashboard({
   };
 
   const recentReservations = [...reservations]
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    )
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5);
+
+  // Confirmed reservations in next 7 days
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const nextWeek = new Date(today);
+  nextWeek.setDate(today.getDate() + 7);
+  const upcomingTours = [...reservations]
+    .filter((r) => {
+      if (r.status !== "confirmed") return false;
+      const d = new Date(r.date);
+      return d >= today && d <= nextWeek;
+    })
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
@@ -337,119 +344,172 @@ function Dashboard({
         )}>
           <Activity className={cn("w-3.5 h-3.5", systemStatus === 'loading' && "animate-spin")} />
           {systemStatus === 'loading' ? "Vérification système..." :
-           systemStatus === 'ok' ? `Système Opérationnel (${stripeMode?.toUpperCase() || 'MODE INCONNU'})` : 
+           systemStatus === 'ok' ? `Système Opérationnel (${stripeMode?.toUpperCase() || 'MODE INCONNU'})` :
            "Erreur Configuration (Stripe/DB)"}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Alert banner for pending reservations */}
+      {stats.pendingReservations > 0 && (
+        <button
+          onClick={() => setActiveTab("reservations")}
+          className="w-full flex items-center gap-3 px-4 py-3 bg-yellow-50 border border-yellow-300 rounded-xl text-left hover:bg-yellow-100 transition-colors"
+        >
+          <Bell className="w-5 h-5 text-yellow-600 flex-shrink-0 animate-pulse" />
+          <div>
+            <p className="text-sm font-bold text-yellow-900">
+              {stats.pendingReservations} réservation{stats.pendingReservations > 1 ? "s" : ""} en attente de confirmation
+            </p>
+            <p className="text-xs text-yellow-700">Cliquer pour gérer les réservations</p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-yellow-600 ml-auto" />
+        </button>
+      )}
+
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <Card>
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs sm:text-sm text-gray-500">
-                  Réservations totales
-                </p>
-                <p className="text-2xl sm:text-3xl font-bold">
-                  {stats.totalReservations}
-                </p>
+                <p className="text-xs text-gray-500">Total</p>
+                <p className="text-2xl font-bold">{stats.totalReservations}</p>
               </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className={stats.pendingReservations > 0 ? "ring-2 ring-yellow-400" : ""}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-gray-500">En attente</p>
+                <p className="text-2xl font-bold">{stats.pendingReservations}</p>
+              </div>
+              <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                <Bell className="w-5 h-5 text-yellow-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs sm:text-sm text-gray-500">En attente</p>
-                <p className="text-2xl sm:text-3xl font-bold">
-                  {stats.pendingReservations}
-                </p>
+                <p className="text-xs text-gray-500">Confirmées</p>
+                <p className="text-2xl font-bold">{stats.confirmedReservations}</p>
               </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" />
+              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                <CheckIcon className="w-5 h-5 text-green-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs sm:text-sm text-gray-500">Confirmées</p>
-                <p className="text-2xl sm:text-3xl font-bold">
-                  {stats.confirmedReservations}
+                <p className="text-xs text-gray-500">
+                  {new Date().toLocaleDateString("fr-FR", { month: "short" })}
                 </p>
+                <p className="text-2xl font-bold">{stats.thisMonthRevenue}€</p>
               </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckIcon className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
+              <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                <Euro className="w-5 h-5 text-amber-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs sm:text-sm text-gray-500">
-                  Revenus ({new Date().toLocaleDateString("fr-FR", { month: "long" })})
-                </p>
-                <p className="text-2xl sm:text-3xl font-bold">
-                  {stats.thisMonthRevenue}€
-                </p>
+                <p className="text-xs text-gray-500">Revenu total</p>
+                <p className="text-2xl font-bold">{stats.totalRevenue}€</p>
               </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 rounded-full flex items-center justify-center">
-                <Euro className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />
+              <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 text-purple-600" />
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
+      {/* Upcoming tours this week */}
+      {upcomingTours.length > 0 && (
+        <Card>
+          <CardHeader className="px-4 sm:px-6 pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-amber-600" />
+              Prochains tours — 7 jours
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-0 sm:px-6">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2 px-4 font-medium text-gray-500">Date</th>
+                    <th className="text-left py-2 px-4 font-medium text-gray-500">Tour</th>
+                    <th className="text-left py-2 px-4 font-medium text-gray-500">Client</th>
+                    <th className="text-left py-2 px-4 font-medium text-gray-500 hidden sm:table-cell">Pick-up</th>
+                    <th className="text-right py-2 px-4 font-medium text-gray-500">Pers.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {upcomingTours.map((res) => (
+                    <tr key={res.id} className="border-b hover:bg-amber-50/40">
+                      <td className="py-2 px-4 font-semibold text-amber-700">
+                        {new Date(res.date).toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" })}
+                      </td>
+                      <td className="py-2 px-4 text-gray-900">{res.tourName}</td>
+                      <td className="py-2 px-4 text-gray-600">{res.name}</td>
+                      <td className="py-2 px-4 text-gray-500 hidden sm:table-cell">
+                        {res.pickupTime || res.pickupAddress
+                          ? <span className="text-xs">{[res.pickupTime, res.pickupAddress].filter(Boolean).join(" · ")}</span>
+                          : <span className="text-gray-300">—</span>}
+                      </td>
+                      <td className="py-2 px-4 text-right">{res.participants}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader className="px-4 sm:px-6">
-          <CardTitle className="text-lg sm:text-xl">
-            Réservations récentes
-          </CardTitle>
+          <CardTitle className="text-lg sm:text-xl">Réservations récentes</CardTitle>
         </CardHeader>
         <CardContent className="px-0 sm:px-6">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 hidden sm:table-cell">
-                    ID
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">
-                    Client
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">
-                    Statut
-                  </th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-500">
-                    Montant
-                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">Client</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500 hidden sm:table-cell">Tour</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500 hidden sm:table-cell">Date</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">Statut</th>
+                  <th className="text-right py-3 px-4 font-medium text-gray-500">Montant</th>
                 </tr>
               </thead>
               <tbody>
                 {recentReservations.map((res) => (
                   <tr key={res.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4 hidden sm:table-cell text-gray-500">
-                      {res.id}
-                    </td>
-                    <td className="py-3 px-4 font-medium sm:font-normal">
-                      {res.name}
+                    <td className="py-3 px-4 font-medium">{res.name}</td>
+                    <td className="py-3 px-4 text-gray-600 hidden sm:table-cell">{res.tourName}</td>
+                    <td className="py-3 px-4 text-gray-500 hidden sm:table-cell">
+                      {new Date(res.date).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
                     </td>
                     <td className="py-3 px-4">{getStatusBadge(res.status)}</td>
-                    <td className="py-3 px-4 text-right font-bold sm:font-normal">
-                      {res.totalPrice}€
-                    </td>
+                    <td className="py-3 px-4 text-right font-semibold">{res.totalPrice}€</td>
                   </tr>
                 ))}
               </tbody>
@@ -458,32 +518,262 @@ function Dashboard({
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <Button
           variant="outline"
-          className="h-16 sm:h-24 flex flex-row sm:flex-col items-center justify-center gap-3 sm:gap-2"
+          className="h-16 flex flex-row sm:flex-col items-center justify-center gap-3 sm:gap-2"
           onClick={() => setActiveTab("reservations")}
         >
-          <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />
-          <span className="sm:text-sm">Gérer les réservations</span>
+          <Calendar className="w-5 h-5 text-amber-600" />
+          <span className="text-sm">Réservations</span>
         </Button>
         <Button
           variant="outline"
-          className="h-16 sm:h-24 flex flex-row sm:flex-col items-center justify-center gap-3 sm:gap-2"
+          className="h-16 flex flex-row sm:flex-col items-center justify-center gap-3 sm:gap-2"
+          onClick={() => { setActiveTab("reservations"); }}
+        >
+          <Bell className="w-5 h-5 text-yellow-600" />
+          <span className="text-sm">En attente {stats.pendingReservations > 0 && <span className="ml-1 bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded-full">{stats.pendingReservations}</span>}</span>
+        </Button>
+        <Button
+          variant="outline"
+          className="h-16 flex flex-row sm:flex-col items-center justify-center gap-3 sm:gap-2"
           onClick={() => setActiveTab("tours")}
         >
-          <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />
-          <span className="sm:text-sm">Gérer les tours</span>
+          <MapPin className="w-5 h-5 text-amber-600" />
+          <span className="text-sm">Tours</span>
         </Button>
         <Button
           variant="outline"
-          className="h-16 sm:h-24 flex flex-row sm:flex-col items-center justify-center gap-3 sm:gap-2"
+          className="h-16 flex flex-row sm:flex-col items-center justify-center gap-3 sm:gap-2"
           onClick={() => setActiveTab("reviews")}
         >
-          <Star className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />
-          <span className="sm:text-sm">Modérer les avis</span>
+          <Star className="w-5 h-5 text-amber-600" />
+          <span className="text-sm">Avis</span>
         </Button>
       </div>
+    </div>
+  );
+}
+
+// Suivi Opérationnel Component
+function OperationalTracking({ reservations }: { reservations: Reservation[] }) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayStr = today.toISOString().split("T")[0];
+
+  const nextWeek = new Date(today);
+  nextWeek.setDate(today.getDate() + 7);
+
+  // Today's confirmed pickups
+  const todayPickups = reservations
+    .filter((r) => r.status === "confirmed" && r.date === todayStr)
+    .sort((a, b) => (a.pickupTime || "").localeCompare(b.pickupTime || ""));
+
+  // This week's confirmed tours
+  const weekTours = reservations
+    .filter((r) => {
+      if (r.status !== "confirmed") return false;
+      const d = new Date(r.date);
+      return d >= today && d <= nextWeek;
+    })
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  // Revenue by tour (all time, sorted by total desc)
+  const revenueByTour: Record<string, { total: number; count: number; participants: number }> = {};
+  reservations
+    .filter((r) => r.status !== "cancelled")
+    .forEach((r) => {
+      if (!revenueByTour[r.tourName]) revenueByTour[r.tourName] = { total: 0, count: 0, participants: 0 };
+      revenueByTour[r.tourName].total += r.totalPrice;
+      revenueByTour[r.tourName].count += 1;
+      revenueByTour[r.tourName].participants += r.participants;
+    });
+  const tourRevenue = Object.entries(revenueByTour)
+    .map(([name, data]) => ({ name, ...data }))
+    .sort((a, b) => b.total - a.total);
+
+  // Monthly revenue (last 6 months)
+  const monthlyRevenue: Record<string, number> = {};
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(1);
+    d.setMonth(d.getMonth() - i);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    monthlyRevenue[key] = 0;
+  }
+  reservations
+    .filter((r) => r.status !== "cancelled")
+    .forEach((r) => {
+      const key = r.createdAt.slice(0, 7);
+      if (key in monthlyRevenue) monthlyRevenue[key] += r.totalPrice;
+    });
+  const months = Object.entries(monthlyRevenue);
+  const maxRevenue = Math.max(...months.map(([, v]) => v), 1);
+
+  const statusConfig: Record<string, { style: string; label: string }> = {
+    pending:   { style: "bg-yellow-100 text-yellow-800", label: "En attente" },
+    confirmed: { style: "bg-green-100 text-green-800",  label: "Confirmée" },
+    cancelled: { style: "bg-red-100 text-red-800",      label: "Annulée" },
+    completed: { style: "bg-blue-100 text-blue-800",    label: "Terminée" },
+  };
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-xl font-bold text-gray-900">Suivi Opérationnel</h2>
+
+      {/* Today's pickups */}
+      <Card>
+        <CardHeader className="px-4 sm:px-6 pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-amber-600" />
+            Pick-ups aujourd'hui
+            {todayPickups.length > 0 && (
+              <Badge className="bg-amber-100 text-amber-800 ml-1">{todayPickups.length}</Badge>
+            )}
+          </CardTitle>
+          <CardDescription>{new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}</CardDescription>
+        </CardHeader>
+        <CardContent className="px-4 sm:px-6">
+          {todayPickups.length === 0 ? (
+            <p className="text-sm text-gray-400 italic">Aucun pick-up prévu aujourd'hui</p>
+          ) : (
+            <div className="space-y-3">
+              {todayPickups.map((r) => (
+                <div key={r.id} className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg border border-amber-100">
+                  <div className="text-amber-700 font-bold text-sm w-14 shrink-0">{r.pickupTime || "—"}</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-900 truncate">{r.name}</p>
+                    <p className="text-xs text-gray-500 truncate">{r.tourName} · {r.participants} pers.</p>
+                    {r.pickupAddress && <p className="text-xs text-gray-400 truncate">{r.pickupAddress}</p>}
+                  </div>
+                  <div className="text-sm font-bold text-amber-600 shrink-0">{r.totalPrice}€</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* This week's planning */}
+      <Card>
+        <CardHeader className="px-4 sm:px-6 pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-blue-600" />
+            Planning — 7 jours
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-0 sm:px-6">
+          {weekTours.length === 0 ? (
+            <p className="text-sm text-gray-400 italic px-4">Aucun tour confirmé cette semaine</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2 px-4 font-medium text-gray-500">Date</th>
+                    <th className="text-left py-2 px-4 font-medium text-gray-500">Tour</th>
+                    <th className="text-left py-2 px-4 font-medium text-gray-500">Client</th>
+                    <th className="text-left py-2 px-4 font-medium text-gray-500 hidden sm:table-cell">Pick-up</th>
+                    <th className="text-center py-2 px-4 font-medium text-gray-500">Pers.</th>
+                    <th className="text-left py-2 px-4 font-medium text-gray-500">Statut</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {weekTours.map((r) => {
+                    const isToday = r.date === todayStr;
+                    const cfg = statusConfig[r.status] ?? { style: "bg-gray-100 text-gray-700", label: r.status };
+                    return (
+                      <tr key={r.id} className={`border-b ${isToday ? "bg-amber-50/60" : "hover:bg-gray-50"}`}>
+                        <td className="py-2 px-4 font-semibold text-amber-700 whitespace-nowrap">
+                          {new Date(r.date).toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" })}
+                          {isToday && <span className="ml-1 text-xs bg-amber-500 text-white px-1 rounded">Auj.</span>}
+                        </td>
+                        <td className="py-2 px-4 text-gray-900 max-w-[150px] truncate">{r.tourName}</td>
+                        <td className="py-2 px-4 text-gray-600">{r.name}</td>
+                        <td className="py-2 px-4 text-gray-500 text-xs hidden sm:table-cell">
+                          {[r.pickupTime, r.pickupAddress].filter(Boolean).join(" · ") || <span className="text-gray-300">—</span>}
+                        </td>
+                        <td className="py-2 px-4 text-center">{r.participants}</td>
+                        <td className="py-2 px-4"><Badge className={cfg.style}>{cfg.label}</Badge></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Monthly revenue chart */}
+      <Card>
+        <CardHeader className="px-4 sm:px-6 pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-purple-600" />
+            Revenus — 6 derniers mois
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-4 sm:px-6">
+          <div className="flex items-end gap-2 h-32">
+            {months.map(([key, val]) => {
+              const height = Math.round((val / maxRevenue) * 100);
+              const [year, month] = key.split("-");
+              const label = new Date(Number(year), Number(month) - 1).toLocaleDateString("fr-FR", { month: "short" });
+              return (
+                <div key={key} className="flex-1 flex flex-col items-center gap-1">
+                  <span className="text-xs text-gray-500 font-semibold">{val > 0 ? `${val}€` : ""}</span>
+                  <div
+                    className="w-full bg-amber-400 rounded-t-sm transition-all"
+                    style={{ height: `${Math.max(height, val > 0 ? 4 : 0)}%` }}
+                  />
+                  <span className="text-xs text-gray-400">{label}</span>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Revenue by tour */}
+      <Card>
+        <CardHeader className="px-4 sm:px-6 pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Euro className="w-4 h-4 text-green-600" />
+            Performance par tour
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-0 sm:px-6">
+          {tourRevenue.length === 0 ? (
+            <p className="text-sm text-gray-400 italic px-4">Aucune donnée</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2 px-4 font-medium text-gray-500">Tour</th>
+                    <th className="text-center py-2 px-4 font-medium text-gray-500">Rés.</th>
+                    <th className="text-center py-2 px-4 font-medium text-gray-500">Voyageurs</th>
+                    <th className="text-right py-2 px-4 font-medium text-gray-500">Revenu total</th>
+                    <th className="text-right py-2 px-4 font-medium text-gray-500 hidden sm:table-cell">Moy./rés.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tourRevenue.map(({ name, total, count, participants }) => (
+                    <tr key={name} className="border-b hover:bg-gray-50">
+                      <td className="py-2 px-4 font-medium text-gray-900 max-w-[200px] truncate">{name}</td>
+                      <td className="py-2 px-4 text-center text-gray-600">{count}</td>
+                      <td className="py-2 px-4 text-center text-gray-600">{participants}</td>
+                      <td className="py-2 px-4 text-right font-bold text-amber-600">{total}€</td>
+                      <td className="py-2 px-4 text-right text-gray-500 hidden sm:table-cell">{Math.round(total / count)}€</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -509,6 +799,8 @@ function Reservations({
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
   const [selectedRes, setSelectedRes] = useState<Reservation | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -520,7 +812,9 @@ function Reservations({
       res.tourName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       res.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || res.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesFrom = !dateFrom || res.date >= dateFrom;
+    const matchesTo = !dateTo || res.date <= dateTo;
+    return matchesSearch && matchesStatus && matchesFrom && matchesTo;
   });
 
   const statusConfig: Record<string, { style: string; label: string }> = {
@@ -559,28 +853,55 @@ function Reservations({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-        <div className="relative w-full md:w-96">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input
-            placeholder="Rechercher par nom, email, tour..."
-            className="pl-10"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full md:w-48">
-            <SelectValue placeholder="Statut" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tous</SelectItem>
-            <SelectItem value="pending">En attente</SelectItem>
-            <SelectItem value="confirmed">Confirmées</SelectItem>
-            <SelectItem value="completed">Terminées</SelectItem>
-            <SelectItem value="cancelled">Annulées</SelectItem>
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col md:flex-row gap-3 items-center">
+          <div className="relative w-full md:w-96">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Rechercher par nom, email, tour..."
+              className="pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full md:w-48">
+              <SelectValue placeholder="Statut" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous</SelectItem>
+              <SelectItem value="pending">En attente</SelectItem>
+              <SelectItem value="confirmed">Confirmées</SelectItem>
+              <SelectItem value="completed">Terminées</SelectItem>
+              <SelectItem value="cancelled">Annulées</SelectItem>
           </SelectContent>
-        </Select>
+          </Select>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3 items-center">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <span className="text-xs text-gray-500 whitespace-nowrap">Du</span>
+            <Input
+              type="date"
+              className="w-full sm:w-40"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <span className="text-xs text-gray-500 whitespace-nowrap">Au</span>
+            <Input
+              type="date"
+              className="w-full sm:w-40"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+            />
+          </div>
+          {(dateFrom || dateTo) && (
+            <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600 whitespace-nowrap" onClick={() => { setDateFrom(""); setDateTo(""); }}>
+              Effacer dates
+            </Button>
+          )}
+        </div>
       </div>
 
       <Card>
@@ -4467,15 +4788,18 @@ export default function AdminApp() {
 
   if (!isLoggedIn) return <Login />;
 
+  const pendingCount = reservations.filter((r) => r.status === "pending").length;
+
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "reservations", label: "Réservations", icon: Calendar },
-    { id: "tours", label: "Catalogue", icon: MapPin },
-    { id: "reviews", label: "Avis clients", icon: Star },
-    { id: "admins", label: "Admins", icon: ShieldCheck },
-    { id: "profile", label: "Mon Profil", icon: User },
-    { id: "marketing", label: "Marketing & SEO", icon: BarChart3 },
-    { id: "config", label: "Infrastructure", icon: Bell },
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, badge: 0 },
+    { id: "reservations", label: "Réservations", icon: Calendar, badge: pendingCount },
+    { id: "suivi", label: "Suivi", icon: Activity, badge: 0 },
+    { id: "tours", label: "Catalogue", icon: MapPin, badge: 0 },
+    { id: "reviews", label: "Avis clients", icon: Star, badge: 0 },
+    { id: "admins", label: "Admins", icon: ShieldCheck, badge: 0 },
+    { id: "profile", label: "Mon Profil", icon: User, badge: 0 },
+    { id: "marketing", label: "Marketing & SEO", icon: BarChart3, badge: 0 },
+    { id: "config", label: "Infrastructure", icon: Bell, badge: 0 },
   ];
 
   return (
@@ -4525,10 +4849,22 @@ export default function AdminApp() {
               }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${activeTab === item.id ? "bg-[#c9a961] text-white shadow-lg shadow-amber-900/20" : "text-gray-400 hover:bg-gray-800 hover:text-white"}`}
             >
-              <item.icon className="w-5 h-5 flex-shrink-0" />
+              <div className="relative flex-shrink-0">
+                <item.icon className="w-5 h-5" />
+                {item.badge > 0 && !isSidebarOpen && (
+                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-yellow-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {item.badge}
+                  </span>
+                )}
+              </div>
               {(isSidebarOpen || window.innerWidth < 1024) && (
-                <span className="font-medium whitespace-nowrap">
+                <span className="font-medium whitespace-nowrap flex-1 flex items-center justify-between">
                   {item.label}
+                  {item.badge > 0 && (
+                    <span className="ml-2 px-1.5 py-0.5 bg-yellow-500 text-white text-xs font-bold rounded-full">
+                      {item.badge}
+                    </span>
+                  )}
                 </span>
               )}
             </button>
@@ -4594,6 +4930,9 @@ export default function AdminApp() {
                 reservations={reservations}
                 setReservations={setReservations}
               />
+            )}
+            {activeTab === "suivi" && (
+              <OperationalTracking reservations={reservations} />
             )}
             {activeTab === "tours" && (
               <ToursManagement
