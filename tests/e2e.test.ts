@@ -169,8 +169,10 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         const calendar = page.getByTestId('availability-calendar');
         await expect(calendar).toBeVisible({ timeout: 10000 });
 
-        // Advance to step 2
-        await page.getByTestId('next-step-button').first().click({ force: true });
+        // Advance to step 2 (scroll button into view first — calendar can push it off-screen)
+        const nextBtn = page.getByTestId('next-step-button').first();
+        await nextBtn.scrollIntoViewIfNeeded();
+        await nextBtn.click({ force: true });
         await expect(page.locator('text=/Step 2 of 5/').first()).toBeVisible({ timeout: 10000 });
 
         // Step 2 form fields must be visible (no crash from undefined tour data)
@@ -194,8 +196,10 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         const calendar = page.getByTestId('availability-calendar');
         await expect(calendar).toBeVisible({ timeout: 10000 });
 
-        // Advance to step 2
-        await page.getByTestId('next-step-button').first().click({ force: true });
+        // Advance to step 2 (scroll button into view first — calendar can push it off-screen)
+        const nextBtn = page.getByTestId('next-step-button').first();
+        await nextBtn.scrollIntoViewIfNeeded();
+        await nextBtn.click({ force: true });
         await expect(page.locator('text=/Paso 2 de 5/').first()).toBeVisible({ timeout: 10000 });
 
         await expect(page.locator('input#booking-name')).toBeVisible();
