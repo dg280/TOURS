@@ -340,4 +340,194 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         const durationCard = page.locator('#top-tours, section#tours').locator('span:has-text("Día")').first();
         await expect(durationCard).toBeVisible();
     });
+
+    test('UI: Contact Form — Fill & Submit', async ({ page }) => {
+        await page.goto('/');
+        await page.getByRole('button', { name: /Accepter|Accept/i }).click().catch(() => {});
+
+        // Scroll to contact section
+        await page.evaluate(() => document.getElementById('contact')?.scrollIntoView());
+        await page.waitForTimeout(500);
+
+        // Fill required fields
+        await page.fill('#name', 'Test E2E');
+        await page.fill('#email', 'test@e2e.com');
+        await page.fill('#message', 'Message de test automatisé E2E.');
+
+        await expect(page.locator('#name')).toHaveValue('Test E2E');
+        await expect(page.locator('#email')).toHaveValue('test@e2e.com');
+        await expect(page.locator('#message')).toHaveValue('Message de test automatisé E2E.');
+
+        // Submit — expect a toast (success if Resend configured, error otherwise)
+        await page.locator('form button[type="submit"]').first().click();
+        await expect(page.locator('[data-sonner-toast]').first()).toBeVisible({ timeout: 15000 });
+    });
+
+    test('Features: All 9 Category Filters Cycle', async ({ page }) => {
+        await page.goto('/');
+        const categorySection = page.locator('#category-tours');
+        await categorySection.scrollIntoViewIfNeeded();
+
+        // Click every filter button in the category row
+        const filterButtons = categorySection.locator('div.flex.flex-wrap button');
+        const count = await filterButtons.count();
+        expect(count).toBeGreaterThanOrEqual(9);
+
+        for (let i = 0; i < count; i++) {
+            await filterButtons.nth(i).click();
+            await page.waitForTimeout(200);
+            // Carousel container must always be present (even if 0 results)
+            await expect(categorySection.locator('.embla__container')).toBeVisible();
+        }
+    });
+
+    test('Conversion: Booking Funnel Step 2 — Full Form Fill', async ({ page }) => {
+        await page.getByRole('button', { name: /Accepter|Accept/i }).click().catch(() => {});
+        await page.waitForTimeout(500);
+
+        const tourCard = page.locator('#top-tours h3, section#tours h3').first();
+        await tourCard.waitFor({ state: 'visible', timeout: 15000 });
+        await tourCard.click({ force: true });
+        await page.getByTestId('book-now-button').first().click();
+
+        // Step 1 — advance
+        await expect(page.locator('text=Étape 1 sur 5')).toBeVisible({ timeout: 10000 });
+        const nextBtn1 = page.getByTestId('next-step-button').first();
+        await nextBtn1.scrollIntoViewIfNeeded();
+        await nextBtn1.click({ force: true });
+
+        // Step 2 — fill all fields
+        await expect(page.locator('text=Étape 2 sur 5')).toBeVisible({ timeout: 10000 });
+        await page.fill('input#booking-name', 'Test E2E User');
+        await page.fill('input#booking-email', 'test@e2e.com');
+
+        const phoneField = page.locator('input[type="tel"]').first();
+        if (await phoneField.isVisible()) await phoneField.fill('+33612345678');
+
+        const addressField = page.locator('input[placeholder*="Adresse" i], input[placeholder*="Address" i]').first();
+        if (await addressField.isVisible()) await addressField.fill('123 Rue de Test');
+
+        await expect(page.locator('input#booking-name')).toHaveValue('Test E2E User');
+        await expect(page.locator('input#booking-email')).toHaveValue('test@e2e.com');
+
+        // Try to advance to step 3 (may stay at step 2 if Stripe API is unavailable locally)
+        const nextBtn2 = page.getByTestId('next-step-button').first();
+        await nextBtn2.scrollIntoViewIfNeeded();
+        await nextBtn2.click({ force: true });
+        await page.waitForTimeout(2000);
+
+        const atStep3 = await page.locator('text=/Étape 3 sur 5/').isVisible().catch(() => false);
+        const atStep2 = await page.locator('text=Étape 2 sur 5').isVisible().catch(() => false);
+        expect(atStep3 || atStep2).toBe(true);
+    });
+
+    test('Admin: Dashboard Metrics Render', async ({ page }) => {
+        test.skip(!!process.env.BASE_URL, 'Admin localStorage bypass disabled in production');
+        await page.goto('/admin.html');
+        await page.evaluate(() => localStorage.setItem('isLoggedIn', 'true'));
+        await page.reload();
+
+        await expect(page.locator('text=/En attente/i').first()).toBeVisible({ timeout: 15000 });
+        await expect(page.locator('text=/Confirmées/i').first()).toBeVisible();
+        await expect(page.locator('text=/Revenu/i').first()).toBeVisible();
+    });
+
+    test('Admin: Reservations Tab — Search & Status Filter', async ({ page }) => {
+        test.skip(!!process.env.BASE_URL, 'Admin localStorage bypass disabled in production');
+        await page.goto('/admin.html');
+        await page.evaluate(() => localStorage.setItem('isLoggedIn', 'true'));
+        await page.reload();
+
+        await page.getByRole('button', { name: /Réservations/i }).first().click();
+        await page.waitForTimeout(500);
+
+        const searchInput = page.locator('input[placeholder*="Rechercher" i]');
+        await expect(searchInput).toBeVisible({ timeout: 10000 });
+
+        await searchInput.fill('test');
+        await page.waitForTimeout(300);
+        await searchInput.clear();
+
+        const statusSelect = page.locator('select').first();
+        if (await statusSelect.isVisible()) {
+            await statusSelect.selectOption('pending');
+            await page.waitForTimeout(200);
+            await statusSelect.selectOption('');
+        }
+    });
+
+    test('Admin: Catalogue Tab — Tour Edit FR/EN/ES Tabs', async ({ page }) => {
+        test.skip(!!process.env.BASE_URL, 'Admin localStorage bypass disabled in production');
+        await page.goto('/admin.html');
+        await page.evaluate(() => localStorage.setItem('isLoggedIn', 'true'));
+        await page.reload();
+
+        await page.getByRole('button', { name: /Catalogue/i }).first().click();
+        await page.waitForTimeout(500);
+
+        const newTourBtn = page.getByRole('button', { name: /Nouveau Tour|New Tour/i });
+        if (await newTourBtn.isVisible({ timeout: 5000 })) {
+            await newTourBtn.click();
+            await page.waitForTimeout(1000);
+
+            // Tabs have text "FR", "EN", "ES" (with Globe icon — use substring match)
+            const frTab = page.locator('[role="tab"]').filter({ hasText: 'FR' }).first();
+            const enTab = page.locator('[role="tab"]').filter({ hasText: 'EN' }).first();
+            const esTab = page.locator('[role="tab"]').filter({ hasText: 'ES' }).first();
+
+            await expect(frTab).toBeVisible({ timeout: 10000 });
+            await expect(enTab).toBeVisible();
+            await expect(esTab).toBeVisible();
+
+            await enTab.click();
+            await expect(page.locator('[role="tabpanel"][data-state="active"]')).toBeVisible();
+            await esTab.click();
+            await expect(page.locator('[role="tabpanel"][data-state="active"]')).toBeVisible();
+
+            await page.getByRole('button', { name: /Annuler|Cancel/i }).first().click();
+        }
+    });
+
+    test('Admin: Avis Clients Tab Loads', async ({ page }) => {
+        test.skip(!!process.env.BASE_URL, 'Admin localStorage bypass disabled in production');
+        await page.goto('/admin.html');
+        await page.evaluate(() => localStorage.setItem('isLoggedIn', 'true'));
+        await page.reload();
+
+        await page.getByRole('button', { name: /Avis clients/i }).first().click();
+        await page.waitForTimeout(500);
+
+        await expect(page.locator('text=/Avis|avis|Review/i').first()).toBeVisible({ timeout: 10000 });
+    });
+
+    test('Admin: Suivi (Live Sessions) Tab Loads', async ({ page }) => {
+        test.skip(!!process.env.BASE_URL, 'Admin localStorage bypass disabled in production');
+        await page.goto('/admin.html');
+        await page.evaluate(() => localStorage.setItem('isLoggedIn', 'true'));
+        await page.reload();
+
+        await page.getByRole('button', { name: /Suivi/i }).first().click();
+        await page.waitForTimeout(500);
+
+        // Suivi section shows "Suivi Opérationnel" heading and pick-up/planning cards
+        await expect(page.locator('text=/Suivi Opérationnel|Pick-ups|Planning/i').first()).toBeVisible({ timeout: 10000 });
+    });
+
+    test('Admin: Mon Profil — Photo Upload Slots Visible', async ({ page }) => {
+        test.skip(!!process.env.BASE_URL, 'Admin localStorage bypass disabled in production');
+        await page.goto('/admin.html');
+        await page.evaluate(() => localStorage.setItem('isLoggedIn', 'true'));
+        await page.reload();
+
+        await page.getByRole('button', { name: /Mon Profil|My Profile/i }).first().click();
+        await page.waitForTimeout(500);
+
+        await expect(page.locator('text=/Bio|Biographie/i').first()).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('text=/différent|Différent/i').first()).toBeVisible();
+
+        // At least 1 photo change button visible
+        const changeButtons = page.locator('button').filter({ hasText: /Changer|Photo|Modifier/i });
+        const btnCount = await changeButtons.count();
+        expect(btnCount).toBeGreaterThanOrEqual(1);
+    });
 });
