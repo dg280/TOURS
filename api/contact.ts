@@ -23,6 +23,7 @@ interface ApiRequest {
         name?: string;
         email?: string;
         tour?: string;
+        date?: string;
         message?: string;
     };
 }
@@ -32,7 +33,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { name, email, tour, message } = req.body;
+    const { name, email, tour, date, message } = req.body;
 
     if (!name || !email || !message) {
         return res.status(400).json({ error: 'Champs requis manquants (nom, email, message)' });
@@ -49,6 +50,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
   <tr><td style="padding:8px 12px;background:#f3f4f6;font-weight:700;width:120px;">Nom</td><td style="padding:8px 12px;">${escapeHtml(name)}</td></tr>
   <tr><td style="padding:8px 12px;background:#f3f4f6;font-weight:700;">Email</td><td style="padding:8px 12px;"><a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></td></tr>
   ${tour ? `<tr><td style="padding:8px 12px;background:#f3f4f6;font-weight:700;">Tour</td><td style="padding:8px 12px;">${escapeHtml(tour)}</td></tr>` : ''}
+  ${date ? `<tr><td style="padding:8px 12px;background:#f3f4f6;font-weight:700;">Date souhaitée</td><td style="padding:8px 12px;">${escapeHtml(date)}</td></tr>` : ''}
   <tr><td style="padding:8px 12px;background:#f3f4f6;font-weight:700;vertical-align:top;">Message</td><td style="padding:8px 12px;white-space:pre-wrap;">${escapeHtml(message)}</td></tr>
 </table>
 <p style="margin-top:16px;font-size:12px;color:#6b7280;">Répondre directement à : <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>`;

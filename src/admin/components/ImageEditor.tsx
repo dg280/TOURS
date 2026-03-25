@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { RotateCcw, ZoomIn, Scissors, RotateCw, Loader2 } from "lucide-react";
+import { RotateCcw, ZoomIn, Scissors, RotateCw, Loader2, RectangleHorizontal, Square, Maximize } from "lucide-react";
 import { toast } from "sonner";
 import getCroppedImg from "../utils/image-utils";
 
@@ -35,6 +35,14 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
   const [rotation, setRotation] = useState(0);
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [currentAspect, setCurrentAspect] = useState<number | undefined>(aspectRatio);
+
+  const aspectOptions = [
+    { label: "Libre", value: undefined, icon: Maximize },
+    { label: "4:3", value: 4 / 3, icon: RectangleHorizontal },
+    { label: "16:9", value: 16 / 9, icon: RectangleHorizontal },
+    { label: "1:1", value: 1, icon: Square },
+  ];
 
   const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
@@ -86,7 +94,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
               crop={crop}
               rotation={rotation}
               zoom={zoom}
-              aspect={aspectRatio}
+              aspect={currentAspect}
               onCropChange={setCrop}
               onRotationChange={setRotation}
               onCropComplete={onCropComplete}
@@ -95,6 +103,28 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
           </div>
 
           <div className="p-6 space-y-6">
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-gray-500 mb-1">Format</div>
+              <div className="flex gap-2">
+                {aspectOptions.map((opt) => {
+                  const Icon = opt.icon;
+                  const isActive = currentAspect === opt.value;
+                  return (
+                    <Button
+                      key={opt.label}
+                      variant={isActive ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentAspect(opt.value)}
+                      className={`flex-1 ${isActive ? "bg-[#c9a961] hover:bg-[#b8944e] text-white" : ""}`}
+                    >
+                      <Icon className="w-3 h-3 mr-1" />
+                      {opt.label}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="space-y-4">
               <div className="flex items-center gap-4">
                 <ZoomIn className="w-4 h-4 text-gray-400" />

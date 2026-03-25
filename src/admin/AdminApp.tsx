@@ -789,13 +789,176 @@ function InfoRow({ label, value }: { label: string; value?: string | number }) {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Blocked Dates Management (Admin availability calendar)
+// ---------------------------------------------------------------------------
+function BlockedDatesManager({ tours }: { tours: Tour[] }) {
+  const defaultTourId = tours.length > 0 ? tours[0].id.toString() : "";
+  const [selectedTourId, setSelectedTourId] = useState<string>(defaultTourId);
+  const [month, setMonth] = useState<Date>(() => { const d = new Date(); d.setDate(1); return d; });
+  const [blockedDates, setBlockedDates] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!selectedTourId || !supabase) return;
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      const { data } = await supabase
+        .from("blocked_dates")
+        .select("date")
+        .eq("tour_id", selectedTourId);
+      if (!cancelled) {
+        setBlockedDates(new Set((data ?? []).map((r: { date: string }) => r.date)));
+        setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [selectedTourId]);
+
+  const toggleDate = async (dateStr: string) => {
+    if (!supabase || !selectedTourId) return;
+    const isBlocked = blockedDates.has(dateStr);
+    if (isBlocked) {
+      const { error } = await supabase
+        .from("blocked_dates")
+        .delete()
+        .eq("tour_id", selectedTourId)
+        .eq("date", dateStr);
+      if (!error) setBlockedDates((prev) => { const s = new Set(prev); s.delete(dateStr); return s; });
+      else toast.error("Erreur lors du déblocage");
+    } else {
+      const { error } = await supabase
+        .from("blocked_dates")
+        .insert({ tour_id: selectedTourId, date: dateStr });
+      if (!error) setBlockedDates((prev) => new Set(prev).add(dateStr));
+      else toast.error("Erreur lors du blocage");
+    }
+  };
+
+  const toDateStr = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  };
+
+  const dayLabels = ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"];
+  const monthLabel = month.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+
+  const firstDay = new Date(month.getFullYear(), month.getMonth(), 1);
+  const startOffset = (firstDay.getDay() + 6) % 7;
+  const gridStart = new Date(firstDay);
+  gridStart.setDate(1 - startOffset);
+  const cells: Date[] = [];
+  for (let i = 0; i < 42; i++) { const d = new Date(gridStart); d.setDate(gridStart.getDate() + i); cells.push(d); }
+
+  const todayStr = toDateStr(new Date());
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-2">
+          <Calendar className="w-4 h-4 text-amber-500" />
+          Disponibilités
+        </CardTitle>
+        <CardDescription>Cliquez sur une date pour la bloquer ou la débloquer. Les dates bloquées seront indisponibles à la réservation.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {/* Tour selector */}
+          <Select value={selectedTourId} onValueChange={setSelectedTourId}>
+            <SelectTrigger className="w-full"><SelectValue placeholder="Choisir un tour" /></SelectTrigger>
+            <SelectContent>
+              {tours.filter(t => t.isActive !== false).map((t) => (
+                <SelectItem key={t.id} value={t.id.toString()}>{t.title}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Calendar */}
+          <div className="max-w-sm mx-auto">
+            <div className="flex items-center justify-between mb-3">
+              <button type="button" onClick={() => { const d = new Date(month); d.setMonth(d.getMonth() - 1); setMonth(d); }}
+                className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <span className="text-sm font-bold capitalize text-gray-800 flex items-center gap-2">
+                {monthLabel}
+                {loading && <Loader2 className="w-3 h-3 animate-spin text-amber-500" />}
+              </span>
+              <button type="button" onClick={() => { const d = new Date(month); d.setMonth(d.getMonth() + 1); setMonth(d); }}
+                className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-7 mb-1">
+              {dayLabels.map((d) => (
+                <div key={d} className="text-center text-[10px] font-bold uppercase text-gray-400 py-1">{d}</div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-7 gap-y-1">
+              {cells.map((cell) => {
+                const dateStr = toDateStr(cell);
+                const isCurrentMonth = cell.getMonth() === month.getMonth();
+                const isPast = dateStr < todayStr;
+                const isBlocked = blockedDates.has(dateStr);
+                const isToday = dateStr === todayStr;
+
+                return (
+                  <div key={dateStr} className="flex justify-center">
+                    <button
+                      type="button"
+                      disabled={!isCurrentMonth || isPast}
+                      onClick={() => isCurrentMonth && !isPast && toggleDate(dateStr)}
+                      className={cn(
+                        "relative w-9 h-9 rounded-xl text-xs font-medium transition-all duration-150 flex items-center justify-center",
+                        !isCurrentMonth && "opacity-20 pointer-events-none text-gray-400",
+                        isCurrentMonth && isPast && "text-gray-300 cursor-not-allowed",
+                        isCurrentMonth && !isPast && isBlocked && "bg-red-100 text-red-500 ring-1 ring-red-300",
+                        isCurrentMonth && !isPast && !isBlocked && "hover:bg-green-50 hover:text-green-700 cursor-pointer text-gray-700",
+                        isToday && !isBlocked && "ring-1 ring-amber-400",
+                      )}
+                    >
+                      {cell.getDate()}
+                      {isBlocked && isCurrentMonth && !isPast && (
+                        <X className="absolute w-3 h-3 text-red-400 top-0.5 right-0.5" />
+                      )}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Legend */}
+            <div className="flex items-center gap-4 mt-3 px-1">
+              <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
+                <span className="w-3 h-3 rounded bg-white ring-1 ring-gray-200" />
+                Disponible
+              </div>
+              <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
+                <span className="w-3 h-3 rounded bg-red-100 ring-1 ring-red-300" />
+                Bloqué
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 // Reservations Component
 function Reservations({
   reservations,
   setReservations,
+  tours,
 }: {
   reservations: Reservation[];
   setReservations: React.Dispatch<React.SetStateAction<Reservation[]>>;
+  tours: Tour[];
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -1088,6 +1251,9 @@ function Reservations({
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Blocked Dates Management */}
+      <BlockedDatesManager tours={tours} />
     </div>
   );
 }
@@ -5025,6 +5191,7 @@ export default function AdminApp() {
               <Reservations
                 reservations={reservations}
                 setReservations={setReservations}
+                tours={tours}
               />
             )}
             {activeTab === "suivi" && (

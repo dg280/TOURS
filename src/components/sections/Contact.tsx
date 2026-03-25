@@ -17,6 +17,7 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [tour, setTour] = useState("");
+  const [preferredDate, setPreferredDate] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -31,11 +32,11 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, tour, message }),
+        body: JSON.stringify({ name, email, tour, date: preferredDate, message }),
       });
       if (!res.ok) throw new Error("Erreur serveur");
       toast.success("Message envoyé ! Nous vous répondrons rapidement.");
-      setName(""); setEmail(""); setTour(""); setMessage("");
+      setName(""); setEmail(""); setTour(""); setPreferredDate(""); setMessage("");
     } catch {
       toast.error("Impossible d'envoyer le message. Réessayez ou contactez-nous par WhatsApp.");
     } finally {
@@ -167,6 +168,21 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                       </option>
                     ))}
                   </select>
+                </div>
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="date"
+                    className="text-gray-700 font-semibold ml-1"
+                  >
+                    {t.contact.date}
+                  </Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    className="bg-white border-gray-200 focus:border-amber-600 h-12"
+                    value={preferredDate}
+                    onChange={(e) => setPreferredDate(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label
