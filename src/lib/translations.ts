@@ -46,7 +46,7 @@ export const translations = {
         },
         hero: {
             tagline: 'Découvrez la Catalogne authentique',
-            title: 'Tours et Expériences Uniques à Barcelone et ses Environs',
+            title: 'Tours privés et Expériences Uniques à Barcelone et en Catalogne',
             subtitle: 'Petits groupes, guide local passionné',
             description: 'Des excursions personnalisées pour découvrir les secrets de la Catalogne, loin des foules touristiques — culture, nature et aventure',
             cta_discover: 'Voir Tous les Tours',
