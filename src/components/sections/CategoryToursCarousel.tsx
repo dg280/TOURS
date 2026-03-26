@@ -129,11 +129,11 @@ export const CategoryToursCarousel = ({
                       onClick={() => onTourClick(tour)}
                       className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col h-full cursor-pointer"
                     >
-                      <div className="relative h-48 overflow-hidden">
+                      <div className="relative aspect-[4/3] overflow-hidden">
                         <img
                           src={tour.image}
                           alt={tour.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                         <div className="absolute top-3 right-3 bg-white/90 text-gray-800 px-2 py-1 rounded-lg text-xs font-bold shadow-sm">
                           {tour.price}€
