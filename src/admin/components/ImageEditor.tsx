@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import Cropper from "react-easy-crop";
 import type { Area, Point } from "react-easy-crop";
 import { Slider } from "@/components/ui/slider";
@@ -23,12 +23,19 @@ interface ImageEditorProps {
   title?: string;
 }
 
+const ASPECT_OPTIONS = [
+  { label: "4:3", value: 4 / 3 },
+  { label: "16:9", value: 16 / 9 },
+  { label: "1:1", value: 1 },
+  { label: "Libre", value: 0 },
+] as const;
+
 export const ImageEditor: React.FC<ImageEditorProps> = ({
   image,
   isOpen,
   onClose,
   onSave,
-  aspectRatio = 4 / 3,
+  aspectRatio: defaultAspect = 4 / 3,
   title = "Retoucher l'image",
 }) => {
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
@@ -37,6 +44,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [flipH, setFlipH] = useState(false);
   const [flipV, setFlipV] = useState(false);
+  const [selectedAspect, setSelectedAspect] = useState(defaultAspect);
 
   const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
@@ -50,7 +58,18 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
     setZoom(1);
     setFlipH(false);
     setFlipV(false);
+    setSelectedAspect(defaultAspect);
   };
+
+  // Build CSS style for flip — crop/zoom/rotation are handled by react-easy-crop internally
+  const cropperStyle = useMemo(() => {
+    if (!flipH && !flipV) return {};
+    return {
+      mediaStyle: {
+        transform: `rotateY(${flipH ? 180 : 0}deg) rotateX(${flipV ? 180 : 0}deg)`,
+      },
+    };
+  }, [flipH, flipV]);
 
   const handleSave = async () => {
     setIsProcessing(true);
@@ -96,20 +115,14 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
               crop={crop}
               rotation={rotation}
               zoom={zoom}
-              aspect={aspectRatio}
+              aspect={selectedAspect || undefined}
               onCropChange={setCrop}
               onRotationChange={setRotation}
               onCropComplete={onCropComplete}
               onZoomChange={setZoom}
               minZoom={0.5}
               maxZoom={5}
-              transform={[
-                `translate(${crop.x}px, ${crop.y}px)`,
-                `rotateZ(${rotation}deg)`,
-                `rotateY(${flipH ? 180 : 0}deg)`,
-                `rotateX(${flipV ? 180 : 0}deg)`,
-                `scale(${zoom})`,
-              ].join(' ')}
+              style={cropperStyle}
             />
           </div>
 
@@ -118,6 +131,23 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
           </p>
 
           <div className="p-6 pt-4 space-y-5">
+            {/* Aspect ratio selector */}
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-gray-500">Format</p>
+              <div className="flex gap-2">
+                {ASPECT_OPTIONS.map((opt) => (
+                  <Button
+                    key={opt.label}
+                    variant={selectedAspect === opt.value ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedAspect(opt.value)}
+                  >
+                    {opt.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
             {/* Zoom */}
             <div className="space-y-2">
               <div className="flex items-center gap-4">
