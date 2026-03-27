@@ -469,9 +469,11 @@ function App() {
   };
 
   // Use translated testimonials from translations.ts as fallback
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const testimonials =
-    dbReviews.length > 0 ? dbReviews : (t as any).testimonials_data || [];
+    dbReviews.length > 0
+      ? dbReviews
+      : ((t as Record<string, unknown>)
+          .testimonials_data as typeof dbReviews) || [];
 
   const [activeSection, setActiveSection] = useState("home");
 
