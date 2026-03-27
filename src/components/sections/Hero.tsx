@@ -17,7 +17,7 @@ export const Hero = ({ t, scrollToSection }: HeroProps) => {
           loop
           muted
           playsInline
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover object-[center_65%]"
           poster="/tour-camironda.jpg"
         >
           <source
@@ -28,7 +28,7 @@ export const Hero = ({ t, scrollToSection }: HeroProps) => {
       </div>
       <div className="absolute inset-0 hero-gradient z-1" />
 
-      <div className="relative z-10 container-custom text-center text-white pt-20">
+      <div className="relative z-10 container-custom text-center text-white">
         <div>
           <p className="text-base md:text-lg mb-2 font-light tracking-wide opacity-90 animate-fade-in-up">
             {t.hero.tagline}
