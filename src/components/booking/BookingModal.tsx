@@ -44,6 +44,7 @@ interface AvailabilityCalendarProps {
   selectedDate: string;
   onSelect: (date: string) => void;
   bookedByDate: Record<string, number>;
+  blockedDates: Set<string>;
   maxCapacity: number;
   month: Date;
   onMonthChange: (d: Date) => void;
@@ -55,6 +56,7 @@ function AvailabilityCalendar({
   selectedDate,
   onSelect,
   bookedByDate,
+  blockedDates,
   maxCapacity,
   month,
   onMonthChange,
@@ -135,6 +137,7 @@ function AvailabilityCalendar({
           const dateStr = toDateStr(cell);
           const isCurrentMonth = cell.getMonth() === month.getMonth();
           const isPast = dateStr < todayStr;
+          const isBlocked = blockedDates.has(dateStr);
           const booked = bookedByDate[dateStr] ?? 0;
           const cap = maxCapacity > 0 ? maxCapacity : 8;
           const fillRatio = booked / cap;
@@ -143,18 +146,22 @@ function AvailabilityCalendar({
           const remaining = cap - booked;
 
           let dotColor = "";
-          if (isCurrentMonth && !isPast && !isFull && booked > 0) {
+          if (isCurrentMonth && !isPast && !isFull && !isBlocked && booked > 0) {
             dotColor = fillRatio >= 0.75 ? "bg-orange-400" : "bg-green-500";
           }
 
           let tooltip = "";
-          if (isCurrentMonth && !isPast && fillRatio >= 0.75 && fillRatio < 1) {
+          if (isCurrentMonth && !isPast && isBlocked) {
+            tooltip = lang === "en" ? "Unavailable"
+              : lang === "es" ? "No disponible"
+              : "Indisponible";
+          } else if (isCurrentMonth && !isPast && fillRatio >= 0.75 && fillRatio < 1) {
             tooltip = lang === "en" ? `${remaining} spot${remaining > 1 ? "s" : ""} left`
               : lang === "es" ? `${remaining} plaza${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""}`
               : `${remaining} place${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""}`;
           }
 
-          const isClickable = isCurrentMonth && !isPast && !isFull;
+          const isClickable = isCurrentMonth && !isPast && !isFull && !isBlocked;
 
           return (
             <div key={dateStr} className="flex justify-center">
@@ -167,7 +174,8 @@ function AvailabilityCalendar({
                   "relative w-9 h-9 rounded-xl text-sm font-medium transition-all duration-150 flex flex-col items-center justify-center gap-0.5",
                   !isCurrentMonth ? "opacity-20 pointer-events-none text-gray-400" : "",
                   isCurrentMonth && isPast ? "text-gray-300 cursor-not-allowed" : "",
-                  isCurrentMonth && !isPast && isFull ? "bg-red-100 text-red-400 line-through cursor-not-allowed" : "",
+                  isCurrentMonth && !isPast && isBlocked ? "bg-gray-100 text-gray-300 cursor-not-allowed" : "",
+                  isCurrentMonth && !isPast && !isBlocked && isFull ? "bg-red-100 text-red-400 line-through cursor-not-allowed" : "",
                   isSelected && !isFull ? "bg-amber-500 text-white shadow-md shadow-amber-200 scale-105" : "",
                   isClickable && !isSelected ? "hover:bg-amber-50 hover:text-amber-700 cursor-pointer text-gray-700" : "",
                 ].filter(Boolean).join(" ")}
@@ -193,6 +201,10 @@ function AvailabilityCalendar({
         <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
           <span className="w-2 h-2 rounded-full bg-red-400" />
           {lang === "en" ? "Full" : lang === "es" ? "Completo" : "Complet"}
+        </div>
+        <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
+          <span className="w-2 h-2 rounded-full bg-gray-300" />
+          {lang === "en" ? "Closed" : lang === "es" ? "Cerrado" : "Fermé"}
         </div>
       </div>
     </div>
@@ -236,6 +248,7 @@ export const BookingModal = ({
     return d;
   });
   const [bookedByDate, setBookedByDate] = useState<Record<string, number>>({});
+  const [blockedDates, setBlockedDates] = useState<Set<string>>(new Set());
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -270,22 +283,34 @@ export const BookingModal = ({
     const fetchAvailability = async () => {
       setAvailabilityLoading(true);
       setBookedByDate({});
+      setBlockedDates(new Set());
       const todayStr = new Date().toISOString().split("T")[0];
-      const { data, error } = await supabase!
-        .from("reservations")
-        .select("date, participants")
-        .eq("tour_id", tour.id.toString())
-        .in("status", ["pending", "confirmed"])
-        .gte("date", todayStr);
+
+      const [resResult, blockedResult] = await Promise.all([
+        supabase!
+          .from("reservations")
+          .select("date, participants")
+          .eq("tour_id", tour.id.toString())
+          .in("status", ["pending", "confirmed"])
+          .gte("date", todayStr),
+        supabase!
+          .from("blocked_dates")
+          .select("date")
+          .eq("tour_id", tour.id.toString())
+          .gte("date", todayStr),
+      ]);
 
       if (!cancelled) {
-        if (!error && data) {
+        if (!resResult.error && resResult.data) {
           const agg: Record<string, number> = {};
-          for (const row of data) {
+          for (const row of resResult.data) {
             const d = row.date as string;
             agg[d] = (agg[d] ?? 0) + (row.participants as number);
           }
           setBookedByDate(agg);
+        }
+        if (!blockedResult.error && blockedResult.data) {
+          setBlockedDates(new Set(blockedResult.data.map((r) => r.date as string)));
         }
         setAvailabilityLoading(false);
       }
@@ -367,7 +392,15 @@ export const BookingModal = ({
         toast.error(t.booking.date_error || "Date required");
         return;
       }
-      // Guard: check if selected date has become full
+      // Guard: check if selected date is blocked or full
+      if (blockedDates.has(date)) {
+        toast.error(
+          lang === "en" ? "This date is unavailable. Please select another date."
+          : lang === "es" ? "Esta fecha no está disponible. Por favor elige otra fecha."
+          : "Cette date est indisponible. Veuillez en choisir une autre."
+        );
+        return;
+      }
       const booked = bookedByDate[date] ?? 0;
       const cap = tour?.maxCapacity ?? 8;
       if (booked >= cap) {
@@ -549,6 +582,7 @@ export const BookingModal = ({
                           selectedDate={date}
                           onSelect={setDate}
                           bookedByDate={bookedByDate}
+                          blockedDates={blockedDates}
                           maxCapacity={tour.maxCapacity ?? 8}
                           month={calendarMonth}
                           onMonthChange={setCalendarMonth}

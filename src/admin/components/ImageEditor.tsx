@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { RotateCcw, ZoomIn, Scissors, RotateCw, Loader2, FlipHorizontal, FlipVertical, RefreshCw, Move } from "lucide-react";
+import { RotateCcw, ZoomIn, Scissors, RotateCw, Loader2, FlipHorizontal, FlipVertical, RefreshCw, Move, RectangleHorizontal, Square, Maximize } from "lucide-react";
 import { toast } from "sonner";
 import getCroppedImg from "../utils/image-utils";
 
@@ -24,10 +24,10 @@ interface ImageEditorProps {
 }
 
 const ASPECT_OPTIONS = [
-  { label: "4:3", value: 4 / 3 },
-  { label: "16:9", value: 16 / 9 },
-  { label: "1:1", value: 1 },
-  { label: "Libre", value: 0 },
+  { label: "Libre", value: undefined, icon: Maximize },
+  { label: "4:3", value: 4 / 3, icon: RectangleHorizontal },
+  { label: "16:9", value: 16 / 9, icon: RectangleHorizontal },
+  { label: "1:1", value: 1, icon: Square },
 ] as const;
 
 export const ImageEditor: React.FC<ImageEditorProps> = ({
@@ -44,7 +44,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [flipH, setFlipH] = useState(false);
   const [flipV, setFlipV] = useState(false);
-  const [selectedAspect, setSelectedAspect] = useState(defaultAspect);
+  const [selectedAspect, setSelectedAspect] = useState<number | undefined>(defaultAspect);
 
   const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
@@ -115,7 +115,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
               crop={crop}
               rotation={rotation}
               zoom={zoom}
-              aspect={selectedAspect || undefined}
+              aspect={selectedAspect}
               onCropChange={setCrop}
               onRotationChange={setRotation}
               onCropComplete={onCropComplete}
@@ -133,18 +133,24 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
           <div className="p-6 pt-4 space-y-5">
             {/* Aspect ratio selector */}
             <div className="space-y-2">
-              <p className="text-xs font-medium text-gray-500">Format</p>
+              <div className="text-xs font-medium text-gray-500 mb-1">Format</div>
               <div className="flex gap-2">
-                {ASPECT_OPTIONS.map((opt) => (
-                  <Button
-                    key={opt.label}
-                    variant={selectedAspect === opt.value ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedAspect(opt.value)}
-                  >
-                    {opt.label}
-                  </Button>
-                ))}
+                {ASPECT_OPTIONS.map((opt) => {
+                  const Icon = opt.icon;
+                  const isActive = selectedAspect === opt.value;
+                  return (
+                    <Button
+                      key={opt.label}
+                      variant={isActive ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedAspect(opt.value)}
+                      className={`flex-1 ${isActive ? "bg-[#c9a961] hover:bg-[#b8944e] text-white" : ""}`}
+                    >
+                      <Icon className="w-3 h-3 mr-1" />
+                      {opt.label}
+                    </Button>
+                  );
+                })}
               </div>
             </div>
 
