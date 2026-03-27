@@ -8,14 +8,16 @@ interface FooterProps {
   onPrivacyClick: () => void;
 }
 
-export const Footer = ({ t, instagramUrl, onLegalClick, onPrivacyClick }: FooterProps) => {
+export const Footer = ({
+  t,
+  instagramUrl,
+  onLegalClick,
+  onPrivacyClick,
+}: FooterProps) => {
   return (
-    <footer
-      className="text-gray-800 pt-32 pb-16 border-t border-gray-200"
-      style={{ background: "var(--background-color)" }}
-    >
+    <footer className="text-gray-800 pt-16 pb-10 border-t border-gray-200 bg-gray-50">
       <div className="container-custom">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 mb-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 mb-12">
           <div className="lg:col-span-5 space-y-10">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
@@ -38,7 +40,7 @@ export const Footer = ({ t, instagramUrl, onLegalClick, onPrivacyClick }: Footer
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-14 h-14 rounded-2xl bg-black/5 border border-gray-200 flex items-center justify-center hover:bg-[#c9a961] hover:text-white hover:border-[#c9a961] transition-all duration-500 group"
+                  className="w-10 h-10 rounded-xl bg-black/5 border border-gray-200 flex items-center justify-center hover:bg-[#c9a961] hover:text-white hover:border-[#c9a961] transition-all duration-500 group"
                 >
                   <social.icon className="w-6 h-6 transform group-hover:scale-110 transition-transform" />
                 </a>
@@ -60,7 +62,7 @@ export const Footer = ({ t, instagramUrl, onLegalClick, onPrivacyClick }: Footer
                 <li key={link.href}>
                   <a
                     href={link.href}
-                    className="text-gray-500 hover:text-amber-600 transition-all font-medium text-lg flex items-center gap-2 group"
+                    className="text-gray-500 hover:text-amber-600 transition-all font-medium text-base flex items-center gap-2 group"
                   >
                     <span className="w-0 h-[1px] bg-amber-600 group-hover:w-4 transition-all duration-300"></span>
                     {link.label}
@@ -77,7 +79,7 @@ export const Footer = ({ t, instagramUrl, onLegalClick, onPrivacyClick }: Footer
             <ul className="space-y-6">
               {t.tour_data.slice(0, 4).map((tour) => (
                 <li key={tour.id}>
-                  <span className="text-gray-500 hover:text-amber-600 transition-all cursor-pointer text-lg font-medium block leading-snug">
+                  <span className="text-gray-500 hover:text-amber-600 transition-all cursor-pointer text-base font-medium block leading-snug">
                     {tour.title}
                   </span>
                 </li>
