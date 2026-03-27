@@ -746,14 +746,24 @@ export const BookingModal = ({
                   </div>
                 </div>
 
-                <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex justify-between items-center mt-4">
-                  <div className="space-y-1">
-                    <p className="text-xs text-amber-800 font-bold uppercase tracking-wider">{t.booking.total_paid}</p>
-                    <p className="text-3xl font-serif font-bold text-amber-900">{calculateTotal()}€</p>
+                <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 mt-4 space-y-2">
+                  <div className="flex justify-between text-sm text-amber-900">
+                    <span>{tour.title}</span>
+                    <span>{calculateSubtotal().toFixed(2)}€</span>
                   </div>
-                  <div className="text-right text-[10px] text-amber-700/60 leading-tight italic">
-                    {t.booking.per_person_incl_fees}<br/>
-                    ({(calculateTotal() / participants).toFixed(2)}€ /pers)
+                  <div className="flex justify-between text-sm text-amber-700/80">
+                    <span>{t.booking.processing_fees}</span>
+                    <span>{(calculateTotal() - calculateSubtotal()).toFixed(2)}€</span>
+                  </div>
+                  <div className="flex justify-between items-baseline pt-2 border-t border-amber-200">
+                    <div>
+                      <p className="text-xs text-amber-800 font-bold uppercase tracking-wider">{t.booking.total_paid}</p>
+                      <p className="text-3xl font-serif font-bold text-amber-900">{calculateTotal()}€</p>
+                    </div>
+                    <div className="text-right text-[10px] text-amber-700/60 leading-tight italic">
+                      {t.booking.per_person_incl_fees}<br/>
+                      ({(calculateTotal() / participants).toFixed(2)}€ /pers)
+                    </div>
                   </div>
                 </div>
               </div>
