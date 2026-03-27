@@ -285,7 +285,7 @@ export const TourDialog = ({
                       <span className="text-4xl font-bold text-gray-900">
                         {tour.pricing_tiers &&
                         Object.keys(tour.pricing_tiers).length > 0
-                          ? Math.min(...Object.values(tour.pricing_tiers))
+                          ? Math.round(Math.min(...Object.values(tour.pricing_tiers)) / Math.max(...Object.keys(tour.pricing_tiers).map(Number)))
                           : tour.price}
                         €
                       </span>

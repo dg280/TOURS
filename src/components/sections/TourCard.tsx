@@ -53,9 +53,9 @@ export const TourCard = ({ tour, index, lang, t, onClick }: TourCardProps) => {
         <div className="absolute top-3 right-3 bg-amber-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
           {t.tours.from_price}{" "}
           {tour.pricing_tiers && Object.keys(tour.pricing_tiers).length > 0
-            ? Math.min(...Object.values(tour.pricing_tiers))
+            ? Math.round(Math.min(...Object.values(tour.pricing_tiers)) / Math.max(...Object.keys(tour.pricing_tiers).map(Number)))
             : tour.price}
-          €
+          €/{t.tours.per_person}
         </div>
       </div>
       <div className="p-5 flex-1 flex flex-col">
