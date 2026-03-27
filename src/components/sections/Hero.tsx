@@ -17,7 +17,7 @@ export const Hero = ({ t, scrollToSection }: HeroProps) => {
           loop
           muted
           playsInline
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover object-[center_65%]"
           poster="/tour-camironda.jpg"
         >
           <source
@@ -28,15 +28,15 @@ export const Hero = ({ t, scrollToSection }: HeroProps) => {
       </div>
       <div className="absolute inset-0 hero-gradient z-1" />
 
-      <div className="relative z-10 container-custom text-center text-white pt-20">
+      <div className="relative z-10 container-custom text-center text-white">
         <div>
           <p className="text-base md:text-lg mb-2 font-light tracking-wide opacity-90 animate-fade-in-up">
             {t.hero.tagline}
           </p>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-light mb-4 leading-tight animate-fade-in-up delay-200">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-normal mb-4 leading-tight animate-fade-in-up delay-200">
             {t.hero.title}
           </h1>
-          <p className="text-xl md:text-2xl mb-8 font-medium text-amber-400 animate-fade-in-up delay-300">
+          <p className="text-xl md:text-2xl mb-8 font-medium text-[#c9a961] animate-fade-in-up delay-300">
             {t.hero.subtitle}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up delay-400">

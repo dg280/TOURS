@@ -37,7 +37,7 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         await enBtn.click();
         await expect(page).toHaveTitle(/Tours & Detours/i);
         await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-        await expect(page.locator('h1')).toContainText(/Unique tours/i);
+        await expect(page.locator('h1')).toContainText(/Unique private Tours and Experiences in Barcelona and Catalonia/i);
 
         // ES
         const esBtn = page.locator('nav button').filter({ hasText: /^es$/i });

@@ -36,7 +36,7 @@ export const translations = {
                 ]
             },
             different: {
-                label: 'Différences', tag: 'Ce qui nous rend différents', title: 'Pourquoi ne pas choisir une agence classique ?', items: [
+                label: 'Différences', tag: 'Ce qui nous rend différents', title: 'Pourquoi nous choisir ?', items: [
                     { title: "Experts du terrain", desc: "Nous habitons ici, nous connaissons chaque chemin." },
                     { title: "Itinéraires secrets", desc: "Évitez les foules avec nos parcours exclusifs." },
                     { title: "Flexibilité totale", desc: "On s'adapte à votre rythme et vos envies." }
@@ -430,7 +430,7 @@ export const translations = {
                 ]
             },
             different: {
-                label: 'Differences', tag: 'What makes us different', title: 'Why not choose a classic agency?', items: [
+                label: 'Differences', tag: 'What makes us different', title: 'Why choose us?', items: [
                     { title: "Local Experts", desc: "We live here, we know every path." },
                     { title: "Secret Itineraries", desc: "Avoid crowds with our exclusive routes." },
                     { title: "Total Flexibility", desc: "We adapt to your rhythm and wishes." }
@@ -440,14 +440,14 @@ export const translations = {
         },
         hero: {
             tagline: 'Discover authentic Catalonia',
-            title: 'Unique Tours and Experiences in Barcelona and Environs',
+            title: 'Unique private Tours and Experiences in Barcelona and Catalonia',
             subtitle: 'Small groups, passionate local guide',
             description: 'Personalized excursions to discover the secrets of Catalonia, away from the tourist crowds — culture, nature, and adventure',
             cta_discover: 'See All Tours',
             cta_contact: 'Contact Me'
         },
         seo: {
-            title: 'Tours & Detours - Unique Tours and Experiences in Barcelona',
+            title: 'Tours & Detours - Unique Private Tours and Experiences in Barcelona and Catalonia',
             description: 'Personalized excursions and guided tours in Catalonia. Discover Girona, Costa Brava, Montserrat and more with a local expert.'
         },
         stats: {
@@ -824,7 +824,7 @@ export const translations = {
                 ]
             },
             different: {
-                label: 'Diferencias', tag: 'Lo que nos hace diferentes', title: '¿Por qué no elegir una agencia clásica?', items: [
+                label: 'Diferencias', tag: 'Lo que nos hace diferentes', title: '¿Por qué elegirnos?', items: [
                     { title: "Expertos locales", desc: "Vivimos aquí, conocemos cada camino." },
                     { title: "Itinerarios secretos", desc: "Evita las multitudes con nuestras rutas exclusivas." },
                     { title: "Flexibilidad total", desc: "Nos adaptamos a tu ritmo y deseos." }
@@ -834,7 +834,7 @@ export const translations = {
         },
         hero: {
             tagline: 'Descubre la Cataluña auténtica',
-            title: 'Tours y Experiencias Únicas en Barcelona y Alrededores',
+            title: 'Tours privados y Experiencias Únicas en Barcelona y Cataluña',
             subtitle: 'Grupos pequeños, guía local apasionado',
             description: 'Excursiones personalizadas para descubrir los secretos de Cataluña, lejos de las multitudes — cultura, naturaleza y aventura',
             cta_discover: 'Ver Todos los Tours',

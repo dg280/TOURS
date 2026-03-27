@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { CheckCircle2, Star, Users, Heart, Quote, Leaf } from "lucide-react";
+import { CheckCircle2, Star, Users, Heart, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Translations } from "@/lib/translations";
 
@@ -23,7 +23,11 @@ export const AboutPage = ({
   }, []);
 
   const at = t.about;
-  const [dp1, dp2, dp3] = differentPhotos ?? ["/tour-prepirinees.jpg", "/tour-beach.jpg", "/tour-camironda.jpg"];
+  const [dp1, dp2, dp3] = differentPhotos ?? [
+    "/tour-prepirinees.jpg",
+    "/tour-beach.jpg",
+    "/tour-camironda.jpg",
+  ];
 
   return (
     <div className="pb-16 bg-white selection:bg-amber-200">
@@ -48,11 +52,11 @@ export const AboutPage = ({
                 </span>
               </div>
 
-              <h2 className="text-5xl md:text-8xl text-premium-tight text-gray-900 leading-[0.85] tracking-[-0.07em]">
+              <h2 className="text-[4rem] text-premium-tight text-gray-900 leading-tight tracking-[-0.03em]">
                 {at.me.title}
               </h2>
 
-              <div className="space-y-6 text-xl md:text-2xl text-gray-600/90 leading-snug font-medium max-w-2xl">
+              <div className="space-y-6 text-[1rem] text-gray-600/90 leading-relaxed font-medium max-w-2xl">
                 {(guideBio || t.guide.bio || "")
                   .split("\n\n")
                   .map((para: string, idx: number) => (
@@ -94,38 +98,35 @@ export const AboutPage = ({
       {/* SECTION 2: PHILOSOPHY (Frosted Glass) */}
       <section
         id="philosophy"
-        className="py-20 md:py-32 relative bg-gray-50/50"
+        className="py-10 md:py-16 relative bg-gray-50/50"
       >
         <div className="container-custom">
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-20">
-              <p className="text-amber-600 font-black uppercase tracking-[0.4em] text-[10px] mb-6">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-8">
+              <p className="text-amber-600 font-black uppercase tracking-[0.4em] text-[10px] mb-3">
                 {at.philosophy.tag}
               </p>
-              <h2 className="text-4xl md:text-7xl text-premium-tight text-gray-900 mb-12">
+              <h2 className="text-[2rem] font-bold text-gray-900 mb-4">
                 {at.philosophy.title}
               </h2>
-              <div className="relative inline-block max-w-3xl">
-                <Quote className="absolute -top-10 -left-12 w-16 h-16 text-amber-200/50" />
-                <p className="text-2xl md:text-4xl text-gray-500 font-serif italic leading-tight">
-                  "{at.philosophy.quote}"
-                </p>
-              </div>
+              <p className="text-[1rem] text-gray-500 font-serif italic leading-relaxed">
+                "{at.philosophy.quote}"
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[Heart, Leaf, Users].map((Icon, i) => (
                 <div
                   key={i}
-                  className="glass-card group p-12 rounded-[3rem] transition-all duration-700 hover:shadow-2xl hover:-translate-y-4 border-white/80"
+                  className="glass-card group p-6 rounded-2xl transition-all duration-500 hover:shadow-lg hover:-translate-y-1 border-white/80"
                 >
-                  <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 mb-8 group-hover:bg-amber-600 group-hover:text-white transition-all duration-700">
-                    <Icon className="w-8 h-8" />
+                  <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 mb-4 group-hover:bg-amber-600 group-hover:text-white transition-all duration-500">
+                    <Icon className="w-5 h-5" />
                   </div>
-                  <h3 className="font-black text-2xl mb-4 tracking-tighter text-gray-900">
+                  <h3 className="font-black text-base mb-1 tracking-tight text-gray-900">
                     {at.philosophy.items[i].title}
                   </h3>
-                  <p className="text-gray-500 text-sm leading-relaxed font-medium">
+                  <p className="text-gray-500 text-[1rem] leading-relaxed font-medium">
                     {at.philosophy.items[i].desc}
                   </p>
                 </div>
@@ -138,33 +139,33 @@ export const AboutPage = ({
       {/* SECTION 3: DIFFERENCES (Expert Collage) */}
       <section
         id="different"
-        className="py-24 md:py-32 bg-white overflow-hidden"
+        className="py-12 md:py-16 bg-white overflow-hidden"
       >
         <div className="container-custom">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-            <div className="space-y-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <div className="space-y-6">
               <div>
-                <p className="text-amber-600 font-black uppercase tracking-[0.4em] text-[10px] mb-4">
+                <p className="text-amber-600 font-black uppercase tracking-[0.4em] text-[10px] mb-2">
                   {at.different.tag}
                 </p>
-                <h2 className="text-4xl md:text-7xl text-premium-tight text-gray-900 leading-[0.9]">
+                <h2 className="text-[2rem] font-bold text-gray-900 leading-tight">
                   {at.different.title}
                 </h2>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {at.different.items.map((item, i: number) => (
                   <div
                     key={i}
-                    className="glass-card group flex gap-6 p-8 rounded-[2rem] hover:bg-amber-50/50 transition-all duration-500 border-gray-100 hover:border-amber-200"
+                    className="glass-card group flex gap-4 p-5 rounded-2xl hover:bg-amber-50/50 transition-all duration-500 border-gray-100 hover:border-amber-200"
                   >
-                    <div className="w-14 h-14 bg-gray-900 text-white rounded-2xl flex items-center justify-center shrink-0 transition-all duration-500 group-hover:bg-amber-600 group-hover:text-white">
-                      <CheckCircle2 className="w-7 h-7" />
+                    <div className="w-9 h-9 bg-gray-900 text-white rounded-xl flex items-center justify-center shrink-0 transition-all duration-500 group-hover:bg-amber-600">
+                      <CheckCircle2 className="w-4 h-4" />
                     </div>
                     <div>
-                      <h4 className="font-black text-xl mb-2 tracking-tighter text-gray-900">
+                      <h4 className="font-black text-base mb-1 tracking-tight text-gray-900">
                         {item.title}
                       </h4>
-                      <p className="text-gray-500 text-[13px] leading-relaxed font-medium">
+                      <p className="text-gray-500 text-[1rem] leading-relaxed font-medium">
                         {item.desc}
                       </p>
                     </div>
@@ -173,26 +174,23 @@ export const AboutPage = ({
               </div>
             </div>
 
-            <div className="relative lg:h-[700px] flex items-center justify-center">
-              {/* Visual Collage: Pure Premium Apple Style */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-pattern-dots opacity-[0.05] -z-10" />
-
-              <div className="relative w-full aspect-square md:aspect-auto md:h-full grid grid-cols-2 grid-rows-2 gap-4">
-                <div className="relative row-span-2 rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white animate-fade-in-up">
+            <div className="relative lg:h-[350px] flex items-center justify-center">
+              <div className="relative w-full h-full grid grid-cols-2 grid-rows-2 gap-3">
+                <div className="relative row-span-2 rounded-2xl overflow-hidden shadow-xl border-2 border-white animate-fade-in-up">
                   <img
                     src={dp1}
                     className="w-full h-full object-cover hover:scale-110 transition-transform duration-1000"
                     alt="Nature"
                   />
                 </div>
-                <div className="relative rounded-[2rem] overflow-hidden shadow-xl border-4 border-white animate-fade-in-up delay-100">
+                <div className="relative rounded-2xl overflow-hidden shadow-lg border-2 border-white animate-fade-in-up delay-100">
                   <img
                     src={dp2}
                     className="w-full h-full object-cover hover:scale-110 transition-transform duration-1000"
                     alt="Beach"
                   />
                 </div>
-                <div className="relative rounded-[2rem] overflow-hidden shadow-xl border-4 border-white animate-fade-in-up delay-200">
+                <div className="relative rounded-2xl overflow-hidden shadow-lg border-2 border-white animate-fade-in-up delay-200">
                   <img
                     src={dp3}
                     className="w-full h-full object-cover hover:scale-110 transition-transform duration-1000"
@@ -200,79 +198,64 @@ export const AboutPage = ({
                   />
                 </div>
               </div>
-
-              {/* Floating Glass Label */}
-              <div className="absolute -bottom-4 right-4 glass-card px-10 py-6 rounded-full shadow-2xl z-20 border-white/50 animate-fade-in delay-500">
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-900">
-                  Expertise Locale
-                </span>
-              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* SECTION 4: WHY US (High Contrast Footer) */}
-      <section
-        id="why"
-        className="relative py-24 md:py-40 bg-gray-900 text-white overflow-hidden rounded-t-[4rem] -mt-12"
-      >
-        <div className="absolute inset-0 mesh-gradient opacity-20" />
-
-        <div className="container-custom relative z-10 text-center">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-5xl md:text-9xl text-premium-tight text-white mb-20 leading-[0.8] tracking-[-0.08em]">
+      {/* SECTION 4: WHY US */}
+      <section id="why" className="relative py-12 md:py-16 bg-white">
+        <div className="container-custom relative z-10 flex justify-center">
+          <div className="w-full max-w-lg bg-gray-900 text-white rounded-3xl p-8 md:p-10 text-center shadow-2xl">
+            <h2 className="text-[4rem] font-semibold text-white mb-6 leading-tight">
               {at.why.title}
             </h2>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-12 lg:gap-24 mb-32">
+            <div className="grid grid-cols-3 gap-4 mb-8">
               {at.why.stats.map((stat, i: number) => (
-                <div key={i} className="space-y-3 group">
-                  <p className="text-6xl md:text-9xl text-premium-tight text-amber-500 group-hover:scale-110 transition-transform duration-500">
+                <div key={i} className="space-y-1">
+                  <p className="text-3xl md:text-4xl font-bold text-amber-500">
                     {stat.val}
                   </p>
-                  <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.4em]">
+                  <p className="text-gray-400 text-[9px] font-black uppercase tracking-[0.3em]">
                     {stat.label}
                   </p>
                 </div>
               ))}
             </div>
 
-            {/* Testimonial: Pure Apple Glass */}
-            <div className="glass-card-dark p-12 md:p-24 rounded-[4rem] transition-all duration-700 hover:bg-gray-800/80 group">
-              <Quote className="absolute top-12 left-12 w-24 h-24 text-white/10 group-hover:text-amber-500/10 transition-colors" />
-              <p className="text-2xl md:text-5xl font-medium italic mb-16 relative z-10 leading-[1.1] tracking-tighter text-amber-50">
+            {/* Testimonial */}
+            <div className="bg-white/5 border border-white/10 p-5 rounded-2xl mb-6">
+              <p className="text-sm font-medium italic mb-4 leading-snug text-amber-50">
                 "{at.why.quote}"
               </p>
-              <div className="flex flex-col items-center gap-6">
-                <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-amber-600 shadow-2xl ring-8 ring-white/5">
+              <div className="flex items-center justify-center gap-3">
+                <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-amber-600 shadow-lg flex-shrink-0">
                   <img
                     src="/guide-antoine.jpg"
                     alt="Client"
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <div className="text-center">
-                  <p className="font-black text-white uppercase tracking-[0.3em] text-sm">
+                <div className="text-left">
+                  <p className="font-black text-white uppercase tracking-[0.2em] text-xs">
                     Marie D.
                   </p>
-                  <div className="flex text-amber-500 mt-4 justify-center gap-2">
+                  <div className="flex text-amber-500 mt-1 gap-0.5">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-current" />
+                      <Star key={i} className="w-3 h-3 fill-current" />
                     ))}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-24">
-              <Button
-                onClick={onBackToHome}
-                className="bg-white hover:bg-[#c9a961] text-black hover:text-white rounded-full px-16 py-8 h-auto font-black uppercase tracking-[0.3em] text-[10px] transition-all duration-500 hover:scale-110 active:scale-95 shadow-2xl"
-              >
-                {at.why.back}
-              </Button>
-            </div>
+            <Button
+              onClick={onBackToHome}
+              className="bg-white hover:bg-[#c9a961] text-black hover:text-white rounded-full px-8 py-3 h-auto font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg"
+            >
+              {at.why.back}
+            </Button>
           </div>
         </div>
       </section>

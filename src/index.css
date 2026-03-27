@@ -10,8 +10,8 @@
     --primary-color-rgb: 201 169 97;
     --background-color: linear-gradient(
       to bottom,
-      rgba(0, 0, 0, 0.15) 0%,
-      rgba(0, 0, 0, 0.35) 100%
+      rgba(0, 0, 0, 0.25) 0%,
+      rgba(0, 0, 0, 0.55) 100%
     );
     --background: 30 25% 98%;
     --foreground: 220 15% 15%;
