@@ -1511,7 +1511,7 @@ function ToursManagement({
           group_size: tourData.groupSize,
           max_capacity: tourData.maxCapacity ?? 8,
           price: tourData.price,
-          image: tourData.image,
+          image: (tourData.images && tourData.images.length > 0) ? tourData.images[0] : tourData.image,
           category: tourData.category,
           highlights: tourData.highlights,
           highlights_en: tourData.highlights_en,
@@ -3004,7 +3004,7 @@ function ToursManagement({
                                       setEditingTour({
                                         ...editingTour,
                                         images: newImages,
-                                        image: idx === 0 ? newImages[0] || "" : editingTour.image,
+                                        image: newImages[0] || "",
                                       });
                                     }}
                                     title="Supprimer"
