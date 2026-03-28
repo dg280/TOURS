@@ -100,7 +100,7 @@ export const TopToursCarousel = ({
                     onClick={() => onTourClick(tour)}
                     className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col h-full cursor-pointer"
                   >
-                    <div className="relative h-64 md:h-56 overflow-hidden">
+                    <div className="relative overflow-hidden">
                       <img
                         src={tour.image}
                         alt={
@@ -110,7 +110,7 @@ export const TopToursCarousel = ({
                               ? tour.title_es || tour.title
                               : tour.title
                         }
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-auto group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute top-3 left-3">
                         <Badge className="bg-white/90 text-gray-800">

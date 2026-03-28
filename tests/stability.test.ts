@@ -33,7 +33,43 @@ test.describe('Stability & Regression Tests', () => {
 
   test('Tiered pricing logic is present in the API', async () => {
     // This is a unit-like check to ensure the file hasn't been reverted
-    // Since we can't easily unit test API files here without a runner, 
+    // Since we can't easily unit test API files here without a runner,
     // we rely on the fact that it's pushed and the build passed.
+  });
+
+  test('Tour card images are displayed without CSS re-cropping', async ({ page }) => {
+    await page.goto('/');
+    // Wait for tour cards to render
+    const tourImg = page.locator('.group img[alt]').first();
+    await expect(tourImg).toBeVisible({ timeout: 10000 });
+
+    // Verify no object-cover or fixed height that would re-crop the image
+    const styles = await tourImg.evaluate((el) => {
+      const computed = window.getComputedStyle(el);
+      return {
+        objectFit: computed.objectFit,
+        height: computed.height,
+      };
+    });
+
+    // Image should NOT use object-cover (which re-crops)
+    expect(styles.objectFit).not.toBe('cover');
+  });
+
+  test('Tour dialog images are displayed without CSS re-cropping', async ({ page }) => {
+    await page.goto('/');
+    // Click on the first tour card to open the dialog
+    const tourCard = page.locator('.group.bg-white.rounded-2xl').first();
+    await tourCard.click();
+
+    // Wait for dialog image
+    const dialogImg = page.locator('[data-testid="tour-dialog"] img').first();
+    await expect(dialogImg).toBeVisible({ timeout: 10000 });
+
+    const objectFit = await dialogImg.evaluate((el) => {
+      return window.getComputedStyle(el).objectFit;
+    });
+
+    expect(objectFit).not.toBe('cover');
   });
 });
