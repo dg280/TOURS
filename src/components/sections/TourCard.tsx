@@ -86,6 +86,19 @@ export const TourCard = ({ tour, index, lang, t, onClick }: TourCardProps) => {
           </div>
         </div>
 
+        <div className="flex items-baseline gap-1 mb-4">
+          <span className="text-xl font-bold text-gray-900">
+            {t.tours.from_price}{" "}
+            {tour.pricing_tiers && Object.keys(tour.pricing_tiers).length > 0
+              ? (() => {
+                  const maxKey = Math.max(...Object.keys(tour.pricing_tiers).map(Number));
+                  return Math.round(tour.pricing_tiers[maxKey] / maxKey);
+                })()
+              : tour.price}€
+          </span>
+          <span className="text-sm text-gray-500">/{t.tours.per_person}</span>
+        </div>
+
         <Button className="w-full mt-auto bg-[#c9a961] hover:bg-[#b8944e] text-white rounded-2xl h-14 font-bold transition-all active:scale-95 shadow-lg shadow-[#c9a961]/20">
           {t.tours.learn_more}
         </Button>
