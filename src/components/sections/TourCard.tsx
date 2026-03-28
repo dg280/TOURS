@@ -1,6 +1,6 @@
 import { Clock, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+
 import type { Tour } from "@/lib/types";
 import type { Language, Translations } from "@/lib/translations";
 
@@ -31,32 +31,6 @@ export const TourCard = ({ tour, index, lang, t, onClick }: TourCardProps) => {
           }
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
-        <div className="absolute top-3 left-3 flex flex-wrap gap-1 max-w-[70%]">
-          {Array.isArray(tour.category) ? (
-            tour.category.map((catId) => (
-              <Badge
-                key={catId}
-                className="bg-white/90 text-gray-800 text-[10px] font-bold uppercase transition-all hover:bg-amber-600 hover:text-white"
-              >
-                {(t.tours.categories as Record<string, string>)?.[catId] ||
-                  catId}
-              </Badge>
-            ))
-          ) : (
-            <Badge className="bg-white/90 text-gray-800 text-[10px] font-bold uppercase">
-              {(t.tours.categories as Record<string, string>)?.[
-                tour.category
-              ] || tour.category}
-            </Badge>
-          )}
-        </div>
-        <div className="absolute top-3 right-3 bg-amber-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
-          {t.tours.from_price}{" "}
-          {tour.pricing_tiers && Object.keys(tour.pricing_tiers).length > 0
-            ? Math.round(Math.min(...Object.values(tour.pricing_tiers)) / Math.max(...Object.keys(tour.pricing_tiers).map(Number)))
-            : tour.price}
-          €/{t.tours.per_person}
-        </div>
       </div>
       <div className="p-5 flex-1 flex flex-col">
         <p className="text-xs text-amber-600 font-medium uppercase tracking-wide mb-1">
