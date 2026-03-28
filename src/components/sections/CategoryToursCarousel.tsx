@@ -129,11 +129,11 @@ export const CategoryToursCarousel = ({
                       onClick={() => onTourClick(tour)}
                       className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col h-full cursor-pointer"
                     >
-                      <div className="relative overflow-hidden">
+                      <div className="relative aspect-[4/3] overflow-hidden">
                         <img
                           src={tour.image}
                           alt={tour.title}
-                          className="w-full h-auto group-hover:scale-105 transition-transform duration-500"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                       </div>
                       <div className="p-5 flex-1 flex flex-col">

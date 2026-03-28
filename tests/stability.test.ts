@@ -37,39 +37,36 @@ test.describe('Stability & Regression Tests', () => {
     // we rely on the fact that it's pushed and the build passed.
   });
 
-  test('Tour card images are displayed without CSS re-cropping', async ({ page }) => {
+  test('Tour card images use consistent 4:3 aspect ratio', async ({ page }) => {
     await page.goto('/');
-    // Wait for tour cards to render
-    const tourImg = page.locator('.group img[alt]').first();
-    await expect(tourImg).toBeVisible({ timeout: 10000 });
+    const tourImgContainer = page.locator('.group .aspect-\\[4\\/3\\]').first();
+    await expect(tourImgContainer).toBeVisible({ timeout: 10000 });
 
-    // Verify no object-cover or fixed height that would re-crop the image
-    const styles = await tourImg.evaluate((el) => {
-      const computed = window.getComputedStyle(el);
-      return {
-        objectFit: computed.objectFit,
-        height: computed.height,
-      };
+    // Verify the container enforces 4:3 aspect ratio
+    const ratio = await tourImgContainer.evaluate((el) => {
+      const rect = el.getBoundingClientRect();
+      return rect.width / rect.height;
     });
 
-    // Image should NOT use object-cover (which re-crops)
-    expect(styles.objectFit).not.toBe('cover');
+    // 4:3 = 1.333... — allow small tolerance
+    expect(ratio).toBeGreaterThan(1.2);
+    expect(ratio).toBeLessThan(1.5);
   });
 
-  test('Tour dialog images are displayed without CSS re-cropping', async ({ page }) => {
+  test('Tour dialog images use consistent 4:3 aspect ratio', async ({ page }) => {
     await page.goto('/');
-    // Click on the first tour card to open the dialog
     const tourCard = page.locator('.group.bg-white.rounded-2xl').first();
     await tourCard.click();
 
-    // Wait for dialog image
-    const dialogImg = page.locator('[data-testid="tour-dialog"] img').first();
-    await expect(dialogImg).toBeVisible({ timeout: 10000 });
+    const dialogImgContainer = page.locator('[data-testid="tour-dialog"] .aspect-\\[4\\/3\\]').first();
+    await expect(dialogImgContainer).toBeVisible({ timeout: 10000 });
 
-    const objectFit = await dialogImg.evaluate((el) => {
-      return window.getComputedStyle(el).objectFit;
+    const ratio = await dialogImgContainer.evaluate((el) => {
+      const rect = el.getBoundingClientRect();
+      return rect.width / rect.height;
     });
 
-    expect(objectFit).not.toBe('cover');
+    expect(ratio).toBeGreaterThan(1.2);
+    expect(ratio).toBeLessThan(1.5);
   });
 });

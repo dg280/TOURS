@@ -19,7 +19,7 @@ export const TourCard = ({ tour, index, lang, t, onClick }: TourCardProps) => {
       className="relative group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col cursor-pointer"
       style={{ animationDelay: `${index * 0.1}s` }}
     >
-      <div className="relative overflow-hidden">
+      <div className="relative aspect-[4/3] overflow-hidden">
         <img
           src={tour.image}
           alt={
@@ -29,7 +29,7 @@ export const TourCard = ({ tour, index, lang, t, onClick }: TourCardProps) => {
                 ? tour.title_es || tour.title
                 : tour.title
           }
-          className="w-full h-auto group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
       </div>
       <div className="p-5 flex-1 flex flex-col">

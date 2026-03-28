@@ -63,16 +63,16 @@ export const TourDialog = ({
 
             <div className="grid lg:grid-cols-3 gap-10">
               <div className="lg:col-span-2 space-y-6">
-                <div className="rounded-xl overflow-hidden shadow-md bg-gray-100 relative group">
+                <div className="aspect-[4/3] rounded-xl overflow-hidden shadow-md bg-gray-100 relative group">
                   {tour.images && tour.images.length > 0 ? (
-                    <Carousel className="w-full">
+                    <Carousel className="w-full h-full">
                       <CarouselContent>
                         {tour.images.map((img, i) => (
                           <CarouselItem key={i}>
                             <img
                               src={img}
                               alt={`${tour.title} ${i + 1}`}
-                              className="w-full h-auto"
+                              className="w-full h-full object-cover"
                             />
                           </CarouselItem>
                         ))}
@@ -88,7 +88,7 @@ export const TourDialog = ({
                     <img
                       src={tour.image}
                       alt={tour.title}
-                      className="w-full h-auto"
+                      className="w-full h-full object-cover"
                     />
                   )}
                 </div>
