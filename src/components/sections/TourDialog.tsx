@@ -63,16 +63,16 @@ export const TourDialog = ({
 
             <div className="grid lg:grid-cols-3 gap-10">
               <div className="lg:col-span-2 space-y-6">
-                <div className="aspect-video rounded-xl overflow-hidden shadow-md bg-gray-100 relative group">
+                <div className="rounded-xl overflow-hidden shadow-md bg-gray-100 relative group">
                   {tour.images && tour.images.length > 0 ? (
-                    <Carousel className="w-full h-full">
+                    <Carousel className="w-full">
                       <CarouselContent>
                         {tour.images.map((img, i) => (
                           <CarouselItem key={i}>
                             <img
                               src={img}
                               alt={`${tour.title} ${i + 1}`}
-                              className="w-full h-full object-cover aspect-video"
+                              className="w-full h-auto"
                             />
                           </CarouselItem>
                         ))}
@@ -88,7 +88,7 @@ export const TourDialog = ({
                     <img
                       src={tour.image}
                       alt={tour.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-auto"
                     />
                   )}
                 </div>
@@ -285,7 +285,10 @@ export const TourDialog = ({
                       <span className="text-4xl font-bold text-gray-900">
                         {tour.pricing_tiers &&
                         Object.keys(tour.pricing_tiers).length > 0
-                          ? Math.round(Math.min(...Object.values(tour.pricing_tiers)) / Math.max(...Object.keys(tour.pricing_tiers).map(Number)))
+                          ? (() => {
+                              const maxKey = Math.max(...Object.keys(tour.pricing_tiers).map(Number));
+                              return Math.round(tour.pricing_tiers[maxKey] / maxKey);
+                            })()
                           : tour.price}
                         €
                       </span>
