@@ -135,9 +135,6 @@ export const CategoryToursCarousel = ({
                           alt={tour.title}
                           className="w-full h-auto group-hover:scale-105 transition-transform duration-500"
                         />
-                        <div className="absolute top-3 right-3 bg-white/90 text-gray-800 px-2 py-1 rounded-lg text-xs font-bold shadow-sm">
-                          {tour.price}€
-                        </div>
                       </div>
                       <div className="p-5 flex-1 flex flex-col">
                         <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-1">
