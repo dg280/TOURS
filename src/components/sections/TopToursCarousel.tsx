@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+
 import type { Tour } from "@/lib/types";
 import type { Language, Translations } from "@/lib/translations";
 
@@ -112,14 +112,6 @@ export const TopToursCarousel = ({
                         }
                         className="w-full h-auto group-hover:scale-105 transition-transform duration-500"
                       />
-                      <div className="absolute top-3 left-3">
-                        <Badge className="bg-white/90 text-gray-800">
-                          {tour.category}
-                        </Badge>
-                      </div>
-                      <div className="absolute top-3 right-3 bg-amber-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
-                        {tour.price}€
-                      </div>
                     </div>
 
                     <div className="p-6 flex-1 flex flex-col">
