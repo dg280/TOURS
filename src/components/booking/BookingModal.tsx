@@ -899,12 +899,18 @@ export const BookingModal = ({
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-amber-200 mt-2">
-                    <p className="flex justify-between text-base">
-                      <span>Total payé:</span>{" "}
-                      <span className="font-bold text-amber-900">
-                        {calculateTotal()}€
-                      </span>
+                  <div className="pt-2 border-t border-amber-200 mt-2 space-y-1">
+                    <p className="flex justify-between text-sm text-amber-800">
+                      <span>Tour</span>
+                      <span>{calculateSubtotal().toFixed(2)}€</span>
+                    </p>
+                    <p className="flex justify-between text-sm text-amber-700/70">
+                      <span>{t.booking.processing_fees}</span>
+                      <span>{(calculateTotal() - calculateSubtotal()).toFixed(2)}€</span>
+                    </p>
+                    <p className="flex justify-between text-base font-bold text-amber-900 pt-1">
+                      <span>{t.booking.total_paid}</span>
+                      <span>{calculateTotal()}€</span>
                     </p>
                   </div>
                 </div>
@@ -923,8 +929,17 @@ export const BookingModal = ({
             <div className="p-4 sm:p-6 bg-gray-50 border-t flex flex-col gap-4 shrink-0 pb-safe">
               <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
                 <div className="flex flex-col">
-                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none">Total</p>
-                  <p className="text-xl font-bold text-gray-900">{calculateTotal()}€</p>
+                  <div className="flex items-baseline gap-3">
+                    <div>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none">Total</p>
+                      <p className="text-xl font-bold text-gray-900">{calculateTotal()}€</p>
+                    </div>
+                    <div className="text-[10px] text-gray-400 leading-tight">
+                      <span>{lang === 'en' ? 'Tour' : lang === 'es' ? 'Tour' : 'Tour'}: {calculateSubtotal().toFixed(2)}€</span>
+                      <br/>
+                      <span>{t.booking.processing_fees}: +{(calculateTotal() - calculateSubtotal()).toFixed(2)}€</span>
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="flex w-full sm:w-auto gap-3">
