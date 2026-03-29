@@ -1425,26 +1425,20 @@ function ToursManagement({
     const loading = toast.loading(`Enregistrement de l'image...`);
     try {
       const { index, files, isExisting } = imageToEdit;
-      let fileExt = "jpg";
+      // getCroppedImg always outputs JPEG via canvas.toBlob — use .jpg consistently
       let fileName = "";
-      
+
       if (isExisting) {
-        // Try to get extension from URL or use jpg
-        const urlParts = imageToEdit.url.split('?')[0].split('.');
-        fileExt = urlParts[urlParts.length - 1] || "jpg";
-        if (fileExt.length > 4) fileExt = "jpg"; // Handle weird URLs
-        fileName = `tours/${editingTour.id}/${Date.now()}-edit.${fileExt}`;
+        fileName = `tours/${editingTour.id}/${Date.now()}-edit.jpg`;
       } else if (files && files[index]) {
-        const file = files[index];
-        fileExt = file.name.split(".").pop() || "jpg";
-        fileName = `tours/${editingTour.id}/${Date.now()}-${index}.${fileExt}`;
+        fileName = `tours/${editingTour.id}/${Date.now()}-${index}.jpg`;
       } else {
         fileName = `tours/${editingTour.id}/${Date.now()}-generic.jpg`;
       }
 
       const { error: uploadError } = await supabase!.storage
         .from("tour_images")
-        .upload(fileName, blob, { contentType: `image/${fileExt}` });
+        .upload(fileName, blob, { contentType: "image/jpeg" });
 
       if (uploadError) throw uploadError;
 
@@ -3364,8 +3358,9 @@ function ToursManagement({
           isOpen={!!imageToEdit}
           onClose={() => setImageToEdit(null)}
           onSave={onSaveEditedImage}
-          title={imageToEdit.isExisting 
-            ? "Modifier l'image" 
+          lockAspectRatio
+          title={imageToEdit.isExisting
+            ? "Modifier l'image"
             : `Retoucher l'image (${imageToEdit.index + 1}/${imageToEdit.files?.length || 1})`}
         />
       )}
