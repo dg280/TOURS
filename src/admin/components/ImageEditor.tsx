@@ -20,6 +20,7 @@ interface ImageEditorProps {
   onClose: () => void;
   onSave: (croppedImage: Blob) => Promise<void>;
   aspectRatio?: number;
+  lockAspectRatio?: boolean;
   title?: string;
 }
 
@@ -36,6 +37,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
   onClose,
   onSave,
   aspectRatio: defaultAspect = 4 / 3,
+  lockAspectRatio = false,
   title = "Retoucher l'image",
 }) => {
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
@@ -45,6 +47,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
   const [flipH, setFlipH] = useState(false);
   const [flipV, setFlipV] = useState(false);
   const [selectedAspect, setSelectedAspect] = useState<number | undefined>(defaultAspect);
+  const effectiveAspect = lockAspectRatio ? defaultAspect : selectedAspect;
 
   const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
@@ -115,7 +118,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
               crop={crop}
               rotation={rotation}
               zoom={zoom}
-              aspect={selectedAspect}
+              aspect={effectiveAspect}
               onCropChange={setCrop}
               onRotationChange={setRotation}
               onCropComplete={onCropComplete}
@@ -131,28 +134,30 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
           </p>
 
           <div className="p-6 pt-4 space-y-5">
-            {/* Aspect ratio selector */}
-            <div className="space-y-2">
-              <div className="text-xs font-medium text-gray-500 mb-1">Format</div>
-              <div className="flex gap-2">
-                {ASPECT_OPTIONS.map((opt) => {
-                  const Icon = opt.icon;
-                  const isActive = selectedAspect === opt.value;
-                  return (
-                    <Button
-                      key={opt.label}
-                      variant={isActive ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setSelectedAspect(opt.value)}
-                      className={`flex-1 ${isActive ? "bg-[#c9a961] hover:bg-[#b8944e] text-white" : ""}`}
-                    >
-                      <Icon className="w-3 h-3 mr-1" />
-                      {opt.label}
-                    </Button>
-                  );
-                })}
+            {/* Aspect ratio selector — hidden when ratio is locked */}
+            {!lockAspectRatio && (
+              <div className="space-y-2">
+                <div className="text-xs font-medium text-gray-500 mb-1">Format</div>
+                <div className="flex gap-2">
+                  {ASPECT_OPTIONS.map((opt) => {
+                    const Icon = opt.icon;
+                    const isActive = selectedAspect === opt.value;
+                    return (
+                      <Button
+                        key={opt.label}
+                        variant={isActive ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setSelectedAspect(opt.value)}
+                        className={`flex-1 ${isActive ? "bg-[#c9a961] hover:bg-[#b8944e] text-white" : ""}`}
+                      >
+                        <Icon className="w-3 h-3 mr-1" />
+                        {opt.label}
+                      </Button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Zoom */}
             <div className="space-y-2">
