@@ -135,6 +135,17 @@ export const CategoryToursCarousel = ({
                           alt={tour.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
+                        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md">
+                          <span className="text-sm font-bold text-gray-900">
+                            {t.tours.from_price}{" "}
+                            {tour.pricing_tiers && Object.keys(tour.pricing_tiers).length > 0
+                              ? (() => {
+                                  const maxKey = Math.max(...Object.keys(tour.pricing_tiers).map(Number));
+                                  return Math.round(tour.pricing_tiers[maxKey] / maxKey);
+                                })()
+                              : tour.price}€
+                          </span>
+                        </div>
                       </div>
                       <div className="p-5 flex-1 flex flex-col">
                         <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-1">
