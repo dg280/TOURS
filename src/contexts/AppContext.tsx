@@ -92,7 +92,7 @@ function mapDbTour(t: Record<string, unknown>): Tour {
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Language>("fr");
+  const [lang, setLang] = useState<Language>("en");
   const [dbTours, setDbTours] = useState<Tour[]>([]);
   const [dbReviews, setDbReviews] = useState<Testimonial[]>([]);
   const [guide, setGuide] = useState<GuideProfile>(DEFAULT_GUIDE);

@@ -58,10 +58,10 @@ test.describe('Stability & Regression Tests', () => {
     const tourCard = page.locator('.group.bg-white.rounded-2xl').first();
     await tourCard.click();
 
-    const dialogImgContainer = page.locator('[data-testid="tour-dialog"] .aspect-\\[4\\/3\\]').first();
-    await expect(dialogImgContainer).toBeVisible({ timeout: 10000 });
+    const dialogImg = page.locator('[data-testid="tour-dialog"] img.aspect-\\[4\\/3\\]').first();
+    await expect(dialogImg).toBeVisible({ timeout: 10000 });
 
-    const ratio = await dialogImgContainer.evaluate((el) => {
+    const ratio = await dialogImg.evaluate((el) => {
       const rect = el.getBoundingClientRect();
       return rect.width / rect.height;
     });
