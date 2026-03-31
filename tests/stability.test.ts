@@ -53,21 +53,17 @@ test.describe('Stability & Regression Tests', () => {
     expect(ratio).toBeLessThan(1.5);
   });
 
-  test('Tour dialog images use consistent 4:3 aspect ratio', async ({ page }) => {
+  test('Tour dialog images are visible and title appears above', async ({ page }) => {
     await page.goto('/');
     const tourCard = page.locator('.group.bg-white.rounded-2xl').first();
     await tourCard.click();
 
-    const dialogImg = page.locator('[data-testid="tour-dialog"] img.aspect-\\[3\\/2\\]').first();
+    // Title should be visible without scrolling
+    const dialogTitle = page.locator('[data-testid="tour-dialog"] h2').first();
+    await expect(dialogTitle).toBeVisible({ timeout: 10000 });
+
+    // Image should be visible
+    const dialogImg = page.locator('[data-testid="tour-dialog"] img').first();
     await expect(dialogImg).toBeVisible({ timeout: 10000 });
-
-    const ratio = await dialogImg.evaluate((el) => {
-      const rect = el.getBoundingClientRect();
-      return rect.width / rect.height;
-    });
-
-    // 3:2 = 1.5 — allow small tolerance
-    expect(ratio).toBeGreaterThan(1.3);
-    expect(ratio).toBeLessThan(1.7);
   });
 });

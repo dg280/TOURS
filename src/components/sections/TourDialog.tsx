@@ -1,3 +1,4 @@
+import { useRef, useEffect } from "react";
 import { X, Check, CheckCircle2, Info, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,6 +35,15 @@ export const TourDialog = ({
   t,
   onBookNow,
 }: TourDialogProps) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to top when dialog opens
+  useEffect(() => {
+    if (isOpen && scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+    }
+  }, [isOpen]);
+
   if (!tour) return null;
 
   return (
@@ -42,7 +52,7 @@ export const TourDialog = ({
         className="w-[95vw] sm:max-w-6xl h-[90vh] p-0 rounded-2xl border-none shadow-2xl overflow-hidden flex flex-col bg-white"
         data-testid="tour-dialog"
       >
-        <div className="flex-1 overflow-y-auto no-scrollbar">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto no-scrollbar">
           <div className="p-6 sm:p-10">
             <DialogHeader className="mb-6">
               <DialogTitle className="text-2xl sm:text-4xl font-bold mb-1 text-gray-900 tracking-tight">
@@ -63,7 +73,7 @@ export const TourDialog = ({
 
             <div className="grid lg:grid-cols-3 gap-10">
               <div className="lg:col-span-2 space-y-6">
-                <div className="rounded-xl overflow-hidden shadow-md bg-gray-100 relative group">
+                <div className="rounded-xl overflow-hidden shadow-md bg-gray-100 relative group max-h-[40vh]">
                   {tour.images && tour.images.length > 0 ? (
                     <Carousel className="w-full">
                       <CarouselContent>
@@ -72,7 +82,7 @@ export const TourDialog = ({
                             <img
                               src={img}
                               alt={`${tour.title} ${i + 1}`}
-                              className="w-full aspect-[3/2] object-cover"
+                              className="w-full aspect-[3/2] object-cover max-h-[40vh]"
                             />
                           </CarouselItem>
                         ))}
@@ -88,7 +98,7 @@ export const TourDialog = ({
                     <img
                       src={tour.image}
                       alt={tour.title}
-                      className="w-full aspect-[3/2] object-cover"
+                      className="w-full aspect-[3/2] object-cover max-h-[40vh]"
                     />
                   )}
                 </div>
