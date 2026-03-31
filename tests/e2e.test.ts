@@ -128,7 +128,7 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         await page.getByTestId('book-now-button').first().click();
 
         // 3. Step 1: Date & Participants
-        await expect(page.locator('text=Étape 1 sur 5')).toBeVisible();
+        await expect(page.locator('text=Step 1 of 5')).toBeVisible();
         // Calendar replaces the old date input — verify it is visible
         const calendar = page.getByTestId('availability-calendar');
         await expect(calendar).toBeVisible({ timeout: 10000 });
@@ -142,12 +142,12 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         await page.waitForTimeout(500);
         const nextBtn = page.getByTestId('next-step-button').first();
         await nextBtn.click({ force: true });
-        await expect(page.locator('text=/Étape 2 sur 5|Step 2 of 5|Paso 2 de 5/').first()).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('text=Step 2 of 5').first()).toBeVisible({ timeout: 10000 });
 
         // 5. Check validation (try next without name)
         await page.getByTestId('next-step-button').first().dispatchEvent('click');
         // Should stay on step 2 (no crash)
-        await expect(page.locator('text=Étape 2 sur 5')).toBeVisible();
+        await expect(page.locator('text=Step 2 of 5')).toBeVisible();
         await expect(page.locator('input#booking-name')).toBeVisible();
     });
 
@@ -391,13 +391,13 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         await page.getByTestId('book-now-button').first().click();
 
         // Step 1 — advance
-        await expect(page.locator('text=Étape 1 sur 5')).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('text=Step 1 of 5')).toBeVisible({ timeout: 10000 });
         const nextBtn1 = page.getByTestId('next-step-button').first();
         await nextBtn1.scrollIntoViewIfNeeded();
         await nextBtn1.click({ force: true });
 
         // Step 2 — fill all fields
-        await expect(page.locator('text=Étape 2 sur 5')).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('text=Step 2 of 5')).toBeVisible({ timeout: 10000 });
         await page.fill('input#booking-name', 'Test E2E User');
         await page.fill('input#booking-email', 'test@e2e.com');
 
@@ -416,8 +416,8 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         await nextBtn2.click({ force: true });
         await page.waitForTimeout(2000);
 
-        const atStep3 = await page.locator('text=/Étape 3 sur 5/').isVisible().catch(() => false);
-        const atStep2 = await page.locator('text=Étape 2 sur 5').isVisible().catch(() => false);
+        const atStep3 = await page.locator('text=/Step 3 of 5/').isVisible().catch(() => false);
+        const atStep2 = await page.locator('text=Step 2 of 5').isVisible().catch(() => false);
         expect(atStep3 || atStep2).toBe(true);
     });
 
@@ -543,7 +543,7 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         const footer = page.locator('footer');
         await expect(footer.getByRole('link', { name: /Nos Tours|Tours/i }).first()).toBeVisible();
         await expect(footer.getByRole('link', { name: /Guide|Votre Guide/i }).first()).toBeVisible();
-        await expect(footer.getByRole('link', { name: /Avis/i }).first()).toBeVisible();
+        await expect(footer.getByRole('link', { name: /Avis|Reviews/i }).first()).toBeVisible();
         await expect(footer.getByRole('link', { name: /Contact/i }).first()).toBeVisible();
 
         // At least 4 tour names listed in footer
@@ -551,17 +551,17 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         const count = await tourLinks.count();
         expect(count).toBeGreaterThanOrEqual(4);
 
-        // Mentions légales modal
-        await footer.getByRole('button', { name: /Mentions légales/i }).click();
+        // Legal notice modal
+        await footer.getByRole('button', { name: /Mentions légales|Legal Notice/i }).click();
         await expect(page.locator('div[role="dialog"]')).toBeVisible({ timeout: 5000 });
-        await expect(page.locator('div[role="dialog"]')).toContainText(/Mentions légales|Éditeur|Hébergement/i);
+        await expect(page.locator('div[role="dialog"]')).toContainText(/Mentions légales|Legal Notice|Éditeur|Hébergement/i);
         await page.keyboard.press('Escape');
         await page.waitForTimeout(300);
 
-        // Confidentialité modal
-        await footer.getByRole('button', { name: /Confidentialité/i }).click();
+        // Privacy modal
+        await footer.getByRole('button', { name: /Confidentialité|Privacy/i }).click();
         await expect(page.locator('div[role="dialog"]')).toBeVisible({ timeout: 5000 });
-        await expect(page.locator('div[role="dialog"]')).toContainText(/Confidentialité|RGPD|données/i);
+        await expect(page.locator('div[role="dialog"]')).toContainText(/Confidentialité|Privacy|RGPD|données/i);
         await page.keyboard.press('Escape');
     });
 });
