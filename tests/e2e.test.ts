@@ -132,10 +132,10 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         // Calendar replaces the old date input — verify it is visible
         const calendar = page.getByTestId('availability-calendar');
         await expect(calendar).toBeVisible({ timeout: 10000 });
-        // Date is pre-selected to tomorrow on open; click the selected day to confirm
-        const selectedDay = calendar.locator('button[class*="bg-amber-500"]').first();
-        if (await selectedDay.isVisible()) {
-            await selectedDay.click();
+        // Click an enabled future day in the calendar
+        const enabledDay = calendar.locator('button:not([disabled])').last();
+        if (await enabledDay.isVisible()) {
+            await enabledDay.click();
         }
 
         // 4. Go to Step 2
