@@ -58,7 +58,7 @@ test.describe('Stability & Regression Tests', () => {
     const tourCard = page.locator('.group.bg-white.rounded-2xl').first();
     await tourCard.click();
 
-    const dialogImg = page.locator('[data-testid="tour-dialog"] img.aspect-\\[4\\/3\\]').first();
+    const dialogImg = page.locator('[data-testid="tour-dialog"] img.aspect-\\[3\\/2\\]').first();
     await expect(dialogImg).toBeVisible({ timeout: 10000 });
 
     const ratio = await dialogImg.evaluate((el) => {
@@ -66,7 +66,8 @@ test.describe('Stability & Regression Tests', () => {
       return rect.width / rect.height;
     });
 
-    expect(ratio).toBeGreaterThan(1.2);
-    expect(ratio).toBeLessThan(1.5);
+    // 3:2 = 1.5 — allow small tolerance
+    expect(ratio).toBeGreaterThan(1.3);
+    expect(ratio).toBeLessThan(1.7);
   });
 });
