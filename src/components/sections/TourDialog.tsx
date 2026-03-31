@@ -44,8 +44,8 @@ export const TourDialog = ({
       >
         <div className="flex-1 overflow-y-auto no-scrollbar">
           <div className="p-6 sm:p-10">
-            <DialogHeader className="mb-8">
-              <DialogTitle className="text-3xl sm:text-5xl font-bold mb-2 text-gray-900 tracking-tight">
+            <DialogHeader className="mb-6">
+              <DialogTitle className="text-2xl sm:text-4xl font-bold mb-1 text-gray-900 tracking-tight">
                 {lang === "en"
                   ? tour.title_en || tour.title
                   : lang === "es"
@@ -72,7 +72,7 @@ export const TourDialog = ({
                             <img
                               src={img}
                               alt={`${tour.title} ${i + 1}`}
-                              className="w-full aspect-[4/3] object-cover"
+                              className="w-full aspect-[3/2] object-cover"
                             />
                           </CarouselItem>
                         ))}
@@ -88,7 +88,7 @@ export const TourDialog = ({
                     <img
                       src={tour.image}
                       alt={tour.title}
-                      className="w-full aspect-[4/3] object-cover"
+                      className="w-full aspect-[3/2] object-cover"
                     />
                   )}
                 </div>
