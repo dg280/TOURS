@@ -50,7 +50,7 @@ export const Footer = ({
 
           <div className="lg:col-span-3 lg:pl-12">
             <h4 className="text-xs font-bold mb-10 text-gray-400 uppercase tracking-[0.3em]">
-              Navigation
+              {t.footer.navigation}
             </h4>
             <ul className="space-y-6">
               {[
@@ -98,13 +98,13 @@ export const Footer = ({
               onClick={onLegalClick}
               className="hover:text-gray-900 transition-colors"
             >
-              Mentions légales
+              {t.footer.legal}
             </button>
             <button
               onClick={onPrivacyClick}
               className="hover:text-gray-900 transition-colors"
             >
-              Confidentialité
+              {t.footer.privacy}
             </button>
           </div>
         </div>

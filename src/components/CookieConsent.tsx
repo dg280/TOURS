@@ -151,7 +151,7 @@ export function CookieConsent({ lang, onAccept }: CookieConsentProps) {
                 }}
                 className="w-full h-10 text-gray-500 hover:text-gray-700 text-sm font-medium"
               >
-                Retour
+                {t.back}
               </button>
             </div>
           </div>

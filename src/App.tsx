@@ -179,7 +179,7 @@ function App() {
         onPrivacyClick={() => setLegalModal("privacy")}
       />
 
-      <LegalModal type={legalModal} onClose={() => setLegalModal(null)} />
+      <LegalModal type={legalModal} onClose={() => setLegalModal(null)} lang={lang} />
 
       <TourDialog
         tour={viewedTour}
