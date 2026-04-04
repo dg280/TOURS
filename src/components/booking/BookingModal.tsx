@@ -607,7 +607,7 @@ export const BookingModal = ({
                           {t.booking.estimated_duration}
                         </Label>
                         <div className="h-10 flex items-center text-sm text-gray-700">
-                          {tour.estimatedDuration}
+                          {(t.tours.duration_labels as Record<string, string>)[tour.estimatedDuration] || tour.estimatedDuration}
                         </div>
                       </div>
                     )}
@@ -739,7 +739,7 @@ export const BookingModal = ({
                       </p>
                       <p className="flex justify-between">
                         <span>{t.booking.est_duration}</span>
-                        <span className="font-bold">{tour.duration}</span>
+                        <span className="font-bold">{(t.tours.duration_labels as Record<string, string>)[tour.duration] || tour.duration}</span>
                       </p>
                       <p className="flex justify-between">
                         <span>{t.booking.participants_label}</span>
@@ -804,7 +804,7 @@ export const BookingModal = ({
                   <p><span className="text-[10px] uppercase font-bold text-gray-400 block">Date</span>{date}</p>
                   <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{t.booking.pickup_time_short}</span>{formData.pickupTime || "—"}</p>
                   <p className="col-span-2"><span className="text-[10px] uppercase font-bold text-amber-600 block">{t.booking.pickup_address}</span>{formData.pickupAddress || t.booking.to_confirm}</p>
-                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{t.booking.duration_short}</span>{tour.duration}</p>
+                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{t.booking.duration_short}</span>{(t.tours.duration_labels as Record<string, string>)[tour.duration] || tour.duration}</p>
                   <p><span className="text-[10px] uppercase font-bold text-gray-400 block">Total</span><span className="font-bold text-amber-700">{calculateTotal()}€</span></p>
                 </div>
 
@@ -881,7 +881,7 @@ export const BookingModal = ({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-amber-900/80">
                     <div className="space-y-2">
                       <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">{t.booking.tour_details}</span> <span className="font-bold text-amber-900">{tour.title}</span></p>
-                      <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">{t.booking.date_and_time}</span> <span className="font-bold text-amber-900">{date} • {tour.duration} {t.booking.approx}</span></p>
+                      <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">{t.booking.date_and_time}</span> <span className="font-bold text-amber-900">{date} • {(t.tours.duration_labels as Record<string, string>)[tour.duration] || tour.duration} {t.booking.approx}</span></p>
                     </div>
                     <div className="space-y-2">
                       <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">{t.booking.client_label}</span> <span className="font-bold text-amber-900">{formData.name}</span></p>
