@@ -185,15 +185,19 @@ ${includedList ? `<tr><td style="padding:0 40px 24px;"><div style="background:#e
   <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Payment Intent</td><td style="padding:8px;font-size:11px;color:#6b7280;">${escapeHtml(paymentIntent.id)}</td></tr>
 </table>`;
 
+        // Use RESEND_FROM_EMAIL (verified domain) instead of test sandbox
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+        const fromAddress = `Tours & Détours <${fromEmail}>`;
+
         await resend.emails.send({
-            from: 'Tours & Détours <onboarding@resend.dev>',
+            from: fromAddress,
             to: reservation.email,
             subject: `✓ Réservation confirmée : ${escapeHtml(reservation.tour_name)} — ${dateFormatted}`,
             html: customerHtml,
         });
 
         await resend.emails.send({
-            from: 'Tours & Détours <onboarding@resend.dev>',
+            from: fromAddress,
             to: adminEmail,
             subject: `RÉSA [WEBHOOK] : ${escapeHtml(reservation.tour_name)} · ${escapeHtml(reservation.name)} · ${dateFormatted}`,
             html: adminHtml,

@@ -245,17 +245,21 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
   <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Commentaire</td><td style="padding:8px;font-style:italic;">${escapeHtml(reservation.message) || 'Aucun'}</td></tr>
 </table>`;
 
-        // 8. Send both emails
+        // 8. Send both emails — uses RESEND_FROM_EMAIL (verified domain)
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+        const fromAddress = `Tours & Détours <${fromEmail}>`;
+        const adminTo = process.env.ADMIN_EMAIL || 'info@toursandetours.com';
+
         await resend.emails.send({
-            from: 'Tours & Détours <onboarding@resend.dev>',
+            from: fromAddress,
             to: reservation.email,
             subject: `✓ Réservation confirmée : ${reservation.tour_name} — ${dateFormatted}`,
             html: customerEmail,
         });
 
         await resend.emails.send({
-            from: 'Tours & Détours <onboarding@resend.dev>',
-            to: 'info@toursandetours.com',
+            from: fromAddress,
+            to: adminTo,
             subject: `RÉSA : ${reservation.tour_name} · ${reservation.name} · ${dateFormatted}`,
             html: adminEmail,
         });
