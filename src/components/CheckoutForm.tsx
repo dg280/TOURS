@@ -1,27 +1,36 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
 import { Button } from './ui/button';
 import { Loader2 } from 'lucide-react';
+import type { Translations } from '@/lib/translations';
 
 interface CheckoutFormProps {
     onSuccess: () => void;
     amount: number;
-    serverMode: "test" | "live" | null;
+    serverMode?: "test" | "live" | null;
+    t: Translations;
 }
 
-export function CheckoutForm({ onSuccess, amount, serverMode }: CheckoutFormProps) {
+export function CheckoutForm({ onSuccess, amount, t }: CheckoutFormProps) {
     const stripe = useStripe();
     const elements = useElements();
     const [message, setMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isElementsReady, setIsElementsReady] = useState(false);
 
-    console.log("[CheckoutForm] Render - stripe:", !!stripe, "elements:", !!elements, "amount:", amount);
+    // Avoid setState after unmount when modal closes during await (audit React #5)
+    const isMountedRef = useRef(true);
+    useEffect(() => {
+        isMountedRef.current = true;
+        return () => { isMountedRef.current = false; };
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!stripe || !elements) return;
+        // Block double-submit (audit React #5)
+        if (isLoading) return;
 
         setIsLoading(true);
 
@@ -33,17 +42,21 @@ export function CheckoutForm({ onSuccess, amount, serverMode }: CheckoutFormProp
             redirect: 'if_required',
         });
 
+        if (!isMountedRef.current) return;
+
         if (error) {
             if (error.type === "card_error" || error.type === "validation_error") {
-                setMessage(error.message || "An error occurred.");
+                setMessage(error.message || t.booking.stripe_generic_error);
             } else {
-                setMessage("An unexpected error occurred.");
+                setMessage(t.booking.stripe_unexpected_error);
             }
         } else {
             onSuccess();
         }
 
-        setIsLoading(false);
+        if (isMountedRef.current) {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -51,14 +64,7 @@ export function CheckoutForm({ onSuccess, amount, serverMode }: CheckoutFormProp
             {!isElementsReady && (
                 <div className="flex flex-col items-center justify-center py-8 text-gray-400">
                     <Loader2 className="w-8 h-8 animate-spin mb-2" />
-                    <p className="text-sm">Chargement du formulaire sécurisé...</p>
-                    <div className="mt-4 p-3 bg-gray-900/5 rounded text-[9px] font-mono text-gray-500 w-full max-w-[250px]">
-                        <p className="border-b border-gray-200 pb-1 mb-1 font-bold">INFO SYSTÈME</p>
-                        <p>Stripe JS: {stripe ? "CHARGÉ" : "CHARGEMENT..."}</p>
-                        <p>Elements: {elements ? "OK" : "EN ATTENTE"}</p>
-                        <p>Key Prefix: {import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.substring(0, 8) || "pk_test (fallback)"}</p>
-                        <p>Server Mode: {serverMode ? serverMode.toUpperCase() : "..."}</p>
-                    </div>
+                    <p className="text-sm">{t.booking.loading_secure_form}</p>
                 </div>
             )}
             <div className={isElementsReady ? "block" : "hidden"}>
@@ -74,7 +80,7 @@ export function CheckoutForm({ onSuccess, amount, serverMode }: CheckoutFormProp
             
             {(!stripe || !elements) && (
                 <div className="text-amber-600 text-sm mt-2 bg-amber-50 p-3 rounded-lg border border-amber-200">
-                    En attente de Stripe... {stripe ? "(Stripe JS OK)" : "(Stripe JS en attente)"}
+                    {t.booking.waiting_stripe}
                 </div>
             )}
             {message && <div id="payment-message" className="text-red-500 text-sm mt-2">{message}</div>}
@@ -84,12 +90,12 @@ export function CheckoutForm({ onSuccess, amount, serverMode }: CheckoutFormProp
                 className="w-full bg-blue-600 hover:bg-blue-700 h-12 text-lg font-bold"
             >
                 <span id="button-text">
-                    {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : `Payer ${(amount).toFixed(2)}€`}
+                    {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : t.booking.pay_amount.replace('{amount}', amount.toFixed(2))}
                 </span>
             </Button>
             {isElementsReady && (
                 <p className="text-[10px] text-center text-gray-400 uppercase tracking-widest font-bold">
-                    Paiement Sécurisé par Stripe
+                    {t.booking.secured_by_stripe}
                 </p>
             )}
         </form>

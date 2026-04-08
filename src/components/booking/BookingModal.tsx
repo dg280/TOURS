@@ -86,13 +86,15 @@ function AvailabilityCalendar({
     cells.push(d);
   }
 
-  const todayStr = new Date().toISOString().split("T")[0];
+  // Local date string (YYYY-MM-DD) — never use toISOString() which is UTC
+  // and shifts dates for users east/west of UTC (audit H1).
   const toDateStr = (d: Date) => {
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, "0");
     const day = String(d.getDate()).padStart(2, "0");
     return `${y}-${m}-${day}`;
   };
+  const todayStr = toDateStr(new Date());
 
   const now = new Date();
   const isPrevDisabled =
@@ -232,14 +234,19 @@ export const BookingModal = ({
     zip: "",
     country: "",
     pickupAddress: "",
-    pickupTime: "09:00",
     comment: "",
   });
+  // Pickup time is derived from the tour's departureTime — never an editable
+  // form field. Audit H7: previously hardcoded "09:00" leaked into emails.
+  const pickupTime = tour?.departureTime || "";
 
   const [clientSecret, setClientSecret] = useState("");
   const [paymentIntentId, setPaymentIntentId] = useState("");
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [serverMode, setServerMode] = useState<"test" | "live" | null>(null);
+  // Tracks the (participants, date, tourId) tuple the current PI was created
+  // for. When any of those change, the PI must be invalidated (audit H4).
+  const piContextRef = useRef<string>("");
 
   // Availability calendar state
   const [calendarMonth, setCalendarMonth] = useState<Date>(() => {
@@ -264,13 +271,17 @@ export const BookingModal = ({
     if (isOpen) {
       Promise.resolve().then(() => {
         setStep(1);
+        // Local date string — never toISOString (audit H1, M11)
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
-        setDate(tomorrow.toISOString().split("T")[0]);
+        const y = tomorrow.getFullYear();
+        const m = String(tomorrow.getMonth() + 1).padStart(2, "0");
+        const day = String(tomorrow.getDate()).padStart(2, "0");
+        setDate(`${y}-${m}-${day}`);
         // Reset calendar to current month
-        const m = new Date();
-        m.setDate(1);
-        setCalendarMonth(m);
+        const cm = new Date();
+        cm.setDate(1);
+        setCalendarMonth(cm);
       });
     }
   }, [isOpen]);
@@ -284,7 +295,9 @@ export const BookingModal = ({
       setAvailabilityLoading(true);
       setBookedByDate({});
       setBlockedDates(new Set());
-      const todayStr = new Date().toISOString().split("T")[0];
+      // Local date string — never toISOString (audit H1)
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
       const [resResult, blockedResult] = await Promise.all([
         supabase!
@@ -321,48 +334,63 @@ export const BookingModal = ({
   }, [isOpen, tour]);
 
   useEffect(() => {
-    if (tour && step === 3 && !clientSecret && !paymentError) {
-      fetch("/api/create-payment-intent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tourId: tour.id,
-          participants: participants,
-        }),
+    if (!tour || step !== 3) return;
+
+    // Invalidate stale PI if pricing inputs changed since it was created (audit H4).
+    const ctx = `${tour.id}-${participants}-${date}`;
+    const piIsStale = clientSecret && piContextRef.current !== ctx;
+
+    if (!piIsStale && (clientSecret || paymentError)) return;
+
+    // Cancellation: late responses must not write to state if a newer fetch
+    // started (race condition / unmount — audit React #1).
+    let cancelled = false;
+
+    fetch("/api/create-payment-intent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        tourId: tour.id,
+        participants: participants,
+      }),
+    })
+      .then(async (res) => {
+        let data;
+        try {
+          data = await res.json();
+        } catch (e) {
+          console.error("Failed to parse JSON response:", e);
+          throw new Error(`${t.booking.server_error} (${res.status})`);
+        }
+
+        if (!res.ok) {
+          throw new Error(data.error || `${t.booking.server_error} (${res.status})`);
+        }
+        return data;
       })
-        .then(async (res) => {
-          let data;
-          try {
-            data = await res.json();
-          } catch (e) {
-            console.error("Failed to parse JSON response:", e);
-            throw new Error(`Erreur serveur (${res.status})`);
-          }
-          
-          if (!res.ok) {
-            throw new Error(data.error || `Erreur serveur (${res.status})`);
-          }
-          return data;
-        })
-        .then((data) => {
-          if (data.clientSecret) {
-            setClientSecret(data.clientSecret);
-            setPaymentIntentId(data.paymentIntentId || "");
-            setServerMode(data.mode);
-            setPaymentError(null);
-          } else {
-            throw new Error("Client secret manquant dans la réponse");
-          }
-        })
-        .catch((err) => {
-          console.error("Payment init error:", err);
-          const errMsg = err.message || "Erreur de chargement";
-          setPaymentError(errMsg);
-          toast.error(`${t.booking.payment_error} : ${errMsg}`);
-          setClientSecret(""); 
-        });
-    }
-  }, [tour, step, clientSecret, paymentError, participants, lang, t.booking.payment_error]);
+      .then((data) => {
+        if (cancelled) return;
+        if (data.clientSecret) {
+          piContextRef.current = ctx;
+          setClientSecret(data.clientSecret);
+          setPaymentIntentId(data.paymentIntentId || "");
+          setServerMode(data.mode);
+          setPaymentError(null);
+        } else {
+          throw new Error(t.booking.missing_client_secret);
+        }
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error("Payment init error:", err);
+        const errMsg = err.message || t.booking.loading_error;
+        setPaymentError(errMsg);
+        toast.error(`${t.booking.payment_error} : ${errMsg}`);
+        setClientSecret("");
+      });
+
+    return () => { cancelled = true; };
+  }, [tour, step, clientSecret, paymentError, participants, date, lang, t.booking.payment_error, t.booking.server_error, t.booking.missing_client_secret, t.booking.loading_error]);
 
   const calculateSubtotal = () => {
     if (!tour) return 0;
@@ -428,7 +456,14 @@ export const BookingModal = ({
     if (step > 1) setStep(step - 1);
   };
 
+  // Guard against double-submit (audit React #2): Stripe can fire onSuccess
+  // multiple times on 3DS retries / fast double-clicks before isLoading paints.
+  const handleSuccessRunningRef = useRef(false);
+
   const handleSuccess = async () => {
+    if (handleSuccessRunningRef.current) return;
+    handleSuccessRunningRef.current = true;
+
     const newReservation = {
       name: formData.name,
       email: formData.email,
@@ -441,7 +476,7 @@ export const BookingModal = ({
       status: "pending" as const,
       message: formData.comment,
       pickup_address: formData.pickupAddress,
-      pickup_time: formData.pickupTime,
+      pickup_time: pickupTime,
       billing_address: formData.address,
       billing_city: formData.city,
       billing_zip: formData.zip,
@@ -449,32 +484,43 @@ export const BookingModal = ({
       payment_intent_id: paymentIntentId || null,
     };
 
-    if (supabase) {
-      const { data, error } = await supabase
-        .from("reservations")
-        .insert(newReservation)
-        .select("id")
-        .single();
-      if (!error && data) {
-        // Trigger confirmation email
-        fetch("/api/confirm-booking", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ reservationId: data.id }),
-        })
-          .then(async (res) => {
-            if (!res.ok) {
-              const body = await res.json().catch(() => ({}));
-              console.error("confirm-booking error:", res.status, body);
-              toast.error(`Erreur email de confirmation (${res.status}) : ${body.error || "inconnu"}`);
-            }
-          })
-          .catch((err) => {
-            console.error("Failed to trigger confirmation email:", err);
-            toast.error("Impossible d'envoyer l'email de confirmation.");
-          });
-      }
+    if (!supabase) {
+      // No DB available — still show success since payment went through.
+      setStep(5);
+      return;
     }
+
+    const { data, error } = await supabase
+      .from("reservations")
+      .insert(newReservation)
+      .select("id")
+      .single();
+
+    if (error || !data) {
+      // CRITICAL: payment was captured by Stripe but the DB insert failed.
+      // Do NOT show the success screen — the user must contact us so we can
+      // reconcile manually (audit React #3). Allow them to retry too.
+      console.error("Reservation insert failed after successful payment:", error);
+      toast.error(t.booking.email_send_failed);
+      handleSuccessRunningRef.current = false;
+      return;
+    }
+
+    // Trigger confirmation email (best effort — webhook is the canonical sender)
+    fetch("/api/confirm-booking", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reservationId: data.id }),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          console.error("confirm-booking error:", res.status, body);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to trigger confirmation email:", err);
+      });
 
     setStep(5);
   };
@@ -554,7 +600,7 @@ export const BookingModal = ({
                           {notIncluded.length > 0 && (
                             <div className="space-y-2 pt-2 border-t border-gray-100">
                               <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-red-500 flex items-center gap-1.5">
-                                <X className="w-3 h-3" /> {lang === 'en' ? 'Not included' : lang === 'es' ? 'No incluido' : 'Non inclus'}
+                                <X className="w-3 h-3" /> {t.booking.not_included_label}
                               </h4>
                               <ul className="space-y-1">
                                 {notIncluded.slice(0, 3).map((item, i) => (
@@ -603,7 +649,7 @@ export const BookingModal = ({
                     {tour.departureTime && (
                       <div className="grid gap-2">
                         <Label className="text-xs uppercase tracking-wider text-gray-500">
-                          {lang === 'en' ? 'Departure time' : lang === 'es' ? 'Hora de salida' : 'Heure de départ'}
+                          {t.booking.departure_time}
                         </Label>
                         <div className="h-12 flex items-center px-4 rounded-xl bg-amber-50 border border-amber-100 font-semibold text-amber-800">
                           {tour.departureTime}
@@ -613,10 +659,10 @@ export const BookingModal = ({
                     {tour.estimatedDuration && (
                       <div className="grid gap-2">
                         <Label className="text-xs uppercase tracking-wider text-gray-500">
-                          {lang === 'en' ? 'Estimated duration' : lang === 'es' ? 'Duración estimada' : 'Durée estimée'}
+                          {t.booking.estimated_duration}
                         </Label>
                         <div className="h-10 flex items-center text-sm text-gray-700">
-                          {tour.estimatedDuration}
+                          {(t.tours.duration_labels as Record<string, string>)[tour.estimatedDuration] || tour.estimatedDuration}
                         </div>
                       </div>
                     )}
@@ -672,24 +718,24 @@ export const BookingModal = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="booking-name" className="text-xs uppercase tracking-wider text-gray-500 font-bold">{t.contact.name}*</Label>
-                    <Input id="booking-name" placeholder="Jean Dupont" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="h-12 rounded-xl" />
+                    <Input id="booking-name" placeholder={t.booking.name_placeholder} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="h-12 rounded-xl" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="booking-email" className="text-xs uppercase tracking-wider text-gray-500 font-bold">{t.contact.email}*</Label>
-                    <Input id="booking-email" type="email" placeholder="jean@example.com" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="h-12 rounded-xl" />
+                    <Input id="booking-email" type="email" placeholder={t.booking.email_placeholder} value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="h-12 rounded-xl" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="booking-phone" className="text-xs uppercase tracking-wider text-gray-500 font-bold">{t.booking.phone}</Label>
-                    <Input id="booking-phone" placeholder="+33 6 ..." value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="h-12 rounded-xl" />
+                    <Input id="booking-phone" placeholder={t.booking.phone_placeholder} value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="h-12 rounded-xl" />
                   </div>
                    <div className="space-y-2">
                     <Label htmlFor="booking-pickup" className="text-xs uppercase tracking-wider text-gray-500 font-bold">{t.booking.pickup_address}</Label>
-                    <Input id="booking-pickup" placeholder="Hôtel / Adresse exacte" value={formData.pickupAddress} onChange={(e) => setFormData({ ...formData, pickupAddress: e.target.value })} className="h-12 rounded-xl" />
+                    <Input id="booking-pickup" placeholder={t.booking.pickup_placeholder} value={formData.pickupAddress} onChange={(e) => setFormData({ ...formData, pickupAddress: e.target.value })} className="h-12 rounded-xl" />
                   </div>
                 </div>
 
                 <div className="space-y-4 pt-4 border-t border-gray-100">
-                  <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400">{t.booking.billing_address} (Optionnel)</h4>
+                  <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400">{t.booking.billing_address} {t.common.optional}</h4>
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="billing-address" className="text-xs uppercase tracking-wider text-gray-500">{t.booking.billing_address}</Label>
@@ -741,22 +787,22 @@ export const BookingModal = ({
                     <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 border-b pb-2">{t.booking.tour_details}</h4>
                     <div className="space-y-2 text-sm text-gray-700">
                       <p className="font-bold text-gray-900">{tour.title}</p>
-                      <p className="flex justify-between"><span>Date :</span> <span className="font-bold">{date}</span></p>
+                      <p className="flex justify-between"><span>{t.booking.date_label} :</span> <span className="font-bold">{date}</span></p>
                       <p className="flex justify-between">
-                        <span>{lang === 'en' ? 'Pick-up time' : lang === 'es' ? 'Hora de recogida' : 'Heure de pick-up'} :</span>
-                        <span className="font-bold">{formData.pickupTime || "—"}</span>
+                        <span>{t.booking.pickup_time} :</span>
+                        <span className="font-bold">{pickupTime || "—"}</span>
                       </p>
                       <p className="flex justify-between">
-                        <span>{lang === 'en' ? 'Est. duration' : lang === 'es' ? 'Duración est.' : 'Durée estimée'} :</span>
-                        <span className="font-bold">{tour.duration}</span>
+                        <span>{t.booking.est_duration_short} :</span>
+                        <span className="font-bold">{(t.tours.duration_labels as Record<string, string>)[tour.duration] || tour.duration}</span>
                       </p>
                       <p className="flex justify-between">
-                        <span>{lang === 'en' ? 'Travelers' : lang === 'es' ? 'Viajeros' : 'Voyageurs'} :</span>
+                        <span>{t.booking.travelers_label} :</span>
                         <span className="font-bold">{participants}</span>
                       </p>
                       <p className="flex flex-col gap-1 mt-2 p-2 bg-gray-50 rounded-lg">
                         <span className="text-[10px] uppercase font-bold text-amber-600">{t.booking.pickup_address}</span>
-                        <span className="font-medium">{formData.pickupAddress || (lang === 'en' ? 'To confirm' : lang === 'es' ? 'Por confirmar' : 'À confirmer')}</span>
+                        <span className="font-medium">{formData.pickupAddress || t.booking.to_confirm}</span>
                       </p>
                     </div>
                   </div>
@@ -768,7 +814,7 @@ export const BookingModal = ({
                       <p className="flex justify-between"><span>{t.contact.email} :</span> <span className="font-bold">{formData.email}</span></p>
                       <p className="flex justify-between"><span>{t.booking.phone} :</span> <span className="font-bold">{formData.phone || "—"}</span></p>
                       {formData.pickupAddress && (
-                        <p className="flex justify-between"><span>Pick-up :</span> <span className="font-bold text-right max-w-[60%]">{formData.pickupAddress}</span></p>
+                        <p className="flex justify-between"><span>{t.booking.pickup_time} :</span> <span className="font-bold text-right max-w-[60%]">{formData.pickupAddress}</span></p>
                       )}
                       {formData.address && (
                         <p className="flex flex-col gap-0.5 mt-2 p-2 bg-gray-50 rounded-lg text-xs">
@@ -809,12 +855,12 @@ export const BookingModal = ({
                 <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 text-sm text-gray-700 grid grid-cols-2 gap-x-6 gap-y-1.5">
                   <p className="col-span-2 font-bold text-gray-900 text-base mb-1">{tour.title}</p>
                   <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{t.contact.name}</span>{formData.name}</p>
-                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{lang === 'en' ? 'Travelers' : lang === 'es' ? 'Viajeros' : 'Voyageurs'}</span>{participants}</p>
-                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">Date</span>{date}</p>
-                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{lang === 'en' ? 'Pick-up time' : lang === 'es' ? 'Hora recogida' : 'Heure pick-up'}</span>{formData.pickupTime || "—"}</p>
-                  <p className="col-span-2"><span className="text-[10px] uppercase font-bold text-amber-600 block">{t.booking.pickup_address}</span>{formData.pickupAddress || (lang === 'en' ? 'To confirm' : lang === 'es' ? 'Por confirmar' : 'À confirmer')}</p>
-                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{lang === 'en' ? 'Est. duration' : lang === 'es' ? 'Duración' : 'Durée'}</span>{tour.duration}</p>
-                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">Total</span><span className="font-bold text-amber-700">{calculateTotal()}€</span></p>
+                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{t.booking.travelers_label}</span>{participants}</p>
+                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{t.booking.date_label}</span>{date}</p>
+                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{t.booking.pickup_time}</span>{pickupTime || "—"}</p>
+                  <p className="col-span-2"><span className="text-[10px] uppercase font-bold text-amber-600 block">{t.booking.pickup_address}</span>{formData.pickupAddress || t.booking.to_confirm}</p>
+                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{t.booking.est_duration_short}</span>{(t.tours.duration_labels as Record<string, string>)[tour.duration] || tour.duration}</p>
+                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{t.booking.total}</span><span className="font-bold text-amber-700">{calculateTotal()}€</span></p>
                 </div>
 
                 <div className="flex justify-between items-center">
@@ -835,35 +881,36 @@ export const BookingModal = ({
                       onSuccess={handleSuccess}
                       amount={calculateTotal()}
                       serverMode={serverMode}
+                      t={t}
                     />
                   </Elements>
                 ) : !isValidStripeKey || paymentError ? (
                   <div className="flex flex-col items-center justify-center py-12 text-red-600 bg-red-50 rounded-2xl border border-red-100 p-6 text-center">
                     <X className="w-10 h-10 mb-4" />
-                    <p className="font-bold mb-2">Problème de Paiement</p>
+                    <p className="font-bold mb-2">{t.booking.payment_issue}</p>
                     <p className="text-sm opacity-80 mb-4">
-                      {!isValidStripeKey 
-                        ? `La clé publique (${STRIPE_KEY ? `${STRIPE_KEY.substring(0, 7)}...` : "VIDE"}) est incorrecte. Elle doit commencer par 'pk_test_' ou 'pk_live_'.`
-                        : `Erreur : ${paymentError}`
+                      {!isValidStripeKey
+                        ? t.booking.invalid_stripe_key
+                        : `${t.booking.payment_error} : ${paymentError}`
                       }
                     </p>
                     <div className="flex flex-col gap-2 w-full">
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => {
                           setPaymentError(null);
                           setStep(2);
                         }}
                         className="border-red-200 text-red-700 hover:bg-red-100"
                       >
-                        Retour aux réglages
+                        {t.booking.back_to_settings}
                       </Button>
                     </div>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-12 text-gray-500">
                     <Loader2 className="w-10 h-10 animate-spin mb-4 text-amber-600" />
-                    <p className="font-bold">Initialisation du paiement...</p>
+                    <p className="font-bold">{t.booking.initialization}</p>
                   </div>
                 )}
               </div>
@@ -879,9 +926,9 @@ export const BookingModal = ({
                     {t.booking.success_title}
                   </h3>
                   <p className="text-gray-600 max-w-sm mx-auto">
-                    {lang === "fr"
-                      ? `Merci ${formData.name}. Un email de confirmation a été envoyé à ${formData.email}.`
-                      : `Thank you ${formData.name}. A confirmation email has been sent to ${formData.email}.`}
+                    {t.booking.success_message
+                      .replace('{name}', formData.name)
+                      .replace('{email}', formData.email)}
                   </p>
                 </div>
 
@@ -891,17 +938,17 @@ export const BookingModal = ({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-amber-900/80">
                     <div className="space-y-2">
                       <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">{t.booking.tour_details}</span> <span className="font-bold text-amber-900">{tour.title}</span></p>
-                      <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">Date & Heure</span> <span className="font-bold text-amber-900">{date} • {tour.duration} (Approx)</span></p>
+                      <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">{t.booking.date_time_label}</span> <span className="font-bold text-amber-900">{date} • {(t.tours.duration_labels as Record<string, string>)[tour.duration] || tour.duration}</span></p>
                     </div>
                     <div className="space-y-2">
-                      <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">Client</span> <span className="font-bold text-amber-900">{formData.name}</span></p>
-                      <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">{t.booking.pickup_address}</span> <span className="font-bold text-amber-900">{formData.pickupAddress || "À confirmer"}</span></p>
+                      <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">{t.booking.client_label}</span> <span className="font-bold text-amber-900">{formData.name}</span></p>
+                      <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">{t.booking.pickup_address}</span> <span className="font-bold text-amber-900">{formData.pickupAddress || t.booking.to_confirm}</span></p>
                     </div>
                   </div>
 
                   <div className="pt-2 border-t border-amber-200 mt-2 space-y-1">
                     <p className="flex justify-between text-sm text-amber-800">
-                      <span>Tour</span>
+                      <span>{t.booking.tour_details}</span>
                       <span>{calculateSubtotal().toFixed(2)}€</span>
                     </p>
                     <p className="flex justify-between text-sm text-amber-700/70">

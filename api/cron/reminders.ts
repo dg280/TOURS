@@ -32,7 +32,11 @@ interface ApiRequest {
 }
 
 export default async function handler(req: ApiRequest, res: ApiResponse) {
-    // Vercel Cron protection
+    // Vercel Cron protection — guard against missing CRON_SECRET (audit M11)
+    if (!process.env.CRON_SECRET) {
+        console.error('[cron/reminders] CRON_SECRET is not set');
+        return res.status(500).json({ error: 'Not configured' });
+    }
     if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
@@ -41,13 +45,14 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         const targetDate = format(addDays(new Date(), 2), 'yyyy-MM-dd');
         console.log(`Checking reminders for date: ${targetDate}`);
 
-        // 1. Fetch reservations for targetDate where reminder hasn't been sent
+        // 1. Fetch CONFIRMED reservations for targetDate where reminder hasn't been sent
+        // (audit M7: was filtering on 'pending' = unpaid → cron was dead code)
         const { data: reservations, error: resError } = await supabase
             .from('reservations')
             .select('*, tour_id')
             .eq('date', targetDate)
             .eq('reminder_sent', false)
-            .eq('status', 'pending'); // Assuming pending means paid but not yet completed
+            .eq('status', 'confirmed');
 
         if (resError) throw resError;
 

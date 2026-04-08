@@ -1532,6 +1532,8 @@ function ToursManagement({
           pricing_tiers: tourData.pricing_tiers || {},
           stops: tourData.stops || [],
           stripe_tip_link: tourData.stripe_tip_link,
+          stripe_link: tourData.stripeLink || null,
+          meeting_point_map_url: tourData.meetingPointMapUrl || null,
         };
 
         const { error } = await supabase.from("tours").upsert({
@@ -4519,6 +4521,8 @@ export default function AdminApp() {
           goodToKnow_es: t.good_to_know_es || [],
           stops: t.stops || [],
           stripe_tip_link: t.stripe_tip_link,
+          stripeLink: t.stripe_link || undefined,
+          meetingPointMapUrl: t.meeting_point_map_url || undefined,
           pricing_tiers: t.pricing_tiers || {},
         }));
         setTours(mapped as Tour[]);
@@ -4590,6 +4594,9 @@ export default function AdminApp() {
           good_to_know_es: tour.goodToKnow_es || [],
           stops: tour.stops || [],
           stripe_tip_link: tour.stripe_tip_link || null,
+          stripe_link: tour.stripeLink || null,
+          meeting_point_map_url: tour.meetingPointMapUrl || null,
+          pricing_tiers: tour.pricing_tiers || {},
         };
         const { error } = await supabase.from("tours").upsert(dbTour);
         if (error) throw error;
@@ -4663,12 +4670,13 @@ export default function AdminApp() {
           included: t.included || [],
           included_en: t.included_en || [],
           included_es: t.included_es || [],
-          notIncluded: t.notIncluded || [],
-          notIncluded_en: t.notIncluded_en || [],
-          notIncluded_es: t.notIncluded_es || [],
+          notIncluded: t.not_included || [],
+          notIncluded_en: t.not_included_en || [],
+          notIncluded_es: t.not_included_es || [],
           meetingPoint: t.meeting_point,
           meetingPoint_en: t.meeting_point_en,
           meetingPoint_es: t.meeting_point_es,
+          meetingPointMapUrl: t.meeting_point_map_url || undefined,
           departureTime: t.departure_time || "",
           estimatedDuration: t.estimated_duration || t.duration || "",
           goodToKnow: t.good_to_know || [],
@@ -4676,6 +4684,7 @@ export default function AdminApp() {
           goodToKnow_es: t.good_to_know_es || [],
           stops: t.stops || [],
           stripe_tip_link: t.stripe_tip_link,
+          stripeLink: t.stripe_link || undefined,
           pricing_tiers: t.pricing_tiers || {},
         }));
         setTours(mapped as Tour[]);
@@ -4903,6 +4912,8 @@ export default function AdminApp() {
             goodToKnow_es: t.good_to_know_es || [],
             stops: t.stops || [],
             stripe_tip_link: t.stripe_tip_link,
+            stripeLink: t.stripe_link || undefined,
+            meetingPointMapUrl: t.meeting_point_map_url || undefined,
             pricing_tiers: t.pricing_tiers || {},
           }));
           setTours(mapped as Tour[]);

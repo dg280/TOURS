@@ -276,7 +276,7 @@ export const TourDialog = ({
                         </div>
                       ) : (
                         <div className="py-4 text-center text-gray-400 italic text-sm">
-                          {lang === 'en' ? 'No additional information' : lang === 'es' ? 'Sin información adicional' : 'Aucune information complémentaire'}
+                          {t.tour_dialog.no_additional_info}
                         </div>
                       )}
 

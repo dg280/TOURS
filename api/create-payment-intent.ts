@@ -16,10 +16,12 @@ function getClients() {
         const secretKey = process.env.STRIPE_SECRET_KEY || process.env.test_stripe_pv;
         if (!secretKey) {
             console.error("CRITICAL: Stripe Secret Key is missing (checked STRIPE_SECRET_KEY and test_stripe_pv)");
-        } else {
-            console.log(`[Stripe] Initialized using ${secretKey.startsWith('sk_test_') ? 'TEST' : 'LIVE'} key.`);
+            throw new Error('Stripe is not configured');
         }
-        stripe = new Stripe(secretKey!);
+        console.log(`[Stripe] Initialized using ${secretKey.startsWith('sk_test_') ? 'TEST' : 'LIVE'} key.`);
+        // Pin API version per CLAUDE.md (audit M16)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        stripe = new Stripe(secretKey, { apiVersion: '2025-01-27' as any });
     }
     if (!supabase) {
         supabase = createClient(
@@ -89,18 +91,35 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
             return res.status(404).json({ error: 'Tour non trouvé en base de données' });
         }
 
+        // Coerce price to a number — Postgres numeric can come back as string
+        // via PostgREST. Without this, multiplication concatenates (audit H6).
+        const tourPrice = Number(tour.price);
+        if (!Number.isFinite(tourPrice) || tourPrice <= 0) {
+            console.error('Invalid tour.price:', tour.price);
+            return res.status(500).json({ error: 'Tour price is invalid' });
+        }
+
         // Tiered pricing logic
-        let baseAmount = tour.price * participantsInt;
+        let baseAmount = tourPrice * participantsInt;
         if (tour.pricing_tiers && typeof tour.pricing_tiers === 'object') {
             const tiers = tour.pricing_tiers as Record<string, number>;
-            if (tiers[participantsInt.toString()]) {
-                baseAmount = tiers[participantsInt.toString()];
+            const tierValue = Number(tiers[participantsInt.toString()]);
+            if (Number.isFinite(tierValue) && tierValue > 0) {
+                baseAmount = tierValue;
             }
         }
 
         // Formule : (Prix tour + 0.30) / 0.956
         const totalAmount = (baseAmount + 0.30) / 0.956;
         const amountInCents = Math.round(totalAmount * 100);
+
+        // Idempotency key: stable per (tour, participants, client, minute-window).
+        // Prevents double-charge if the client retries within ~1 minute (audit H5).
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const fwdHeader = (req as any).headers?.['x-forwarded-for'];
+        const clientIp = Array.isArray(fwdHeader) ? fwdHeader[0] : (fwdHeader || 'unknown');
+        const minuteWindow = Math.floor(Date.now() / 60000);
+        const idempotencyKey = `pi-${tourId}-${participantsInt}-${clientIp}-${minuteWindow}`;
 
         const paymentIntent = await stripe.paymentIntents.create({
             amount: amountInCents,
@@ -114,7 +133,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
                 baseAmount: baseAmount.toString(),
                 stripeFees: (totalAmount - baseAmount).toFixed(2)
             }
-        });
+        }, { idempotencyKey });
 
         res.status(200).json({
             clientSecret: paymentIntent.client_secret,
@@ -126,7 +145,8 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         });
 
     } catch (err) {
+        // Don't leak internal error details to client (audit M1)
         console.error('Payment intent error:', err);
-        return res.status(500).json({ error: (err as Error).message });
+        return res.status(500).json({ error: 'Internal error' });
     }
 }

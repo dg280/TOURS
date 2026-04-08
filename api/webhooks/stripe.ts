@@ -83,35 +83,27 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         process.env.SUPABASE_SERVICE_ROLE_KEY || ''
     );
 
-    // 1. Find reservation by payment_intent_id
+    // 1. Atomic claim: only the first caller (client OR webhook) wins.
+    // Avoids duplicate confirmation emails when both fire in parallel (audit H5).
     const { data: reservation, error: resError } = await supabase
         .from('reservations')
-        .select('*')
-        .eq('payment_intent_id', paymentIntent.id)
-        .single();
-
-    if (resError || !reservation) {
-        // Reservation may have been created with an older flow — not a hard error
-        console.warn('[Webhook] No reservation found for payment_intent:', paymentIntent.id);
-        res.writeHead(200).end(JSON.stringify({ received: true, warning: 'reservation_not_found' }));
-        return;
-    }
-
-    // 2. Idempotency: skip if already confirmed
-    if (reservation.status === 'confirmed') {
-        res.writeHead(200).end(JSON.stringify({ received: true, skipped: 'already_confirmed' }));
-        return;
-    }
-
-    // 3. Update reservation status to confirmed
-    const { error: updateError } = await supabase
-        .from('reservations')
         .update({ status: 'confirmed' })
-        .eq('id', reservation.id);
+        .eq('payment_intent_id', paymentIntent.id)
+        .neq('status', 'confirmed')
+        .select('*')
+        .maybeSingle();
 
-    if (updateError) {
-        console.error('[Webhook] Failed to update reservation:', updateError);
+    if (resError) {
+        console.error('[Webhook] Failed to update reservation:', resError);
         res.writeHead(500).end(JSON.stringify({ error: 'Failed to update reservation' }));
+        return;
+    }
+
+    if (!reservation) {
+        // Either no reservation matches this payment_intent, or it was already
+        // confirmed by /api/confirm-booking. Acknowledge to Stripe and stop.
+        console.log('[Webhook] No claim won for payment_intent:', paymentIntent.id);
+        res.writeHead(200).end(JSON.stringify({ received: true, skipped: 'already_confirmed_or_not_found' }));
         return;
     }
 
@@ -127,8 +119,10 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         const resend = new Resend(process.env.RESEND_API_KEY);
         const adminEmail = process.env.ADMIN_EMAIL || 'info@toursandetours.com';
 
-        const dateFormatted = new Date(reservation.date).toLocaleDateString('fr-FR', {
+        // Parse as midday local to avoid TZ shifts, force Europe/Madrid (audit H2)
+        const dateFormatted = new Date(reservation.date + 'T12:00:00').toLocaleDateString('fr-FR', {
             weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+            timeZone: 'Europe/Madrid',
         });
 
         const includedList = (tour?.included as string[] | null)
@@ -185,17 +179,26 @@ ${includedList ? `<tr><td style="padding:0 40px 24px;"><div style="background:#e
   <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Payment Intent</td><td style="padding:8px;font-size:11px;color:#6b7280;">${escapeHtml(paymentIntent.id)}</td></tr>
 </table>`;
 
+        // Use verified domain via env var (audit C2)
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+        const fromAddress = `Tours & Détours <${fromEmail}>`;
+
+        // Sanitize subject lines (do NOT HTML-escape subjects — audit H2)
+        const sanitizeHeader = (s: unknown) => String(s ?? '').replace(/[\r\n]/g, ' ').slice(0, 150);
+        const tourNameSafe = sanitizeHeader(reservation.tour_name);
+        const customerNameSafe = sanitizeHeader(reservation.name);
+
         await resend.emails.send({
-            from: 'Tours & Détours <onboarding@resend.dev>',
+            from: fromAddress,
             to: reservation.email,
-            subject: `✓ Réservation confirmée : ${escapeHtml(reservation.tour_name)} — ${dateFormatted}`,
+            subject: `✓ Réservation confirmée : ${tourNameSafe} — ${dateFormatted}`,
             html: customerHtml,
         });
 
         await resend.emails.send({
-            from: 'Tours & Détours <onboarding@resend.dev>',
+            from: fromAddress,
             to: adminEmail,
-            subject: `RÉSA [WEBHOOK] : ${escapeHtml(reservation.tour_name)} · ${escapeHtml(reservation.name)} · ${dateFormatted}`,
+            subject: `RÉSA [WEBHOOK] : ${tourNameSafe} · ${customerNameSafe} · ${dateFormatted}`,
             html: adminHtml,
         });
 

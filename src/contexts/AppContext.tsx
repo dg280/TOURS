@@ -88,6 +88,10 @@ function mapDbTour(t: Record<string, unknown>): Tour {
     goodToKnow_es: (t.good_to_know_es as string[]) || [],
     images: (t.images as string[]) || [],
     pricing_tiers: (t.pricing_tiers as Record<number, number>) || {},
+    isActive: (t.is_active as boolean) ?? true,
+    stops: (t.stops as Tour["stops"]) || [],
+    stripeLink: (t.stripe_link as string | undefined) || undefined,
+    stripe_tip_link: (t.stripe_tip_link as string | undefined) || undefined,
   }) as Tour;
 }
 
@@ -120,10 +124,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Fetch all remote data
+  // Fetch all remote data — guarded against late writes when lang/unmount
+  // changes mid-flight (audit React #4: out-of-order responses corrupting bio)
   useEffect(() => {
     if (!supabase) return;
     const client = supabase;
+    let cancelled = false;
 
     const fetchData = async () => {
       try {
@@ -131,6 +137,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const { data: toursData, error: toursError } = await client
           .from("tours")
           .select("*");
+        if (cancelled) return;
         if (toursError) console.error("Error fetching tours:", toursError);
         else if (toursData && toursData.length > 0) {
           setDbTours(
@@ -144,6 +151,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           .select("*")
           .eq("is_published", true)
           .order("created_at", { ascending: false });
+        if (cancelled) return;
         if (reviewsError)
           console.error("Error fetching reviews:", reviewsError);
         else if (reviewsData) {
@@ -167,6 +175,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           .select("*")
           .eq("key", "main_config")
           .maybeSingle();
+        if (cancelled) return;
         if (configData?.value) {
           const cfg = configData.value as Record<string, string>;
           setGuide((prev) => ({
@@ -182,6 +191,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           .select("*")
           .eq("key", "guide_profile")
           .maybeSingle();
+        if (cancelled) return;
         if (profileData?.value) {
           const p = profileData.value as Record<string, unknown>;
           setGuide((prev) => {
@@ -206,11 +216,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
           });
         }
       } catch (err) {
-        console.error("Fetch error:", err);
+        if (!cancelled) console.error("Fetch error:", err);
       }
     };
 
     fetchData();
+    return () => { cancelled = true; };
   }, [lang]);
 
   // Merge base translations tours + db tours + localStorage custom tours

@@ -42,20 +42,34 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
     }
 
     try {
-        // 1. Fetch reservation
+        // 1. Atomic claim: only the first caller (client OR webhook) wins.
+        // The race used to send duplicate emails when both ran in parallel
+        // (audit H5). Now we mark confirmed in a single conditional UPDATE.
         const { data: reservation, error: resError } = await supabase
             .from('reservations')
-            .select('*')
+            .update({ status: 'confirmed' })
             .eq('id', reservationId)
-            .single();
+            .neq('status', 'confirmed')
+            .select('*')
+            .maybeSingle();
 
-        if (resError || !reservation) {
-            throw new Error('Reservation not found');
+        if (resError) {
+            console.error('Reservation update error:', resError);
+            return res.status(500).json({ error: 'Internal error' });
         }
 
-        // Idempotency: skip if already confirmed by Stripe webhook
-        if (reservation.status === 'confirmed') {
-            return res.status(200).json({ success: true, skipped: 'already_confirmed' });
+        // Either reservation doesn't exist, or it was already confirmed (webhook
+        // got there first). Either way, do not send emails again.
+        if (!reservation) {
+            return res.status(200).json({ success: true, skipped: 'already_confirmed_or_not_found' });
+        }
+
+        // Refuse to send emails if there is no associated payment_intent_id —
+        // prevents abuse where attackers POST arbitrary reservation IDs to
+        // trigger email floods (audit H4).
+        if (!reservation.payment_intent_id) {
+            console.warn('Refusing to send email for reservation without payment_intent_id:', reservationId);
+            return res.status(400).json({ error: 'Reservation has no associated payment' });
         }
 
         // 2. Fetch tour details
@@ -65,23 +79,25 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
             .eq('id', reservation.tour_id)
             .single();
 
-        // 3. Format date
-        const dateFormatted = new Date(reservation.date).toLocaleDateString('fr-FR', {
+        // 3. Format date — parse as midday local to avoid TZ shifts (audit H2)
+        // and force Europe/Madrid timezone so all customers see Barcelona local date.
+        const dateFormatted = new Date(reservation.date + 'T12:00:00').toLocaleDateString('fr-FR', {
             weekday: 'long',
             year: 'numeric',
             month: 'long',
             day: 'numeric',
+            timeZone: 'Europe/Madrid',
         });
 
-        // 4. Build included list
+        // 4. Build included list — escape each item (audit H1)
         const includedList = (tour?.included as string[] | null)
-            ?.map((item: string) => `<li style="margin:4px 0;color:#374151;">${item}</li>`)
+            ?.map((item: string) => `<li style="margin:4px 0;color:#374151;">${escapeHtml(item)}</li>`)
             .join('') || '';
 
-        // 5. Build billing address block
+        // 5. Build billing address block — escape each component (audit H1)
         const hasBilling = reservation.billing_address || reservation.billing_city;
         const billingBlock = hasBilling
-            ? `${reservation.billing_address || ''}${reservation.billing_city ? ', ' + reservation.billing_city : ''}${reservation.billing_zip ? ' ' + reservation.billing_zip : ''}${reservation.billing_country ? ', ' + reservation.billing_country : ''}`
+            ? `${escapeHtml(reservation.billing_address || '')}${reservation.billing_city ? ', ' + escapeHtml(reservation.billing_city) : ''}${reservation.billing_zip ? ' ' + escapeHtml(reservation.billing_zip) : ''}${reservation.billing_country ? ', ' + escapeHtml(reservation.billing_country) : ''}`
             : null;
 
         // 6. Customer email — full summary
@@ -241,28 +257,38 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
   <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Adresse pick-up</td><td style="padding:8px;">${escapeHtml(reservation.pickup_address) || '—'}</td></tr>
   <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Participants</td><td style="padding:8px;">${escapeHtml(reservation.participants)}</td></tr>
   <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Total</td><td style="padding:8px;font-weight:700;color:#c9a961;">${escapeHtml(reservation.total_price)}€</td></tr>
-  ${billingBlock ? `<tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Facturation</td><td style="padding:8px;">${escapeHtml(billingBlock)}</td></tr>` : ''}
+  ${billingBlock ? `<tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Facturation</td><td style="padding:8px;">${billingBlock}</td></tr>` : ''}
   <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Commentaire</td><td style="padding:8px;font-style:italic;">${escapeHtml(reservation.message) || 'Aucun'}</td></tr>
 </table>`;
 
-        // 8. Send both emails
+        // 8. Send both emails — use verified domain via env var (audit C1)
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+        const fromAddress = `Tours & Détours <${fromEmail}>`;
+        const adminTo = process.env.ADMIN_EMAIL || 'info@toursandetours.com';
+
+        // Sanitize subject lines to strip CR/LF (audit H2)
+        const sanitizeHeader = (s: unknown) => String(s ?? '').replace(/[\r\n]/g, ' ').slice(0, 150);
+        const tourNameSafe = sanitizeHeader(reservation.tour_name);
+        const customerNameSafe = sanitizeHeader(reservation.name);
+
         await resend.emails.send({
-            from: 'Tours & Détours <onboarding@resend.dev>',
+            from: fromAddress,
             to: reservation.email,
-            subject: `✓ Réservation confirmée : ${reservation.tour_name} — ${dateFormatted}`,
+            subject: `✓ Réservation confirmée : ${tourNameSafe} — ${dateFormatted}`,
             html: customerEmail,
         });
 
         await resend.emails.send({
-            from: 'Tours & Détours <onboarding@resend.dev>',
-            to: 'info@toursandetours.com',
-            subject: `RÉSA : ${reservation.tour_name} · ${reservation.name} · ${dateFormatted}`,
+            from: fromAddress,
+            to: adminTo,
+            subject: `RÉSA : ${tourNameSafe} · ${customerNameSafe} · ${dateFormatted}`,
             html: adminEmail,
         });
 
         return res.status(200).json({ success: true });
     } catch (err: unknown) {
+        // Don't leak internal details to client (audit M1)
         console.error('Confirm error:', err);
-        return res.status(500).json({ error: (err as Error).message });
+        return res.status(500).json({ error: 'Internal error' });
     }
 }

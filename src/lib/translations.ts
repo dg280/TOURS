@@ -20,7 +20,10 @@ export const translations = {
             next: 'Suivant',
             finish: 'Terminer',
             pay: 'Payer et Réserver',
-            error_server: 'Erreur serveur'
+            error_server: 'Erreur serveur',
+            close: 'Fermer',
+            unknown: 'inconnu',
+            optional: '(Optionnel)'
         },
         about_hook: {
             title: 'Une approche humaine et authentique pour découvrir la vraie Catalogne.',
@@ -145,7 +148,12 @@ export const translations = {
             date: 'Date préférée',
             message: 'Message',
             cta: 'Envoyer ma demande',
-            select_tour: 'Sélectionnez un tour'
+            select_tour: 'Sélectionnez un tour',
+            success_toast: 'Message envoyé ! Nous vous répondrons rapidement.',
+            error_toast: "Impossible d'envoyer le message. Réessayez ou contactez-nous par WhatsApp.",
+            name_placeholder: 'Votre nom',
+            email_placeholder: 'votre@email.com',
+            submitting: 'Envoi en cours…'
         },
         booking: {
             selection: 'Votre sélection',
@@ -188,7 +196,34 @@ export const translations = {
             tour_details: 'Détails du tour',
             pickup_time: 'Heure de pick-up',
             return_time: 'Heure de retour',
-            itinerary: 'Itinéraire'
+            itinerary: 'Itinéraire',
+            departure_time: 'Heure de départ',
+            estimated_duration: 'Durée estimée',
+            est_duration_short: 'Durée estimée',
+            travelers_label: 'Voyageurs',
+            to_confirm: 'À confirmer',
+            name_placeholder: 'Jean Dupont',
+            email_placeholder: 'jean@example.com',
+            phone_placeholder: '+33 6 ...',
+            pickup_placeholder: 'Hôtel / Adresse exacte',
+            optional: '(Optionnel)',
+            payment_issue: 'Problème de paiement',
+            invalid_stripe_key: "La clé publique Stripe est incorrecte. Elle doit commencer par 'pk_test_' ou 'pk_live_'.",
+            back_to_settings: 'Retour aux réglages',
+            email_send_failed: "Impossible d'envoyer l'email de confirmation.",
+            email_confirm_error: "Erreur email de confirmation",
+            missing_client_secret: 'Client secret manquant dans la réponse',
+            loading_error: 'Erreur de chargement',
+            server_error: 'Erreur serveur',
+            success_message: 'Merci {name}. Un email de confirmation a été envoyé à {email}.',
+            date_time_label: 'Date & Heure',
+            client_label: 'Client',
+            stripe_generic_error: 'Une erreur est survenue.',
+            stripe_unexpected_error: "Une erreur inattendue s'est produite.",
+            loading_secure_form: 'Chargement du formulaire sécurisé...',
+            waiting_stripe: 'En attente de Stripe...',
+            pay_amount: 'Payer {amount}€',
+            secured_by_stripe: 'Paiement sécurisé par Stripe'
         },
         tour_dialog: {
             highlights_label: 'Points forts :',
@@ -202,7 +237,8 @@ export const translations = {
             open_maps: 'Ouvrir dans Google Maps',
             maps_description: 'Visualisez le point de rencontre directement sur Google Maps pour une meilleure expérience.',
             maps_button: "S'y rendre (Google Maps)",
-            view_on_maps: 'Visualiser sur Google Maps'
+            view_on_maps: 'Visualiser sur Google Maps',
+            no_additional_info: 'Aucune information complémentaire'
         },
         footer: {
             made_with: 'Fait avec Passion.',
@@ -414,7 +450,10 @@ export const translations = {
             next: 'Next',
             finish: 'Finish',
             pay: 'Pay & Book',
-            error_server: 'Server error'
+            error_server: 'Server error',
+            close: 'Close',
+            unknown: 'unknown',
+            optional: '(Optional)'
         },
         about_hook: {
             title: 'A human and authentic approach to discover the real Catalonia.',
@@ -539,7 +578,12 @@ export const translations = {
             date: 'Preferred Date',
             message: 'Message',
             cta: 'Send My Request',
-            select_tour: 'Select a tour'
+            select_tour: 'Select a tour',
+            success_toast: 'Message sent! We will reply shortly.',
+            error_toast: "Could not send the message. Please retry or contact us on WhatsApp.",
+            name_placeholder: 'Your name',
+            email_placeholder: 'your@email.com',
+            submitting: 'Sending…'
         },
         booking: {
             selection: 'Your selection',
@@ -582,7 +626,34 @@ export const translations = {
             tour_details: 'Tour Details',
             pickup_time: 'Pickup Time',
             return_time: 'Return Time',
-            itinerary: 'Itinerary'
+            itinerary: 'Itinerary',
+            departure_time: 'Departure time',
+            estimated_duration: 'Estimated duration',
+            est_duration_short: 'Est. duration',
+            travelers_label: 'Travelers',
+            to_confirm: 'To confirm',
+            name_placeholder: 'John Doe',
+            email_placeholder: 'john@example.com',
+            phone_placeholder: '+1 555 ...',
+            pickup_placeholder: 'Hotel / Exact address',
+            optional: '(Optional)',
+            payment_issue: 'Payment issue',
+            invalid_stripe_key: "The Stripe public key is invalid. It must start with 'pk_test_' or 'pk_live_'.",
+            back_to_settings: 'Back to settings',
+            email_send_failed: "Could not send confirmation email.",
+            email_confirm_error: "Confirmation email error",
+            missing_client_secret: 'Missing client secret in response',
+            loading_error: 'Loading error',
+            server_error: 'Server error',
+            success_message: 'Thank you {name}. A confirmation email has been sent to {email}.',
+            date_time_label: 'Date & Time',
+            client_label: 'Client',
+            stripe_generic_error: 'An error occurred.',
+            stripe_unexpected_error: 'An unexpected error occurred.',
+            loading_secure_form: 'Loading secure form...',
+            waiting_stripe: 'Waiting for Stripe...',
+            pay_amount: 'Pay {amount}€',
+            secured_by_stripe: 'Secure payment by Stripe'
         },
         tour_dialog: {
             highlights_label: 'Highlights:',
@@ -596,7 +667,8 @@ export const translations = {
             open_maps: 'Open in Google Maps',
             maps_description: 'View the meeting point directly on Google Maps for the best experience.',
             maps_button: 'Open in Google Maps',
-            view_on_maps: 'View on Google Maps'
+            view_on_maps: 'View on Google Maps',
+            no_additional_info: 'No additional information'
         },
         footer: {
             made_with: 'Made with Passion.',
@@ -808,7 +880,10 @@ export const translations = {
             next: 'Siguiente',
             finish: 'Terminar',
             pay: 'Pagar y Reservar',
-            error_server: 'Error del servidor'
+            error_server: 'Error del servidor',
+            close: 'Cerrar',
+            unknown: 'desconocido',
+            optional: '(Opcional)'
         },
         about_hook: {
             title: 'Un enfoque humano y auténtico para descubrir la verdadera Cataluña.',
@@ -933,7 +1008,12 @@ export const translations = {
             date: 'Fecha preferida',
             message: 'Mensaje',
             cta: 'Enviar Solicitud',
-            select_tour: 'Selecciona un tour'
+            select_tour: 'Selecciona un tour',
+            success_toast: '¡Mensaje enviado! Te responderemos pronto.',
+            error_toast: 'No se pudo enviar el mensaje. Inténtalo de nuevo o contáctanos por WhatsApp.',
+            name_placeholder: 'Tu nombre',
+            email_placeholder: 'tu@email.com',
+            submitting: 'Enviando…'
         },
         booking: {
             selection: 'Tu selección',
@@ -976,7 +1056,34 @@ export const translations = {
             tour_details: 'Detalles del tour',
             pickup_time: 'Hora de recogida',
             return_time: 'Hora de regreso',
-            itinerary: 'Itinerario'
+            itinerary: 'Itinerario',
+            departure_time: 'Hora de salida',
+            estimated_duration: 'Duración estimada',
+            est_duration_short: 'Duración est.',
+            travelers_label: 'Viajeros',
+            to_confirm: 'Por confirmar',
+            name_placeholder: 'Juan Pérez',
+            email_placeholder: 'juan@example.com',
+            phone_placeholder: '+34 6 ...',
+            pickup_placeholder: 'Hotel / Dirección exacta',
+            optional: '(Opcional)',
+            payment_issue: 'Problema de pago',
+            invalid_stripe_key: "La clave pública de Stripe es inválida. Debe empezar por 'pk_test_' o 'pk_live_'.",
+            back_to_settings: 'Volver a ajustes',
+            email_send_failed: 'No se pudo enviar el email de confirmación.',
+            email_confirm_error: 'Error de email de confirmación',
+            missing_client_secret: 'Client secret ausente en la respuesta',
+            loading_error: 'Error de carga',
+            server_error: 'Error del servidor',
+            success_message: 'Gracias {name}. Se ha enviado un email de confirmación a {email}.',
+            date_time_label: 'Fecha y hora',
+            client_label: 'Cliente',
+            stripe_generic_error: 'Ha ocurrido un error.',
+            stripe_unexpected_error: 'Ha ocurrido un error inesperado.',
+            loading_secure_form: 'Cargando formulario seguro...',
+            waiting_stripe: 'Esperando a Stripe...',
+            pay_amount: 'Pagar {amount}€',
+            secured_by_stripe: 'Pago seguro con Stripe'
         },
         tour_dialog: {
             highlights_label: 'Puntos destacados:',
@@ -990,7 +1097,8 @@ export const translations = {
             open_maps: 'Abrir en Google Maps',
             maps_description: 'Visualiza el punto de encuentro directamente en Google Maps para una mejor experiencia.',
             maps_button: 'Ver en Google Maps',
-            view_on_maps: 'Ver en Google Maps'
+            view_on_maps: 'Ver en Google Maps',
+            no_additional_info: 'Sin información adicional'
         },
         footer: {
             made_with: 'Hecho con Pasión.',

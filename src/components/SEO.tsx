@@ -11,13 +11,13 @@ interface SEOProps {
 }
 
 export const SEO = ({
-    title = "Tours & Detours | Découvrez la Catalogne Authentique",
-    description = "Expériences uniques et tours privés à Barcelone et en Catalogne. Guide local passionné pour petits groupes.",
-    keywords = "barcelone, tours, espagne, catalogne, guide privatif, randonnée, voyage responsable",
+    title = "Tours & Detours | Discover Authentic Catalonia",
+    description = "Unique experiences and private tours in Barcelona and Catalonia. Passionate local guide for small groups.",
+    keywords = "barcelona, tours, spain, catalonia, private guide, hiking, responsible travel",
     image = "/og-image.jpg",
-    url = "https://tours-five-olive.vercel.app",
+    url = "https://toursandetours.com",
     type = "website",
-    lang = "fr"
+    lang = "en"
 }: SEOProps) => {
     return (
         <Helmet>

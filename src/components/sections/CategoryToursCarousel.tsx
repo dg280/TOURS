@@ -90,7 +90,7 @@ export const CategoryToursCarousel = ({
       <div className="container-custom">
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-            {t.tours.category_title || "Trouvez votre prochaine aventure"}
+            {t.tours.category_title}
           </h2>
 
           <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-8">
@@ -173,8 +173,7 @@ export const CategoryToursCarousel = ({
                 ))
               ) : (
                 <div className="w-full text-center py-20 text-gray-400 italic">
-                  {t.tours.no_tours_found ||
-                    "Aucun tour trouvé dans cette catégorie."}
+                  {t.tours.no_tours_found}
                 </div>
               )}
             </div>

@@ -24,7 +24,7 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !message.trim()) {
-      toast.error("Merci de remplir les champs nom, email et message.");
+      toast.error(t.contact.error_toast);
       return;
     }
     setIsSubmitting(true);
@@ -34,11 +34,11 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, tour, date: preferredDate, message }),
       });
-      if (!res.ok) throw new Error("Erreur serveur");
-      toast.success("Message envoyé ! Nous vous répondrons rapidement.");
+      if (!res.ok) throw new Error("Server error");
+      toast.success(t.contact.success_toast);
       setName(""); setEmail(""); setTour(""); setPreferredDate(""); setMessage("");
     } catch {
-      toast.error("Impossible d'envoyer le message. Réessayez ou contactez-nous par WhatsApp.");
+      toast.error(t.contact.error_toast);
     } finally {
       setIsSubmitting(false);
     }
@@ -128,7 +128,7 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                     <Label htmlFor="name">{t.contact.name}</Label>
                     <Input
                       id="name"
-                      placeholder="Votre nom"
+                      placeholder={t.contact.name_placeholder}
                       className="bg-white border-gray-200 focus:border-amber-600 h-12"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
@@ -140,7 +140,7 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                     <Input
                       id="email"
                       type="email"
-                      placeholder="votre@email.com"
+                      placeholder={t.contact.email_placeholder}
                       className="bg-white border-gray-200 focus:border-amber-600 h-12"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -205,7 +205,7 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                   disabled={isSubmitting}
                   className="w-full bg-[#c9a961] hover:bg-[#b8944e] text-white font-bold h-16 rounded-2xl shadow-xl shadow-[#c9a961]/30 transition-all active:scale-95 text-lg uppercase tracking-wide disabled:opacity-60"
                 >
-                  {isSubmitting ? "Envoi en cours…" : t.contact.cta}
+                  {isSubmitting ? t.contact.submitting : t.contact.cta}
                 </Button>
               </form>
             </div>

@@ -58,23 +58,104 @@ test.describe('Stability & Regression Tests', () => {
     expect(ratio).toBeLessThan(1.5);
   });
 
-  test('AdminApp preserves pricing_tiers when mapping tours from DB', async () => {
-    // Regression: pricing_tiers was being silently dropped in admin tour mappings,
-    // causing pricing to disappear from the admin UI on every reload while the
-    // public site (which reads directly from Supabase via AppContext) kept working.
-    // Every place that maps a Supabase tour row to a Tour object MUST include pricing_tiers.
+  test('AdminApp preserves all critical tour fields when mapping from DB', async () => {
+    // Regression: silent field drops in admin tour mappings cause data loss
+    // on reload (reads) or corrupt rows in DB (writes). Every tour-row mapping
+    // (identified by `groupSize: t.group_size`) MUST include the critical fields.
     const adminAppPath = resolve(__dirname, '../src/admin/AdminApp.tsx');
     const source = readFileSync(adminAppPath, 'utf-8');
 
-    // Count how many times we map a tour row from supabase (look for `groupSize: t.group_size`
-    // which is unique to tour-row mappings).
     const mappingCount = (source.match(/groupSize:\s*t\.group_size/g) || []).length;
-
-    // Count how many of those mappings include pricing_tiers
-    const pricingTiersInMapping = (source.match(/pricing_tiers:\s*t\.pricing_tiers/g) || []).length;
-
     expect(mappingCount).toBeGreaterThan(0);
-    expect(pricingTiersInMapping).toBe(mappingCount);
+
+    const fieldsToCheck = [
+      /pricing_tiers:\s*t\.pricing_tiers/g,
+      /stripeLink:\s*t\.stripe_link/g,
+      /meetingPointMapUrl:\s*t\.meeting_point_map_url/g,
+    ];
+    for (const pattern of fieldsToCheck) {
+      const found = (source.match(pattern) || []).length;
+      expect(found, `Missing ${pattern.source} in some tour mapping`).toBe(mappingCount);
+    }
+
+    // Bug guard: ensure no mapping reads `t.notIncluded*` (camelCase) — DB columns
+    // are snake_case `t.not_included*`. The wrong form silently drops the lists.
+    expect(source).not.toMatch(/t\.notIncluded(_en|_es)?\b/);
+  });
+
+  test('Admin tour upserts include all critical fields (no silent drops)', async () => {
+    // Regression: handleSaveTour and pushAllToDb wrote rows missing
+    // pricing_tiers / stripe_link / meeting_point_map_url, silently
+    // wiping those columns in DB. Every upsert payload (identified by
+    // `group_size: tour.groupSize`) MUST include them.
+    const adminAppPath = resolve(__dirname, '../src/admin/AdminApp.tsx');
+    const source = readFileSync(adminAppPath, 'utf-8');
+
+    const upsertCount = (source.match(/group_size:\s*tour(Data)?\.groupSize/g) || []).length;
+    expect(upsertCount).toBeGreaterThan(0);
+
+    const fieldsToCheck = [
+      /pricing_tiers:\s*tour(Data)?\.pricing_tiers/g,
+      /stripe_link:\s*tour(Data)?\.stripeLink/g,
+      /meeting_point_map_url:\s*tour(Data)?\.meetingPointMapUrl/g,
+    ];
+    for (const pattern of fieldsToCheck) {
+      const found = (source.match(pattern) || []).length;
+      expect(found, `Missing ${pattern.source} in some upsert`).toBe(upsertCount);
+    }
+  });
+
+  test('BookingModal renders tour.duration via duration_labels (i18n)', async () => {
+    // Regression: tour.duration / tour.estimatedDuration were rendered raw
+    // ("Journée entière") to EN/ES users, leaking French. Every place that
+    // renders these MUST go through t.tours.duration_labels.
+    const path = resolve(__dirname, '../src/components/booking/BookingModal.tsx');
+    const source = readFileSync(path, 'utf-8');
+
+    // No raw `{tour.duration}` allowed (must be wrapped in duration_labels)
+    const rawDuration = source.match(/\{tour\.duration\}/g) || [];
+    expect(rawDuration.length, 'Found raw {tour.duration} render — must use duration_labels').toBe(0);
+
+    // No raw `{tour.estimatedDuration}` either
+    const rawEstimated = source.match(/\{tour\.estimatedDuration\}/g) || [];
+    expect(rawEstimated.length, 'Found raw {tour.estimatedDuration} render — must use duration_labels').toBe(0);
+
+    // No hardcoded French success message bypassing translations
+    expect(source, 'success message must use t.booking.success_message').not.toContain(
+      'Un email de confirmation a été envoyé'
+    );
+
+    // No hardcoded "À confirmer" / "Voyageurs" / French placeholders
+    const frenchLeaks = [
+      'Hôtel / Adresse',
+      'placeholder="Jean',
+      'placeholder="jean',
+      "À confirmer\"",
+      "'Heure de pick-up'",
+    ];
+    for (const leak of frenchLeaks) {
+      expect(source, `BookingModal still contains French leak: ${leak}`).not.toContain(leak);
+    }
+  });
+
+  test('API endpoints use RESEND_FROM_EMAIL not hardcoded onboarding@resend.dev', async () => {
+    // Regression: confirm-booking and webhooks/stripe used to hardcode
+    // 'Tours & Détours <onboarding@resend.dev>', which silently dropped
+    // emails to anyone other than the Resend account owner.
+    const apiFiles = [
+      resolve(__dirname, '../api/confirm-booking.ts'),
+      resolve(__dirname, '../api/webhooks/stripe.ts'),
+      resolve(__dirname, '../api/contact.ts'),
+    ];
+    for (const path of apiFiles) {
+      const source = readFileSync(path, 'utf-8');
+      // No hardcoded sandbox sender
+      expect(source, `${path} must not hardcode onboarding@resend.dev`).not.toMatch(
+        /from:\s*['"`]Tours[^"`']*onboarding@resend\.dev/
+      );
+      // Must use RESEND_FROM_EMAIL env var
+      expect(source, `${path} must read RESEND_FROM_EMAIL`).toContain('RESEND_FROM_EMAIL');
+    }
   });
 
   test('Tour dialog images are visible and title appears above', async ({ page }) => {
