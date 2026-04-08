@@ -1,4 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { readFileSync } from 'fs';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 test.describe('Stability & Regression Tests', () => {
 
@@ -51,6 +56,25 @@ test.describe('Stability & Regression Tests', () => {
     // 4:3 = 1.333... — allow small tolerance
     expect(ratio).toBeGreaterThan(1.2);
     expect(ratio).toBeLessThan(1.5);
+  });
+
+  test('AdminApp preserves pricing_tiers when mapping tours from DB', async () => {
+    // Regression: pricing_tiers was being silently dropped in admin tour mappings,
+    // causing pricing to disappear from the admin UI on every reload while the
+    // public site (which reads directly from Supabase via AppContext) kept working.
+    // Every place that maps a Supabase tour row to a Tour object MUST include pricing_tiers.
+    const adminAppPath = resolve(__dirname, '../src/admin/AdminApp.tsx');
+    const source = readFileSync(adminAppPath, 'utf-8');
+
+    // Count how many times we map a tour row from supabase (look for `groupSize: t.group_size`
+    // which is unique to tour-row mappings).
+    const mappingCount = (source.match(/groupSize:\s*t\.group_size/g) || []).length;
+
+    // Count how many of those mappings include pricing_tiers
+    const pricingTiersInMapping = (source.match(/pricing_tiers:\s*t\.pricing_tiers/g) || []).length;
+
+    expect(mappingCount).toBeGreaterThan(0);
+    expect(pricingTiersInMapping).toBe(mappingCount);
   });
 
   test('Tour dialog images are visible and title appears above', async ({ page }) => {

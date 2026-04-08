@@ -4519,6 +4519,7 @@ export default function AdminApp() {
           goodToKnow_es: t.good_to_know_es || [],
           stops: t.stops || [],
           stripe_tip_link: t.stripe_tip_link,
+          pricing_tiers: t.pricing_tiers || {},
         }));
         setTours(mapped as Tour[]);
         localStorage.setItem("td-tours", JSON.stringify(mapped));
@@ -4673,6 +4674,9 @@ export default function AdminApp() {
           goodToKnow: t.good_to_know || [],
           goodToKnow_en: t.good_to_know_en || [],
           goodToKnow_es: t.good_to_know_es || [],
+          stops: t.stops || [],
+          stripe_tip_link: t.stripe_tip_link,
+          pricing_tiers: t.pricing_tiers || {},
         }));
         setTours(mapped as Tour[]);
         localStorage.setItem("td-tours", JSON.stringify(mapped));
@@ -4897,6 +4901,9 @@ export default function AdminApp() {
             goodToKnow: t.good_to_know || [],
             goodToKnow_en: t.good_to_know_en || [],
             goodToKnow_es: t.good_to_know_es || [],
+            stops: t.stops || [],
+            stripe_tip_link: t.stripe_tip_link,
+            pricing_tiers: t.pricing_tiers || {},
           }));
           setTours(mapped as Tour[]);
         } else if (error) {
