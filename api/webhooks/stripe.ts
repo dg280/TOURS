@@ -17,7 +17,74 @@ import type { IncomingMessage, ServerResponse } from 'http';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
-import { normalizeLang, formatBookingDate, emailStrings } from '../_lib/email-i18n';
+
+// Inlined i18n helper (was api/_lib/email-i18n.ts) — Vercel was failing to
+// bundle the shared file at runtime, causing the function to crash on cold
+// start with an empty 500 response. Keeping it inline removes that risk.
+type EmailLang = 'fr' | 'en' | 'es';
+function normalizeLang(input: unknown): EmailLang {
+    const v = String(input || '').toLowerCase();
+    if (v === 'en' || v === 'es') return v;
+    return 'fr';
+}
+function localeFor(lang: EmailLang): string {
+    if (lang === 'en') return 'en-GB';
+    if (lang === 'es') return 'es-ES';
+    return 'fr-FR';
+}
+function formatBookingDate(dateStr: string, lang: EmailLang): string {
+    return new Date(dateStr + 'T12:00:00').toLocaleDateString(localeFor(lang), {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+        timeZone: 'Europe/Madrid',
+    });
+}
+const EMAIL_STRINGS = {
+    fr: {
+        subject_customer: '✓ Réservation confirmée',
+        subject_admin_webhook: 'RÉSA [WEBHOOK]',
+        header_brand: 'Tours & Détours Barcelona',
+        header_title: 'Réservation confirmée',
+        hero_thanks: '✓ Paiement reçu — Merci',
+        details: 'Détails', date: 'Date', travelers: 'Voyageurs',
+        pickup_time: 'Heure pick-up', pickup_address: 'Adresse pick-up',
+        total_paid: 'Total payé', included: 'Ce qui est inclus',
+        questions: 'Des questions ?',
+        admin_title: '🎉 Nouvelle réservation confirmée (webhook)',
+        admin_tour: 'Tour', admin_client: 'Client', admin_email: 'Email',
+        admin_participants: 'Participants', admin_total: 'Total',
+    },
+    en: {
+        subject_customer: '✓ Booking confirmed',
+        subject_admin_webhook: 'RESA [WEBHOOK]',
+        header_brand: 'Tours & Détours Barcelona',
+        header_title: 'Booking confirmed',
+        hero_thanks: '✓ Payment received — Thank you',
+        details: 'Details', date: 'Date', travelers: 'Travelers',
+        pickup_time: 'Pick-up time', pickup_address: 'Pick-up address',
+        total_paid: 'Total paid', included: "What's included",
+        questions: 'Any questions?',
+        admin_title: '🎉 New confirmed booking (webhook)',
+        admin_tour: 'Tour', admin_client: 'Customer', admin_email: 'Email',
+        admin_participants: 'Travelers', admin_total: 'Total',
+    },
+    es: {
+        subject_customer: '✓ Reserva confirmada',
+        subject_admin_webhook: 'RESERVA [WEBHOOK]',
+        header_brand: 'Tours & Détours Barcelona',
+        header_title: 'Reserva confirmada',
+        hero_thanks: '✓ Pago recibido — Gracias',
+        details: 'Detalles', date: 'Fecha', travelers: 'Viajeros',
+        pickup_time: 'Hora de recogida', pickup_address: 'Dirección de recogida',
+        total_paid: 'Total pagado', included: 'Qué incluye',
+        questions: '¿Alguna pregunta?',
+        admin_title: '🎉 Nueva reserva confirmada (webhook)',
+        admin_tour: 'Tour', admin_client: 'Cliente', admin_email: 'Email',
+        admin_participants: 'Viajeros', admin_total: 'Total',
+    },
+} as const;
+function emailStrings(lang: EmailLang) {
+    return EMAIL_STRINGS[lang];
+}
 
 // Disable Vercel's default body parsing — we need the raw body for signature verification
 export const config = { api: { bodyParser: false } };

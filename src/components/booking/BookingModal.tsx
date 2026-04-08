@@ -878,9 +878,18 @@ export const BookingModal = ({
                   </span>
                 </div>
                 {clientSecret ? (
+                  // key={clientSecret} forces a full remount when the PI is
+                  // re-created (audit React #1 + bug user reported): without
+                  // it, Stripe Elements keeps the previous PI in its internal
+                  // state and confirmPayment fails with "An unexpected error".
                   <Elements
+                    key={clientSecret}
                     stripe={stripePromise}
-                    options={{ clientSecret, appearance: { theme: "stripe" } }}
+                    options={{
+                      clientSecret,
+                      appearance: { theme: "stripe" },
+                      locale: lang as "fr" | "en" | "es",
+                    }}
                   >
                     <CheckoutForm
                       onSuccess={handleSuccess}

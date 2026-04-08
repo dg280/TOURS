@@ -1,6 +1,79 @@
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
-import { normalizeLang, formatBookingDate, emailStrings } from './_lib/email-i18n';
+
+// Inlined i18n helper (was api/_lib/email-i18n.ts) — Vercel was failing to
+// bundle the shared file at runtime, causing the function to crash on cold
+// start with an empty 500 response. Keeping it inline removes that risk.
+type EmailLang = 'fr' | 'en' | 'es';
+function normalizeLang(input: unknown): EmailLang {
+    const v = String(input || '').toLowerCase();
+    if (v === 'en' || v === 'es') return v;
+    return 'fr';
+}
+function localeFor(lang: EmailLang): string {
+    if (lang === 'en') return 'en-GB';
+    if (lang === 'es') return 'es-ES';
+    return 'fr-FR';
+}
+function formatBookingDate(dateStr: string, lang: EmailLang): string {
+    return new Date(dateStr + 'T12:00:00').toLocaleDateString(localeFor(lang), {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+        timeZone: 'Europe/Madrid',
+    });
+}
+const EMAIL_STRINGS = {
+    fr: {
+        subject_customer: '✓ Réservation confirmée',
+        subject_admin: 'RÉSA',
+        header_brand: 'Tours & Détours Barcelona',
+        header_title: 'Réservation confirmée',
+        hero_thanks: '✓ Paiement reçu — Merci',
+        details: 'Détails', date: 'Date', travelers: 'Voyageurs',
+        pickup_time: 'Heure pick-up', pickup_address: 'Adresse pick-up',
+        total_paid: 'Total payé', included: 'Ce qui est inclus',
+        questions: 'Des questions ?',
+        admin_title: '🎉 Nouvelle réservation confirmée',
+        admin_tour: 'Tour', admin_client: 'Client', admin_email: 'Email',
+        admin_phone: 'Téléphone', admin_participants: 'Participants',
+        admin_total: 'Total', admin_billing: 'Facturation',
+        admin_comment: 'Commentaire', admin_none: 'Aucun',
+    },
+    en: {
+        subject_customer: '✓ Booking confirmed',
+        subject_admin: 'RESA',
+        header_brand: 'Tours & Détours Barcelona',
+        header_title: 'Booking confirmed',
+        hero_thanks: '✓ Payment received — Thank you',
+        details: 'Details', date: 'Date', travelers: 'Travelers',
+        pickup_time: 'Pick-up time', pickup_address: 'Pick-up address',
+        total_paid: 'Total paid', included: "What's included",
+        questions: 'Any questions?',
+        admin_title: '🎉 New confirmed booking',
+        admin_tour: 'Tour', admin_client: 'Customer', admin_email: 'Email',
+        admin_phone: 'Phone', admin_participants: 'Travelers',
+        admin_total: 'Total', admin_billing: 'Billing',
+        admin_comment: 'Comment', admin_none: 'None',
+    },
+    es: {
+        subject_customer: '✓ Reserva confirmada',
+        subject_admin: 'RESERVA',
+        header_brand: 'Tours & Détours Barcelona',
+        header_title: 'Reserva confirmada',
+        hero_thanks: '✓ Pago recibido — Gracias',
+        details: 'Detalles', date: 'Fecha', travelers: 'Viajeros',
+        pickup_time: 'Hora de recogida', pickup_address: 'Dirección de recogida',
+        total_paid: 'Total pagado', included: 'Qué incluye',
+        questions: '¿Alguna pregunta?',
+        admin_title: '🎉 Nueva reserva confirmada',
+        admin_tour: 'Tour', admin_client: 'Cliente', admin_email: 'Email',
+        admin_phone: 'Teléfono', admin_participants: 'Viajeros',
+        admin_total: 'Total', admin_billing: 'Facturación',
+        admin_comment: 'Comentario', admin_none: 'Ninguno',
+    },
+} as const;
+function emailStrings(lang: EmailLang) {
+    return EMAIL_STRINGS[lang];
+}
 
 function escapeHtml(str: unknown): string {
     if (str === null || str === undefined) return '';
