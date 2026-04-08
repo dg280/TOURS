@@ -26,7 +26,11 @@ interface ApiResponse {
 interface ApiRequest {
     method: string;
     body: {
-        reservationId: string;
+        // Either is accepted. paymentIntentId is preferred since the anon
+        // role on the client cannot SELECT reservations to retrieve the row id
+        // after insert (RLS), so the client only knows the PI id.
+        paymentIntentId?: string;
+        reservationId?: string;
     };
 }
 
@@ -35,20 +39,25 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { reservationId } = req.body;
+    const { paymentIntentId, reservationId } = req.body;
 
-    if (!reservationId) {
-        return res.status(400).json({ error: 'Missing reservationId' });
+    if (!paymentIntentId && !reservationId) {
+        return res.status(400).json({ error: 'Missing paymentIntentId or reservationId' });
     }
 
     try {
         // 1. Atomic claim: only the first caller (client OR webhook) wins.
         // The race used to send duplicate emails when both ran in parallel
         // (audit H5). Now we mark confirmed in a single conditional UPDATE.
-        const { data: reservation, error: resError } = await supabase
+        // Look up by payment_intent_id (preferred) or by reservation id.
+        const baseQuery = supabase
             .from('reservations')
-            .update({ status: 'confirmed' })
-            .eq('id', reservationId)
+            .update({ status: 'confirmed' });
+        const filteredQuery = paymentIntentId
+            ? baseQuery.eq('payment_intent_id', paymentIntentId)
+            : baseQuery.eq('id', reservationId!);
+
+        const { data: reservation, error: resError } = await filteredQuery
             .neq('status', 'confirmed')
             .select('*')
             .maybeSingle();
@@ -68,7 +77,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         // prevents abuse where attackers POST arbitrary reservation IDs to
         // trigger email floods (audit H4).
         if (!reservation.payment_intent_id) {
-            console.warn('Refusing to send email for reservation without payment_intent_id:', reservationId);
+            console.warn('Refusing to send email for reservation without payment_intent_id:', reservation.id);
             return res.status(400).json({ error: 'Reservation has no associated payment' });
         }
 

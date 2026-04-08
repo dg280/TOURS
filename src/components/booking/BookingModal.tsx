@@ -490,13 +490,13 @@ export const BookingModal = ({
       return;
     }
 
-    const { data, error } = await supabase
+    // Insert WITHOUT chaining .select() — anon role has no SELECT permission
+    // on reservations under current RLS policy, which would return 401.
+    const { error } = await supabase
       .from("reservations")
-      .insert(newReservation)
-      .select("id")
-      .single();
+      .insert(newReservation);
 
-    if (error || !data) {
+    if (error) {
       // CRITICAL: payment was captured by Stripe but the DB insert failed.
       // Do NOT show the success screen — the user must contact us so we can
       // reconcile manually (audit React #3). Allow them to retry too.
@@ -507,20 +507,24 @@ export const BookingModal = ({
     }
 
     // Trigger confirmation email (best effort — webhook is the canonical sender)
-    fetch("/api/confirm-booking", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reservationId: data.id }),
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          console.error("confirm-booking error:", res.status, body);
-        }
+    // Look up by payment_intent_id (server-side) — we can't read back the row id
+    // from the anon insert, but we have the PI id locally.
+    if (paymentIntentId) {
+      fetch("/api/confirm-booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentIntentId }),
       })
-      .catch((err) => {
-        console.error("Failed to trigger confirmation email:", err);
-      });
+        .then(async (res) => {
+          if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            console.error("confirm-booking error:", res.status, body);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to trigger confirmation email:", err);
+        });
+    }
 
     setStep(5);
   };

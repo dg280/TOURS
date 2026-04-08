@@ -42,6 +42,24 @@ test.describe('Stability & Regression Tests', () => {
     // we rely on the fact that it's pushed and the build passed.
   });
 
+  test('BookingModal does not chain .select() after reservations insert (RLS)', async () => {
+    // Regression: anon role has no SELECT permission on reservations under
+    // the current RLS policy (security_fixes migration). Chaining .select()
+    // after .insert() returns 401, the booking row is rejected, payment is
+    // captured by Stripe but no reservation is recorded.
+    const path = resolve(__dirname, '../src/components/booking/BookingModal.tsx');
+    const source = readFileSync(path, 'utf-8');
+    // Look for the dangerous pattern: .from("reservations") followed by
+    // .insert(...) followed by .select(...) on the same chain.
+    const insertWithSelect = source.match(
+      /\.from\(["']reservations["']\)[\s\S]{0,200}?\.insert\([^)]*\)[\s\S]{0,80}?\.select\(/
+    );
+    expect(
+      insertWithSelect,
+      'BookingModal must not chain .select() after reservations insert — anon RLS denies SELECT'
+    ).toBeNull();
+  });
+
   test('create-payment-intent does not pin an unsupported Stripe API version', async () => {
     // Regression: pinning apiVersion '2025-01-27' (per CLAUDE.md guidance) was
     // rejected by Stripe SDK 20.x at runtime, causing every paymentIntents.create
