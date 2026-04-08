@@ -45,6 +45,7 @@ interface ApiRequest {
         tourId: string | number;
         participants: number;
         currency?: string;
+        lang?: string;
     };
 }
 
@@ -65,7 +66,8 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
             return res.status(500).json({ error: 'Configuration Supabase manquante (URL ou Service Role Key)' });
         }
 
-        const { tourId, participants, currency = 'eur' } = req.body;
+        const { tourId, participants, currency = 'eur', lang } = req.body;
+        const safeLang = lang === 'en' || lang === 'es' ? lang : 'fr';
 
         if (!tourId || !participants) {
             return res.status(400).json({ error: 'Données manquantes (tourId ou participants)' });
@@ -132,7 +134,8 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
                 tourId: String(tourId),
                 participants: participantsInt.toString(),
                 baseAmount: baseAmount.toString(),
-                stripeFees: (totalAmount - baseAmount).toFixed(2)
+                stripeFees: (totalAmount - baseAmount).toFixed(2),
+                lang: safeLang,
             }
         }, { idempotencyKey });
 

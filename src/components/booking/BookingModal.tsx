@@ -352,6 +352,7 @@ export const BookingModal = ({
       body: JSON.stringify({
         tourId: tour.id,
         participants: participants,
+        lang: lang,
       }),
     })
       .then(async (res) => {
@@ -513,7 +514,7 @@ export const BookingModal = ({
       fetch("/api/confirm-booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentIntentId }),
+        body: JSON.stringify({ paymentIntentId, lang }),
       })
         .then(async (res) => {
           if (!res.ok) {

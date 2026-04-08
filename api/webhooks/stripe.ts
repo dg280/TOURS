@@ -17,6 +17,7 @@ import type { IncomingMessage, ServerResponse } from 'http';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import { normalizeLang, formatBookingDate, emailStrings } from '../_lib/email-i18n';
 
 // Disable Vercel's default body parsing — we need the raw body for signature verification
 export const config = { api: { bodyParser: false } };
@@ -114,49 +115,48 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         .eq('id', reservation.tour_id)
         .single();
 
-    // 5. Send confirmation emails
+    // 5. Send confirmation emails — language is read from PI metadata so the
+    // customer receives the same language as during checkout (FR/EN/ES).
     try {
         const resend = new Resend(process.env.RESEND_API_KEY);
         const adminEmail = process.env.ADMIN_EMAIL || 'info@toursandetours.com';
 
-        // Parse as midday local to avoid TZ shifts, force Europe/Madrid (audit H2)
-        const dateFormatted = new Date(reservation.date + 'T12:00:00').toLocaleDateString('fr-FR', {
-            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-            timeZone: 'Europe/Madrid',
-        });
+        const lang = normalizeLang(paymentIntent.metadata?.lang);
+        const L = emailStrings(lang);
+        const dateFormatted = formatBookingDate(reservation.date, lang);
 
         const includedList = (tour?.included as string[] | null)
             ?.map((item: string) => `<li style="margin:4px 0;">${escapeHtml(item)}</li>`)
             .join('') || '';
 
         const customerHtml = `
-<!DOCTYPE html><html lang="fr"><body style="margin:0;padding:0;background:#f9fafb;font-family:sans-serif;">
+<!DOCTYPE html><html lang="${lang}"><body style="margin:0;padding:0;background:#f9fafb;font-family:sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 0;">
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;max-width:600px;width:100%;">
 <tr><td style="background:#111827;padding:40px;text-align:center;">
-  <p style="margin:0 0 4px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#c9a961;font-weight:700;">Tours &amp; Détours Barcelona</p>
-  <h1 style="margin:0;font-size:26px;color:#fff;font-weight:300;">Réservation confirmée</h1>
+  <p style="margin:0 0 4px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#c9a961;font-weight:700;">${L.header_brand}</p>
+  <h1 style="margin:0;font-size:26px;color:#fff;font-weight:300;">${L.header_title}</h1>
 </td></tr>
 <tr><td style="background:#d1fae5;padding:14px 40px;text-align:center;">
-  <p style="margin:0;color:#065f46;font-weight:700;font-size:14px;">✓ Paiement reçu — Merci ${escapeHtml(reservation.name)} !</p>
+  <p style="margin:0;color:#065f46;font-weight:700;font-size:14px;">${L.hero_thanks} ${escapeHtml(reservation.name)} !</p>
 </td></tr>
 <tr><td style="padding:32px 40px 16px;">
   <h2 style="margin:0;font-size:22px;color:#111827;font-weight:700;">${escapeHtml(reservation.tour_name || tour?.title)}</h2>
 </td></tr>
 <tr><td style="padding:16px 40px 24px;">
   <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
-    <tr style="background:#f9fafb;"><td colspan="2" style="padding:12px 16px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7280;">Détails</td></tr>
-    <tr style="border-top:1px solid #e5e7eb;"><td style="padding:12px 16px;color:#6b7280;font-size:14px;width:40%;">Date</td><td style="padding:12px 16px;color:#111827;font-weight:700;font-size:14px;">${escapeHtml(dateFormatted)}</td></tr>
-    <tr style="border-top:1px solid #e5e7eb;"><td style="padding:12px 16px;color:#6b7280;font-size:14px;">Voyageurs</td><td style="padding:12px 16px;color:#111827;font-weight:700;font-size:14px;">${escapeHtml(reservation.participants)}</td></tr>
-    ${reservation.pickup_time ? `<tr style="border-top:1px solid #e5e7eb;background:#fffbeb;"><td style="padding:12px 16px;color:#6b7280;font-size:14px;">Heure pick-up</td><td style="padding:12px 16px;color:#92400e;font-weight:700;font-size:14px;">${escapeHtml(reservation.pickup_time)}</td></tr>` : ''}
-    ${reservation.pickup_address ? `<tr style="border-top:1px solid #e5e7eb;background:#fffbeb;"><td style="padding:12px 16px;color:#6b7280;font-size:14px;">Adresse pick-up</td><td style="padding:12px 16px;color:#92400e;font-weight:700;font-size:14px;">${escapeHtml(reservation.pickup_address)}</td></tr>` : ''}
-    <tr style="border-top:2px solid #e5e7eb;background:#f9fafb;"><td style="padding:14px 16px;color:#6b7280;font-size:14px;font-weight:700;">Total payé</td><td style="padding:14px 16px;color:#c9a961;font-weight:700;font-size:18px;">${escapeHtml(reservation.total_price)}€</td></tr>
+    <tr style="background:#f9fafb;"><td colspan="2" style="padding:12px 16px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7280;">${L.details}</td></tr>
+    <tr style="border-top:1px solid #e5e7eb;"><td style="padding:12px 16px;color:#6b7280;font-size:14px;width:40%;">${L.date}</td><td style="padding:12px 16px;color:#111827;font-weight:700;font-size:14px;">${escapeHtml(dateFormatted)}</td></tr>
+    <tr style="border-top:1px solid #e5e7eb;"><td style="padding:12px 16px;color:#6b7280;font-size:14px;">${L.travelers}</td><td style="padding:12px 16px;color:#111827;font-weight:700;font-size:14px;">${escapeHtml(reservation.participants)}</td></tr>
+    ${reservation.pickup_time ? `<tr style="border-top:1px solid #e5e7eb;background:#fffbeb;"><td style="padding:12px 16px;color:#6b7280;font-size:14px;">${L.pickup_time}</td><td style="padding:12px 16px;color:#92400e;font-weight:700;font-size:14px;">${escapeHtml(reservation.pickup_time)}</td></tr>` : ''}
+    ${reservation.pickup_address ? `<tr style="border-top:1px solid #e5e7eb;background:#fffbeb;"><td style="padding:12px 16px;color:#6b7280;font-size:14px;">${L.pickup_address}</td><td style="padding:12px 16px;color:#92400e;font-weight:700;font-size:14px;">${escapeHtml(reservation.pickup_address)}</td></tr>` : ''}
+    <tr style="border-top:2px solid #e5e7eb;background:#f9fafb;"><td style="padding:14px 16px;color:#6b7280;font-size:14px;font-weight:700;">${L.total_paid}</td><td style="padding:14px 16px;color:#c9a961;font-weight:700;font-size:18px;">${escapeHtml(reservation.total_price)}€</td></tr>
   </table>
 </td></tr>
-${includedList ? `<tr><td style="padding:0 40px 24px;"><div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;padding:20px 24px;"><p style="margin:0 0 12px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#065f46;">Ce qui est inclus</p><ul style="margin:0;padding:0 0 0 16px;">${includedList}</ul></div></td></tr>` : ''}
+${includedList ? `<tr><td style="padding:0 40px 24px;"><div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;padding:20px 24px;"><p style="margin:0 0 12px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#065f46;">${L.included}</p><ul style="margin:0;padding:0 0 0 16px;">${includedList}</ul></div></td></tr>` : ''}
 <tr><td style="padding:0 40px 40px;"><div style="background:#f9fafb;border-radius:12px;padding:20px 24px;text-align:center;">
-  <p style="margin:0 0 8px;color:#374151;font-size:14px;">Des questions ?</p>
+  <p style="margin:0 0 8px;color:#374151;font-size:14px;">${L.questions}</p>
   <p style="margin:0 0 4px;"><a href="https://wa.me/34623973105" style="color:#c9a961;font-weight:700;text-decoration:none;">📱 WhatsApp : +34 623 97 31 05</a></p>
   <p style="margin:0;"><a href="mailto:${escapeHtml(adminEmail)}" style="color:#c9a961;font-weight:700;text-decoration:none;">✉️ ${escapeHtml(adminEmail)}</a></p>
 </div></td></tr>
@@ -168,14 +168,14 @@ ${includedList ? `<tr><td style="padding:0 40px 24px;"><div style="background:#e
 </body></html>`;
 
         const adminHtml = `
-<h2>🎉 Réservation confirmée via Stripe Webhook</h2>
+<h2>${L.admin_title}</h2>
 <table style="border-collapse:collapse;width:100%;max-width:500px;">
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Tour</td><td style="padding:8px;">${escapeHtml(reservation.tour_name)}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Client</td><td style="padding:8px;">${escapeHtml(reservation.name)}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Email</td><td style="padding:8px;">${escapeHtml(reservation.email)}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Date</td><td style="padding:8px;">${escapeHtml(dateFormatted)}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Participants</td><td style="padding:8px;">${escapeHtml(reservation.participants)}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Total</td><td style="padding:8px;font-weight:700;color:#c9a961;">${escapeHtml(reservation.total_price)}€</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">${L.admin_tour}</td><td style="padding:8px;">${escapeHtml(reservation.tour_name)}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">${L.admin_client}</td><td style="padding:8px;">${escapeHtml(reservation.name)}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">${L.admin_email}</td><td style="padding:8px;">${escapeHtml(reservation.email)}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">${L.date}</td><td style="padding:8px;">${escapeHtml(dateFormatted)}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">${L.admin_participants}</td><td style="padding:8px;">${escapeHtml(reservation.participants)}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">${L.admin_total}</td><td style="padding:8px;font-weight:700;color:#c9a961;">${escapeHtml(reservation.total_price)}€</td></tr>
   <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Payment Intent</td><td style="padding:8px;font-size:11px;color:#6b7280;">${escapeHtml(paymentIntent.id)}</td></tr>
 </table>`;
 
@@ -191,14 +191,14 @@ ${includedList ? `<tr><td style="padding:0 40px 24px;"><div style="background:#e
         await resend.emails.send({
             from: fromAddress,
             to: reservation.email,
-            subject: `✓ Réservation confirmée : ${tourNameSafe} — ${dateFormatted}`,
+            subject: `${L.subject_customer} : ${tourNameSafe} — ${dateFormatted}`,
             html: customerHtml,
         });
 
         await resend.emails.send({
             from: fromAddress,
             to: adminEmail,
-            subject: `RÉSA [WEBHOOK] : ${tourNameSafe} · ${customerNameSafe} · ${dateFormatted}`,
+            subject: `${L.subject_admin_webhook} : ${tourNameSafe} · ${customerNameSafe} · ${dateFormatted}`,
             html: adminHtml,
         });
 

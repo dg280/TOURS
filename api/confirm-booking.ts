@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
+import { normalizeLang, formatBookingDate, emailStrings } from './_lib/email-i18n';
 
 function escapeHtml(str: unknown): string {
     if (str === null || str === undefined) return '';
@@ -31,6 +32,7 @@ interface ApiRequest {
         // after insert (RLS), so the client only knows the PI id.
         paymentIntentId?: string;
         reservationId?: string;
+        lang?: string;
     };
 }
 
@@ -39,7 +41,9 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { paymentIntentId, reservationId } = req.body;
+    const { paymentIntentId, reservationId, lang: rawLang } = req.body;
+    const lang = normalizeLang(rawLang);
+    const L = emailStrings(lang);
 
     if (!paymentIntentId && !reservationId) {
         return res.status(400).json({ error: 'Missing paymentIntentId or reservationId' });
@@ -90,13 +94,8 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
 
         // 3. Format date — parse as midday local to avoid TZ shifts (audit H2)
         // and force Europe/Madrid timezone so all customers see Barcelona local date.
-        const dateFormatted = new Date(reservation.date + 'T12:00:00').toLocaleDateString('fr-FR', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            timeZone: 'Europe/Madrid',
-        });
+        // Date is localized to the customer's language (FR/EN/ES).
+        const dateFormatted = formatBookingDate(reservation.date, lang);
 
         // 4. Build included list — escape each item (audit H1)
         const includedList = (tour?.included as string[] | null)
@@ -109,10 +108,10 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
             ? `${escapeHtml(reservation.billing_address || '')}${reservation.billing_city ? ', ' + escapeHtml(reservation.billing_city) : ''}${reservation.billing_zip ? ' ' + escapeHtml(reservation.billing_zip) : ''}${reservation.billing_country ? ', ' + escapeHtml(reservation.billing_country) : ''}`
             : null;
 
-        // 6. Customer email — full summary
+        // 6. Customer email — full summary, localized via lang (FR/EN/ES)
         const customerEmail = `
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="${lang}">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
 <body style="margin:0;padding:0;background:#f9fafb;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;padding:32px 0;">
@@ -122,15 +121,15 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         <!-- Header -->
         <tr>
           <td style="background:#111827;padding:40px 40px 32px;text-align:center;">
-            <p style="margin:0 0 4px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#c9a961;font-weight:700;">Tours & Détours Barcelona</p>
-            <h1 style="margin:0;font-size:26px;color:#ffffff;font-weight:300;letter-spacing:-0.5px;">Réservation confirmée</h1>
+            <p style="margin:0 0 4px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#c9a961;font-weight:700;">${L.header_brand}</p>
+            <h1 style="margin:0;font-size:26px;color:#ffffff;font-weight:300;letter-spacing:-0.5px;">${L.header_title}</h1>
           </td>
         </tr>
 
         <!-- Green success bar -->
         <tr>
           <td style="background:#d1fae5;padding:14px 40px;text-align:center;">
-            <p style="margin:0;color:#065f46;font-weight:700;font-size:14px;">✓ Paiement reçu — Merci ${escapeHtml(reservation.name)} !</p>
+            <p style="margin:0;color:#065f46;font-weight:700;font-size:14px;">${L.hero_thanks} ${escapeHtml(reservation.name)} !</p>
           </td>
         </tr>
 
@@ -146,62 +145,28 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
           <td style="padding:24px 40px;">
             <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
               <tr style="background:#f9fafb;">
-                <td colspan="2" style="padding:12px 16px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7280;">Détails de votre réservation</td>
+                <td colspan="2" style="padding:12px 16px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7280;">${L.details}</td>
               </tr>
               <tr style="border-top:1px solid #e5e7eb;">
-                <td style="padding:12px 16px;color:#6b7280;font-size:14px;width:40%;">Date</td>
+                <td style="padding:12px 16px;color:#6b7280;font-size:14px;width:40%;">${L.date}</td>
                 <td style="padding:12px 16px;color:#111827;font-weight:700;font-size:14px;">${escapeHtml(dateFormatted)}</td>
               </tr>
               <tr style="border-top:1px solid #e5e7eb;background:#fffbeb;">
-                <td style="padding:12px 16px;color:#6b7280;font-size:14px;">Heure de pick-up</td>
-                <td style="padding:12px 16px;color:#92400e;font-weight:700;font-size:14px;">${escapeHtml(reservation.pickup_time) || 'À confirmer'}</td>
+                <td style="padding:12px 16px;color:#6b7280;font-size:14px;">${L.pickup_time}</td>
+                <td style="padding:12px 16px;color:#92400e;font-weight:700;font-size:14px;">${escapeHtml(reservation.pickup_time) || '—'}</td>
               </tr>
               <tr style="border-top:1px solid #e5e7eb;">
-                <td style="padding:12px 16px;color:#6b7280;font-size:14px;">Voyageurs</td>
+                <td style="padding:12px 16px;color:#6b7280;font-size:14px;">${L.travelers}</td>
                 <td style="padding:12px 16px;color:#111827;font-weight:700;font-size:14px;">${reservation.participants}</td>
               </tr>
-              ${tour?.duration ? `
-              <tr style="border-top:1px solid #e5e7eb;">
-                <td style="padding:12px 16px;color:#6b7280;font-size:14px;">Durée estimée</td>
-                <td style="padding:12px 16px;color:#111827;font-weight:700;font-size:14px;">${tour.duration}</td>
-              </tr>` : ''}
               <tr style="border-top:1px solid #e5e7eb;background:#fffbeb;">
-                <td style="padding:12px 16px;color:#6b7280;font-size:14px;">Adresse de pick-up</td>
-                <td style="padding:12px 16px;color:#92400e;font-weight:700;font-size:14px;">${escapeHtml(reservation.pickup_address) || 'À confirmer avec le guide'}</td>
+                <td style="padding:12px 16px;color:#6b7280;font-size:14px;">${L.pickup_address}</td>
+                <td style="padding:12px 16px;color:#92400e;font-weight:700;font-size:14px;">${escapeHtml(reservation.pickup_address) || '—'}</td>
               </tr>
               <tr style="border-top:2px solid #e5e7eb;background:#f9fafb;">
-                <td style="padding:14px 16px;color:#6b7280;font-size:14px;font-weight:700;">Total payé</td>
+                <td style="padding:14px 16px;color:#6b7280;font-size:14px;font-weight:700;">${L.total_paid}</td>
                 <td style="padding:14px 16px;color:#c9a961;font-weight:700;font-size:18px;">${reservation.total_price}€</td>
               </tr>
-            </table>
-          </td>
-        </tr>
-
-        <!-- Client info -->
-        <tr>
-          <td style="padding:0 40px 24px;">
-            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
-              <tr style="background:#f9fafb;">
-                <td colspan="2" style="padding:12px 16px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7280;">Vos informations</td>
-              </tr>
-              <tr style="border-top:1px solid #e5e7eb;">
-                <td style="padding:12px 16px;color:#6b7280;font-size:14px;width:40%;">Nom</td>
-                <td style="padding:12px 16px;color:#111827;font-weight:600;font-size:14px;">${escapeHtml(reservation.name)}</td>
-              </tr>
-              <tr style="border-top:1px solid #e5e7eb;">
-                <td style="padding:12px 16px;color:#6b7280;font-size:14px;">Email</td>
-                <td style="padding:12px 16px;color:#111827;font-size:14px;">${escapeHtml(reservation.email)}</td>
-              </tr>
-              ${reservation.phone ? `
-              <tr style="border-top:1px solid #e5e7eb;">
-                <td style="padding:12px 16px;color:#6b7280;font-size:14px;">Téléphone</td>
-                <td style="padding:12px 16px;color:#111827;font-size:14px;">${escapeHtml(reservation.phone)}</td>
-              </tr>` : ''}
-              ${billingBlock ? `
-              <tr style="border-top:1px solid #e5e7eb;">
-                <td style="padding:12px 16px;color:#6b7280;font-size:14px;">Adresse de facturation</td>
-                <td style="padding:12px 16px;color:#111827;font-size:14px;">${billingBlock}</td>
-              </tr>` : ''}
             </table>
           </td>
         </tr>
@@ -211,19 +176,8 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         <tr>
           <td style="padding:0 40px 24px;">
             <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;padding:20px 24px;">
-              <p style="margin:0 0 12px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#065f46;">Ce qui est inclus</p>
+              <p style="margin:0 0 12px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#065f46;">${L.included}</p>
               <ul style="margin:0;padding:0 0 0 16px;">${includedList}</ul>
-            </div>
-          </td>
-        </tr>` : ''}
-
-        ${reservation.message ? `
-        <!-- Comment -->
-        <tr>
-          <td style="padding:0 40px 24px;">
-            <div style="background:#f3f4f6;border-radius:12px;padding:16px 20px;">
-              <p style="margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7280;">Votre commentaire</p>
-              <p style="margin:0;color:#374151;font-size:14px;font-style:italic;">"${escapeHtml(reservation.message)}"</p>
             </div>
           </td>
         </tr>` : ''}
@@ -232,7 +186,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         <tr>
           <td style="padding:0 40px 40px;">
             <div style="background:#f9fafb;border-radius:12px;padding:20px 24px;text-align:center;">
-              <p style="margin:0 0 8px;color:#374151;font-size:14px;">Des questions ? Contactez-nous directement :</p>
+              <p style="margin:0 0 8px;color:#374151;font-size:14px;">${L.questions}</p>
               <p style="margin:0 0 4px;"><a href="https://wa.me/34623973105" style="color:#c9a961;font-weight:700;text-decoration:none;">📱 WhatsApp : +34 623 97 31 05</a></p>
               <p style="margin:0;"><a href="mailto:info@toursandetours.com" style="color:#c9a961;font-weight:700;text-decoration:none;">✉️ info@toursandetours.com</a></p>
             </div>
@@ -243,7 +197,6 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         <tr>
           <td style="background:#111827;padding:24px 40px;text-align:center;">
             <p style="margin:0;color:#9ca3af;font-size:12px;">Tours & Détours Barcelona · Antoine Pilard</p>
-            <p style="margin:4px 0 0;color:#6b7280;font-size:11px;">À bientôt en Catalogne !</p>
           </td>
         </tr>
 
@@ -253,21 +206,23 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
 </body>
 </html>`;
 
-        // 7. Admin notification email
+        // 7. Admin notification email — admin reads it; FR is fine but we use
+        // the customer's lang labels for consistency. Date already formatted
+        // in customer's locale above.
         const adminEmail = `
-<h2 style="color:#111827;">🎉 Nouvelle réservation confirmée</h2>
+<h2 style="color:#111827;">${L.admin_title}</h2>
 <table style="border-collapse:collapse;width:100%;max-width:500px;">
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Tour</td><td style="padding:8px;">${escapeHtml(reservation.tour_name)}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Client</td><td style="padding:8px;">${escapeHtml(reservation.name)}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Email</td><td style="padding:8px;">${escapeHtml(reservation.email)}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Téléphone</td><td style="padding:8px;">${escapeHtml(reservation.phone) || '—'}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Date</td><td style="padding:8px;">${escapeHtml(dateFormatted)}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Heure pick-up</td><td style="padding:8px;">${escapeHtml(reservation.pickup_time) || '—'}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Adresse pick-up</td><td style="padding:8px;">${escapeHtml(reservation.pickup_address) || '—'}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Participants</td><td style="padding:8px;">${escapeHtml(reservation.participants)}</td></tr>
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Total</td><td style="padding:8px;font-weight:700;color:#c9a961;">${escapeHtml(reservation.total_price)}€</td></tr>
-  ${billingBlock ? `<tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Facturation</td><td style="padding:8px;">${billingBlock}</td></tr>` : ''}
-  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">Commentaire</td><td style="padding:8px;font-style:italic;">${escapeHtml(reservation.message) || 'Aucun'}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">${L.admin_tour}</td><td style="padding:8px;">${escapeHtml(reservation.tour_name)}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">${L.admin_client}</td><td style="padding:8px;">${escapeHtml(reservation.name)}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">${L.admin_email}</td><td style="padding:8px;">${escapeHtml(reservation.email)}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">${L.admin_phone}</td><td style="padding:8px;">${escapeHtml(reservation.phone) || '—'}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">${L.date}</td><td style="padding:8px;">${escapeHtml(dateFormatted)}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">${L.pickup_time}</td><td style="padding:8px;">${escapeHtml(reservation.pickup_time) || '—'}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">${L.pickup_address}</td><td style="padding:8px;">${escapeHtml(reservation.pickup_address) || '—'}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">${L.admin_participants}</td><td style="padding:8px;">${escapeHtml(reservation.participants)}</td></tr>
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">${L.admin_total}</td><td style="padding:8px;font-weight:700;color:#c9a961;">${escapeHtml(reservation.total_price)}€</td></tr>
+  ${billingBlock ? `<tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">${L.admin_billing}</td><td style="padding:8px;">${billingBlock}</td></tr>` : ''}
+  <tr><td style="padding:8px;background:#f3f4f6;font-weight:700;">${L.admin_comment}</td><td style="padding:8px;font-style:italic;">${escapeHtml(reservation.message) || L.admin_none}</td></tr>
 </table>`;
 
         // 8. Send both emails — use verified domain via env var (audit C1)
@@ -283,14 +238,14 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         await resend.emails.send({
             from: fromAddress,
             to: reservation.email,
-            subject: `✓ Réservation confirmée : ${tourNameSafe} — ${dateFormatted}`,
+            subject: `${L.subject_customer} : ${tourNameSafe} — ${dateFormatted}`,
             html: customerEmail,
         });
 
         await resend.emails.send({
             from: fromAddress,
             to: adminTo,
-            subject: `RÉSA : ${tourNameSafe} · ${customerNameSafe} · ${dateFormatted}`,
+            subject: `${L.subject_admin} : ${tourNameSafe} · ${customerNameSafe} · ${dateFormatted}`,
             html: adminEmail,
         });
 
