@@ -42,6 +42,20 @@ test.describe('Stability & Regression Tests', () => {
     // we rely on the fact that it's pushed and the build passed.
   });
 
+  test('create-payment-intent does not pin an unsupported Stripe API version', async () => {
+    // Regression: pinning apiVersion '2025-01-27' (per CLAUDE.md guidance) was
+    // rejected by Stripe SDK 20.x at runtime, causing every paymentIntents.create
+    // to fail with "Internal error" → user saw "Payment Error : Internal error"
+    // on step 4. The SDK must use its default version unless we upgrade the
+    // package and verify compatibility.
+    const path = resolve(__dirname, '../api/create-payment-intent.ts');
+    const source = readFileSync(path, 'utf-8');
+    expect(
+      source,
+      'create-payment-intent.ts must not hardcode apiVersion 2025-01-27 — unsupported by Stripe SDK 20.x'
+    ).not.toMatch(/apiVersion:\s*['"]2025-01-27['"]/);
+  });
+
   test('Tour card images use consistent 4:3 aspect ratio', async ({ page }) => {
     await page.goto('/');
     const tourImgContainer = page.locator('.group .aspect-\\[4\\/3\\]').first();

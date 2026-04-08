@@ -19,9 +19,10 @@ function getClients() {
             throw new Error('Stripe is not configured');
         }
         console.log(`[Stripe] Initialized using ${secretKey.startsWith('sk_test_') ? 'TEST' : 'LIVE'} key.`);
-        // Pin API version per CLAUDE.md (audit M16)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        stripe = new Stripe(secretKey, { apiVersion: '2025-01-27' as any });
+        // Use the SDK's default API version (Stripe SDK 20.x = 2024-09-30.acacia).
+        // Do NOT hardcode '2025-01-27' — that version is not supported by SDK 20.x
+        // and causes Stripe to reject paymentIntents.create with an internal error.
+        stripe = new Stripe(secretKey);
     }
     if (!supabase) {
         supabase = createClient(
