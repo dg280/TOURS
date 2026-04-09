@@ -193,15 +193,29 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         const L = emailStrings(lang);
         const dateFormatted = formatBookingDate(reservation.date, lang);
 
-        // Pick the localized variants of tour content (fallback to FR if missing).
+        // Pick the localized variants of tour content. Fallback chain:
+        // requested lang → English → French. English is the default fallback
+        // (not French) so non-French customers never see FR content unless
+        // English is also missing.
+        const includedFr = (tour?.included as string[] | null) || null;
+        const includedEn = (tour?.included_en as string[] | null) || null;
+        const includedEs = (tour?.included_es as string[] | null) || null;
         const includedRaw =
-            (lang === 'en' ? (tour?.included_en as string[] | null) : null) ||
-            (lang === 'es' ? (tour?.included_es as string[] | null) : null) ||
-            (tour?.included as string[] | null);
+            (lang === 'fr' && includedFr) ||
+            (lang === 'es' && includedEs) ||
+            (lang === 'en' && includedEn) ||
+            includedEn ||
+            includedFr;
+
+        const titleFr = (tour?.title as string | null) || null;
+        const titleEn = (tour?.title_en as string | null) || null;
+        const titleEs = (tour?.title_es as string | null) || null;
         const localizedTitle =
-            (lang === 'en' ? (tour?.title_en as string | null) : null) ||
-            (lang === 'es' ? (tour?.title_es as string | null) : null) ||
-            (tour?.title as string | null) ||
+            (lang === 'fr' && titleFr) ||
+            (lang === 'es' && titleEs) ||
+            (lang === 'en' && titleEn) ||
+            titleEn ||
+            titleFr ||
             reservation.tour_name;
 
         const includedList = includedRaw
