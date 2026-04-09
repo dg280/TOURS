@@ -158,10 +158,11 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
             return res.status(400).json({ error: 'Reservation has no associated payment' });
         }
 
-        // 2. Fetch tour details
+        // 2. Fetch tour details — include all language variants so we can
+        // localize the email content per the customer's lang.
         const { data: tour } = await supabase
             .from('tours')
-            .select('title, included, itinerary, duration, good_to_know')
+            .select('title, title_en, title_es, included, included_en, included_es')
             .eq('id', reservation.tour_id)
             .single();
 
@@ -170,8 +171,19 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         // Date is localized to the customer's language (FR/EN/ES).
         const dateFormatted = formatBookingDate(reservation.date, lang);
 
+        // Pick the localized variants of tour content (fallback to FR if missing).
+        const includedRaw =
+            (lang === 'en' ? (tour?.included_en as string[] | null) : null) ||
+            (lang === 'es' ? (tour?.included_es as string[] | null) : null) ||
+            (tour?.included as string[] | null);
+        const localizedTitle =
+            (lang === 'en' ? (tour?.title_en as string | null) : null) ||
+            (lang === 'es' ? (tour?.title_es as string | null) : null) ||
+            (tour?.title as string | null) ||
+            reservation.tour_name;
+
         // 4. Build included list — escape each item (audit H1)
-        const includedList = (tour?.included as string[] | null)
+        const includedList = includedRaw
             ?.map((item: string) => `<li style="margin:4px 0;color:#374151;">${escapeHtml(item)}</li>`)
             .join('') || '';
 
@@ -209,7 +221,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         <!-- Tour name -->
         <tr>
           <td style="padding:32px 40px 0;">
-            <h2 style="margin:0;font-size:22px;color:#111827;font-weight:700;">${escapeHtml(reservation.tour_name)}</h2>
+            <h2 style="margin:0;font-size:22px;color:#111827;font-weight:700;">${escapeHtml(localizedTitle)}</h2>
           </td>
         </tr>
 
@@ -305,20 +317,23 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
 
         // Sanitize subject lines to strip CR/LF (audit H2)
         const sanitizeHeader = (s: unknown) => String(s ?? '').replace(/[\r\n]/g, ' ').slice(0, 150);
-        const tourNameSafe = sanitizeHeader(reservation.tour_name);
+        // Customer subject uses the localized title; admin subject uses the
+        // stored (FR) tour name so it's consistent across languages.
+        const localizedTitleSafe = sanitizeHeader(localizedTitle);
+        const adminTourNameSafe = sanitizeHeader(reservation.tour_name);
         const customerNameSafe = sanitizeHeader(reservation.name);
 
         await resend.emails.send({
             from: fromAddress,
             to: reservation.email,
-            subject: `${L.subject_customer} : ${tourNameSafe} — ${dateFormatted}`,
+            subject: `${L.subject_customer} : ${localizedTitleSafe} — ${dateFormatted}`,
             html: customerEmail,
         });
 
         await resend.emails.send({
             from: fromAddress,
             to: adminTo,
-            subject: `${L.subject_admin} : ${tourNameSafe} · ${customerNameSafe} · ${dateFormatted}`,
+            subject: `${L.subject_admin} : ${adminTourNameSafe} · ${customerNameSafe} · ${dateFormatted}`,
             html: adminEmail,
         });
 

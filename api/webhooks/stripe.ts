@@ -175,10 +175,11 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         return;
     }
 
-    // 4. Fetch tour details
+    // 4. Fetch tour details — include all language variants so we can
+    // localize the email content per the customer's lang.
     const { data: tour } = await supabase
         .from('tours')
-        .select('title, included, duration')
+        .select('title, title_en, title_es, included, included_en, included_es')
         .eq('id', reservation.tour_id)
         .single();
 
@@ -192,7 +193,18 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         const L = emailStrings(lang);
         const dateFormatted = formatBookingDate(reservation.date, lang);
 
-        const includedList = (tour?.included as string[] | null)
+        // Pick the localized variants of tour content (fallback to FR if missing).
+        const includedRaw =
+            (lang === 'en' ? (tour?.included_en as string[] | null) : null) ||
+            (lang === 'es' ? (tour?.included_es as string[] | null) : null) ||
+            (tour?.included as string[] | null);
+        const localizedTitle =
+            (lang === 'en' ? (tour?.title_en as string | null) : null) ||
+            (lang === 'es' ? (tour?.title_es as string | null) : null) ||
+            (tour?.title as string | null) ||
+            reservation.tour_name;
+
+        const includedList = includedRaw
             ?.map((item: string) => `<li style="margin:4px 0;">${escapeHtml(item)}</li>`)
             .join('') || '';
 
@@ -209,7 +221,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   <p style="margin:0;color:#065f46;font-weight:700;font-size:14px;">${L.hero_thanks} ${escapeHtml(reservation.name)} !</p>
 </td></tr>
 <tr><td style="padding:32px 40px 16px;">
-  <h2 style="margin:0;font-size:22px;color:#111827;font-weight:700;">${escapeHtml(reservation.tour_name || tour?.title)}</h2>
+  <h2 style="margin:0;font-size:22px;color:#111827;font-weight:700;">${escapeHtml(localizedTitle)}</h2>
 </td></tr>
 <tr><td style="padding:16px 40px 24px;">
   <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
@@ -252,20 +264,23 @@ ${includedList ? `<tr><td style="padding:0 40px 24px;"><div style="background:#e
 
         // Sanitize subject lines (do NOT HTML-escape subjects — audit H2)
         const sanitizeHeader = (s: unknown) => String(s ?? '').replace(/[\r\n]/g, ' ').slice(0, 150);
-        const tourNameSafe = sanitizeHeader(reservation.tour_name);
+        // Customer subject uses the localized title; admin subject keeps the
+        // stored (FR) tour name for consistency across languages.
+        const localizedTitleSafe = sanitizeHeader(localizedTitle);
+        const adminTourNameSafe = sanitizeHeader(reservation.tour_name);
         const customerNameSafe = sanitizeHeader(reservation.name);
 
         await resend.emails.send({
             from: fromAddress,
             to: reservation.email,
-            subject: `${L.subject_customer} : ${tourNameSafe} — ${dateFormatted}`,
+            subject: `${L.subject_customer} : ${localizedTitleSafe} — ${dateFormatted}`,
             html: customerHtml,
         });
 
         await resend.emails.send({
             from: fromAddress,
             to: adminEmail,
-            subject: `${L.subject_admin_webhook} : ${tourNameSafe} · ${customerNameSafe} · ${dateFormatted}`,
+            subject: `${L.subject_admin_webhook} : ${adminTourNameSafe} · ${customerNameSafe} · ${dateFormatted}`,
             html: adminHtml,
         });
 
