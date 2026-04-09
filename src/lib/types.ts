@@ -69,6 +69,32 @@ export interface Reservation {
   paymentIntentId?: string;
 }
 
+// Mini-CRM: admin-editable per-customer overrides + free-form notes.
+// Keyed by lowercased email. Stored in `customer_notes` table.
+export interface CustomerNote {
+  email: string;
+  phone?: string | null;
+  address?: string | null;
+  notes?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// Aggregated customer view (computed in admin from reservations + customer_notes)
+export interface Customer {
+  email: string;            // normalized lowercase
+  name: string;             // most recent reservation's name
+  phone: string;            // override OR most recent reservation's phone
+  address: string;          // override OR most recent billing address (composed)
+  notes: string;            // from customer_notes
+  reservationCount: number;
+  totalSpent: number;
+  firstBooking: string;     // ISO date of first reservation
+  lastBooking: string;      // ISO date of last reservation
+  favoriteTour: string;     // most-booked tour name (by count)
+  reservations: Reservation[];
+}
+
 export interface Review {
   id: string;
   name: string;

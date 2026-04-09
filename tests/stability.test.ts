@@ -1,4 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { existsSync, readFileSync } from 'fs';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 test.describe('Stability & Regression Tests', () => {
 
@@ -51,6 +56,28 @@ test.describe('Stability & Regression Tests', () => {
     // 4:3 = 1.333... — allow small tolerance
     expect(ratio).toBeGreaterThan(1.2);
     expect(ratio).toBeLessThan(1.5);
+  });
+
+  test('Mini-CRM: customer_notes migration + CSV export helper exist', async () => {
+    // Regression: ensures the mini-CRM scaffolding (migration + helper +
+    // component) is in place. Catches accidental deletion of the feature.
+    const migration = resolve(__dirname, '../supabase/migrations/20260409_customer_notes.sql');
+    expect(existsSync(migration), 'customer_notes migration must exist').toBe(true);
+    const sql = readFileSync(migration, 'utf-8');
+    expect(sql).toContain('CREATE TABLE IF NOT EXISTS customer_notes');
+    expect(sql).toContain('email      TEXT PRIMARY KEY');
+    expect(sql).toContain('ENABLE ROW LEVEL SECURITY');
+
+    const csvHelper = resolve(__dirname, '../src/admin/utils/csv-export.ts');
+    expect(existsSync(csvHelper), 'csv-export helper must exist').toBe(true);
+    const csvSrc = readFileSync(csvHelper, 'utf-8');
+    // CSV-injection guard must be present (cells starting with =, +, -, @)
+    expect(csvSrc).toMatch(/FORMULA_TRIGGERS/);
+    // BOM for Excel compatibility
+    expect(csvSrc).toContain('\\uFEFF');
+
+    const customersTab = resolve(__dirname, '../src/admin/components/CustomersTab.tsx');
+    expect(existsSync(customersTab), 'CustomersTab component must exist').toBe(true);
   });
 
   test('Tour dialog images are visible and title appears above', async ({ page }) => {
