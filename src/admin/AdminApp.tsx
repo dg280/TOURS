@@ -37,6 +37,7 @@ import {
   RotateCcw,
   Database,
   Scissors,
+  Users,
 } from "lucide-react";
 import { translations } from "@/lib/translations";
 import { Button } from "@/components/ui/button";
@@ -64,6 +65,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageEditor } from "./components/ImageEditor";
+import { CustomersTab } from "./components/CustomersTab";
 import { translateText, translateArray, type SupportedLanguage } from "./utils/translation-service";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
@@ -5068,6 +5070,7 @@ export default function AdminApp() {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, badge: 0 },
     { id: "reservations", label: "Réservations", icon: Calendar, badge: pendingCount },
+    { id: "customers", label: "Clients", icon: Users, badge: 0 },
     { id: "suivi", label: "Suivi", icon: Activity, badge: 0 },
     { id: "tours", label: "Catalogue", icon: MapPin, badge: 0 },
     { id: "reviews", label: "Avis clients", icon: Star, badge: 0 },
@@ -5209,6 +5212,9 @@ export default function AdminApp() {
             )}
             {activeTab === "suivi" && (
               <OperationalTracking reservations={reservations} />
+            )}
+            {activeTab === "customers" && (
+              <CustomersTab reservations={reservations} />
             )}
             {activeTab === "tours" && (
               <ToursManagement
