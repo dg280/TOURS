@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import { Toaster } from "@/components/ui/sonner";
 import { CookieConsent } from "./components/CookieConsent";
 import { Navbar } from "./components/layout/Navbar";
@@ -215,6 +216,7 @@ function App() {
         />
       )}
       <Toaster position="top-center" richColors />
+      <Analytics />
     </div>
   );
 }
