@@ -416,7 +416,7 @@ function Dashboard({
                 <p className="text-xs text-gray-500">
                   {new Date().toLocaleDateString("fr-FR", { month: "short" })}
                 </p>
-                <p className="text-2xl font-bold">{stats.thisMonthRevenue}€</p>
+                <p className="text-2xl font-bold">{stats.thisMonthRevenue.toFixed(2)}€</p>
               </div>
               <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
                 <Euro className="w-5 h-5 text-amber-600" />
@@ -430,7 +430,7 @@ function Dashboard({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-gray-500">Revenu total</p>
-                <p className="text-2xl font-bold">{stats.totalRevenue}€</p>
+                <p className="text-2xl font-bold">{stats.totalRevenue.toFixed(2)}€</p>
               </div>
               <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                 <BarChart3 className="w-5 h-5 text-purple-600" />
@@ -722,7 +722,7 @@ function OperationalTracking({ reservations }: { reservations: Reservation[] }) 
               const label = new Date(Number(year), Number(month) - 1).toLocaleDateString("fr-FR", { month: "short" });
               return (
                 <div key={key} className="flex-1 flex flex-col items-center gap-1">
-                  <span className="text-xs text-gray-500 font-semibold">{val > 0 ? `${val}€` : ""}</span>
+                  <span className="text-xs text-gray-500 font-semibold">{val > 0 ? `${val.toFixed(2)}€` : ""}</span>
                   <div
                     className="w-full bg-amber-400 rounded-t-sm transition-all"
                     style={{ height: `${Math.max(height, val > 0 ? 4 : 0)}%` }}
@@ -764,7 +764,7 @@ function OperationalTracking({ reservations }: { reservations: Reservation[] }) 
                       <td className="py-2 px-4 font-medium text-gray-900 max-w-[200px] truncate">{name}</td>
                       <td className="py-2 px-4 text-center text-gray-600">{count}</td>
                       <td className="py-2 px-4 text-center text-gray-600">{participants}</td>
-                      <td className="py-2 px-4 text-right font-bold text-amber-600">{total}€</td>
+                      <td className="py-2 px-4 text-right font-bold text-amber-600">{total.toFixed(2)}€</td>
                       <td className="py-2 px-4 text-right text-gray-500 hidden sm:table-cell">{Math.round(total / count)}€</td>
                     </tr>
                   ))}
