@@ -21,13 +21,16 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         const whatsapp = page.getByLabel('Chat on WhatsApp').first();
         await expect(whatsapp).toBeVisible();
 
-        // State Logic: WhatsApp should hide when a dialog is open (to avoid overlap)
+        // Tour click navigates to /tours/:slug (clean URL routing)
         const tourCard = page.locator('#top-tours h3, section#tours h3').first();
         await tourCard.click({ force: true });
-        await expect(page.locator('div[role="dialog"]')).toBeVisible();
-        await expect(whatsapp).not.toBeVisible();
+        // Wait for navigation to /tours/ path
+        await page.waitForURL(/\/tours\//, { timeout: 10000 });
+        await expect(page.locator('div[role="dialog"]')).toBeVisible({ timeout: 10000 });
 
+        // Close dialog → navigates back to home
         await page.keyboard.press('Escape');
+        await page.waitForURL('/', { timeout: 10000 });
         await expect(whatsapp).toBeVisible();
     });
 
@@ -82,7 +85,7 @@ test.describe('Full Site Verification - Tours & Detours', () => {
     });
 
     test('UI: About Page Sticky & Mobile Responsiveness', async ({ page }) => {
-        await page.goto('/#about');
+        await page.goto('/about');
 
         // Check for sticky photo on Desktop
         await page.setViewportSize({ width: 1280, height: 800 });
@@ -120,9 +123,11 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         await page.getByRole('button', { name: /Accepter|Accept/i }).click().catch(() => { });
         await page.waitForTimeout(500);
 
-        // 1. Open Tour
+        // 1. Open Tour — click navigates to /tours/:slug
         const tourCard = page.locator('#top-tours h3, section#tours h3').first();
         await tourCard.click({ force: true });
+        await page.waitForURL(/\/tours\//, { timeout: 10000 });
+        await expect(page.locator('div[role="dialog"]')).toBeVisible({ timeout: 10000 });
 
         // 2. Click Book Now
         await page.getByTestId('book-now-button').first().click();
@@ -153,7 +158,6 @@ test.describe('Full Site Verification - Tours & Detours', () => {
 
     test('Regression: Booking Funnel in EN — calendar + step navigation', async ({ page }) => {
         // Non-regression: switching to EN must not break the booking funnel
-        // (itinerary_en / included_en were previously lost in the tour merge)
         const enBtn = page.locator('nav button').filter({ hasText: /^en$/i });
         await enBtn.click();
         await page.waitForTimeout(300);
@@ -161,6 +165,8 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         const tourCard = page.locator('#top-tours h3, section#tours h3').first();
         await tourCard.waitFor({ state: 'visible', timeout: 15000 });
         await tourCard.click({ force: true });
+        await page.waitForURL(/\/tours\//, { timeout: 10000 });
+        await expect(page.locator('div[role="dialog"]')).toBeVisible({ timeout: 10000 });
 
         await page.getByTestId('book-now-button').first().click();
 
@@ -188,6 +194,8 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         const tourCard = page.locator('#top-tours h3, section#tours h3').first();
         await tourCard.waitFor({ state: 'visible', timeout: 15000 });
         await tourCard.click({ force: true });
+        await page.waitForURL(/\/tours\//, { timeout: 10000 });
+        await expect(page.locator('div[role="dialog"]')).toBeVisible({ timeout: 10000 });
 
         await page.getByTestId('book-now-button').first().click();
 
@@ -388,6 +396,8 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         const tourCard = page.locator('#top-tours h3, section#tours h3').first();
         await tourCard.waitFor({ state: 'visible', timeout: 15000 });
         await tourCard.click({ force: true });
+        await page.waitForURL(/\/tours\//, { timeout: 10000 });
+        await expect(page.locator('div[role="dialog"]')).toBeVisible({ timeout: 10000 });
         await page.getByTestId('book-now-button').first().click();
 
         // Step 1 — advance

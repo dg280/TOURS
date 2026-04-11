@@ -114,7 +114,7 @@ function App() {
     setShowCookieConsent,
   } = useAppContext();
 
-  const { isBookingOpen, setIsBookingOpen, selectedTour, isLiveJoinOpen, setIsLiveJoinOpen } =
+  const { isBookingOpen, setIsBookingOpen, selectedTour, handleBookingStart, isLiveJoinOpen, setIsLiveJoinOpen } =
     useTourState({ tours });
 
   const navigate = useNavigate();
@@ -140,6 +140,19 @@ function App() {
       navigate("/about", { replace: true });
     }
   }, [navigate]);
+
+  // When TourPage navigates to "/" with state.bookTourId, open the BookingModal
+  useEffect(() => {
+    const state = location.state as { bookTourId?: string | number } | null;
+    if (state?.bookTourId) {
+      const tour = tours.find((t) => String(t.id) === String(state.bookTourId));
+      if (tour) {
+        handleBookingStart(tour);
+      }
+      // Clear the state so refreshing doesn't re-open the modal
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, tours, handleBookingStart]);
 
   // Scroll detection for navbar
   useEffect(() => {

@@ -4,20 +4,19 @@ import { useAppContext } from "@/contexts/useAppContext";
 import { tourIdForSlug, slugForTour } from "@/lib/tour-slugs";
 import { TourStructuredData } from "@/components/TourStructuredData";
 import { TourDialog } from "@/components/sections/TourDialog";
-import { useTourState } from "@/hooks/useTourState";
+import type { Tour } from "@/lib/types";
 
 /**
  * /tours/:slug — Dedicated tour page.
  *
  * Opens the tour dialog full-screen on a clean page. When closed,
- * navigates back to home. SEO: unique title + description + structured
- * data per tour, indexable by Google.
+ * navigates back to home. "Book Now" navigates back to home with
+ * a state flag so App.tsx can open the BookingModal.
  */
 export function TourPage() {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate();
     const { tours, lang, t } = useAppContext();
-    const { handleBookingStart } = useTourState({ tours });
 
     const tourId = slug ? tourIdForSlug(slug) : null;
     const tour = tourId !== null
@@ -43,6 +42,11 @@ export function TourPage() {
 
     if (!tour) return null;
 
+    const handleBookNow = (tourToBook: Tour) => {
+        // Navigate to home with state so App.tsx opens the BookingModal
+        navigate("/", { state: { bookTourId: tourToBook.id } });
+    };
+
     return (
         <>
             <TourStructuredData tour={tour} lang={lang} t={t} />
@@ -54,7 +58,7 @@ export function TourPage() {
                 }}
                 lang={lang}
                 t={t}
-                onBookNow={handleBookingStart}
+                onBookNow={handleBookNow}
             />
         </>
     );
