@@ -1402,7 +1402,7 @@ function ToursManagement({
         const fileName = `tours/${editingTour.id}/${Date.now()}-${Math.random().toString(36).substr(2, 5)}.${fileExt}`;
         const { error: uploadError } = await supabase!.storage
           .from("tour_images")
-          .upload(fileName, file, { contentType: file.type });
+          .upload(fileName, file, { contentType: file.type, cacheControl: '31536000' });
         if (uploadError) throw uploadError;
         const { data: { publicUrl } } = supabase!.storage.from("tour_images").getPublicUrl(fileName);
         uploadedUrls.push(publicUrl);
@@ -1441,7 +1441,7 @@ function ToursManagement({
 
       const { error: uploadError } = await supabase!.storage
         .from("tour_images")
-        .upload(fileName, blob, { contentType: "image/jpeg" });
+        .upload(fileName, blob, { contentType: "image/jpeg", cacheControl: '31536000' });
 
       if (uploadError) throw uploadError;
 
@@ -3240,7 +3240,7 @@ function ToursManagement({
                                             const { error: uploadError } =
                                               await supabase!.storage
                                                 .from("tour_images")
-                                                .upload(fileName, file);
+                                                .upload(fileName, file, { cacheControl: '31536000' });
                                             if (uploadError) throw uploadError;
                                             const {
                                               data: { publicUrl },

@@ -31,7 +31,7 @@ function HomePage() {
   const navigate = useNavigate();
 
   const handleTourClick = (tour: Tour) => {
-    navigate(`/tours/${slugForTour(tour.id)}`);
+    navigate(`/tours/${slugForTour(tour)}`);
   };
 
   const scrollToSection = (id: string | null) => {
@@ -134,7 +134,8 @@ function App() {
     const params = new URLSearchParams(window.location.search);
     const tourParam = params.get("tour");
     if (tourParam) {
-      navigate(`/tours/${slugForTour(tourParam)}`, { replace: true });
+      // Legacy ?tour=X → navigate to /tours/X, TourPage will redirect to the real slug
+      navigate(`/tours/${tourParam}`, { replace: true });
       return;
     }
     if (window.location.hash === "#about") {

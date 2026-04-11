@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppContext } from "@/contexts/useAppContext";
-import { tourIdForSlug, slugForTour } from "@/lib/tour-slugs";
+import { tourForSlug, slugForTour } from "@/lib/tour-slugs";
 import { TourStructuredData } from "@/components/TourStructuredData";
 import { TourDialog } from "@/components/sections/TourDialog";
 import type { Tour } from "@/lib/types";
@@ -9,33 +9,33 @@ import type { Tour } from "@/lib/types";
 /**
  * /tours/:slug — Dedicated tour page.
  *
- * Opens the tour dialog full-screen on a clean page. When closed,
- * navigates back to home. "Book Now" navigates back to home with
- * a state flag so App.tsx can open the BookingModal.
+ * Opens the tour dialog full-screen. When closed, navigates home.
+ * "Book Now" navigates to / with state.bookTourId so App opens BookingModal.
+ *
+ * Slug is auto-generated from tour.title_en. Numeric IDs and legacy
+ * slugs are redirected to the canonical slug.
  */
 export function TourPage() {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate();
     const { tours, lang, t } = useAppContext();
 
-    const tourId = slug ? tourIdForSlug(slug) : null;
-    const tour = tourId !== null
-        ? tours.find((tr) => Number(tr.id) === tourId)
-        : null;
+    const tour = slug ? tourForSlug(slug, tours) : undefined;
 
-    // If tour not found, redirect to home
+    // If tour not found and tours are loaded, redirect to home
     useEffect(() => {
         if (slug && tours.length > 0 && !tour) {
             navigate("/", { replace: true });
         }
     }, [slug, tours, tour, navigate]);
 
-    // If slug is numeric (old URL), redirect to the real slug
+    // If slug doesn't match the canonical slug, redirect to the real one
+    // (handles numeric IDs like /tours/1 and legacy aliases)
     useEffect(() => {
-        if (slug && tour && /^\d+$/.test(slug)) {
-            const realSlug = slugForTour(tour.id);
-            if (realSlug !== slug) {
-                navigate(`/tours/${realSlug}`, { replace: true });
+        if (tour && slug) {
+            const canonical = slugForTour(tour);
+            if (canonical !== slug) {
+                navigate(`/tours/${canonical}`, { replace: true });
             }
         }
     }, [slug, tour, navigate]);
@@ -43,7 +43,6 @@ export function TourPage() {
     if (!tour) return null;
 
     const handleBookNow = (tourToBook: Tour) => {
-        // Navigate to home with state so App.tsx opens the BookingModal
         navigate("/", { state: { bookTourId: tourToBook.id } });
     };
 
