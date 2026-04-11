@@ -41,24 +41,8 @@ export const SEO = ({
             <meta property="twitter:description" content={description} />
             <meta property="twitter:image" content={image} />
 
-            {/* Structured Data (JSON-LD) for Local Business */}
-            <script type="application/ld+json">
-                {JSON.stringify({
-                    "@context": "https://schema.org",
-                    "@type": "TravelAgency",
-                    "name": "Tours & Detours",
-                    "image": image,
-                    "@id": url,
-                    "url": url,
-                    "telephone": "+34...",
-                    "address": {
-                        "@type": "PostalAddress",
-                        "addressLocality": "Barcelona",
-                        "addressRegion": "Catalonia",
-                        "addressCountry": "ES"
-                    }
-                })}
-            </script>
+            {/* TravelAgency JSON-LD is in index.html (more complete, static).
+                Per-tour TouristTrip JSON-LD is injected by TourStructuredData.tsx. */}
         </Helmet>
     );
 };

@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/carousel";
 import type { Tour } from "@/lib/types";
 import type { Language, Translations } from "@/lib/translations";
+import { TourStructuredData } from "@/components/TourStructuredData";
 
 interface TourDialogProps {
   tour: Tour | null;
@@ -48,6 +49,8 @@ export const TourDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      {/* SEO: inject TouristTrip structured data + per-tour title when dialog is open */}
+      {isOpen && <TourStructuredData tour={tour} lang={lang} t={t} />}
       <DialogContent
         className="w-[95vw] sm:max-w-6xl h-[90vh] p-0 rounded-2xl border-none shadow-2xl overflow-hidden flex flex-col bg-white"
         data-testid="tour-dialog"
