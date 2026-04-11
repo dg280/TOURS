@@ -67,6 +67,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ImageEditor } from "./components/ImageEditor";
 import { CustomersTab } from "./components/CustomersTab";
 import { StorageMigration } from "./components/StorageMigration";
+import { uploadImage } from "./utils/image-upload";
 import { translateText, translateArray, type SupportedLanguage } from "./utils/translation-service";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
@@ -1400,12 +1401,8 @@ function ToursManagement({
       for (const { file, previewUrl } of pendingImages) {
         const fileExt = file.name.split(".").pop() || "jpg";
         const fileName = `tours/${editingTour.id}/${Date.now()}-${Math.random().toString(36).substr(2, 5)}.${fileExt}`;
-        const { error: uploadError } = await supabase!.storage
-          .from("tour_images")
-          .upload(fileName, file, { contentType: file.type, cacheControl: '31536000' });
-        if (uploadError) throw uploadError;
-        const { data: { publicUrl } } = supabase!.storage.from("tour_images").getPublicUrl(fileName);
-        uploadedUrls.push(publicUrl);
+        const result = await uploadImage(fileName, file, file.type);
+        uploadedUrls.push(result.url);
         URL.revokeObjectURL(previewUrl);
       }
       const newImages = [...uploadedUrls, ...(editingTour.images || [])];
@@ -1439,22 +1436,14 @@ function ToursManagement({
         fileName = `tours/${editingTour.id}/${Date.now()}-generic.jpg`;
       }
 
-      const { error: uploadError } = await supabase!.storage
-        .from("tour_images")
-        .upload(fileName, blob, { contentType: "image/jpeg", cacheControl: '31536000' });
-
-      if (uploadError) throw uploadError;
-
-      const {
-        data: { publicUrl },
-      } = supabase!.storage.from("tour_images").getPublicUrl(fileName);
+      const result = await uploadImage(fileName, blob, "image/jpeg");
 
       const newImages = [...(editingTour.images || [])];
-      
+
       if (isExisting) {
-        newImages[index] = publicUrl;
+        newImages[index] = result.url;
       } else {
-        newImages.unshift(publicUrl);
+        newImages.unshift(result.url);
       }
 
       setEditingTour({
@@ -3237,20 +3226,11 @@ function ToursManagement({
                                               .split(".")
                                               .pop();
                                             const fileName = `stops/${editingTour.id}/stop-${idx}-${Date.now()}.${fileExt}`;
-                                            const { error: uploadError } =
-                                              await supabase!.storage
-                                                .from("tour_images")
-                                                .upload(fileName, file, { cacheControl: '31536000' });
-                                            if (uploadError) throw uploadError;
-                                            const {
-                                              data: { publicUrl },
-                                            } = supabase!.storage
-                                              .from("tour_images")
-                                              .getPublicUrl(fileName);
+                                            const uploadResult = await uploadImage(fileName, file, file.type);
                                             const newStops = [
                                               ...(editingTour.stops || []),
                                             ];
-                                            newStops[idx].image = publicUrl;
+                                            newStops[idx].image = uploadResult.url;
                                             setEditingTour({
                                               ...editingTour,
                                               stops: newStops,

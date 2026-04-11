@@ -2,10 +2,11 @@ import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, CheckCircle2, AlertCircle, RefreshCw, HardDrive, ArrowRight, Image as ImageIcon } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle, RefreshCw, HardDrive, ArrowRight, Image as ImageIcon, CloudUpload } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import type { Reservation } from "@/lib/types";
+import { uploadImage } from "../utils/image-upload";
 
 interface StorageMigrationProps {
   tours: { id: string | number; image: string; images?: string[]; stops?: { image?: string }[] }[];
@@ -16,8 +17,12 @@ interface ImageEntry {
   url: string;
   source: string; // e.g. "Tour 1 — image", "Tour 1 — images[2]"
   path: string;   // Supabase storage path extracted from URL
+  tourId: string | number;
+  field: string;  // "image", "images", "stops"
+  fieldIndex?: number;
   status: "pending" | "processing" | "done" | "error";
   error?: string;
+  newUrl?: string; // Vercel Blob URL after migration
 }
 
 const SUPABASE_STORAGE_PATTERN = /supabase\.co\/storage\/v1\/object\/public\/tour_images\//;
@@ -41,7 +46,7 @@ function scanImages(tours: StorageMigrationProps["tours"]): ImageEntry[] {
     if (tour.image && isSupabaseStorageUrl(tour.image) && !seen.has(tour.image)) {
       seen.add(tour.image);
       const path = extractStoragePath(tour.image);
-      if (path) entries.push({ url: tour.image, source: `Tour ${tour.id} — image`, path, status: "pending" });
+      if (path) entries.push({ url: tour.image, source: `Tour ${tour.id} — image`, path, tourId: tour.id, field: "image", status: "pending" });
     }
 
     // Gallery images
@@ -51,7 +56,7 @@ function scanImages(tours: StorageMigrationProps["tours"]): ImageEntry[] {
         if (img && isSupabaseStorageUrl(img) && !seen.has(img)) {
           seen.add(img);
           const path = extractStoragePath(img);
-          if (path) entries.push({ url: img, source: `Tour ${tour.id} — images[${i}]`, path, status: "pending" });
+          if (path) entries.push({ url: img, source: `Tour ${tour.id} — images[${i}]`, path, tourId: tour.id, field: "images", fieldIndex: i, status: "pending" });
         }
       }
     }
@@ -63,7 +68,7 @@ function scanImages(tours: StorageMigrationProps["tours"]): ImageEntry[] {
         if (stop?.image && isSupabaseStorageUrl(stop.image) && !seen.has(stop.image)) {
           seen.add(stop.image);
           const path = extractStoragePath(stop.image);
-          if (path) entries.push({ url: stop.image, source: `Tour ${tour.id} — stop[${i}]`, path, status: "pending" });
+          if (path) entries.push({ url: stop.image, source: `Tour ${tour.id} — stop[${i}]`, path, tourId: tour.id, field: "stops", fieldIndex: i, status: "pending" });
         }
       }
     }
@@ -73,35 +78,84 @@ function scanImages(tours: StorageMigrationProps["tours"]): ImageEntry[] {
 }
 
 /**
- * Re-upload a Supabase Storage image on top of itself with aggressive
- * Cache-Control headers. This doesn't change the URL — it just tells
- * Supabase's CDN (and browsers) to cache the image for 1 year.
- * The browser fetches it once from Supabase, then never again.
+ * Migrate a Supabase Storage image to Vercel Blob:
+ * 1. Download from Supabase Storage
+ * 2. Upload to Vercel Blob via /api/upload-image
+ * 3. Update the URL in the tours DB table
+ *
+ * Returns the new Vercel Blob URL.
  */
-async function addCacheToImage(path: string): Promise<void> {
+async function migrateImage(entry: ImageEntry): Promise<string> {
   if (!supabase) throw new Error("Supabase non disponible");
 
-  // 1. Download the image from Supabase Storage
+  // 1. Download from Supabase
   const { data: blob, error: downloadError } = await supabase.storage
     .from("tour_images")
-    .download(path);
+    .download(entry.path);
 
   if (downloadError || !blob) {
     throw new Error(`Download failed: ${downloadError?.message || "no data"}`);
   }
 
-  // 2. Re-upload with cacheControl + upsert (overwrites the same path)
-  const { error: uploadError } = await supabase.storage
-    .from("tour_images")
-    .upload(path, blob, {
-      upsert: true,
-      cacheControl: "31536000", // 1 year
-      contentType: blob.type || "image/jpeg",
-    });
+  // 2. Upload to Vercel Blob
+  const result = await uploadImage(entry.path, blob, blob.type || "image/jpeg");
 
-  if (uploadError) {
-    throw new Error(`Upload failed: ${uploadError.message}`);
+  if (result.source !== 'vercel-blob') {
+    throw new Error("Vercel Blob unavailable — image was re-uploaded to Supabase with cache headers instead. Configure BLOB_READ_WRITE_TOKEN in Vercel to enable full migration.");
   }
+
+  // 3. Update the URL in the DB
+  const { data: tour, error: fetchError } = await supabase
+    .from("tours")
+    .select("image, images, stops")
+    .eq("id", entry.tourId)
+    .single();
+
+  if (fetchError || !tour) {
+    throw new Error(`Tour fetch failed: ${fetchError?.message || "not found"}`);
+  }
+
+  const updates: Record<string, unknown> = {};
+
+  if (entry.field === "image") {
+    updates.image = result.url;
+  }
+
+  // Also update in images array if the old URL appears there
+  if (tour.images && Array.isArray(tour.images)) {
+    const newImages = (tour.images as string[]).map((img) =>
+      img === entry.url ? result.url : img,
+    );
+    if (JSON.stringify(newImages) !== JSON.stringify(tour.images)) {
+      updates.images = newImages;
+    }
+  }
+
+  // Update image field if it matches the old URL
+  if (tour.image === entry.url) {
+    updates.image = result.url;
+  }
+
+  if (entry.field === "stops" && tour.stops && Array.isArray(tour.stops) && entry.fieldIndex !== undefined) {
+    const newStops = [...(tour.stops as { image?: string }[])];
+    if (newStops[entry.fieldIndex]) {
+      newStops[entry.fieldIndex] = { ...newStops[entry.fieldIndex], image: result.url };
+      updates.stops = newStops;
+    }
+  }
+
+  if (Object.keys(updates).length > 0) {
+    const { error: updateError } = await supabase
+      .from("tours")
+      .update(updates)
+      .eq("id", entry.tourId);
+
+    if (updateError) {
+      throw new Error(`DB update failed: ${updateError.message}`);
+    }
+  }
+
+  return result.url;
 }
 
 export function StorageMigration({ tours }: StorageMigrationProps) {
@@ -126,9 +180,9 @@ export function StorageMigration({ tours }: StorageMigrationProps) {
     );
 
     try {
-      await addCacheToImage(entries[index].path);
+      const newUrl = await migrateImage(entries[index]);
       setEntries((prev) =>
-        prev.map((e, i) => (i === index ? { ...e, status: "done" } : e)),
+        prev.map((e, i) => (i === index ? { ...e, status: "done", newUrl } : e)),
       );
     } catch (err) {
       setEntries((prev) =>
@@ -152,9 +206,9 @@ export function StorageMigration({ tours }: StorageMigrationProps) {
       );
 
       try {
-        await addCacheToImage(entries[i].path);
+        const newUrl = await migrateImage(entries[i]);
         setEntries((prev) =>
-          prev.map((e, j) => (j === i ? { ...e, status: "done" } : e)),
+          prev.map((e, j) => (j === i ? { ...e, status: "done", newUrl } : e)),
         );
         successCount++;
       } catch (err) {
@@ -166,8 +220,8 @@ export function StorageMigration({ tours }: StorageMigrationProps) {
         errorCount++;
       }
 
-      // Tiny delay to avoid hammering Supabase
-      await new Promise((r) => setTimeout(r, 300));
+      // Delay to avoid hammering APIs
+      await new Promise((r) => setTimeout(r, 500));
     }
 
     setIsRunning(false);
@@ -183,8 +237,8 @@ export function StorageMigration({ tours }: StorageMigrationProps) {
             Migration Storage
           </h2>
           <p className="text-sm text-gray-500 mt-1">
-            Ajoute un cache longue durée (1 an) sur les images Supabase Storage
-            pour réduire l'egress bandwidth.
+            Migre les images de Supabase Storage vers Vercel Blob (CDN global,
+            100 GB egress gratuit). Met à jour les URLs en base automatiquement.
           </p>
         </div>
         <div className="flex gap-2">
@@ -241,12 +295,14 @@ export function StorageMigration({ tours }: StorageMigrationProps) {
       {/* How it works */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Comment ça marche ?</CardTitle>
+          <CardTitle className="text-sm flex items-center gap-2">
+            <CloudUpload className="w-4 h-4 text-blue-600" /> Comment ça marche ?
+          </CardTitle>
           <CardDescription className="text-xs">
-            Chaque image Supabase est téléchargée puis ré-uploadée par-dessus elle-même
-            avec un header <code>Cache-Control: 31536000</code> (1 an). L'URL ne change pas.
-            Les navigateurs et le CDN Supabase cachent ensuite l'image localement —
-            plus d'egress bandwidth consommé après la 1ère visite.
+            Chaque image Supabase est téléchargée puis ré-uploadée sur <strong>Vercel Blob</strong> (CDN
+            global, 100 GB egress gratuit). L'URL en base de données est mise à jour automatiquement.
+            Si Vercel Blob n'est pas configuré (<code>BLOB_READ_WRITE_TOKEN</code>), l'image reste sur Supabase
+            avec un cache longue durée en fallback.
           </CardDescription>
         </CardHeader>
       </Card>
