@@ -66,6 +66,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageEditor } from "./components/ImageEditor";
 import { CustomersTab } from "./components/CustomersTab";
+import { StorageMigration } from "./components/StorageMigration";
 import { translateText, translateArray, type SupportedLanguage } from "./utils/translation-service";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
@@ -5078,6 +5079,7 @@ export default function AdminApp() {
     { id: "profile", label: "Mon Profil", icon: User, badge: 0 },
     { id: "marketing", label: "Marketing & SEO", icon: BarChart3, badge: 0 },
     { id: "config", label: "Infrastructure", icon: Bell, badge: 0 },
+    { id: "storage", label: "Storage", icon: Database, badge: 0 },
   ];
 
   return (
@@ -5242,6 +5244,9 @@ export default function AdminApp() {
             )}
             {activeTab === "marketing" && (
               <Marketing subscribers={subscribers} />
+            )}
+            {activeTab === "storage" && (
+              <StorageMigration tours={tours} reservations={reservations} />
             )}
             {activeTab === "profile" && (
               <div className="max-w-2xl mx-auto">
