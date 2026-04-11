@@ -18,6 +18,7 @@ import {
 import type { Tour } from "@/lib/types";
 import type { Language, Translations } from "@/lib/translations";
 import { TourStructuredData } from "@/components/TourStructuredData";
+import { TourFAQ } from "@/components/TourFAQ";
 
 interface TourDialogProps {
   tour: Tour | null;
@@ -286,6 +287,9 @@ export const TourDialog = ({
                     </div>
                   </TabsContent>
                 </Tabs>
+
+                {/* FAQ — visible section + FAQPage schema for Google */}
+                <TourFAQ t={t} />
               </div>
 
               <div className="lg:col-span-1 border-t lg:border-t-0 lg:border-l pt-10 lg:pt-0 lg:pl-10">

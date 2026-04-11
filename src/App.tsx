@@ -14,6 +14,7 @@ import { SEO } from "./components/SEO";
 import { WhatsAppButton } from "./components/WhatsAppButton";
 import { AboutPage } from "./pages/AboutPage";
 import { TourPage } from "./pages/TourPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
 import { TopToursCarousel } from "./components/sections/TopToursCarousel";
 import { CategoryToursCarousel } from "./components/sections/CategoryToursCarousel";
 import { LegalModal } from "./components/modals/LegalModal";
@@ -221,6 +222,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPageWrapper />} />
           <Route path="/tours/:slug" element={<TourPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
 

@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+import { Helmet } from "react-helmet-async";
 import { Star } from "lucide-react";
 import {
   Carousel,
@@ -16,8 +18,45 @@ interface TestimonialsProps {
 }
 
 export const Testimonials = ({ t, testimonials }: TestimonialsProps) => {
+  // AggregateRating + individual Review schema for Google rich snippets
+  // (stars in search results → higher CTR)
+  const reviewSchema = useMemo(() => {
+    if (testimonials.length === 0) return null;
+    const avgRating =
+      testimonials.reduce((sum, r) => sum + (r.rating ?? 5), 0) / testimonials.length;
+    return {
+      "@context": "https://schema.org",
+      "@type": "TravelAgency",
+      name: "Tours & Detours Barcelona",
+      url: "https://toursandetours.com",
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: avgRating.toFixed(1),
+        bestRating: "5",
+        ratingCount: testimonials.length,
+      },
+      review: testimonials.slice(0, 10).map((r) => ({
+        "@type": "Review",
+        author: { "@type": "Person", name: r.name },
+        reviewRating: {
+          "@type": "Rating",
+          ratingValue: r.rating ?? 5,
+          bestRating: 5,
+        },
+        reviewBody: r.text,
+      })),
+    };
+  }, [testimonials]);
+
   return (
     <section id="avis" className="py-10 bg-white overflow-hidden">
+      {reviewSchema && (
+        <Helmet>
+          <script type="application/ld+json">
+            {JSON.stringify(reviewSchema)}
+          </script>
+        </Helmet>
+      )}
       <div className="container-custom flex justify-center">
         <div className="w-full max-w-4xl bg-gray-50 border border-gray-100 rounded-3xl p-8 shadow-sm">
           <div className="text-center mb-8">

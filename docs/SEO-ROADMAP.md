@@ -2,7 +2,7 @@
 
 **Objectif** : Top 1 des guides privés sur Barcelone et sa région.
 **Branche** : `v2` (ne pas toucher `main`)
-**Dernière mise à jour** : 2026-04-11
+**Dernière mise à jour** : 2026-04-12
 
 ---
 
@@ -18,7 +18,7 @@
 | 6 | Compression images (3.7MB → 961KB) | Performance | **FAIT** | v2 | tour-camironda.jpg |
 | 6 | `loading="lazy"` sur images sous le fold | Performance | **FAIT** | v2 | TourCard, carousels, Guide, TourDialog |
 | 7 | Meta tags complets dans `index.html` | Indexabilité | **FAIT** | v2 | OG, Twitter Card, JSON-LD TravelAgency |
-| 4 | Structured data `TouristTrip` par tour | Rich snippets | **EN COURS** | v2 | Prix, durée, avis dans Google |
+| 4 | Structured data `TouristTrip` par tour | Rich snippets | **FAIT** | v2 | Prix, durée, itinéraire dans Google |
 
 ---
 
@@ -26,10 +26,10 @@
 
 | # | Action | Impact | Statut | Notes |
 |---|---|---|---|---|
-| 3 | Clean URL routing (`/tours/:slug`, `/about`) | **ENORME** | À FAIRE | Nécessite react-router, refactor App.tsx, vercel.json |
+| 3 | Clean URL routing (`/tours/:slug`, `/about`) | **ENORME** | **FAIT** | react-router, slugs lisibles, TourPage |
 | 3 | Préfixes langue (`/en/`, `/fr/`, `/es/`) | International | À FAIRE | Couplé au routing |
-| 3 | SEO component dynamique par page | Indexabilité | À FAIRE | Titre/description uniques par tour |
-| 3 | Redirection `?tour=X` → `/tours/:slug` (301) | Migration | À FAIRE | Après le routing propre |
+| 3 | SEO component dynamique par tour | Indexabilité | **FAIT** | Titre/description/structured data uniques |
+| 3 | Redirection `?tour=X` → `/tours/:slug` | Migration | **FAIT** | + `#about` → `/about`, numeric → slug |
 
 **Risques** : régression booking flow, casse des URLs existantes, tests e2e à adapter.
 **Pré-requis** : aucune autre feature en cours sur les mêmes fichiers.
@@ -40,10 +40,10 @@
 
 | # | Action | Impact | Statut | Notes |
 |---|---|---|---|---|
-| 8 | FAQ Schema sur chaque tour (5-8 Q&R) | Rich snippets FAQ | À FAIRE | Ajouter FAQPage schema + section visible |
+| 8 | FAQ Schema sur chaque tour (8 Q&R FR/EN/ES) | Rich snippets FAQ | **FAIT** | FAQPage JSON-LD + section visible dans TourDialog |
 | 9 | Section blog / guides de voyage | Long-tail keywords | À FAIRE | Articles : Girona day trip, hidden gems BCN, etc. |
-| 10 | Témoignages avec `@type: Review` schema | Étoiles Google | À FAIRE | Linked to AggregateRating |
-| 11 | Page 404 personnalisée | UX / SEO | À FAIRE | Aujourd'hui un 404 affiche la home |
+| 10 | Témoignages avec `@type: Review` schema | Étoiles Google | **FAIT** | AggregateRating + Review[] dans Testimonials |
+| 11 | Page 404 personnalisée | UX / SEO | **FAIT** | Route catch-all `*` → NotFoundPage |
 | 12 | Descriptions longues par tour (1500+ mots) | SEO contenu | À FAIRE | Dans la page tour dédiée (après #3) |
 
 ---

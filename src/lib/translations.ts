@@ -240,6 +240,19 @@ export const translations = {
             view_on_maps: 'Visualiser sur Google Maps',
             no_additional_info: 'Aucune information complémentaire'
         },
+        faq: {
+            title: 'Questions fréquentes',
+            items: [
+                { q: 'Combien de temps dure le tour ?', a: 'La durée est indiquée sur chaque fiche tour. Les journées complètes durent généralement 8 à 10 heures, les demi-journées 4 à 5 heures.' },
+                { q: "Qu'est-ce qui est inclus dans le prix ?", a: 'Le transport privé aller-retour depuis Barcelone, le guide expert, et les éléments listés dans la section "Inclus". Les repas ne sont généralement pas inclus sauf mention contraire.' },
+                { q: 'Le tour est-il adapté aux enfants ?', a: 'Oui, la plupart de nos tours sont adaptés aux familles. Contactez-nous pour des recommandations personnalisées selon l\'âge de vos enfants.' },
+                { q: "D'où part le tour ?", a: 'Nous venons vous chercher directement à votre hébergement à Barcelone (hôtel, appartement, etc.).' },
+                { q: "Puis-je personnaliser l'itinéraire ?", a: 'Absolument ! Tous nos tours sont privés et personnalisables. Contactez-nous avec vos envies et nous adapterons le programme.' },
+                { q: "Que se passe-t-il s'il pleut ?", a: 'En cas de conditions météo défavorables, nous proposons un report gratuit ou une alternative adaptée. Annulation flexible 24h avant.' },
+                { q: 'Comment réserver ?', a: 'Réservez directement sur notre site avec paiement sécurisé par Stripe. Vous recevrez une confirmation par email immédiatement.' },
+                { q: 'Quelle est la taille du groupe ?', a: 'Tous nos tours sont en petit groupe (1 à 8 personnes maximum) pour une expérience authentique et personnalisée.' },
+            ]
+        },
         footer: {
             made_with: 'Fait avec Passion.',
             legal: 'Mentions légales',
@@ -670,6 +683,19 @@ export const translations = {
             view_on_maps: 'View on Google Maps',
             no_additional_info: 'No additional information'
         },
+        faq: {
+            title: 'Frequently Asked Questions',
+            items: [
+                { q: 'How long is the tour?', a: 'Duration is indicated on each tour page. Full days typically last 8–10 hours, half days 4–5 hours.' },
+                { q: "What's included in the price?", a: 'Round-trip private transport from Barcelona, expert guide, and all items listed in the "Included" section. Meals are not included unless stated otherwise.' },
+                { q: 'Is the tour suitable for children?', a: "Yes, most of our tours are family-friendly. Contact us for personalized recommendations based on your children's ages." },
+                { q: 'Where does the tour depart from?', a: 'We pick you up directly from your accommodation in Barcelona (hotel, apartment, etc.).' },
+                { q: 'Can I customize the itinerary?', a: 'Absolutely! All our tours are private and fully customizable. Contact us with your preferences and we\'ll tailor the program.' },
+                { q: 'What happens if it rains?', a: 'In case of unfavorable weather, we offer a free reschedule or an adapted alternative. Flexible cancellation up to 24h before.' },
+                { q: 'How do I book?', a: 'Book directly on our website with secure Stripe payment. You\'ll receive an instant confirmation email.' },
+                { q: 'What is the group size?', a: 'All our tours are small group (1 to 8 people max) for an authentic and personalized experience.' },
+            ]
+        },
         footer: {
             made_with: 'Made with Passion.',
             legal: 'Legal Notice',
@@ -1099,6 +1125,19 @@ export const translations = {
             maps_button: 'Ver en Google Maps',
             view_on_maps: 'Ver en Google Maps',
             no_additional_info: 'Sin información adicional'
+        },
+        faq: {
+            title: 'Preguntas frecuentes',
+            items: [
+                { q: '¿Cuánto dura el tour?', a: 'La duración está indicada en cada ficha del tour. Los días completos suelen durar 8 a 10 horas, las medias jornadas 4 a 5 horas.' },
+                { q: '¿Qué está incluido en el precio?', a: 'Transporte privado ida y vuelta desde Barcelona, guía experto y los elementos listados en la sección "Incluido". Las comidas no están incluidas salvo que se indique lo contrario.' },
+                { q: '¿El tour es apto para niños?', a: 'Sí, la mayoría de nuestros tours son aptos para familias. Contáctenos para recomendaciones personalizadas según la edad de sus hijos.' },
+                { q: '¿Desde dónde sale el tour?', a: 'Te recogemos directamente en tu alojamiento en Barcelona (hotel, apartamento, etc.).' },
+                { q: '¿Puedo personalizar el itinerario?', a: '¡Por supuesto! Todos nuestros tours son privados y personalizables. Contáctenos con sus preferencias y adaptaremos el programa.' },
+                { q: '¿Qué pasa si llueve?', a: 'En caso de condiciones meteorológicas desfavorables, ofrecemos un cambio de fecha gratuito o una alternativa adaptada. Cancelación flexible 24h antes.' },
+                { q: '¿Cómo reservo?', a: 'Reserve directamente en nuestro sitio web con pago seguro por Stripe. Recibirá un email de confirmación de inmediato.' },
+                { q: '¿Cuál es el tamaño del grupo?', a: 'Todos nuestros tours son en grupo pequeño (1 a 8 personas máximo) para una experiencia auténtica y personalizada.' },
+            ]
         },
         footer: {
             made_with: 'Hecho con Pasión.',
