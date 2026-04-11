@@ -30,6 +30,7 @@ export const TourCard = ({ tour, index, lang, t, onClick }: TourCardProps) => {
                 : tour.title
           }
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
         />
         <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md">
           <span className="text-sm font-bold text-gray-900">

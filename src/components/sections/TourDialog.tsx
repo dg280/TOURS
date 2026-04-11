@@ -82,7 +82,7 @@ export const TourDialog = ({
                             <img
                               src={img}
                               alt={`${tour.title} ${i + 1}`}
-                              className="w-full aspect-[4/3] object-cover"
+                              className="w-full aspect-[4/3] object-cover" loading="lazy"
                             />
                           </CarouselItem>
                         ))}
@@ -98,7 +98,7 @@ export const TourDialog = ({
                     <img
                       src={tour.image}
                       alt={tour.title}
-                      className="w-full aspect-[4/3] object-cover"
+                      className="w-full aspect-[4/3] object-cover" loading="lazy"
                     />
                   )}
                 </div>

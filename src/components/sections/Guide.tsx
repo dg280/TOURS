@@ -28,6 +28,7 @@ export const Guide = ({
                   src={guidePhoto}
                   alt="Antoine Pilard"
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                  loading="lazy"
                 />
               </div>
               {/* Decorative elements */}
