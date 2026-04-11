@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { CookieConsent } from "./components/CookieConsent";
 import { Navbar } from "./components/layout/Navbar";
 import { Hero } from "./components/sections/Hero";
 import { Footer } from "./components/layout/Footer";
-import { TourDialog } from "./components/sections/TourDialog";
 import { Button } from "@/components/ui/button";
 import { Testimonials } from "./components/sections/Testimonials";
 import { Contact } from "./components/sections/Contact";
@@ -13,12 +13,93 @@ import { BookingModal } from "./components/booking/BookingModal";
 import { SEO } from "./components/SEO";
 import { WhatsAppButton } from "./components/WhatsAppButton";
 import { AboutPage } from "./pages/AboutPage";
+import { TourPage } from "./pages/TourPage";
 import { TopToursCarousel } from "./components/sections/TopToursCarousel";
 import { CategoryToursCarousel } from "./components/sections/CategoryToursCarousel";
 import { LegalModal } from "./components/modals/LegalModal";
 import { useAppContext } from "./contexts/useAppContext";
 import { useTourState } from "./hooks/useTourState";
+import { slugForTour } from "./lib/tour-slugs";
+import type { Tour } from "./lib/types";
 import "./App.css";
+
+// ─── Home page content ──────────────────────────────────────────────────────
+
+function HomePage() {
+  const { lang, t, tours, testimonials, guide } = useAppContext();
+  const navigate = useNavigate();
+
+  const handleTourClick = (tour: Tour) => {
+    navigate(`/tours/${slugForTour(tour.id)}`);
+  };
+
+  const scrollToSection = (id: string | null) => {
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (el) {
+      window.scrollTo({
+        top: el.getBoundingClientRect().top + window.pageYOffset - 100,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  return (
+    <>
+      <Hero t={t} scrollToSection={scrollToSection} />
+      <TopToursCarousel
+        tours={tours}
+        lang={lang}
+        t={t}
+        onTourClick={handleTourClick}
+      />
+      <CategoryToursCarousel
+        tours={tours}
+        lang={lang}
+        t={t}
+        onTourClick={handleTourClick}
+      />
+
+      <section className="py-20 bg-amber-600 text-white overflow-hidden relative">
+        <div className="container-custom relative z-10 text-center">
+          <h2 className="text-3xl md:text-5xl font-bold mb-8 max-w-4xl mx-auto leading-tight">
+            {t.about_hook.title}
+          </h2>
+          <Button
+            onClick={() => navigate("/about")}
+            className="bg-white text-amber-600 hover:bg-gray-100 rounded-full h-16 px-10 text-lg font-bold transition-all shadow-xl"
+          >
+            {t.about_hook.cta}
+          </Button>
+        </div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+      </section>
+
+      <Testimonials t={t} testimonials={testimonials} />
+      <Contact t={t} instagramUrl={guide.instagramUrl} />
+    </>
+  );
+}
+
+// ─── About page wrapper ─────────────────────────────────────────────────────
+
+function AboutPageWrapper() {
+  const { t, guide } = useAppContext();
+  const navigate = useNavigate();
+
+  return (
+    <AboutPage
+      t={t}
+      guidePhoto={guide.photo}
+      guideBio={guide.bio}
+      differentPhotos={guide.differentPhotos}
+      onBackToHome={() => navigate("/")}
+    />
+  );
+}
+
+// ─── App shell (layout + routes) ────────────────────────────────────────────
 
 function App() {
   const {
@@ -26,7 +107,6 @@ function App() {
     setLang,
     t,
     tours,
-    testimonials,
     guide,
     legalModal,
     setLegalModal,
@@ -34,35 +114,32 @@ function App() {
     setShowCookieConsent,
   } = useAppContext();
 
-  const {
-    selectedTour,
-    isBookingOpen,
-    setIsBookingOpen,
-    isTourDialogOpen,
-    setIsTourDialogOpen,
-    viewedTour,
-    isLiveJoinOpen,
-    setIsLiveJoinOpen,
-    handleTourClick,
-    handleBookingStart,
-  } = useTourState({ tours });
+  const { isBookingOpen, setIsBookingOpen, selectedTour, isLiveJoinOpen, setIsLiveJoinOpen } =
+    useTourState({ tours });
 
-  const [view, setView] = useState<"home" | "about">("home");
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
 
-  // Hash-based routing
+  // Detect which "view" we're on for the navbar
+  const isAbout = location.pathname === "/about";
+  const view = isAbout ? "about" as const : "home" as const;
+
+  // Legacy URL redirects: ?tour=X → /tours/:slug, #about → /about
   useEffect(() => {
-    const handleHash = () => {
-      if (window.location.hash === "#about") setView("about");
-      else if (window.location.hash === "#home" || !window.location.hash)
-        setView("home");
-    };
-    handleHash();
-    window.addEventListener("hashchange", handleHash);
-    return () => window.removeEventListener("hashchange", handleHash);
-  }, []);
+    const params = new URLSearchParams(window.location.search);
+    const tourParam = params.get("tour");
+    if (tourParam) {
+      navigate(`/tours/${slugForTour(tourParam)}`, { replace: true });
+      return;
+    }
+    if (window.location.hash === "#about") {
+      navigate("/about", { replace: true });
+    }
+  }, [navigate]);
 
   // Scroll detection for navbar
   useEffect(() => {
@@ -73,7 +150,7 @@ function App() {
 
   // Intersection observer for active section on About page
   useEffect(() => {
-    if (view !== "about") return;
+    if (!isAbout) return;
     const observer = new IntersectionObserver(
       (entries) =>
         entries.forEach((e) => {
@@ -86,16 +163,17 @@ function App() {
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
-  }, [view]);
+  }, [isAbout]);
 
   const scrollToSection = (id: string | null) => {
     if (!id) return;
-    if (
-      view === "about" &&
-      ["top-tours", "tours", "avis", "contact"].includes(id)
-    ) {
-      setView("home");
-      setTimeout(() => scrollToSection(id), 100);
+    // If on About page and trying to reach a home section, go home first
+    if (isAbout && ["top-tours", "tours", "avis", "contact"].includes(id)) {
+      navigate("/");
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 300);
       return;
     }
     const el = document.getElementById(id);
@@ -121,55 +199,16 @@ function App() {
         onLiveClick={() => setIsLiveJoinOpen(true)}
         t={t}
         view={view}
-        setView={setView}
+        setView={(v) => navigate(v === "about" ? "/about" : "/")}
         activeSection={activeSection}
       />
 
       <main>
-        {view === "home" ? (
-          <>
-            <Hero t={t} scrollToSection={scrollToSection} />
-            <TopToursCarousel
-              tours={tours}
-              lang={lang}
-              t={t}
-              onTourClick={handleTourClick}
-            />
-            <CategoryToursCarousel
-              tours={tours}
-              lang={lang}
-              t={t}
-              onTourClick={handleTourClick}
-            />
-
-            <section className="py-20 bg-amber-600 text-white overflow-hidden relative">
-              <div className="container-custom relative z-10 text-center">
-                <h2 className="text-3xl md:text-5xl font-bold mb-8 max-w-4xl mx-auto leading-tight">
-                  {t.about_hook.title}
-                </h2>
-                <Button
-                  onClick={() => setView("about")}
-                  className="bg-white text-amber-600 hover:bg-gray-100 rounded-full h-16 px-10 text-lg font-bold transition-all shadow-xl"
-                >
-                  {t.about_hook.cta}
-                </Button>
-              </div>
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-              <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
-            </section>
-
-            <Testimonials t={t} testimonials={testimonials} />
-            <Contact t={t} instagramUrl={guide.instagramUrl} />
-          </>
-        ) : (
-          <AboutPage
-            t={t}
-            guidePhoto={guide.photo}
-            guideBio={guide.bio}
-            differentPhotos={guide.differentPhotos}
-            onBackToHome={() => setView("home")}
-          />
-        )}
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPageWrapper />} />
+          <Route path="/tours/:slug" element={<TourPage />} />
+        </Routes>
       </main>
 
       <Footer
@@ -180,15 +219,6 @@ function App() {
       />
 
       <LegalModal type={legalModal} onClose={() => setLegalModal(null)} />
-
-      <TourDialog
-        tour={viewedTour}
-        isOpen={isTourDialogOpen}
-        onOpenChange={setIsTourDialogOpen}
-        lang={lang}
-        t={t}
-        onBookNow={(tour) => handleBookingStart(tour, tours[0])}
-      />
 
       <BookingModal
         isOpen={isBookingOpen}
@@ -205,9 +235,7 @@ function App() {
         t={t}
       />
 
-      {!isBookingOpen && !isTourDialogOpen && !isLiveJoinOpen && (
-        <WhatsAppButton lang={lang} />
-      )}
+      {!isBookingOpen && !isLiveJoinOpen && <WhatsAppButton lang={lang} />}
       {showCookieConsent && (
         <CookieConsent
           lang={lang}
