@@ -67,6 +67,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ImageEditor } from "./components/ImageEditor";
 import { CustomersTab } from "./components/CustomersTab";
 import { StorageMigration } from "./components/StorageMigration";
+import { FAQAdmin } from "./components/FAQAdmin";
 import { uploadImage } from "./utils/image-upload";
 import { translateText, translateArray, type SupportedLanguage } from "./utils/translation-service";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5055,6 +5056,7 @@ export default function AdminApp() {
     { id: "suivi", label: "Suivi", icon: Activity, badge: 0 },
     { id: "tours", label: "Catalogue", icon: MapPin, badge: 0 },
     { id: "reviews", label: "Avis clients", icon: Star, badge: 0 },
+    { id: "faq", label: "FAQ", icon: Bell, badge: 0 },
     { id: "admins", label: "Admins", icon: ShieldCheck, badge: 0 },
     { id: "profile", label: "Mon Profil", icon: User, badge: 0 },
     { id: "marketing", label: "Marketing & SEO", icon: BarChart3, badge: 0 },
@@ -5212,6 +5214,7 @@ export default function AdminApp() {
             {activeTab === "reviews" && (
               <Reviews reviews={reviews} setReviews={setReviews} />
             )}
+            {activeTab === "faq" && <FAQAdmin />}
             {activeTab === "admins" && <AdminsManagement />}
             {activeTab === "config" && (
               <Config

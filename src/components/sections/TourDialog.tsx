@@ -289,7 +289,7 @@ export const TourDialog = ({
                 </Tabs>
 
                 {/* FAQ — visible section + FAQPage schema for Google */}
-                <TourFAQ t={t} />
+                <TourFAQ t={t} lang={lang} />
               </div>
 
               <div className="lg:col-span-1 border-t lg:border-t-0 lg:border-l pt-10 lg:pt-0 lg:pl-10">
