@@ -71,10 +71,7 @@ export function CheckoutForm({ onSuccess, amount, t }: CheckoutFormProps) {
                 <PaymentElement 
                     id="payment-element" 
                     options={{ layout: 'tabs' }} 
-                    onReady={() => {
-                        console.log("[CheckoutForm] PaymentElement Ready");
-                        setIsElementsReady(true);
-                    }}
+                    onReady={() => setIsElementsReady(true)}
                 />
             </div>
             
