@@ -33,8 +33,6 @@ import {
   ChevronLeft,
   ChevronRight,
   CloudUpload,
-  CloudDownload,
-  RotateCcw,
   Database,
   Scissors,
   Users,
@@ -3591,19 +3589,7 @@ function Reviews({
 }
 
 // Config Component
-function Config({
-  onPull,
-  onPush,
-  onReset,
-  onFixImages,
-  isSyncing,
-}: {
-  onPull: () => void;
-  onPush: () => void;
-  onReset: () => void;
-  onFixImages: () => void;
-  isSyncing: boolean;
-}) {
+function Config() {
   return (
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -3662,80 +3648,6 @@ function Config({
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-900 text-white overflow-hidden shadow-2xl border-none">
-            <CardHeader className="pb-4 border-b border-gray-800 bg-gray-900/50">
-              <CardTitle className="text-lg font-bold flex items-center gap-2">
-                <Database className="w-5 h-5 text-amber-500" /> Maintenance & Sync
-              </CardTitle>
-              <CardDescription className="text-gray-400 text-xs font-medium">
-                Outils de récupération et synchronisation forcée
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              <div className="grid gap-3">
-                <Button
-                  variant="secondary"
-                  className="w-full justify-start bg-gray-800 hover:bg-gray-700 text-white border-none h-12 px-4"
-                  onClick={onPull}
-                  disabled={isSyncing}
-                >
-                  <CloudDownload className="w-4 h-4 mr-3 text-blue-400" />
-                  <div className="text-left">
-                    <div className="font-bold text-sm">Importer du Cloud</div>
-                    <div className="text-[10px] text-gray-400">Force la récupération des données en ligne</div>
-                  </div>
-                </Button>
-
-                <Button
-                  variant="secondary"
-                  className="w-full justify-start bg-gray-800 hover:bg-gray-700 text-white border-none h-12 px-4"
-                  onClick={() => {
-                    if (
-                      confirm(
-                        "⚠️ ATTENTION : Cette action va écraser TOUTES les données du site public avec votre version actuelle.\n\nÊtes-vous sûr de vouloir continuer ?"
-                      )
-                    ) {
-                      onPush();
-                    }
-                  }}
-                  disabled={isSyncing}
-                >
-                  <CloudUpload className="w-4 h-4 mr-3 text-amber-400" />
-                  <div className="text-left">
-                    <div className="font-bold text-sm">Mettre à jour le site public</div>
-                    <div className="text-[10px] text-gray-400">Écrase le Cloud avec vos données d'administration</div>
-                  </div>
-                </Button>
-
-                <Button
-                  variant="secondary"
-                  className="w-full justify-start bg-gray-800 hover:bg-gray-700 text-white border-none h-12 px-4"
-                  onClick={onFixImages}
-                >
-                  <ImageIcon className="w-4 h-4 mr-3 text-green-400" />
-                  <div className="text-left">
-                    <div className="font-bold text-sm">Réparer les liens photos</div>
-                    <div className="text-[10px] text-gray-400">Nettoyage automatique des chemins legacy</div>
-                  </div>
-                </Button>
-
-                <div className="pt-4 mt-2 border-t border-gray-800">
-                  <Button
-                    variant="destructive"
-                    className="w-full justify-start bg-red-950/30 hover:bg-red-900/50 text-red-500 border border-red-900/50 h-12 px-4"
-                    onClick={onReset}
-                    disabled={isSyncing}
-                  >
-                    <RotateCcw className="w-4 h-4 mr-3" />
-                    <div className="text-left">
-                      <div className="font-bold text-sm">Reset Usine</div>
-                      <div className="text-[10px] text-red-400 opacity-70">Réinstallation du catalogue standard</div>
-                    </div>
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           <Card className="bg-white border-dashed border-2 border-gray-100">
             <CardContent className="p-6 text-center space-y-3">
@@ -4414,7 +4326,6 @@ export default function AdminApp() {
       localStorage.getItem("td-instagram-url") ||
       "https://www.instagram.com/tours_and_detours_bcn/",
   );
-  const [isSyncing, setIsSyncing] = useState(false);
   const [activeSession, setActiveSession] = useState<{
     tour: Tour;
     session: {
@@ -4453,268 +4364,6 @@ export default function AdminApp() {
     }
   };
 
-  const pullFromDb = async () => {
-    if (!supabase) return;
-    setIsSyncing(true);
-    const loadingToast = toast.loading("Récupération des données du cloud...");
-    try {
-      const { data, error } = await supabase
-        .from("tours")
-        .select("*")
-        .order("id");
-      if (error) throw error;
-      if (data && data.length > 0) {
-        const mapped = data.map((t) => ({
-          id: t.id,
-          title: t.title,
-          title_en: t.title_en,
-          title_es: t.title_es,
-          subtitle: t.subtitle,
-          subtitle_en: t.subtitle_en,
-          subtitle_es: t.subtitle_es,
-          description: t.description,
-          description_en: t.description_en,
-          description_es: t.description_es,
-          duration: t.duration,
-          groupSize: t.group_size,
-          maxCapacity: t.max_capacity ?? 8,
-          price: t.price,
-          image: t.image,
-          images: (t.images && t.images.length > 0) ? t.images : (t.image ? [t.image] : []),
-          category: t.category,
-          highlights: t.highlights,
-          highlights_en: t.highlights_en,
-          highlights_es: t.highlights_es,
-          isActive: t.is_active,
-          itinerary: t.itinerary,
-          itinerary_en: t.itinerary_en,
-          itinerary_es: t.itinerary_es,
-          included: t.included,
-          included_en: t.included_en,
-          included_es: t.included_es,
-          notIncluded: t.not_included,
-          notIncluded_en: t.not_included_en,
-          notIncluded_es: t.not_included_es,
-          meetingPoint: t.meeting_point,
-          meetingPoint_en: t.meeting_point_en,
-          meetingPoint_es: t.meeting_point_es,
-          departureTime: t.departure_time || "",
-          estimatedDuration: t.estimated_duration || t.duration || "",
-          goodToKnow: t.good_to_know || [],
-          goodToKnow_en: t.good_to_know_en || [],
-          goodToKnow_es: t.good_to_know_es || [],
-          stops: t.stops || [],
-          stripe_tip_link: t.stripe_tip_link,
-          stripeLink: t.stripe_link || undefined,
-          meetingPointMapUrl: t.meeting_point_map_url || undefined,
-          pricing_tiers: t.pricing_tiers || {},
-        }));
-        setTours(mapped as Tour[]);
-        localStorage.setItem("td-tours", JSON.stringify(mapped));
-        toast.success(`${data.length} tours récupérés avec succès.`, {
-          id: loadingToast,
-        });
-      } else {
-        toast.info("Aucun tour trouvé en base de données.", {
-          id: loadingToast,
-        });
-      }
-    } catch (err) {
-      console.error("Pull error:", err);
-      toast.error(
-        "Erreur lors de la récupération : " + (err as Error).message,
-        { id: loadingToast },
-      );
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  const pushAllToDb = async () => {
-    if (!supabase) return;
-    setIsSyncing(true);
-    const loadingToast = toast.loading("Synchronisation du catalogue...");
-
-    try {
-      for (const tour of tours) {
-        const dbTour = {
-          id: tour.id,
-          title: tour.title,
-          title_en: tour.title_en,
-          title_es: tour.title_es,
-          subtitle: tour.subtitle,
-          subtitle_en: tour.subtitle_en,
-          subtitle_es: tour.subtitle_es,
-          description: tour.description,
-          description_en: tour.description_en,
-          description_es: tour.description_es,
-          duration: tour.duration,
-          group_size: tour.groupSize,
-          max_capacity: tour.maxCapacity ?? 8,
-          price: tour.price,
-          image: tour.image,
-          images: tour.images || [],
-          category: tour.category,
-          highlights: tour.highlights,
-          highlights_en: tour.highlights_en,
-          highlights_es: tour.highlights_es,
-          is_active: tour.isActive ?? true,
-          itinerary: tour.itinerary || [],
-          itinerary_en: tour.itinerary_en || [],
-          itinerary_es: tour.itinerary_es || [],
-          included: tour.included || [],
-          included_en: tour.included_en || [],
-          included_es: tour.included_es || [],
-          not_included: tour.notIncluded || [],
-          not_included_en: tour.notIncluded_en || [],
-          not_included_es: tour.notIncluded_es || [],
-          meeting_point: tour.meetingPoint || null,
-          meeting_point_en: tour.meetingPoint_en || null,
-          meeting_point_es: tour.meetingPoint_es || null,
-          departure_time: tour.departureTime || null,
-          estimated_duration: tour.estimatedDuration || null,
-          good_to_know: tour.goodToKnow || [],
-          good_to_know_en: tour.goodToKnow_en || [],
-          good_to_know_es: tour.goodToKnow_es || [],
-          stops: tour.stops || [],
-          stripe_tip_link: tour.stripe_tip_link || null,
-          stripe_link: tour.stripeLink || null,
-          meeting_point_map_url: tour.meetingPointMapUrl || null,
-          pricing_tiers: tour.pricing_tiers || {},
-        };
-        const { error } = await supabase.from("tours").upsert(dbTour);
-        if (error) throw error;
-      }
-      toast.success("Tout le catalogue est synchronisé sur Supabase !", {
-        id: loadingToast,
-      });
-    } catch (err) {
-      const error = err as { code?: string; message: string };
-      console.error("Sync error:", error);
-      if (error.code === "42P01") {
-        toast.error(
-          "La table 'tours' n'existe pas. Avez-vous exécuté le SQL dans Supabase ?",
-          { id: loadingToast },
-        );
-      } else {
-        toast.error(
-          "Échec de la synchronisation : " +
-            (error.message || "Erreur inconnue"),
-          { id: loadingToast },
-        );
-      }
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  const resetFromMaster = async () => {
-    if (!supabase) return;
-    if (
-      !confirm(
-        "ATTENTION: Cela va écraser vos tours LOCAUX par les tours standards de la base de données. Continuer ?",
-      )
-    )
-      return;
-
-    setIsSyncing(true);
-    const loadingToast = toast.loading("Récupération du catalogue standard...");
-    try {
-      const { data, error } = await supabase
-        .from("default_tours")
-        .select("*")
-        .order("id");
-      if (error) throw error;
-      if (data && data.length > 0) {
-        const mapped = data.map((t) => ({
-          id: t.id,
-          title: t.title,
-          title_en: t.title_en,
-          title_es: t.title_es,
-          subtitle: t.subtitle,
-          subtitle_en: t.subtitle_en,
-          subtitle_es: t.subtitle_es,
-          description: t.description,
-          description_en: t.description_en,
-          description_es: t.description_es,
-          duration: t.duration,
-          groupSize: t.group_size,
-          maxCapacity: t.max_capacity ?? 8,
-          price: t.price,
-          image: t.image,
-          images: t.images || [],
-          category: t.category,
-          highlights: t.highlights,
-          highlights_en: t.highlights_en,
-          highlights_es: t.highlights_es,
-          isActive: t.is_active,
-          itinerary: t.itinerary || [],
-          itinerary_en: t.itinerary_en || [],
-          itinerary_es: t.itinerary_es || [],
-          included: t.included || [],
-          included_en: t.included_en || [],
-          included_es: t.included_es || [],
-          notIncluded: t.not_included || [],
-          notIncluded_en: t.not_included_en || [],
-          notIncluded_es: t.not_included_es || [],
-          meetingPoint: t.meeting_point,
-          meetingPoint_en: t.meeting_point_en,
-          meetingPoint_es: t.meeting_point_es,
-          meetingPointMapUrl: t.meeting_point_map_url || undefined,
-          departureTime: t.departure_time || "",
-          estimatedDuration: t.estimated_duration || t.duration || "",
-          goodToKnow: t.good_to_know || [],
-          goodToKnow_en: t.good_to_know_en || [],
-          goodToKnow_es: t.good_to_know_es || [],
-          stops: t.stops || [],
-          stripe_tip_link: t.stripe_tip_link,
-          stripeLink: t.stripe_link || undefined,
-          pricing_tiers: t.pricing_tiers || {},
-        }));
-        setTours(mapped as Tour[]);
-        localStorage.setItem("td-tours", JSON.stringify(mapped));
-        toast.success(
-          `${data.length} tours standards chargés.`,
-          { id: loadingToast },
-        );
-      } else {
-        toast.error("Aucun tour standard trouvé en base de données.", {
-          id: loadingToast,
-        });
-      }
-    } catch (err) {
-      console.error("Reset error:", err);
-      toast.error("Erreur lors du reset : " + (err as Error).message, {
-        id: loadingToast,
-      });
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  const fixImagePaths = () => {
-    let fixCount = 0;
-    const fixedTours = tours.map((t) => {
-      let updatedImage = t.image;
-      if (t.image === "/tour-walking.jpg") {
-        updatedImage = "/tour-barcelona-hidden.jpg";
-        fixCount++;
-      } else if (t.image === "/tour-cami.jpg") {
-        updatedImage = "/tour-camironda.jpg";
-        fixCount++;
-      }
-      return { ...t, image: updatedImage };
-    });
-
-    if (fixCount > 0) {
-      setTours(fixedTours);
-      toast.success(
-        `${fixCount} chemin(s) d'image(s) réparé(s) localement.`,
-      );
-    } else {
-      toast.info("Aucun chemin d'image erroné détecté.");
-    }
-  };
   const [guideBio, setGuideBio] = useState(
     () => localStorage.getItem("td-guide-bio") || translations.fr.guide.bio,
   );
@@ -5216,15 +4865,7 @@ export default function AdminApp() {
             )}
             {activeTab === "faq" && <FAQAdmin />}
             {activeTab === "admins" && <AdminsManagement />}
-            {activeTab === "config" && (
-              <Config
-                onPull={pullFromDb}
-                onPush={pushAllToDb}
-                onReset={resetFromMaster}
-                onFixImages={fixImagePaths}
-                isSyncing={isSyncing}
-              />
-            )}
+            {activeTab === "config" && <Config />}
             {activeTab === "marketing" && (
               <Marketing subscribers={subscribers} />
             )}
