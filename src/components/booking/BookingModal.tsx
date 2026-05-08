@@ -535,12 +535,13 @@ export const BookingModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
+        showCloseButton={false}
         className="sm:max-w-[700px] w-full h-full sm:h-auto sm:max-h-[95vh] p-0 overflow-hidden sm:rounded-2xl border-none shadow-2xl bg-white flex flex-col"
         data-testid="booking-modal"
       >
         <div className="flex flex-col h-full overflow-hidden">
           <div className="bg-gray-900 text-white p-6 sm:p-8">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-start gap-4 mb-6">
               <div>
                 <p className="text-amber-400 text-[10px] font-bold uppercase tracking-widest mb-1">
                   {t.booking.step} {step} {t.booking.step_of} 5
@@ -549,6 +550,14 @@ export const BookingModal = ({
                   {tour.title}
                 </DialogTitle>
               </div>
+              <button
+                type="button"
+                onClick={() => onOpenChange(false)}
+                aria-label={t.common.close}
+                className="shrink-0 -mt-1 -mr-1 p-2 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
             <div className="flex gap-2">
               {[1, 2, 3, 4, 5].map((i) => (
