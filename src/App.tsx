@@ -146,15 +146,18 @@ function App() {
   // When TourPage navigates to "/" with state.bookTourId, open the BookingModal
   useEffect(() => {
     const state = location.state as { bookTourId?: string | number } | null;
-    if (state?.bookTourId) {
-      const tour = tours.find((t) => String(t.id) === String(state.bookTourId));
-      if (tour) {
-        handleBookingStart(tour);
-      }
-      // Clear the state so refreshing doesn't re-open the modal
-      window.history.replaceState({}, document.title);
+    if (!state?.bookTourId) return;
+    const tour = tours.find((t) => String(t.id) === String(state.bookTourId));
+    if (tour) {
+      handleBookingStart(tour);
     }
-  }, [location.state, tours, handleBookingStart]);
+    // Clear via React Router, not window.history.replaceState — RR caches its
+    // own location, so replaceState alone leaves state.bookTourId in place.
+    // Without this, closing the modal causes a re-render, the effect re-fires
+    // (handleBookingStart isn't memoized → new identity), and the modal pops
+    // back open immediately.
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.state, location.pathname, tours, handleBookingStart, navigate]);
 
   // Scroll detection for navbar
   useEffect(() => {
