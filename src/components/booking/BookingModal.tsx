@@ -334,7 +334,12 @@ export const BookingModal = ({
   }, [isOpen, tour]);
 
   useEffect(() => {
-    if (!tour || step !== 3) return;
+    // Run on step 3 (eager prefetch while user fills contact info) and step 4
+    // (recovery if user clicked Next before the step-3 fetch resolved — the
+    // cleanup would otherwise discard the response and leave clientSecret empty,
+    // showing "Initializing payment…" forever). Same idempotency key on the
+    // server returns the same PI, so no extra Stripe PI is created.
+    if (!tour || step < 3 || step > 4) return;
 
     // Invalidate stale PI if pricing inputs changed since it was created (audit H4).
     const ctx = `${tour.id}-${participants}-${date}`;
