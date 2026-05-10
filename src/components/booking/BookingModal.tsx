@@ -299,11 +299,14 @@ export const BookingModal = ({
       const today = new Date();
       const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
+      // Fetch reservations across ALL tours (single guide = global calendar):
+      // a booking on tour A on date X blocks date X for tour B as well, since
+      // Antoine cannot guide two tours simultaneously. Per-tour `blocked_dates`
+      // entries remain per-tour (used for tour-specific seasonal closures).
       const [resResult, blockedResult] = await Promise.all([
         supabase!
           .from("reservations")
-          .select("date, participants")
-          .eq("tour_id", tour.id.toString())
+          .select("date, participants, tour_id")
           .in("status", ["pending", "confirmed"])
           .gte("date", todayStr),
         supabase!
@@ -314,17 +317,25 @@ export const BookingModal = ({
       ]);
 
       if (!cancelled) {
+        const otherTourDates = new Set<string>();
         if (!resResult.error && resResult.data) {
           const agg: Record<string, number> = {};
+          const thisTourId = tour.id.toString();
           for (const row of resResult.data) {
             const d = row.date as string;
-            agg[d] = (agg[d] ?? 0) + (row.participants as number);
+            if (String(row.tour_id) === thisTourId) {
+              agg[d] = (agg[d] ?? 0) + (row.participants as number);
+            } else {
+              otherTourDates.add(d);
+            }
           }
           setBookedByDate(agg);
         }
+        const blocked = new Set<string>(otherTourDates);
         if (!blockedResult.error && blockedResult.data) {
-          setBlockedDates(new Set(blockedResult.data.map((r) => r.date as string)));
+          for (const r of blockedResult.data) blocked.add(r.date as string);
         }
+        setBlockedDates(blocked);
         setAvailabilityLoading(false);
       }
     };
