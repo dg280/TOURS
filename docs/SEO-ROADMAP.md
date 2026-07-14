@@ -11,7 +11,7 @@
 | # | Action | Impact | Statut | Branche | Notes |
 |---|---|---|---|---|---|
 | 1 | `robots.txt` | Fondation | **FAIT** | v2 | Allow all, block /admin et /api |
-| 1 | `sitemap.xml` (bon domaine, hreflang, 7 tours) | Fondation | **FAIT** | v2 | toursandetours.com, FR/EN/ES alternates |
+| 1 | `sitemap.xml` (bon domaine, hreflang, 7 tours) | Fondation | **FAIT** | v2 | toursandetours.eu, FR/EN/ES alternates |
 | 2 | `og-image.jpg` (1200x630) | Partage social | **FAIT** | v2 | Généré depuis hero-barcelona.jpg |
 | 2 | `favicon.svg` | Crédibilité | **FAIT** | v2 | T&D en brand colors |
 | 5 | hreflang + canonical dans `index.html` | International | **FAIT** | v2 | EN/FR/ES + x-default |

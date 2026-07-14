@@ -64,7 +64,7 @@
 | P28 | Étape 4 : Paiement | Formulaire Stripe Elements chargé | ☐ |
 | P29 | Paiement test réussi | Carte test `4242 4242 4242 4242` acceptée | ☐ |
 | P30 | Email de confirmation | Email reçu par le client après paiement | ☐ |
-| P31 | Email admin | Notification reçue par info@toursandetours.com | ☐ |
+| P31 | Email admin | Notification reçue par info@toursandetours.eu | ☐ |
 | P32 | Paiement refusé | Message d'erreur clair affiché | ☐ |
 | P33 | Tarification par paliers | Prix correct selon nombre de participants | ☐ |
 
@@ -326,7 +326,7 @@
 | S11 | `vercel.json` | Aucun security header HTTP | Ajouter CSP, HSTS, X-Frame-Options, X-Content-Type-Options |
 | S12 | `AdminApp.tsx` | Session live générée avec `Math.random()` (entropie faible) | Utiliser `crypto.randomUUID()` ou `crypto.getRandomValues()` |
 | S13 | API | Zod disponible en dépendance mais non utilisé pour valider les payloads | Créer des schémas Zod pour chaque endpoint API |
-| S14 | `confirm-booking.ts` / `reminders.ts` | Email `info@toursandetours.com` et tél `+34623973105` hardcodés | Variables d'environnement `ADMIN_EMAIL`, `BUSINESS_PHONE` |
+| S14 | `confirm-booking.ts` / `reminders.ts` | Email `info@toursandetours.eu` et tél `+34623973105` hardcodés | Variables d'environnement `ADMIN_EMAIL`, `BUSINESS_PHONE` |
 | S15 | `AdminApp.tsx` | Vercel project ID de fallback hardcodé (`prj_u3FmYg...`) | Supprimer le fallback |
 
 ### 4.4 Récapitulatif sécurité

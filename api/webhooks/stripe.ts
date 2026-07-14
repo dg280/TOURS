@@ -187,7 +187,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     // customer receives the same language as during checkout (FR/EN/ES).
     try {
         const resend = new Resend(process.env.RESEND_API_KEY);
-        const adminEmail = process.env.ADMIN_EMAIL || 'info@toursandetours.com';
+        const adminEmail = process.env.ADMIN_EMAIL || 'info@toursandetours.eu';
 
         const lang = normalizeLang(paymentIntent.metadata?.lang);
         const L = emailStrings(lang);
