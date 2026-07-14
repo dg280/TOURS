@@ -47,7 +47,7 @@ export function TourStructuredData({ tour, lang, t }: TourStructuredDataProps) {
 
     const imageUrl = tour.image?.startsWith('http')
         ? tour.image
-        : `https://toursandetours.com${tour.image}`;
+        : `https://toursandetours.eu${tour.image}`;
 
     const schema = {
         '@context': 'https://schema.org',
@@ -56,11 +56,11 @@ export function TourStructuredData({ tour, lang, t }: TourStructuredDataProps) {
         description,
         image: imageUrl,
         touristType: 'Cultural',
-        url: `https://toursandetours.com/?tour=${tour.id}`,
+        url: `https://toursandetours.eu/?tour=${tour.id}`,
         provider: {
             '@type': 'TravelAgency',
             name: 'Tours & Detours Barcelona',
-            url: 'https://toursandetours.com',
+            url: 'https://toursandetours.eu',
             telephone: '+34623973105',
         },
         offers: {

@@ -286,7 +286,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
             <div style="background:#f9fafb;border-radius:12px;padding:20px 24px;text-align:center;">
               <p style="margin:0 0 8px;color:#374151;font-size:14px;">${L.questions}</p>
               <p style="margin:0 0 4px;"><a href="https://wa.me/34623973105" style="color:#c9a961;font-weight:700;text-decoration:none;">📱 WhatsApp : +34 623 97 31 05</a></p>
-              <p style="margin:0;"><a href="mailto:info@toursandetours.com" style="color:#c9a961;font-weight:700;text-decoration:none;">✉️ info@toursandetours.com</a></p>
+              <p style="margin:0;"><a href="mailto:info@toursandetours.eu" style="color:#c9a961;font-weight:700;text-decoration:none;">✉️ info@toursandetours.eu</a></p>
             </div>
           </td>
         </tr>
@@ -326,7 +326,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         // 8. Send both emails — use verified domain via env var (audit C1)
         const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
         const fromAddress = `Tours & Détours <${fromEmail}>`;
-        const adminTo = process.env.ADMIN_EMAIL || 'info@toursandetours.com';
+        const adminTo = process.env.ADMIN_EMAIL || 'info@toursandetours.eu';
 
         // Sanitize subject lines to strip CR/LF (audit H2)
         const sanitizeHeader = (s: unknown) => String(s ?? '').replace(/[\r\n]/g, ' ').slice(0, 150);

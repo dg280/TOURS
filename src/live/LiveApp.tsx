@@ -498,7 +498,7 @@ export default function LiveApp() {
           <div className="flex justify-center gap-4 text-gray-600">
             <ExternalLink className="w-4 h-4" />
             <span className="text-[10px] font-bold uppercase tracking-widest">
-              www.toursandetours.com
+              www.toursandetours.eu
             </span>
           </div>
         </div>

@@ -89,10 +89,10 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                       Email
                     </p>
                     <a
-                      href="mailto:info@toursandetours.com"
+                      href="mailto:info@toursandetours.eu"
                       className="text-xl font-bold hover:text-amber-600 transition-colors"
                     >
-                      info@toursandetours.com
+                      info@toursandetours.eu
                     </a>
                   </div>
                 </div>

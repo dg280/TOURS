@@ -20,10 +20,10 @@ export const LegalModal = ({ type, onClose }: LegalModalProps) => {
             <section>
               <h3 className="text-base font-bold text-gray-800 mb-2">Éditeur du site</h3>
               <p>
-                Le site <strong>toursandetours.com</strong> est édité par :<br />
+                Le site <strong>toursandetours.eu</strong> est édité par :<br />
                 <strong>Tours & Détours</strong><br />
                 Guide indépendant — Barcelone, Espagne<br />
-                Email : <a href="mailto:info@toursandetours.com" className="text-amber-600 hover:underline">info@toursandetours.com</a>
+                Email : <a href="mailto:info@toursandetours.eu" className="text-amber-600 hover:underline">info@toursandetours.eu</a>
               </p>
             </section>
 
@@ -69,7 +69,7 @@ export const LegalModal = ({ type, onClose }: LegalModalProps) => {
               <h3 className="text-base font-bold text-gray-800 mb-2">Responsable du traitement</h3>
               <p>
                 <strong>Tours & Détours</strong> — Barcelone, Espagne<br />
-                Contact : <a href="mailto:info@toursandetours.com" className="text-amber-600 hover:underline">info@toursandetours.com</a>
+                Contact : <a href="mailto:info@toursandetours.eu" className="text-amber-600 hover:underline">info@toursandetours.eu</a>
               </p>
             </section>
 
@@ -118,7 +118,7 @@ export const LegalModal = ({ type, onClose }: LegalModalProps) => {
                 <li>Droit d'opposition au traitement</li>
               </ul>
               <p className="mt-2">
-                Pour exercer ces droits, contactez-nous à : <a href="mailto:info@toursandetours.com" className="text-amber-600 hover:underline">info@toursandetours.com</a>
+                Pour exercer ces droits, contactez-nous à : <a href="mailto:info@toursandetours.eu" className="text-amber-600 hover:underline">info@toursandetours.eu</a>
               </p>
             </section>
 

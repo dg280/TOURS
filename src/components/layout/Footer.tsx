@@ -33,7 +33,7 @@ export const Footer = ({
             <div className="flex gap-5 pt-4">
               {[
                 { icon: Instagram, url: instagramUrl },
-                { icon: Mail, url: "mailto:info@toursandetours.com" },
+                { icon: Mail, url: "mailto:info@toursandetours.eu" },
               ].map((social, i) => (
                 <a
                   key={i}

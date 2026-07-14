@@ -62,6 +62,12 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
 
         const stats = { sent: 0, failed: 0 };
 
+        // Sender uses the verified Resend domain via env var (audit S14 — was
+        // hardcoded). Set RESEND_FROM_EMAIL in Vercel once the domain is
+        // verified in Resend (e.g. info@toursandetours.eu).
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+        const fromAddress = `Tours & Détours <${fromEmail}>`;
+
         for (const reservation of reservations) {
             try {
                 // Fetch tour details for each
@@ -90,7 +96,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
                 `;
 
                 await resend.emails.send({
-                    from: 'Tours & Detours <info@toursandetours.com>',
+                    from: fromAddress,
                     to: reservation.email,
                     subject: `Rappel : Votre excursion ${reservation.tour_name} arrive bientôt !`,
                     html: emailContent,

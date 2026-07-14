@@ -8,7 +8,7 @@ Ce fichier est chargé automatiquement par Claude Code à chaque session. Il fou
 
 Site web de tours guidés à Barcelone. Clients anglophones, francophones et hispanophones.
 
-**URL de production** : https://tours-five-olive.vercel.app/
+**URL de production** : https://toursandetours.eu/ (hébergé sur Vercel, alias historique : https://tours-five-olive.vercel.app/)
 **Repo GitHub** : https://github.com/dg280/TOURS
 **Admin** : Dorian (dg280)
 
@@ -144,7 +144,7 @@ Quand plusieurs agents Claude Code travaillent en parallèle, chacun **doit** ut
 ## Déploiement
 
 Vercel déploie automatiquement :
-- `main` → production (https://tours-five-olive.vercel.app/)
+- `main` → production (https://toursandetours.eu/)
 - Toute autre branche → preview URL
 
 Pour vérifier avant recette : voir `.agent/workflows/check-deploy.md`
