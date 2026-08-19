@@ -16,61 +16,61 @@
 
 ## 1. Public-Site Acceptance Checks
 
-| Area | IDs | Required behavior |
-|---|---|---|
-| Hero and landing | P01-P06 | Autoplay hero video and image fallback work; tour and contact CTAs scroll smoothly; scroll-aware navigation and logo behavior work. |
-| Navigation and language | P07-P12 | FR/EN/ES changes and persistence work; mobile menu opens and closes; the active navigation indicator tracks the visible section. |
-| Tour catalog | P13-P17 | Top-tour and category carousels navigate and filter; cards show image, category, price, duration, and group data; opening a card and deep links work. |
-| Tour dialog | P18-P24 | Description, itinerary, included/excluded, meeting-point, and image-carousel tabs render; price sidebar books; dialog closes correctly. |
-| Booking flow | P25-P33 | Date, participants, details, Stripe Elements, successful and refused test payments, customer/admin email, and tiered pricing work. |
-| Contact form | P34-P37 | Required fields and email validation work; submission returns visible success or error feedback. Historical note: P36 was marked as having no handler. |
-| About page | P38-P41 | All sections, sticky desktop image, multilingual bio, and statistics badge work. |
-| Cookie consent and GDPR | P42-P45 | First-visit banner, accept action, preference panel, and persistence work. |
-| Public live tour | P46-P48 | Navigation only offers a live session when active; joining with a session code and real-time position/stops work. |
+| Area                    | IDs     | Required behavior                                                                                                                                      |
+| ----------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Hero and landing        | P01-P06 | Autoplay hero video and image fallback work; tour and contact CTAs scroll smoothly; scroll-aware navigation and logo behavior work.                    |
+| Navigation and language | P07-P12 | FR/EN/ES changes and persistence work; mobile menu opens and closes; the active navigation indicator tracks the visible section.                       |
+| Tour catalog            | P13-P17 | Top-tour and category carousels navigate and filter; cards show image, category, price, duration, and group data; opening a card and deep links work.  |
+| Tour dialog             | P18-P24 | Description, itinerary, included/excluded, meeting-point, and image-carousel tabs render; price sidebar books; dialog closes correctly.                |
+| Booking flow            | P25-P33 | Date, participants, details, Stripe Elements, successful and refused test payments, customer/admin email, and tiered pricing work.                     |
+| Contact form            | P34-P37 | Required fields and email validation work; submission returns visible success or error feedback. Historical note: P36 was marked as having no handler. |
+| About page              | P38-P41 | All sections, sticky desktop image, multilingual bio, and statistics badge work.                                                                       |
+| Cookie consent and GDPR | P42-P45 | First-visit banner, accept action, preference panel, and persistence work.                                                                             |
+| Public live tour        | P46-P48 | Navigation only offers a live session when active; joining with a session code and real-time position/stops work.                                      |
 
 ## 2. Admin-Interface Acceptance Checks
 
-| Area | IDs | Required behavior |
-|---|---|---|
-| Authentication | A01-A05 | Magic Link and password login work; unauthorized emails are denied; logout and session persistence work. |
-| Dashboard | A06-A10 | Reservation counters, monthly revenue, recent reservations, Stripe mode, and navigation shortcuts are correct. Historical note: A07 was marked as hardcoded to February 2024. |
-| Tour management | A11-A24 | Create/edit FR, EN, and ES fields; automatic translation and EN catalog sync; image upload/crop/reorder/primary/delete; tier pricing; save and delete work. |
-| Live session administration | A25-A28 | Session code and QR code are generated; stop navigation, urgent messages, and completion work. |
-| Booking management | A29-A34 | List, search, status filter, confirmation, cancellation, and booking details work. |
-| Review moderation | A35-A37 | Add, publish/hide, and delete reviews work. |
-| Administrator management | A38-A40 | Add, revoke, and confirm destructive admin actions work. |
-| Guide profile | A41-A44 | Photo upload/crop, FR/EN/ES biography, automatic biography translation, and Instagram URL work. |
-| Marketing and infrastructure | A45-A49 | Newsletter list, health check, cloud pull/push, and factory reset work. |
+| Area                         | IDs     | Required behavior                                                                                                                                                             |
+| ---------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Authentication               | A01-A05 | Magic Link and password login work; unauthorized emails are denied; logout and session persistence work.                                                                      |
+| Dashboard                    | A06-A10 | Reservation counters, monthly revenue, recent reservations, Stripe mode, and navigation shortcuts are correct. Historical note: A07 was marked as hardcoded to February 2024. |
+| Tour management              | A11-A24 | Create/edit FR, EN, and ES fields; automatic translation and EN catalog sync; image upload/crop/reorder/primary/delete; tier pricing; save and delete work.                   |
+| Live session administration  | A25-A28 | Session code and QR code are generated; stop navigation, urgent messages, and completion work.                                                                                |
+| Booking management           | A29-A34 | List, search, status filter, confirmation, cancellation, and booking details work.                                                                                            |
+| Review moderation            | A35-A37 | Add, publish/hide, and delete reviews work.                                                                                                                                   |
+| Administrator management     | A38-A40 | Add, revoke, and confirm destructive admin actions work.                                                                                                                      |
+| Guide profile                | A41-A44 | Photo upload/crop, FR/EN/ES biography, automatic biography translation, and Instagram URL work.                                                                               |
+| Marketing and infrastructure | A45-A49 | Newsletter list, health check, cloud pull/push, and factory reset work.                                                                                                       |
 
 ## 3. UX and UI Findings
 
 ### Confirmed Historical Issues
 
-| ID | Area | Finding | Severity |
-|---|---|---|---|
-| U1 | Contact form | No `onSubmit` handler; the form could not submit. | Critical |
-| U2 | Contact form | No visible error or success feedback. | High |
-| U3 | Admin dashboard | Monthly revenue was hardcoded to February 2024. | High |
-| U4 | Admin dashboard | SEO score and infrastructure health were static. | Medium |
-| U5 | Admin | No pagination in reservation, review, subscriber, or admin lists. | Medium |
-| U6 | Mobile navigation | Clicking outside the menu did not close it. | Medium |
-| U7 | Images | No skeleton or placeholder while images loaded. | Low |
-| U8 | Tour dialog | `?tour=ID` deep link was lost after navigating away and back. | Low |
-| U9 | Admin tours | Live-tour stops could not be reordered. | Low |
-| U10 | Admin | No bulk selection, deletion, or export actions. | Low |
-| U11 | Admin | Guide name was hardcoded in the header. | Low |
-| U12 | Tour dialog | Scroll could be blocked on very small displays due to no adaptive maximum height. | Low |
+| ID  | Area              | Finding                                                                           | Severity |
+| --- | ----------------- | --------------------------------------------------------------------------------- | -------- |
+| U1  | Contact form      | No `onSubmit` handler; the form could not submit.                                 | Critical |
+| U2  | Contact form      | No visible error or success feedback.                                             | High     |
+| U3  | Admin dashboard   | Monthly revenue was hardcoded to February 2024.                                   | High     |
+| U4  | Admin dashboard   | SEO score and infrastructure health were static.                                  | Medium   |
+| U5  | Admin             | No pagination in reservation, review, subscriber, or admin lists.                 | Medium   |
+| U6  | Mobile navigation | Clicking outside the menu did not close it.                                       | Medium   |
+| U7  | Images            | No skeleton or placeholder while images loaded.                                   | Low      |
+| U8  | Tour dialog       | `?tour=ID` deep link was lost after navigating away and back.                     | Low      |
+| U9  | Admin tours       | Live-tour stops could not be reordered.                                           | Low      |
+| U10 | Admin             | No bulk selection, deletion, or export actions.                                   | Low      |
+| U11 | Admin             | Guide name was hardcoded in the header.                                           | Low      |
+| U12 | Tour dialog       | Scroll could be blocked on very small displays due to no adaptive maximum height. | Low      |
 
 ### Accessibility Recommendations
 
-| Issue | Impact | Recommendation |
-|---|---|---|
-| No skip link | Keyboard and screen-reader users must traverse all navigation. | Add `<a href="#main-content" class="sr-only focus:not-sr-only">Skip to content</a>`. |
-| Carousels lack `aria-label` and `role="region"` | Their purpose is not announced. | Add a descriptive `aria-label`, such as `Our top tours`, to each Embla carousel. |
-| Tour-dialog tabs lack `aria-labelledby` | Tab and content association is not declared. | Link each `tabpanel` to its tab with `aria-labelledby`. |
-| No live ARIA regions | Toasts and filter results are not announced. | Use `aria-live="polite"` on dynamic regions. |
-| Cookie close button is only `✕` | It has no descriptive screen-reader name. | Add `aria-label="Close"`. |
-| Amber alone indicates active state | Some users cannot distinguish it reliably. | Add underline or bold weight as a second cue. |
+| Issue                                           | Impact                                                         | Recommendation                                                                       |
+| ----------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| No skip link                                    | Keyboard and screen-reader users must traverse all navigation. | Add `<a href="#main-content" class="sr-only focus:not-sr-only">Skip to content</a>`. |
+| Carousels lack `aria-label` and `role="region"` | Their purpose is not announced.                                | Add a descriptive `aria-label`, such as `Our top tours`, to each Embla carousel.     |
+| Tour-dialog tabs lack `aria-labelledby`         | Tab and content association is not declared.                   | Link each `tabpanel` to its tab with `aria-labelledby`.                              |
+| No live ARIA regions                            | Toasts and filter results are not announced.                   | Use `aria-live="polite"` on dynamic regions.                                         |
+| Cookie close button is only `✕`                 | It has no descriptive screen-reader name.                      | Add `aria-label="Close"`.                                                            |
+| Amber alone indicates active state              | Some users cannot distinguish it reliably.                     | Add underline or bold weight as a second cue.                                        |
 
 ### Responsive Observations
 
@@ -91,33 +91,33 @@
 
 ### Critical Historical Findings
 
-| ID | Finding | Risk | Recommended remediation |
-|---|---|---|---|
-| S1 | Payment-intent and confirmation endpoints accepted arbitrary POST requests without proving caller legitimacy. | Fraud, Stripe abuse, API quota denial of service. | Validate a Supabase session token or server-side CSRF token. |
-| S2 | Reminder cron authorization was disabled. | Bulk spam, reputation damage, GDPR risk. | Enforce `Authorization: Bearer ${CRON_SECRET}`. |
-| S3 | `authorized_admins` could be publicly read through a permissive RLS policy. | Administrator-email enumeration and phishing. | Remove the policy or restrict it to authenticated administrators. |
-| S4 | Booking confirmation depended on client-side payment success. | Missed bookings or forged confirmations. | Implement and verify a signed Stripe webhook. |
+| ID  | Finding                                                                                                       | Risk                                              | Recommended remediation                                           |
+| --- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------- |
+| S1  | Payment-intent and confirmation endpoints accepted arbitrary POST requests without proving caller legitimacy. | Fraud, Stripe abuse, API quota denial of service. | Validate a Supabase session token or server-side CSRF token.      |
+| S2  | Reminder cron authorization was disabled.                                                                     | Bulk spam, reputation damage, GDPR risk.          | Enforce `Authorization: Bearer ${CRON_SECRET}`.                   |
+| S3  | `authorized_admins` could be publicly read through a permissive RLS policy.                                   | Administrator-email enumeration and phishing.     | Remove the policy or restrict it to authenticated administrators. |
+| S4  | Booking confirmation depended on client-side payment success.                                                 | Missed bookings or forged confirmations.          | Implement and verify a signed Stripe webhook.                     |
 
 ### High Historical Findings
 
-| ID | Finding | Recommended remediation |
-|---|---|---|
-| S5 | Vercel and GitHub tokens were stored in `localStorage`. | Move secrets to Vercel environment variables and call a dedicated API route from the admin interface. |
-| S6 | `FOR ALL TO authenticated USING (true)` allowed any authenticated Supabase user to modify tours and reservations. | Restrict RLS with an `authorized_admins` email check. |
-| S7 | User fields were interpolated in HTML email without escaping. | Escape all values with a dedicated `escapeHtml` helper. |
-| S8 | Development-mode localStorage admin-authentication bypass existed. | Remove it or guard it with `VITE_DEV_AUTH_BYPASS=true`. |
+| ID  | Finding                                                                                                           | Recommended remediation                                                                               |
+| --- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| S5  | Vercel and GitHub tokens were stored in `localStorage`.                                                           | Move secrets to Vercel environment variables and call a dedicated API route from the admin interface. |
+| S6  | `FOR ALL TO authenticated USING (true)` allowed any authenticated Supabase user to modify tours and reservations. | Restrict RLS with an `authorized_admins` email check.                                                 |
+| S7  | User fields were interpolated in HTML email without escaping.                                                     | Escape all values with a dedicated `escapeHtml` helper.                                               |
+| S8  | Development-mode localStorage admin-authentication bypass existed.                                                | Remove it or guard it with `VITE_DEV_AUTH_BYPASS=true`.                                               |
 
 ### Medium Historical Findings
 
-| ID | Finding | Recommended remediation |
-|---|---|---|
-| S9 | Administrator emails were hardcoded in an SQL migration. | Use separate, uncommitted seed data or environment variables. |
-| S10 | Stripe and email APIs had no rate limiting. | Add Vercel middleware or `upstash/ratelimit`. |
-| S11 | No HTTP security headers in `vercel.json`. | Add CSP, HSTS, `X-Frame-Options`, and `X-Content-Type-Options`. |
-| S12 | Live-session codes used `Math.random()`. | Use `crypto.randomUUID()` or `crypto.getRandomValues()`. |
-| S13 | Zod was installed but not validating API payloads. | Add a Zod schema for every API endpoint. |
-| S14 | Business email and phone number were hardcoded. | Use `ADMIN_EMAIL` and `BUSINESS_PHONE` environment variables. |
-| S15 | A Vercel project-ID fallback was hardcoded. | Remove the fallback. |
+| ID  | Finding                                                  | Recommended remediation                                         |
+| --- | -------------------------------------------------------- | --------------------------------------------------------------- |
+| S9  | Administrator emails were hardcoded in an SQL migration. | Use separate, uncommitted seed data or environment variables.   |
+| S10 | Stripe and email APIs had no rate limiting.              | Add Vercel middleware or `upstash/ratelimit`.                   |
+| S11 | No HTTP security headers in `vercel.json`.               | Add CSP, HSTS, `X-Frame-Options`, and `X-Content-Type-Options`. |
+| S12 | Live-session codes used `Math.random()`.                 | Use `crypto.randomUUID()` or `crypto.getRandomValues()`.        |
+| S13 | Zod was installed but not validating API payloads.       | Add a Zod schema for every API endpoint.                        |
+| S14 | Business email and phone number were hardcoded.          | Use `ADMIN_EMAIL` and `BUSINESS_PHONE` environment variables.   |
+| S15 | A Vercel project-ID fallback was hardcoded.              | Remove the fallback.                                            |
 
 ## 5. Prioritized Improvement Backlog
 
@@ -187,4 +187,4 @@ Performance
 [ ] npm audit has no critical or high vulnerabilities
 ```
 
-*Generated on 2026-03-02. Update this historical audit after each remediation sprint.*
+_Generated on 2026-03-02. Update this historical audit after each remediation sprint._

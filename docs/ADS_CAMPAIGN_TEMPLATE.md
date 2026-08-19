@@ -1,4 +1,5 @@
 # 🎯 Google Ads Campaign: Optimized Template
+
 ## Tours & Detours Barcelona
 
 Use the following elements to configure your first Google Ads campaign effectively.
@@ -6,6 +7,7 @@ Use the following elements to configure your first Google Ads campaign effective
 ---
 
 ### 1. Campaign Setup
+
 - **Campaign type**: Search Network
 - **Goal**: Leads / sales
 - **Geographic targeting**: United Kingdom, United States, Canada, Australia, or Barcelona for visitors already there.
@@ -16,8 +18,9 @@ Use the following elements to configure your first Google Ads campaign effective
 
 ### 2. Ad Structure (Responsive Search Ad)
 
-#### Headlines: *30 characters maximum each*
-*Google rotates up to 15 headlines to find the best combination.*
+#### Headlines: _30 characters maximum each_
+
+_Google rotates up to 15 headlines to find the best combination._
 
 1. **Private Barcelona Guide**
 2. **Discover Secret Catalonia**
@@ -26,14 +29,16 @@ Use the following elements to configure your first Google Ads campaign effective
 5. **Antoine: Your Local Guide**
 6. **Book Your Private Tour**
 
-#### Descriptions: *90 characters maximum each*
+#### Descriptions: _90 characters maximum each_
+
 1. **Explore Barcelona and Catalonia with a passionate local guide. Fully private tours.**
 2. **Go beyond the usual sights. Medieval villages, Costa Brava, and Barcelona secrets.**
 3. **Authentic small-group or private experiences. Fast replies on WhatsApp.**
 
 ---
 
-### 3. Keywords: *the key to ROI*
+### 3. Keywords: _the key to ROI_
+
 Use these match types to avoid irrelevant clicks.
 
 - `[private barcelona guide]` (exact match)
@@ -44,6 +49,7 @@ Use these match types to avoid irrelevant clicks.
 ---
 
 ### 4. Ad Assets (do not overlook these)
+
 - **Sitelinks**: "Montserrat Tour", "Costa Brava", "Customer Reviews".
 - **Callouts**: "Free Cancellation", "Certified Local Guide", "Professional Photos Included".
 - **Message asset**: Link the WhatsApp number directly.
@@ -51,6 +57,7 @@ Use these match types to avoid irrelevant clicks.
 ---
 
 ### 5. Final URL (Landing Page)
+
 `https://tours-five-olive.vercel.app/`
 
-*Tip: Append `?source=google-ads` to the URL to track performance in Umami.*
+_Tip: Append `?source=google-ads` to the URL to track performance in Umami._

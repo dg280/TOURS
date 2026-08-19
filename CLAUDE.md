@@ -16,16 +16,16 @@ Guided-tour website for Barcelona. Customers speak English, French, and Spanish.
 
 ## Technical Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 19 + TypeScript + Vite |
-| Styling | Tailwind CSS + shadcn/ui (Radix) |
-| Backend | Vercel Serverless Functions (`/api/*.ts`) |
-| Database | Supabase (PostgreSQL) |
-| Payments | Stripe |
-| Tests | Playwright |
-| Deployment | Vercel (automatic through GitHub push) |
-| i18n | `src/lib/translations.ts` file (FR/EN/ES) |
+| Layer      | Technology                                |
+| ---------- | ----------------------------------------- |
+| Frontend   | React 19 + TypeScript + Vite              |
+| Styling    | Tailwind CSS + shadcn/ui (Radix)          |
+| Backend    | Vercel Serverless Functions (`/api/*.ts`) |
+| Database   | Supabase (PostgreSQL)                     |
+| Payments   | Stripe                                    |
+| Tests      | Playwright                                |
+| Deployment | Vercel (automatic through GitHub push)    |
+| i18n       | `src/lib/translations.ts` file (FR/EN/ES) |
 
 ---
 
@@ -69,15 +69,18 @@ Guided-tour website for Barcelona. Customers speak English, French, and Spanish.
 ## Security Rules (READ BEFORE MAKING CHANGES)
 
 ### CRITICAL files: do not modify without tests
+
 - `api/create-payment-intent.ts`: Stripe API version `2025-01-27` and tiered pricing logic
 - `api/confirm-booking.ts`: Supabase writes and email delivery
 - `src/lib/types.ts`: changes can break typing throughout the project
 - `src/lib/translations.ts`: always keep all three languages (FR/EN/ES) aligned
 
 ### shadcn/ui components
+
 Files under `src/components/ui/` are **generated automatically**. Do not modify them unless explicitly required.
 
 ### Environment variables
+
 See `.env.example`. Real credentials are stored in Vercel under Settings > Environment Variables. Never commit real credentials.
 
 ---
@@ -85,9 +88,11 @@ See `.env.example`. Real credentials are stored in Vercel under Settings > Envir
 ## Development Workflow
 
 ### Fundamental rule
+
 **Never commit directly to `main`.** Always work in a `feature/<short-name>` branch.
 
 ### Naming convention
+
 ```
 feature/feature-name
 fix/bug-description
@@ -96,6 +101,7 @@ refacto/scope
 ```
 
 ### Before every commit
+
 ```bash
 npm run lint        # ESLint check
 npm run build       # TypeScript check and build
@@ -103,6 +109,7 @@ npm run test        # Playwright regression tests
 ```
 
 ### Required regression test
+
 ```bash
 npx playwright test tests/stability.test.ts
 ```
@@ -135,6 +142,7 @@ When multiple Claude Code agents work in parallel, each **must** use a separate 
 ```
 
 **Isolation rules:**
+
 1. Each agent works in its own worktree, directory, and branch.
 2. No agent touches `main` directly.
 3. Merge only through a reviewed GitHub pull request.
@@ -144,6 +152,7 @@ When multiple Claude Code agents work in parallel, each **must** use a separate 
 ## Deployment
 
 Vercel deploys automatically:
+
 - `main` -> production (https://tours-five-olive.vercel.app/)
 - Any other branch -> preview URL
 
