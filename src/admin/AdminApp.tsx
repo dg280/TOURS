@@ -67,9 +67,25 @@ import { CustomersTab } from "./components/CustomersTab";
 import { StorageMigration } from "./components/StorageMigration";
 import { FAQAdmin } from "./components/FAQAdmin";
 import { uploadImage } from "./utils/image-upload";
-import { translateText, translateArray, type SupportedLanguage } from "./utils/translation-service";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
+import {
+  translateText,
+  translateArray,
+  type SupportedLanguage,
+} from "./utils/translation-service";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+} from "@/components/ui/sheet";
 import { prepareTourForEditing } from "@/lib/utils";
 import type { Tour, Reservation, Review } from "@/lib/types";
 
@@ -270,28 +286,33 @@ function Dashboard({
   reservations: Reservation[];
   setActiveTab: (tab: string) => void;
 }) {
-  const [systemStatus, setSystemStatus] = useState<'loading' | 'ok' | 'error'>('loading');
-  const [stripeMode, setStripeMode] = useState<'test' | 'live' | null>(null);
+  const [systemStatus, setSystemStatus] = useState<"loading" | "ok" | "error">(
+    "loading",
+  );
+  const [stripeMode, setStripeMode] = useState<"test" | "live" | null>(null);
 
   useEffect(() => {
-    fetch('/api/health-check')
-      .then(async res => {
+    fetch("/api/health-check")
+      .then(async (res) => {
         if (res.ok) {
           const data = await res.json();
-          setSystemStatus('ok');
+          setSystemStatus("ok");
           setStripeMode(data.checks?.stripe?.mode || null);
         } else {
-          setSystemStatus('error');
+          setSystemStatus("error");
         }
       })
-      .catch(() => setSystemStatus('error'));
+      .catch(() => setSystemStatus("error"));
   }, []);
 
   const stats = {
     totalReservations: reservations.length,
-    pendingReservations: reservations.filter((r) => r.status === "pending").length,
-    confirmedReservations: reservations.filter((r) => r.status === "confirmed").length,
-    completedReservations: reservations.filter((r) => r.status === "completed").length,
+    pendingReservations: reservations.filter((r) => r.status === "pending")
+      .length,
+    confirmedReservations: reservations.filter((r) => r.status === "confirmed")
+      .length,
+    completedReservations: reservations.filter((r) => r.status === "completed")
+      .length,
     totalRevenue: reservations.reduce((sum, r) => sum + r.totalPrice, 0),
     thisMonthRevenue: reservations
       .filter((r) => {
@@ -303,7 +324,10 @@ function Dashboard({
   };
 
   const recentReservations = [...reservations]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )
     .slice(0, 5);
 
   // Confirmed reservations in next 7 days
@@ -339,16 +363,27 @@ function Dashboard({
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-xl font-bold text-gray-900">Vue d'ensemble</h2>
-        <div className={cn(
-          "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm",
-          systemStatus === 'loading' ? "bg-gray-100 text-gray-500" :
-          systemStatus === 'ok' ? "bg-green-100 text-green-700 ring-1 ring-green-600/20" :
-          "bg-red-100 text-red-700 ring-1 ring-red-600/20 animate-pulse"
-        )}>
-          <Activity className={cn("w-3.5 h-3.5", systemStatus === 'loading' && "animate-spin")} />
-          {systemStatus === 'loading' ? "Vérification système..." :
-           systemStatus === 'ok' ? `Système Opérationnel (${stripeMode?.toUpperCase() || 'MODE INCONNU'})` :
-           "Erreur Configuration (Stripe/DB)"}
+        <div
+          className={cn(
+            "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm",
+            systemStatus === "loading"
+              ? "bg-gray-100 text-gray-500"
+              : systemStatus === "ok"
+                ? "bg-green-100 text-green-700 ring-1 ring-green-600/20"
+                : "bg-red-100 text-red-700 ring-1 ring-red-600/20 animate-pulse",
+          )}
+        >
+          <Activity
+            className={cn(
+              "w-3.5 h-3.5",
+              systemStatus === "loading" && "animate-spin",
+            )}
+          />
+          {systemStatus === "loading"
+            ? "Vérification système..."
+            : systemStatus === "ok"
+              ? `Système Opérationnel (${stripeMode?.toUpperCase() || "MODE INCONNU"})`
+              : "Erreur Configuration (Stripe/DB)"}
         </div>
       </div>
 
@@ -361,9 +396,13 @@ function Dashboard({
           <Bell className="w-5 h-5 text-yellow-600 flex-shrink-0 animate-pulse" />
           <div>
             <p className="text-sm font-bold text-yellow-900">
-              {stats.pendingReservations} réservation{stats.pendingReservations > 1 ? "s" : ""} en attente de confirmation
+              {stats.pendingReservations} réservation
+              {stats.pendingReservations > 1 ? "s" : ""} en attente de
+              confirmation
             </p>
-            <p className="text-xs text-yellow-700">Cliquer pour gérer les réservations</p>
+            <p className="text-xs text-yellow-700">
+              Cliquer pour gérer les réservations
+            </p>
           </div>
           <ChevronRight className="w-4 h-4 text-yellow-600 ml-auto" />
         </button>
@@ -384,12 +423,18 @@ function Dashboard({
           </CardContent>
         </Card>
 
-        <Card className={stats.pendingReservations > 0 ? "ring-2 ring-yellow-400" : ""}>
+        <Card
+          className={
+            stats.pendingReservations > 0 ? "ring-2 ring-yellow-400" : ""
+          }
+        >
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-gray-500">En attente</p>
-                <p className="text-2xl font-bold">{stats.pendingReservations}</p>
+                <p className="text-2xl font-bold">
+                  {stats.pendingReservations}
+                </p>
               </div>
               <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
                 <Bell className="w-5 h-5 text-yellow-600" />
@@ -403,7 +448,9 @@ function Dashboard({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-gray-500">Confirmées</p>
-                <p className="text-2xl font-bold">{stats.confirmedReservations}</p>
+                <p className="text-2xl font-bold">
+                  {stats.confirmedReservations}
+                </p>
               </div>
               <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
                 <CheckIcon className="w-5 h-5 text-green-600" />
@@ -419,7 +466,9 @@ function Dashboard({
                 <p className="text-xs text-gray-500">
                   {new Date().toLocaleDateString("fr-FR", { month: "short" })}
                 </p>
-                <p className="text-2xl font-bold">{stats.thisMonthRevenue.toFixed(2)}€</p>
+                <p className="text-2xl font-bold">
+                  {stats.thisMonthRevenue.toFixed(2)}€
+                </p>
               </div>
               <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
                 <Euro className="w-5 h-5 text-amber-600" />
@@ -433,7 +482,9 @@ function Dashboard({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-gray-500">Revenu total</p>
-                <p className="text-2xl font-bold">{stats.totalRevenue.toFixed(2)}€</p>
+                <p className="text-2xl font-bold">
+                  {stats.totalRevenue.toFixed(2)}€
+                </p>
               </div>
               <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                 <BarChart3 className="w-5 h-5 text-purple-600" />
@@ -457,27 +508,51 @@ function Dashboard({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-2 px-4 font-medium text-gray-500">Date</th>
-                    <th className="text-left py-2 px-4 font-medium text-gray-500">Tour</th>
-                    <th className="text-left py-2 px-4 font-medium text-gray-500">Client</th>
-                    <th className="text-left py-2 px-4 font-medium text-gray-500 hidden sm:table-cell">Pick-up</th>
-                    <th className="text-right py-2 px-4 font-medium text-gray-500">Pers.</th>
+                    <th className="text-left py-2 px-4 font-medium text-gray-500">
+                      Date
+                    </th>
+                    <th className="text-left py-2 px-4 font-medium text-gray-500">
+                      Tour
+                    </th>
+                    <th className="text-left py-2 px-4 font-medium text-gray-500">
+                      Client
+                    </th>
+                    <th className="text-left py-2 px-4 font-medium text-gray-500 hidden sm:table-cell">
+                      Pick-up
+                    </th>
+                    <th className="text-right py-2 px-4 font-medium text-gray-500">
+                      Pers.
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {upcomingTours.map((res) => (
                     <tr key={res.id} className="border-b hover:bg-amber-50/40">
                       <td className="py-2 px-4 font-semibold text-amber-700">
-                        {new Date(res.date).toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" })}
+                        {new Date(res.date).toLocaleDateString("fr-FR", {
+                          weekday: "short",
+                          day: "numeric",
+                          month: "short",
+                        })}
                       </td>
-                      <td className="py-2 px-4 text-gray-900">{res.tourName}</td>
+                      <td className="py-2 px-4 text-gray-900">
+                        {res.tourName}
+                      </td>
                       <td className="py-2 px-4 text-gray-600">{res.name}</td>
                       <td className="py-2 px-4 text-gray-500 hidden sm:table-cell">
-                        {res.pickupTime || res.pickupAddress
-                          ? <span className="text-xs">{[res.pickupTime, res.pickupAddress].filter(Boolean).join(" · ")}</span>
-                          : <span className="text-gray-300">—</span>}
+                        {res.pickupTime || res.pickupAddress ? (
+                          <span className="text-xs">
+                            {[res.pickupTime, res.pickupAddress]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </span>
+                        ) : (
+                          <span className="text-gray-300">—</span>
+                        )}
                       </td>
-                      <td className="py-2 px-4 text-right">{res.participants}</td>
+                      <td className="py-2 px-4 text-right">
+                        {res.participants}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -489,30 +564,49 @@ function Dashboard({
 
       <Card>
         <CardHeader className="px-4 sm:px-6">
-          <CardTitle className="text-lg sm:text-xl">Réservations récentes</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">
+            Réservations récentes
+          </CardTitle>
         </CardHeader>
         <CardContent className="px-0 sm:px-6">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">Client</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 hidden sm:table-cell">Tour</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 hidden sm:table-cell">Date</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">Statut</th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-500">Montant</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">
+                    Client
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500 hidden sm:table-cell">
+                    Tour
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500 hidden sm:table-cell">
+                    Date
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">
+                    Statut
+                  </th>
+                  <th className="text-right py-3 px-4 font-medium text-gray-500">
+                    Montant
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {recentReservations.map((res) => (
                   <tr key={res.id} className="border-b hover:bg-gray-50">
                     <td className="py-3 px-4 font-medium">{res.name}</td>
-                    <td className="py-3 px-4 text-gray-600 hidden sm:table-cell">{res.tourName}</td>
+                    <td className="py-3 px-4 text-gray-600 hidden sm:table-cell">
+                      {res.tourName}
+                    </td>
                     <td className="py-3 px-4 text-gray-500 hidden sm:table-cell">
-                      {new Date(res.date).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                      {new Date(res.date).toLocaleDateString("fr-FR", {
+                        day: "numeric",
+                        month: "short",
+                      })}
                     </td>
                     <td className="py-3 px-4">{getStatusBadge(res.status)}</td>
-                    <td className="py-3 px-4 text-right font-semibold">{res.totalPrice}€</td>
+                    <td className="py-3 px-4 text-right font-semibold">
+                      {res.totalPrice}€
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -533,10 +627,19 @@ function Dashboard({
         <Button
           variant="outline"
           className="h-16 flex flex-row sm:flex-col items-center justify-center gap-3 sm:gap-2"
-          onClick={() => { setActiveTab("reservations"); }}
+          onClick={() => {
+            setActiveTab("reservations");
+          }}
         >
           <Bell className="w-5 h-5 text-yellow-600" />
-          <span className="text-sm">En attente {stats.pendingReservations > 0 && <span className="ml-1 bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded-full">{stats.pendingReservations}</span>}</span>
+          <span className="text-sm">
+            En attente{" "}
+            {stats.pendingReservations > 0 && (
+              <span className="ml-1 bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                {stats.pendingReservations}
+              </span>
+            )}
+          </span>
         </Button>
         <Button
           variant="outline"
@@ -559,8 +662,12 @@ function Dashboard({
   );
 }
 
-// Suivi Opérationnel Component
-function OperationalTracking({ reservations }: { reservations: Reservation[] }) {
+// Operational tracking component
+function OperationalTracking({
+  reservations,
+}: {
+  reservations: Reservation[];
+}) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const todayStr = today.toISOString().split("T")[0];
@@ -583,11 +690,15 @@ function OperationalTracking({ reservations }: { reservations: Reservation[] }) 
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   // Revenue by tour (all time, sorted by total desc)
-  const revenueByTour: Record<string, { total: number; count: number; participants: number }> = {};
+  const revenueByTour: Record<
+    string,
+    { total: number; count: number; participants: number }
+  > = {};
   reservations
     .filter((r) => r.status !== "cancelled")
     .forEach((r) => {
-      if (!revenueByTour[r.tourName]) revenueByTour[r.tourName] = { total: 0, count: 0, participants: 0 };
+      if (!revenueByTour[r.tourName])
+        revenueByTour[r.tourName] = { total: 0, count: 0, participants: 0 };
       revenueByTour[r.tourName].total += r.totalPrice;
       revenueByTour[r.tourName].count += 1;
       revenueByTour[r.tourName].participants += r.participants;
@@ -615,10 +726,10 @@ function OperationalTracking({ reservations }: { reservations: Reservation[] }) 
   const maxRevenue = Math.max(...months.map(([, v]) => v), 1);
 
   const statusConfig: Record<string, { style: string; label: string }> = {
-    pending:   { style: "bg-yellow-100 text-yellow-800", label: "En attente" },
-    confirmed: { style: "bg-green-100 text-green-800",  label: "Confirmée" },
-    cancelled: { style: "bg-red-100 text-red-800",      label: "Annulée" },
-    completed: { style: "bg-blue-100 text-blue-800",    label: "Terminée" },
+    pending: { style: "bg-yellow-100 text-yellow-800", label: "En attente" },
+    confirmed: { style: "bg-green-100 text-green-800", label: "Confirmée" },
+    cancelled: { style: "bg-red-100 text-red-800", label: "Annulée" },
+    completed: { style: "bg-blue-100 text-blue-800", label: "Terminée" },
   };
 
   return (
@@ -632,25 +743,50 @@ function OperationalTracking({ reservations }: { reservations: Reservation[] }) 
             <MapPin className="w-4 h-4 text-amber-600" />
             Pick-ups aujourd'hui
             {todayPickups.length > 0 && (
-              <Badge className="bg-amber-100 text-amber-800 ml-1">{todayPickups.length}</Badge>
+              <Badge className="bg-amber-100 text-amber-800 ml-1">
+                {todayPickups.length}
+              </Badge>
             )}
           </CardTitle>
-          <CardDescription>{new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}</CardDescription>
+          <CardDescription>
+            {new Date().toLocaleDateString("fr-FR", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+            })}
+          </CardDescription>
         </CardHeader>
         <CardContent className="px-4 sm:px-6">
           {todayPickups.length === 0 ? (
-            <p className="text-sm text-gray-400 italic">Aucun pick-up prévu aujourd'hui</p>
+            <p className="text-sm text-gray-400 italic">
+              Aucun pick-up prévu aujourd'hui
+            </p>
           ) : (
             <div className="space-y-3">
               {todayPickups.map((r) => (
-                <div key={r.id} className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg border border-amber-100">
-                  <div className="text-amber-700 font-bold text-sm w-14 shrink-0">{r.pickupTime || "—"}</div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 truncate">{r.name}</p>
-                    <p className="text-xs text-gray-500 truncate">{r.tourName} · {r.participants} pers.</p>
-                    {r.pickupAddress && <p className="text-xs text-gray-400 truncate">{r.pickupAddress}</p>}
+                <div
+                  key={r.id}
+                  className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg border border-amber-100"
+                >
+                  <div className="text-amber-700 font-bold text-sm w-14 shrink-0">
+                    {r.pickupTime || "—"}
                   </div>
-                  <div className="text-sm font-bold text-amber-600 shrink-0">{r.totalPrice}€</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-900 truncate">
+                      {r.name}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {r.tourName} · {r.participants} pers.
+                    </p>
+                    {r.pickupAddress && (
+                      <p className="text-xs text-gray-400 truncate">
+                        {r.pickupAddress}
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-sm font-bold text-amber-600 shrink-0">
+                    {r.totalPrice}€
+                  </div>
                 </div>
               ))}
             </div>
@@ -668,37 +804,75 @@ function OperationalTracking({ reservations }: { reservations: Reservation[] }) 
         </CardHeader>
         <CardContent className="px-0 sm:px-6">
           {weekTours.length === 0 ? (
-            <p className="text-sm text-gray-400 italic px-4">Aucun tour confirmé cette semaine</p>
+            <p className="text-sm text-gray-400 italic px-4">
+              Aucun tour confirmé cette semaine
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-2 px-4 font-medium text-gray-500">Date</th>
-                    <th className="text-left py-2 px-4 font-medium text-gray-500">Tour</th>
-                    <th className="text-left py-2 px-4 font-medium text-gray-500">Client</th>
-                    <th className="text-left py-2 px-4 font-medium text-gray-500 hidden sm:table-cell">Pick-up</th>
-                    <th className="text-center py-2 px-4 font-medium text-gray-500">Pers.</th>
-                    <th className="text-left py-2 px-4 font-medium text-gray-500">Statut</th>
+                    <th className="text-left py-2 px-4 font-medium text-gray-500">
+                      Date
+                    </th>
+                    <th className="text-left py-2 px-4 font-medium text-gray-500">
+                      Tour
+                    </th>
+                    <th className="text-left py-2 px-4 font-medium text-gray-500">
+                      Client
+                    </th>
+                    <th className="text-left py-2 px-4 font-medium text-gray-500 hidden sm:table-cell">
+                      Pick-up
+                    </th>
+                    <th className="text-center py-2 px-4 font-medium text-gray-500">
+                      Pers.
+                    </th>
+                    <th className="text-left py-2 px-4 font-medium text-gray-500">
+                      Statut
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {weekTours.map((r) => {
                     const isToday = r.date === todayStr;
-                    const cfg = statusConfig[r.status] ?? { style: "bg-gray-100 text-gray-700", label: r.status };
+                    const cfg = statusConfig[r.status] ?? {
+                      style: "bg-gray-100 text-gray-700",
+                      label: r.status,
+                    };
                     return (
-                      <tr key={r.id} className={`border-b ${isToday ? "bg-amber-50/60" : "hover:bg-gray-50"}`}>
+                      <tr
+                        key={r.id}
+                        className={`border-b ${isToday ? "bg-amber-50/60" : "hover:bg-gray-50"}`}
+                      >
                         <td className="py-2 px-4 font-semibold text-amber-700 whitespace-nowrap">
-                          {new Date(r.date).toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" })}
-                          {isToday && <span className="ml-1 text-xs bg-amber-500 text-white px-1 rounded">Auj.</span>}
+                          {new Date(r.date).toLocaleDateString("fr-FR", {
+                            weekday: "short",
+                            day: "numeric",
+                            month: "short",
+                          })}
+                          {isToday && (
+                            <span className="ml-1 text-xs bg-amber-500 text-white px-1 rounded">
+                              Auj.
+                            </span>
+                          )}
                         </td>
-                        <td className="py-2 px-4 text-gray-900 max-w-[150px] truncate">{r.tourName}</td>
+                        <td className="py-2 px-4 text-gray-900 max-w-[150px] truncate">
+                          {r.tourName}
+                        </td>
                         <td className="py-2 px-4 text-gray-600">{r.name}</td>
                         <td className="py-2 px-4 text-gray-500 text-xs hidden sm:table-cell">
-                          {[r.pickupTime, r.pickupAddress].filter(Boolean).join(" · ") || <span className="text-gray-300">—</span>}
+                          {[r.pickupTime, r.pickupAddress]
+                            .filter(Boolean)
+                            .join(" · ") || (
+                            <span className="text-gray-300">—</span>
+                          )}
                         </td>
-                        <td className="py-2 px-4 text-center">{r.participants}</td>
-                        <td className="py-2 px-4"><Badge className={cfg.style}>{cfg.label}</Badge></td>
+                        <td className="py-2 px-4 text-center">
+                          {r.participants}
+                        </td>
+                        <td className="py-2 px-4">
+                          <Badge className={cfg.style}>{cfg.label}</Badge>
+                        </td>
                       </tr>
                     );
                   })}
@@ -722,10 +896,18 @@ function OperationalTracking({ reservations }: { reservations: Reservation[] }) 
             {months.map(([key, val]) => {
               const height = Math.round((val / maxRevenue) * 100);
               const [year, month] = key.split("-");
-              const label = new Date(Number(year), Number(month) - 1).toLocaleDateString("fr-FR", { month: "short" });
+              const label = new Date(
+                Number(year),
+                Number(month) - 1,
+              ).toLocaleDateString("fr-FR", { month: "short" });
               return (
-                <div key={key} className="flex-1 flex flex-col items-center gap-1">
-                  <span className="text-xs text-gray-500 font-semibold">{val > 0 ? `${val.toFixed(2)}€` : ""}</span>
+                <div
+                  key={key}
+                  className="flex-1 flex flex-col items-center gap-1"
+                >
+                  <span className="text-xs text-gray-500 font-semibold">
+                    {val > 0 ? `${val.toFixed(2)}€` : ""}
+                  </span>
                   <div
                     className="w-full bg-amber-400 rounded-t-sm transition-all"
                     style={{ height: `${Math.max(height, val > 0 ? 4 : 0)}%` }}
@@ -754,21 +936,41 @@ function OperationalTracking({ reservations }: { reservations: Reservation[] }) 
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-2 px-4 font-medium text-gray-500">Tour</th>
-                    <th className="text-center py-2 px-4 font-medium text-gray-500">Rés.</th>
-                    <th className="text-center py-2 px-4 font-medium text-gray-500">Voyageurs</th>
-                    <th className="text-right py-2 px-4 font-medium text-gray-500">Revenu total</th>
-                    <th className="text-right py-2 px-4 font-medium text-gray-500 hidden sm:table-cell">Moy./rés.</th>
+                    <th className="text-left py-2 px-4 font-medium text-gray-500">
+                      Tour
+                    </th>
+                    <th className="text-center py-2 px-4 font-medium text-gray-500">
+                      Rés.
+                    </th>
+                    <th className="text-center py-2 px-4 font-medium text-gray-500">
+                      Voyageurs
+                    </th>
+                    <th className="text-right py-2 px-4 font-medium text-gray-500">
+                      Revenu total
+                    </th>
+                    <th className="text-right py-2 px-4 font-medium text-gray-500 hidden sm:table-cell">
+                      Moy./rés.
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {tourRevenue.map(({ name, total, count, participants }) => (
                     <tr key={name} className="border-b hover:bg-gray-50">
-                      <td className="py-2 px-4 font-medium text-gray-900 max-w-[200px] truncate">{name}</td>
-                      <td className="py-2 px-4 text-center text-gray-600">{count}</td>
-                      <td className="py-2 px-4 text-center text-gray-600">{participants}</td>
-                      <td className="py-2 px-4 text-right font-bold text-amber-600">{total.toFixed(2)}€</td>
-                      <td className="py-2 px-4 text-right text-gray-500 hidden sm:table-cell">{Math.round(total / count)}€</td>
+                      <td className="py-2 px-4 font-medium text-gray-900 max-w-[200px] truncate">
+                        {name}
+                      </td>
+                      <td className="py-2 px-4 text-center text-gray-600">
+                        {count}
+                      </td>
+                      <td className="py-2 px-4 text-center text-gray-600">
+                        {participants}
+                      </td>
+                      <td className="py-2 px-4 text-right font-bold text-amber-600">
+                        {total.toFixed(2)}€
+                      </td>
+                      <td className="py-2 px-4 text-right text-gray-500 hidden sm:table-cell">
+                        {Math.round(total / count)}€
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -786,7 +988,9 @@ function InfoRow({ label, value }: { label: string; value?: string | number }) {
   if (!value) return null;
   return (
     <div className="flex flex-col sm:flex-row sm:gap-2 py-1">
-      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide w-32 shrink-0">{label}</span>
+      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide w-32 shrink-0">
+        {label}
+      </span>
       <span className="text-sm text-gray-900">{value}</span>
     </div>
   );
@@ -798,7 +1002,11 @@ function InfoRow({ label, value }: { label: string; value?: string | number }) {
 function BlockedDatesManager({ tours }: { tours: Tour[] }) {
   const defaultTourId = tours.length > 0 ? tours[0].id.toString() : "";
   const [selectedTourId, setSelectedTourId] = useState<string>(defaultTourId);
-  const [month, setMonth] = useState<Date>(() => { const d = new Date(); d.setDate(1); return d; });
+  const [month, setMonth] = useState<Date>(() => {
+    const d = new Date();
+    d.setDate(1);
+    return d;
+  });
   const [blockedDates, setBlockedDates] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
 
@@ -812,11 +1020,15 @@ function BlockedDatesManager({ tours }: { tours: Tour[] }) {
         .select("date")
         .eq("tour_id", selectedTourId);
       if (!cancelled) {
-        setBlockedDates(new Set((data ?? []).map((r: { date: string }) => r.date)));
+        setBlockedDates(
+          new Set((data ?? []).map((r: { date: string }) => r.date)),
+        );
         setLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [selectedTourId]);
 
   const toggleDate = async (dateStr: string) => {
@@ -828,7 +1040,12 @@ function BlockedDatesManager({ tours }: { tours: Tour[] }) {
         .delete()
         .eq("tour_id", selectedTourId)
         .eq("date", dateStr);
-      if (!error) setBlockedDates((prev) => { const s = new Set(prev); s.delete(dateStr); return s; });
+      if (!error)
+        setBlockedDates((prev) => {
+          const s = new Set(prev);
+          s.delete(dateStr);
+          return s;
+        });
       else toast.error("Erreur lors du déblocage");
     } else {
       const { error } = await supabase
@@ -847,14 +1064,21 @@ function BlockedDatesManager({ tours }: { tours: Tour[] }) {
   };
 
   const dayLabels = ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"];
-  const monthLabel = month.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+  const monthLabel = month.toLocaleDateString("fr-FR", {
+    month: "long",
+    year: "numeric",
+  });
 
   const firstDay = new Date(month.getFullYear(), month.getMonth(), 1);
   const startOffset = (firstDay.getDay() + 6) % 7;
   const gridStart = new Date(firstDay);
   gridStart.setDate(1 - startOffset);
   const cells: Date[] = [];
-  for (let i = 0; i < 42; i++) { const d = new Date(gridStart); d.setDate(gridStart.getDate() + i); cells.push(d); }
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(gridStart);
+    d.setDate(gridStart.getDate() + i);
+    cells.push(d);
+  }
 
   const todayStr = toDateStr(new Date());
 
@@ -865,40 +1089,70 @@ function BlockedDatesManager({ tours }: { tours: Tour[] }) {
           <Calendar className="w-4 h-4 text-amber-500" />
           Disponibilités
         </CardTitle>
-        <CardDescription>Cliquez sur une date pour la bloquer ou la débloquer. Les dates bloquées seront indisponibles à la réservation.</CardDescription>
+        <CardDescription>
+          Cliquez sur une date pour la bloquer ou la débloquer. Les dates
+          bloquées seront indisponibles à la réservation.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {/* Tour selector */}
           <Select value={selectedTourId} onValueChange={setSelectedTourId}>
-            <SelectTrigger className="w-full"><SelectValue placeholder="Choisir un tour" /></SelectTrigger>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Choisir un tour" />
+            </SelectTrigger>
             <SelectContent>
-              {tours.filter(t => t.isActive !== false).map((t) => (
-                <SelectItem key={t.id} value={t.id.toString()}>{t.title}</SelectItem>
-              ))}
+              {tours
+                .filter((t) => t.isActive !== false)
+                .map((t) => (
+                  <SelectItem key={t.id} value={t.id.toString()}>
+                    {t.title}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
 
           {/* Calendar */}
           <div className="max-w-sm mx-auto">
             <div className="flex items-center justify-between mb-3">
-              <button type="button" onClick={() => { const d = new Date(month); d.setMonth(d.getMonth() - 1); setMonth(d); }}
-                className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+              <button
+                type="button"
+                onClick={() => {
+                  const d = new Date(month);
+                  d.setMonth(d.getMonth() - 1);
+                  setMonth(d);
+                }}
+                className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+              >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <span className="text-sm font-bold capitalize text-gray-800 flex items-center gap-2">
                 {monthLabel}
-                {loading && <Loader2 className="w-3 h-3 animate-spin text-amber-500" />}
+                {loading && (
+                  <Loader2 className="w-3 h-3 animate-spin text-amber-500" />
+                )}
               </span>
-              <button type="button" onClick={() => { const d = new Date(month); d.setMonth(d.getMonth() + 1); setMonth(d); }}
-                className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+              <button
+                type="button"
+                onClick={() => {
+                  const d = new Date(month);
+                  d.setMonth(d.getMonth() + 1);
+                  setMonth(d);
+                }}
+                className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+              >
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
 
             <div className="grid grid-cols-7 mb-1">
               {dayLabels.map((d) => (
-                <div key={d} className="text-center text-[10px] font-bold uppercase text-gray-400 py-1">{d}</div>
+                <div
+                  key={d}
+                  className="text-center text-[10px] font-bold uppercase text-gray-400 py-1"
+                >
+                  {d}
+                </div>
               ))}
             </div>
 
@@ -915,13 +1169,24 @@ function BlockedDatesManager({ tours }: { tours: Tour[] }) {
                     <button
                       type="button"
                       disabled={!isCurrentMonth || isPast}
-                      onClick={() => isCurrentMonth && !isPast && toggleDate(dateStr)}
+                      onClick={() =>
+                        isCurrentMonth && !isPast && toggleDate(dateStr)
+                      }
                       className={cn(
                         "relative w-9 h-9 rounded-xl text-xs font-medium transition-all duration-150 flex items-center justify-center",
-                        !isCurrentMonth && "opacity-20 pointer-events-none text-gray-400",
-                        isCurrentMonth && isPast && "text-gray-300 cursor-not-allowed",
-                        isCurrentMonth && !isPast && isBlocked && "bg-red-100 text-red-500 ring-1 ring-red-300",
-                        isCurrentMonth && !isPast && !isBlocked && "hover:bg-green-50 hover:text-green-700 cursor-pointer text-gray-700",
+                        !isCurrentMonth &&
+                          "opacity-20 pointer-events-none text-gray-400",
+                        isCurrentMonth &&
+                          isPast &&
+                          "text-gray-300 cursor-not-allowed",
+                        isCurrentMonth &&
+                          !isPast &&
+                          isBlocked &&
+                          "bg-red-100 text-red-500 ring-1 ring-red-300",
+                        isCurrentMonth &&
+                          !isPast &&
+                          !isBlocked &&
+                          "hover:bg-green-50 hover:text-green-700 cursor-pointer text-gray-700",
                         isToday && !isBlocked && "ring-1 ring-amber-400",
                       )}
                     >
@@ -984,14 +1249,17 @@ function Reservations({
   });
 
   const statusConfig: Record<string, { style: string; label: string }> = {
-    pending:   { style: "bg-yellow-100 text-yellow-800", label: "En attente" },
-    confirmed: { style: "bg-green-100 text-green-800",  label: "Confirmée" },
-    cancelled: { style: "bg-red-100 text-red-800",      label: "Annulée" },
-    completed: { style: "bg-blue-100 text-blue-800",    label: "Terminée" },
+    pending: { style: "bg-yellow-100 text-yellow-800", label: "En attente" },
+    confirmed: { style: "bg-green-100 text-green-800", label: "Confirmée" },
+    cancelled: { style: "bg-red-100 text-red-800", label: "Annulée" },
+    completed: { style: "bg-blue-100 text-blue-800", label: "Terminée" },
   };
 
   const getStatusBadge = (status: string) => {
-    const cfg = statusConfig[status] ?? { style: "bg-gray-100 text-gray-700", label: status };
+    const cfg = statusConfig[status] ?? {
+      style: "bg-gray-100 text-gray-700",
+      label: status,
+    };
     return <Badge className={cfg.style}>{cfg.label}</Badge>;
   };
 
@@ -1007,12 +1275,16 @@ function Reservations({
     } else {
       const updated = newStatus as Reservation["status"];
       setReservations((prev) =>
-        prev.map((r) => r.id === res.id ? { ...r, status: updated } : r)
+        prev.map((r) => (r.id === res.id ? { ...r, status: updated } : r)),
       );
       setSelectedRes((prev) =>
-        prev?.id === res.id ? { ...prev, status: updated } : prev
+        prev?.id === res.id ? { ...prev, status: updated } : prev,
       );
-      toast.success(newStatus === "confirmed" ? "Réservation confirmée ✓" : "Réservation annulée");
+      toast.success(
+        newStatus === "confirmed"
+          ? "Réservation confirmée ✓"
+          : "Réservation annulée",
+      );
     }
     setIsUpdating(false);
   };
@@ -1040,7 +1312,7 @@ function Reservations({
               <SelectItem value="confirmed">Confirmées</SelectItem>
               <SelectItem value="completed">Terminées</SelectItem>
               <SelectItem value="cancelled">Annulées</SelectItem>
-          </SelectContent>
+            </SelectContent>
           </Select>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 items-center">
@@ -1063,7 +1335,15 @@ function Reservations({
             />
           </div>
           {(dateFrom || dateTo) && (
-            <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600 whitespace-nowrap" onClick={() => { setDateFrom(""); setDateTo(""); }}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-400 hover:text-gray-600 whitespace-nowrap"
+              onClick={() => {
+                setDateFrom("");
+                setDateTo("");
+              }}
+            >
               Effacer dates
             </Button>
           )}
@@ -1077,33 +1357,68 @@ function Reservations({
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b">
                 <tr>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">Client</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500 hidden md:table-cell">Tour</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-500">Voy.</th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-500">Montant</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">Statut</th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-500">Action</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">
+                    Client
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500 hidden md:table-cell">
+                    Tour
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">
+                    Date
+                  </th>
+                  <th className="text-center py-3 px-4 font-medium text-gray-500">
+                    Voy.
+                  </th>
+                  <th className="text-right py-3 px-4 font-medium text-gray-500">
+                    Montant
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">
+                    Statut
+                  </th>
+                  <th className="text-right py-3 px-4 font-medium text-gray-500">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((res) => (
-                  <tr key={res.id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => { setSelectedRes(res); setIsDetailOpen(true); }}>
+                  <tr
+                    key={res.id}
+                    className="border-b hover:bg-gray-50 cursor-pointer"
+                    onClick={() => {
+                      setSelectedRes(res);
+                      setIsDetailOpen(true);
+                    }}
+                  >
                     <td className="py-3 px-4">
-                      <div className="font-medium text-gray-900">{res.name}</div>
+                      <div className="font-medium text-gray-900">
+                        {res.name}
+                      </div>
                       <div className="text-gray-400 text-xs">{res.email}</div>
                     </td>
-                    <td className="py-3 px-4 text-gray-600 hidden md:table-cell max-w-[180px] truncate">{res.tourName}</td>
-                    <td className="py-3 px-4 text-gray-600 whitespace-nowrap">{res.date}</td>
-                    <td className="py-3 px-4 text-center text-gray-600">{res.participants}</td>
-                    <td className="py-3 px-4 text-right font-semibold text-amber-600 whitespace-nowrap">{res.totalPrice}€</td>
+                    <td className="py-3 px-4 text-gray-600 hidden md:table-cell max-w-[180px] truncate">
+                      {res.tourName}
+                    </td>
+                    <td className="py-3 px-4 text-gray-600 whitespace-nowrap">
+                      {res.date}
+                    </td>
+                    <td className="py-3 px-4 text-center text-gray-600">
+                      {res.participants}
+                    </td>
+                    <td className="py-3 px-4 text-right font-semibold text-amber-600 whitespace-nowrap">
+                      {res.totalPrice}€
+                    </td>
                     <td className="py-3 px-4">{getStatusBadge(res.status)}</td>
                     <td className="py-3 px-4 text-right">
                       <Button
                         variant="ghost"
                         size="sm"
                         className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                        onClick={(e) => { e.stopPropagation(); setSelectedRes(res); setIsDetailOpen(true); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedRes(res);
+                          setIsDetailOpen(true);
+                        }}
                       >
                         Voir
                       </Button>
@@ -1112,7 +1427,10 @@ function Reservations({
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="py-10 text-center text-gray-400 italic text-sm">
+                    <td
+                      colSpan={7}
+                      className="py-10 text-center text-gray-400 italic text-sm"
+                    >
                       Aucune réservation trouvée
                     </td>
                   </tr>
@@ -1124,7 +1442,14 @@ function Reservations({
           {/* Mobile Card View */}
           <div className="sm:hidden divide-y divide-gray-100">
             {filtered.map((res) => (
-              <div key={res.id} className="p-4 space-y-3" onClick={() => { setSelectedRes(res); setIsDetailOpen(true); }}>
+              <div
+                key={res.id}
+                className="p-4 space-y-3"
+                onClick={() => {
+                  setSelectedRes(res);
+                  setIsDetailOpen(true);
+                }}
+              >
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="font-bold text-gray-900">{res.name}</div>
@@ -1132,13 +1457,21 @@ function Reservations({
                   </div>
                   {getStatusBadge(res.status)}
                 </div>
-                <div className="text-sm text-gray-600 italic">"{res.tourName}"</div>
+                <div className="text-sm text-gray-600 italic">
+                  "{res.tourName}"
+                </div>
                 <div className="flex justify-between items-center pt-1">
                   <div>
-                    <span className="font-bold text-amber-600">{res.totalPrice}€</span>
-                    <span className="text-xs text-gray-400 ml-2">{res.participants} voy.</span>
+                    <span className="font-bold text-amber-600">
+                      {res.totalPrice}€
+                    </span>
+                    <span className="text-xs text-gray-400 ml-2">
+                      {res.participants} voy.
+                    </span>
                   </div>
-                  <Button size="sm" variant="outline" className="h-8">Détails</Button>
+                  <Button size="sm" variant="outline" className="h-8">
+                    Détails
+                  </Button>
                 </div>
               </div>
             ))}
@@ -1153,7 +1486,10 @@ function Reservations({
 
       {/* Detail Sheet */}
       <Sheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-lg flex flex-col p-0 overflow-y-auto">
+        <SheetContent
+          side="right"
+          className="w-full sm:max-w-lg flex flex-col p-0 overflow-y-auto"
+        >
           {selectedRes && (
             <>
               <SheetHeader className="px-6 pt-6 pb-4 border-b bg-gray-50">
@@ -1163,7 +1499,11 @@ function Reservations({
                 <div className="flex items-center gap-3 mt-1">
                   {getStatusBadge(selectedRes.status)}
                   <span className="text-xs text-gray-400">
-                    Créée le {new Date(selectedRes.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+                    Créée le{" "}
+                    {new Date(selectedRes.createdAt).toLocaleDateString(
+                      "fr-FR",
+                      { day: "numeric", month: "long", year: "numeric" },
+                    )}
                   </span>
                 </div>
               </SheetHeader>
@@ -1171,47 +1511,75 @@ function Reservations({
               <div className="flex-1 px-6 py-5 space-y-5 text-sm">
                 {/* CLIENT */}
                 <div className="rounded-lg bg-gray-50 p-4 space-y-1">
-                  <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Client</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
+                    Client
+                  </p>
                   <InfoRow label="Nom" value={selectedRes.name} />
                   <InfoRow label="Email" value={selectedRes.email} />
                   <InfoRow label="Téléphone" value={selectedRes.phone} />
                 </div>
 
-                {/* RÉSERVATION */}
+                {/* BOOKING */}
                 <div className="rounded-lg border border-gray-200 p-4 space-y-1">
-                  <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Réservation</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
+                    Réservation
+                  </p>
                   <InfoRow label="Date" value={selectedRes.date} />
-                  <InfoRow label="Voyageurs" value={`${selectedRes.participants} personne${selectedRes.participants > 1 ? "s" : ""}`} />
+                  <InfoRow
+                    label="Voyageurs"
+                    value={`${selectedRes.participants} personne${selectedRes.participants > 1 ? "s" : ""}`}
+                  />
                   <div className="flex flex-col sm:flex-row sm:gap-2 py-1">
-                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide w-32 shrink-0">Total payé</span>
-                    <span className="text-sm font-bold text-amber-600">{selectedRes.totalPrice}€</span>
+                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide w-32 shrink-0">
+                      Total payé
+                    </span>
+                    <span className="text-sm font-bold text-amber-600">
+                      {selectedRes.totalPrice}€
+                    </span>
                   </div>
                 </div>
 
                 {/* PICKUP */}
                 {(selectedRes.pickupTime || selectedRes.pickupAddress) && (
                   <div className="rounded-lg bg-amber-50 border border-amber-200 p-4 space-y-1">
-                    <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-2">Pick-up</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-2">
+                      Pick-up
+                    </p>
                     <InfoRow label="Heure" value={selectedRes.pickupTime} />
-                    <InfoRow label="Adresse" value={selectedRes.pickupAddress} />
+                    <InfoRow
+                      label="Adresse"
+                      value={selectedRes.pickupAddress}
+                    />
                   </div>
                 )}
 
                 {/* MESSAGE */}
                 {selectedRes.message && (
                   <div className="rounded-lg bg-gray-50 p-4">
-                    <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Message client</p>
-                    <p className="text-sm text-gray-700 italic">"{selectedRes.message}"</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
+                      Message client
+                    </p>
+                    <p className="text-sm text-gray-700 italic">
+                      "{selectedRes.message}"
+                    </p>
                   </div>
                 )}
 
                 {/* FACTURATION */}
                 {(selectedRes.billingAddress || selectedRes.billingCity) && (
                   <div className="rounded-lg border border-gray-200 p-4 space-y-1">
-                    <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Facturation</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
+                      Facturation
+                    </p>
                     <p className="text-sm text-gray-700">
-                      {[selectedRes.billingAddress, selectedRes.billingZip, selectedRes.billingCity, selectedRes.billingCountry]
-                        .filter(Boolean).join(", ")}
+                      {[
+                        selectedRes.billingAddress,
+                        selectedRes.billingZip,
+                        selectedRes.billingCity,
+                        selectedRes.billingCountry,
+                      ]
+                        .filter(Boolean)
+                        .join(", ")}
                     </p>
                   </div>
                 )}
@@ -1219,8 +1587,12 @@ function Reservations({
                 {/* PAIEMENT */}
                 {selectedRes.paymentIntentId && (
                   <div className="rounded-lg bg-gray-50 p-4">
-                    <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">Stripe Payment Intent</p>
-                    <p className="text-xs font-mono text-gray-500 break-all">{selectedRes.paymentIntentId}</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">
+                      Stripe Payment Intent
+                    </p>
+                    <p className="text-xs font-mono text-gray-500 break-all">
+                      {selectedRes.paymentIntentId}
+                    </p>
                   </div>
                 )}
               </div>
@@ -1236,17 +1608,24 @@ function Reservations({
                     {isUpdating ? "..." : "Confirmer"}
                   </Button>
                 )}
-                {selectedRes.status !== "cancelled" && selectedRes.status !== "completed" && (
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    disabled={isUpdating}
-                    onClick={() => handleStatusUpdate(selectedRes, "cancelled")}
-                  >
-                    {isUpdating ? "..." : "Annuler"}
-                  </Button>
-                )}
-                <Button size="sm" variant="outline" onClick={() => setIsDetailOpen(false)}>
+                {selectedRes.status !== "cancelled" &&
+                  selectedRes.status !== "completed" && (
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      disabled={isUpdating}
+                      onClick={() =>
+                        handleStatusUpdate(selectedRes, "cancelled")
+                      }
+                    >
+                      {isUpdating ? "..." : "Annuler"}
+                    </Button>
+                  )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setIsDetailOpen(false)}
+                >
                   Fermer
                 </Button>
               </SheetFooter>
@@ -1292,18 +1671,23 @@ function ToursManagement({
     isExisting?: boolean;
   } | null>(null);
 
-  const [pendingImages, setPendingImages] = useState<{ file: File; previewUrl: string }[]>([]);
+  const [pendingImages, setPendingImages] = useState<
+    { file: File; previewUrl: string }[]
+  >([]);
 
   const [isTranslating, setIsTranslating] = useState(false);
 
-  const handleTranslate = async (sourceLang: SupportedLanguage, field: string) => {
+  const handleTranslate = async (
+    sourceLang: SupportedLanguage,
+    field: string,
+  ) => {
     if (!editingTour) return;
     setIsTranslating(true);
     const loading = toast.loading("Traduction en cours...");
     try {
-      const targetLangs: SupportedLanguage[] = (["fr", "en", "es"] as SupportedLanguage[]).filter(
-        (l) => l !== sourceLang
-      );
+      const targetLangs: SupportedLanguage[] = (
+        ["fr", "en", "es"] as SupportedLanguage[]
+      ).filter((l) => l !== sourceLang);
 
       const sourceValue = (editingTour as any)[
         field + (sourceLang === "fr" ? "" : `_${sourceLang}`)
@@ -1316,14 +1700,23 @@ function ToursManagement({
       }
 
       const updates: any = {};
-      
+
       for (const targetLang of targetLangs) {
-        const targetField = field + (targetLang === "fr" ? "" : `_${targetLang}`);
-        
+        const targetField =
+          field + (targetLang === "fr" ? "" : `_${targetLang}`);
+
         if (Array.isArray(sourceValue)) {
-          updates[targetField] = await translateArray(sourceValue, sourceLang, targetLang);
+          updates[targetField] = await translateArray(
+            sourceValue,
+            sourceLang,
+            targetLang,
+          );
         } else {
-          updates[targetField] = await translateText(sourceValue, sourceLang, targetLang);
+          updates[targetField] = await translateText(
+            sourceValue,
+            sourceLang,
+            targetLang,
+          );
         }
       }
 
@@ -1335,7 +1728,9 @@ function ToursManagement({
       toast.success("Traduction terminée !", { id: loading });
     } catch (err) {
       console.error("Translation error:", err);
-      toast.error("Erreur de traduction : " + (err as Error).message, { id: loading });
+      toast.error("Erreur de traduction : " + (err as Error).message, {
+        id: loading,
+      });
     } finally {
       setIsTranslating(false);
     }
@@ -1378,8 +1773,6 @@ function ToursManagement({
     }
   };
 
-
-
   const handleTourImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
@@ -1394,7 +1787,9 @@ function ToursManagement({
 
   const handleConfirmUpload = async () => {
     if (!editingTour || pendingImages.length === 0) return;
-    const loading = toast.loading(`Upload de ${pendingImages.length} image(s)...`);
+    const loading = toast.loading(
+      `Upload de ${pendingImages.length} image(s)...`,
+    );
     try {
       const uploadedUrls: string[] = [];
       for (const { file, previewUrl } of pendingImages) {
@@ -1411,10 +1806,14 @@ function ToursManagement({
         image: newImages[0] || editingTour.image,
       });
       setPendingImages([]);
-      toast.success(`${uploadedUrls.length} image(s) ajoutée(s) !`, { id: loading });
+      toast.success(`${uploadedUrls.length} image(s) ajoutée(s) !`, {
+        id: loading,
+      });
     } catch (err) {
       console.error("Upload error:", err);
-      toast.error("Erreur d'upload : " + (err as Error).message, { id: loading });
+      toast.error("Erreur d'upload : " + (err as Error).message, {
+        id: loading,
+      });
     }
   };
 
@@ -1451,7 +1850,9 @@ function ToursManagement({
         images: newImages,
       });
 
-      toast.success(isExisting ? `Image modifiée !` : `Image ajoutée !`, { id: loading });
+      toast.success(isExisting ? `Image modifiée !` : `Image ajoutée !`, {
+        id: loading,
+      });
 
       // Handle next in queue for new uploads
       const nextIndex = index + 1;
@@ -1463,7 +1864,7 @@ function ToursManagement({
             url: reader.result as string,
             index: nextIndex,
             files: files,
-            isExisting: false
+            isExisting: false,
           });
         };
         reader.readAsDataURL(nextFile);
@@ -1496,7 +1897,10 @@ function ToursManagement({
           group_size: tourData.groupSize,
           max_capacity: tourData.maxCapacity ?? 8,
           price: tourData.price,
-          image: (tourData.images && tourData.images.length > 0) ? tourData.images[0] : tourData.image,
+          image:
+            tourData.images && tourData.images.length > 0
+              ? tourData.images[0]
+              : tourData.image,
           category: tourData.category,
           highlights: tourData.highlights,
           highlights_en: tourData.highlights_en,
@@ -1726,7 +2130,10 @@ function ToursManagement({
                   className="text-gray-400 hover:text-red-600"
                   onClick={async () => {
                     if (confirm("Terminer la session live ?")) {
-                      await updateSession({ status: "completed", is_active: false });
+                      await updateSession({
+                        status: "completed",
+                        is_active: false,
+                      });
                       setActiveSession(null);
                       toast.info("Session terminée.");
                     }
@@ -1743,7 +2150,7 @@ function ToursManagement({
       <div className="flex flex-col md:flex-row justify-between items-center gap-6 p-8 bg-white/50 backdrop-blur-xl rounded-[2rem] border border-amber-100/50 shadow-xl mb-12 shadow-amber-500/5">
         <div className="space-y-1">
           <h2 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
-             Catalogue des Tours
+            Catalogue des Tours
           </h2>
           <p className="text-gray-500 font-medium italic">
             Gérez vos offres et diffusez vos expériences.
@@ -1778,7 +2185,10 @@ function ToursManagement({
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {tours.map((tour) => (
-          <Card key={tour.id} className="relative overflow-hidden group hover:shadow-2xl transition-all duration-500 rounded-[2rem] border-amber-100/50 flex flex-col h-full bg-white">
+          <Card
+            key={tour.id}
+            className="relative overflow-hidden group hover:shadow-2xl transition-all duration-500 rounded-[2rem] border-amber-100/50 flex flex-col h-full bg-white"
+          >
             <div className="relative h-48 sm:h-56 overflow-hidden">
               <img
                 src={tour.image}
@@ -1797,15 +2207,21 @@ function ToursManagement({
             <div className="flex gap-2 p-3 pb-4 bg-gradient-to-b from-gray-50/80 to-white border-b border-gray-100/50 overflow-x-auto scrollbar-hide">
               {tour.images && tour.images.length > 0 ? (
                 tour.images.map((img, i) => (
-                  <div key={i} className="relative flex-shrink-0 w-16 h-16 rounded-2xl border-2 border-white shadow-lg overflow-hidden transition-all duration-300 hover:scale-110 hover:rotate-2 hover:z-10 cursor-pointer group/thumb">
-                    <img src={img} className="w-full h-full object-cover transition-all" />
+                  <div
+                    key={i}
+                    className="relative flex-shrink-0 w-16 h-16 rounded-2xl border-2 border-white shadow-lg overflow-hidden transition-all duration-300 hover:scale-110 hover:rotate-2 hover:z-10 cursor-pointer group/thumb"
+                  >
+                    <img
+                      src={img}
+                      className="w-full h-full object-cover transition-all"
+                    />
                     <div className="absolute inset-0 bg-amber-600/0 group-hover/thumb:bg-amber-600/10" />
                   </div>
                 ))
               ) : (
                 <div className="flex-shrink-0 w-16 h-16 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-[10px] text-gray-300 gap-1 bg-gray-50/50">
-                   <ImageIcon className="w-4 h-4 opacity-40" />
-                   VIDE
+                  <ImageIcon className="w-4 h-4 opacity-40" />
+                  VIDE
                 </div>
               )}
             </div>
@@ -2243,9 +2659,16 @@ function ToursManagement({
                         max={50}
                         className="text-xs"
                         value={editingTour.maxCapacity ?? 8}
-                        onChange={(e) => setEditingTour({ ...editingTour, maxCapacity: parseInt(e.target.value) || 8 })}
+                        onChange={(e) =>
+                          setEditingTour({
+                            ...editingTour,
+                            maxCapacity: parseInt(e.target.value) || 8,
+                          })
+                        }
                       />
-                      <p className="text-[10px] text-gray-400">Bloque le calendrier quand atteint</p>
+                      <p className="text-[10px] text-gray-400">
+                        Bloque le calendrier quand atteint
+                      </p>
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs">Heure de départ fixe</Label>
@@ -2253,20 +2676,35 @@ function ToursManagement({
                         type="time"
                         className="text-xs"
                         value={editingTour.departureTime || ""}
-                        onChange={(e) => setEditingTour({ ...editingTour, departureTime: e.target.value })}
+                        onChange={(e) =>
+                          setEditingTour({
+                            ...editingTour,
+                            departureTime: e.target.value,
+                          })
+                        }
                         placeholder="09:00"
                       />
-                      <p className="text-[10px] text-gray-400">Affiché en lecture seule dans le formulaire de réservation</p>
+                      <p className="text-[10px] text-gray-400">
+                        Affiché en lecture seule dans le formulaire de
+                        réservation
+                      </p>
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs">Durée estimée</Label>
                       <Input
                         className="text-xs"
                         value={editingTour.estimatedDuration || ""}
-                        onChange={(e) => setEditingTour({ ...editingTour, estimatedDuration: e.target.value })}
+                        onChange={(e) =>
+                          setEditingTour({
+                            ...editingTour,
+                            estimatedDuration: e.target.value,
+                          })
+                        }
                         placeholder="ex: 8h, Journée entière"
                       />
-                      <p className="text-[10px] text-gray-400">Durée affichée dans le résumé de réservation</p>
+                      <p className="text-[10px] text-gray-400">
+                        Durée affichée dans le résumé de réservation
+                      </p>
                     </div>
                   </div>
 
@@ -2799,289 +3237,320 @@ function ToursManagement({
                   </div>
                 </TabsContent>
 
-                    <div className="space-y-6">
-                      <div className="flex justify-between items-center bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+                    <div>
+                      <Label className="text-base font-extrabold text-gray-900 block">
+                        Galerie Médias
+                      </Label>
+                      <p className="text-[10px] text-gray-500 font-medium">
+                        Gérez les photos de votre tour. La première image est
+                        l'image principale.
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="file"
+                        ref={tourFileRef}
+                        className="hidden"
+                        accept="image/*"
+                        multiple
+                        onChange={handleTourImageUpload}
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => tourFileRef.current?.click()}
+                        className="bg-white border-dashed border-2 hover:border-amber-400 hover:bg-amber-50 h-9"
+                      >
+                        <Plus className="w-4 h-4 mr-2 text-amber-600" />
+                        Ajouter des photos
+                      </Button>
+                      {editingTour.images && editingTour.images.length > 0 && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            if (
+                              confirm(
+                                "Voulez-vous vraiment vider toute la galerie ?",
+                              )
+                            ) {
+                              setEditingTour({
+                                ...editingTour,
+                                images: [],
+                                image: "",
+                              });
+                            }
+                          }}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 h-9"
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Vider
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  {pendingImages.length > 0 && (
+                    <div className="rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50/50 p-4 space-y-3">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
                         <div>
-                          <Label className="text-base font-extrabold text-gray-900 block">
-                            Galerie Médias
-                          </Label>
-                          <p className="text-[10px] text-gray-500 font-medium">
-                            Gérez les photos de votre tour. La première image est l'image principale.
+                          <p className="font-bold text-sm text-blue-900">
+                            {pendingImages.length} image(s) en attente
+                          </p>
+                          <p className="text-xs text-blue-600">
+                            Vérifiez les aperçus puis cliquez sur "Accepter
+                            l'upload".
                           </p>
                         </div>
                         <div className="flex gap-2">
-                          <input
-                            type="file"
-                            ref={tourFileRef}
-                            className="hidden"
-                            accept="image/*"
-                            multiple
-                            onChange={handleTourImageUpload}
-                          />
                           <Button
                             type="button"
                             size="sm"
-                            variant="outline"
-                            onClick={() => tourFileRef.current?.click()}
-                            className="bg-white border-dashed border-2 hover:border-amber-400 hover:bg-amber-50 h-9"
+                            variant="ghost"
+                            onClick={() => {
+                              pendingImages.forEach(({ previewUrl }) =>
+                                URL.revokeObjectURL(previewUrl),
+                              );
+                              setPendingImages([]);
+                            }}
+                            className="text-gray-500 hover:text-gray-700 h-9"
                           >
-                            <Plus className="w-4 h-4 mr-2 text-amber-600" />
-                            Ajouter des photos
+                            <X className="w-4 h-4 mr-1" />
+                            Annuler
                           </Button>
-                          {editingTour.images && editingTour.images.length > 0 && (
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                if (confirm("Voulez-vous vraiment vider toute la galerie ?")) {
-                                  setEditingTour({
-                                    ...editingTour,
-                                    images: [],
-                                    image: ""
-                                  });
-                                }
-                              }}
-                              className="text-red-500 hover:text-red-700 hover:bg-red-50 h-9"
-                            >
-                              <Trash2 className="w-4 h-4 mr-1" />
-                              Vider
-                            </Button>
-                          )}
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={handleConfirmUpload}
+                            className="bg-blue-600 hover:bg-blue-700 text-white h-9 font-bold"
+                          >
+                            <CloudUpload className="w-4 h-4 mr-2" />
+                            Accepter l'upload
+                          </Button>
                         </div>
                       </div>
-
-                      {pendingImages.length > 0 && (
-                        <div className="rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50/50 p-4 space-y-3">
-                          <div className="flex items-center justify-between flex-wrap gap-2">
-                            <div>
-                              <p className="font-bold text-sm text-blue-900">
-                                {pendingImages.length} image(s) en attente
-                              </p>
-                              <p className="text-xs text-blue-600">
-                                Vérifiez les aperçus puis cliquez sur "Accepter l'upload".
-                              </p>
-                            </div>
-                            <div className="flex gap-2">
+                      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                        {pendingImages.map(({ previewUrl, file }, idx) => (
+                          <div
+                            key={idx}
+                            className="group relative aspect-[4/3] rounded-xl overflow-hidden border-2 border-blue-300 shadow-sm"
+                          >
+                            <img
+                              src={previewUrl}
+                              alt={file.name}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-blue-900/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                               <Button
                                 type="button"
-                                size="sm"
-                                variant="ghost"
+                                size="icon"
+                                variant="destructive"
+                                className="h-7 w-7 bg-red-500/90"
                                 onClick={() => {
-                                  pendingImages.forEach(({ previewUrl }) => URL.revokeObjectURL(previewUrl));
-                                  setPendingImages([]);
+                                  URL.revokeObjectURL(previewUrl);
+                                  setPendingImages((prev) =>
+                                    prev.filter((_, i) => i !== idx),
+                                  );
                                 }}
-                                className="text-gray-500 hover:text-gray-700 h-9"
                               >
-                                <X className="w-4 h-4 mr-1" />
-                                Annuler
-                              </Button>
-                              <Button
-                                type="button"
-                                size="sm"
-                                onClick={handleConfirmUpload}
-                                className="bg-blue-600 hover:bg-blue-700 text-white h-9 font-bold"
-                              >
-                                <CloudUpload className="w-4 h-4 mr-2" />
-                                Accepter l'upload
+                                <X className="w-3 h-3" />
                               </Button>
                             </div>
+                            <div className="absolute bottom-0 left-0 right-0 bg-blue-900/60 px-2 py-1">
+                              <p className="text-[9px] text-white truncate">
+                                {file.name}
+                              </p>
+                            </div>
                           </div>
-                          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                            {pendingImages.map(({ previewUrl, file }, idx) => (
-                              <div
-                                key={idx}
-                                className="group relative aspect-[4/3] rounded-xl overflow-hidden border-2 border-blue-300 shadow-sm"
-                              >
-                                <img
-                                  src={previewUrl}
-                                  alt={file.name}
-                                  className="w-full h-full object-cover"
-                                />
-                                <div className="absolute inset-0 bg-blue-900/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <Button
-                                    type="button"
-                                    size="icon"
-                                    variant="destructive"
-                                    className="h-7 w-7 bg-red-500/90"
-                                    onClick={() => {
-                                      URL.revokeObjectURL(previewUrl);
-                                      setPendingImages((prev) => prev.filter((_, i) => i !== idx));
-                                    }}
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </Button>
-                                </div>
-                                <div className="absolute bottom-0 left-0 right-0 bg-blue-900/60 px-2 py-1">
-                                  <p className="text-[9px] text-white truncate">{file.name}</p>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-                      {(!editingTour.images || editingTour.images.length === 0) ? (
-                        <div 
-                          className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-gray-200 rounded-3xl bg-gray-50/30 text-center group cursor-pointer hover:border-amber-300 hover:bg-amber-50/50 transition-all duration-300"
-                          onClick={() => tourFileRef.current?.click()}
+                  {!editingTour.images || editingTour.images.length === 0 ? (
+                    <div
+                      className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-gray-200 rounded-3xl bg-gray-50/30 text-center group cursor-pointer hover:border-amber-300 hover:bg-amber-50/50 transition-all duration-300"
+                      onClick={() => tourFileRef.current?.click()}
+                    >
+                      <div className="w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <ImageIcon className="w-8 h-8 text-gray-400 group-hover:text-amber-500" />
+                      </div>
+                      <h4 className="font-bold text-gray-900">Aucune photo</h4>
+                      <p className="text-xs text-gray-500 max-w-[200px] mt-1">
+                        Ajoutez des photos pour illustrer ce tour sur le
+                        catalogue.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {editingTour.images.map((img, idx) => (
+                        <div
+                          key={`${img}-${idx}`}
+                          className={cn(
+                            "group relative aspect-[4/3] rounded-2xl overflow-hidden border-2 transition-all duration-300 shadow-sm",
+                            idx === 0
+                              ? "border-amber-400 ring-4 ring-amber-400/10 shadow-md"
+                              : "border-white hover:border-amber-200 hover:shadow-lg",
+                          )}
                         >
-                          <div className="w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <ImageIcon className="w-8 h-8 text-gray-400 group-hover:text-amber-500" />
-                          </div>
-                          <h4 className="font-bold text-gray-900">Aucune photo</h4>
-                          <p className="text-xs text-gray-500 max-w-[200px] mt-1">
-                            Ajoutez des photos pour illustrer ce tour sur le catalogue.
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                          {editingTour.images.map((img, idx) => (
-                            <div
-                              key={`${img}-${idx}`}
-                              className={cn(
-                                "group relative aspect-[4/3] rounded-2xl overflow-hidden border-2 transition-all duration-300 shadow-sm",
-                                idx === 0 
-                                  ? "border-amber-400 ring-4 ring-amber-400/10 shadow-md" 
-                                  : "border-white hover:border-amber-200 hover:shadow-lg"
-                              )}
-                            >
-                              <img
-                                src={img}
-                                alt={`Tour photo ${idx + 1}`}
-                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                              />
-                              
-                              {/* Overlay Gradient */}
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          <img
+                            src={img}
+                            alt={`Tour photo ${idx + 1}`}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
 
-                              {/* Action Buttons */}
-                              <div className="absolute inset-0 flex flex-col justify-between p-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                                <div className="flex justify-end gap-1.5">
+                          {/* Overlay Gradient */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                          {/* Action Buttons */}
+                          <div className="absolute inset-0 flex flex-col justify-between p-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                            <div className="flex justify-end gap-1.5">
+                              <Button
+                                size="icon"
+                                variant="secondary"
+                                className="h-8 w-8 bg-white/90 backdrop-blur-md hover:bg-white text-gray-900 shadow-xl border-none"
+                                onClick={() => window.open(img, "_blank")}
+                                title="Agrandir"
+                              >
+                                <Maximize2 className="w-3.5 h-3.5" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="secondary"
+                                className="h-8 w-8 bg-white/90 backdrop-blur-md hover:bg-white text-amber-600 shadow-xl border-none"
+                                onClick={() => {
+                                  setImageToEdit({
+                                    url: img,
+                                    index: idx,
+                                    isExisting: true,
+                                  });
+                                }}
+                                title="Modifier / Recadrer"
+                              >
+                                <Scissors className="w-3.5 h-3.5" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="destructive"
+                                className="h-8 w-8 bg-red-500/90 backdrop-blur-md hover:bg-red-600 text-white shadow-xl border-none"
+                                onClick={() => {
+                                  const newImages =
+                                    editingTour.images?.filter(
+                                      (_, i) => i !== idx,
+                                    ) || [];
+                                  setEditingTour({
+                                    ...editingTour,
+                                    images: newImages,
+                                    image: newImages[0] || "",
+                                  });
+                                }}
+                                title="Supprimer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                              <div className="flex gap-1">
+                                {idx > 0 && (
                                   <Button
                                     size="icon"
                                     variant="secondary"
                                     className="h-8 w-8 bg-white/90 backdrop-blur-md hover:bg-white text-gray-900 shadow-xl border-none"
-                                    onClick={() => window.open(img, "_blank")}
-                                    title="Agrandir"
-                                  >
-                                    <Maximize2 className="w-3.5 h-3.5" />
-                                  </Button>
-                                  <Button
-                                    size="icon"
-                                    variant="secondary"
-                                    className="h-8 w-8 bg-white/90 backdrop-blur-md hover:bg-white text-amber-600 shadow-xl border-none"
                                     onClick={() => {
-                                      setImageToEdit({
-                                        url: img,
-                                        index: idx,
-                                        isExisting: true
-                                      });
-                                    }}
-                                    title="Modifier / Recadrer"
-                                  >
-                                    <Scissors className="w-3.5 h-3.5" />
-                                  </Button>
-                                  <Button
-                                    size="icon"
-                                    variant="destructive"
-                                    className="h-8 w-8 bg-red-500/90 backdrop-blur-md hover:bg-red-600 text-white shadow-xl border-none"
-                                    onClick={() => {
-                                      const newImages = editingTour.images?.filter((_, i) => i !== idx) || [];
+                                      const newImages = [
+                                        ...(editingTour.images || []),
+                                      ];
+                                      [newImages[idx], newImages[idx - 1]] = [
+                                        newImages[idx - 1],
+                                        newImages[idx],
+                                      ];
                                       setEditingTour({
                                         ...editingTour,
                                         images: newImages,
-                                        image: newImages[0] || "",
+                                        image: newImages[0],
                                       });
                                     }}
-                                    title="Supprimer"
+                                    title="Déplacer vers la gauche"
                                   >
-                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <ChevronLeft className="w-4 h-4" />
                                   </Button>
-                                </div>
-
-                                <div className="flex items-center justify-between">
-                                  <div className="flex gap-1">
-                                    {idx > 0 && (
-                                      <Button
-                                        size="icon"
-                                        variant="secondary"
-                                        className="h-8 w-8 bg-white/90 backdrop-blur-md hover:bg-white text-gray-900 shadow-xl border-none"
-                                        onClick={() => {
-                                          const newImages = [...(editingTour.images || [])];
-                                          [newImages[idx], newImages[idx - 1]] = [newImages[idx - 1], newImages[idx]];
-                                          setEditingTour({
-                                            ...editingTour,
-                                            images: newImages,
-                                            image: newImages[0],
-                                          });
-                                        }}
-                                        title="Déplacer vers la gauche"
-                                      >
-                                        <ChevronLeft className="w-4 h-4" />
-                                      </Button>
-                                    )}
-                                    {idx < (editingTour.images?.length || 0) - 1 && (
-                                      <Button
-                                        size="icon"
-                                        variant="secondary"
-                                        className="h-8 w-8 bg-white/90 backdrop-blur-md hover:bg-white text-gray-900 shadow-xl border-none"
-                                        onClick={() => {
-                                          const newImages = [...(editingTour.images || [])];
-                                          [newImages[idx], newImages[idx + 1]] = [newImages[idx + 1], newImages[idx]];
-                                          setEditingTour({
-                                            ...editingTour,
-                                            images: newImages,
-                                            image: newImages[0],
-                                          });
-                                        }}
-                                        title="Déplacer vers la droite"
-                                      >
-                                        <ChevronRight className="w-4 h-4" />
-                                      </Button>
-                                    )}
-                                  </div>
-                                  
-                                  {idx !== 0 && (
-                                    <Button
-                                      size="sm"
-                                      variant="secondary"
-                                      className="h-8 px-3 text-[10px] font-bold uppercase tracking-wider bg-amber-500 text-white hover:bg-amber-600 border-none shadow-xl"
-                                      onClick={() => {
-                                        const newImages = [...(editingTour.images || [])];
-                                        const [moved] = newImages.splice(idx, 1);
-                                        newImages.unshift(moved);
-                                        setEditingTour({
-                                          ...editingTour,
-                                          images: newImages,
-                                          image: moved,
-                                        });
-                                      }}
-                                    >
-                                      <Star className="w-3 h-3 mr-1 fill-current" />
-                                      Principal
-                                    </Button>
-                                  )}
-                                </div>
+                                )}
+                                {idx <
+                                  (editingTour.images?.length || 0) - 1 && (
+                                  <Button
+                                    size="icon"
+                                    variant="secondary"
+                                    className="h-8 w-8 bg-white/90 backdrop-blur-md hover:bg-white text-gray-900 shadow-xl border-none"
+                                    onClick={() => {
+                                      const newImages = [
+                                        ...(editingTour.images || []),
+                                      ];
+                                      [newImages[idx], newImages[idx + 1]] = [
+                                        newImages[idx + 1],
+                                        newImages[idx],
+                                      ];
+                                      setEditingTour({
+                                        ...editingTour,
+                                        images: newImages,
+                                        image: newImages[0],
+                                      });
+                                    }}
+                                    title="Déplacer vers la droite"
+                                  >
+                                    <ChevronRight className="w-4 h-4" />
+                                  </Button>
+                                )}
                               </div>
 
-                              {/* Indicators */}
-                              {idx === 0 && (
-                                <div className="absolute top-3 left-3 flex gap-2">
-                                  <Badge className="bg-amber-500 text-white border-none text-[9px] h-5 px-2 uppercase font-extrabold tracking-widest shadow-lg">
-                                    Photo Principale
-                                  </Badge>
-                                </div>
+                              {idx !== 0 && (
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  className="h-8 px-3 text-[10px] font-bold uppercase tracking-wider bg-amber-500 text-white hover:bg-amber-600 border-none shadow-xl"
+                                  onClick={() => {
+                                    const newImages = [
+                                      ...(editingTour.images || []),
+                                    ];
+                                    const [moved] = newImages.splice(idx, 1);
+                                    newImages.unshift(moved);
+                                    setEditingTour({
+                                      ...editingTour,
+                                      images: newImages,
+                                      image: moved,
+                                    });
+                                  }}
+                                >
+                                  <Star className="w-3 h-3 mr-1 fill-current" />
+                                  Principal
+                                </Button>
                               )}
-                              
-                              <div className="absolute bottom-3 left-3 px-2 py-1 bg-black/40 backdrop-blur-sm rounded-lg border border-white/20 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <span className="text-white text-[10px] font-bold">#{idx + 1}</span>
-                              </div>
                             </div>
-                          ))}
+                          </div>
+
+                          {/* Indicators */}
+                          {idx === 0 && (
+                            <div className="absolute top-3 left-3 flex gap-2">
+                              <Badge className="bg-amber-500 text-white border-none text-[9px] h-5 px-2 uppercase font-extrabold tracking-widest shadow-lg">
+                                Photo Principale
+                              </Badge>
+                            </div>
+                          )}
+
+                          <div className="absolute bottom-3 left-3 px-2 py-1 bg-black/40 backdrop-blur-sm rounded-lg border border-white/20 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="text-white text-[10px] font-bold">
+                              #{idx + 1}
+                            </span>
+                          </div>
                         </div>
-                      )}
+                      ))}
                     </div>
+                  )}
+                </div>
                 <TabsContent value="live" className="space-y-6">
                   <div className="bg-amber-50 p-6 rounded-2xl border border-amber-100 space-y-4">
                     <div className="flex justify-between items-center">
@@ -3225,11 +3694,17 @@ function ToursManagement({
                                               .split(".")
                                               .pop();
                                             const fileName = `stops/${editingTour.id}/stop-${idx}-${Date.now()}.${fileExt}`;
-                                            const uploadResult = await uploadImage(fileName, file, file.type);
+                                            const uploadResult =
+                                              await uploadImage(
+                                                fileName,
+                                                file,
+                                                file.type,
+                                              );
                                             const newStops = [
                                               ...(editingTour.stops || []),
                                             ];
-                                            newStops[idx].image = uploadResult.url;
+                                            newStops[idx].image =
+                                              uploadResult.url;
                                             setEditingTour({
                                               ...editingTour,
                                               stops: newStops,
@@ -3343,9 +3818,11 @@ function ToursManagement({
           onClose={() => setImageToEdit(null)}
           onSave={onSaveEditedImage}
           lockAspectRatio
-          title={imageToEdit.isExisting
-            ? "Modifier l'image"
-            : `Retoucher l'image (${imageToEdit.index + 1}/${imageToEdit.files?.length || 1})`}
+          title={
+            imageToEdit.isExisting
+              ? "Modifier l'image"
+              : `Retoucher l'image (${imageToEdit.index + 1}/${imageToEdit.files?.length || 1})`
+          }
         />
       )}
     </div>
@@ -3647,7 +4124,6 @@ function Config() {
               </div>
             </CardContent>
           </Card>
-
 
           <Card className="bg-white border-dashed border-2 border-gray-100">
             <CardContent className="p-6 text-center space-y-3">
@@ -4337,7 +4813,9 @@ export default function AdminApp() {
   } | null>(null);
   const [urgentMsg, setUrgentMsg] = useState("");
 
-  const [profileImageToEdit, setProfileImageToEdit] = useState<string | null>(null);
+  const [profileImageToEdit, setProfileImageToEdit] = useState<string | null>(
+    null,
+  );
 
   const updateSession = async (updates: Record<string, unknown>) => {
     if (!supabase || !activeSession) return;
@@ -4378,12 +4856,13 @@ export default function AdminApp() {
   const differentPhoto1Ref = useRef<HTMLInputElement>(null);
   const differentPhoto2Ref = useRef<HTMLInputElement>(null);
   const differentPhoto3Ref = useRef<HTMLInputElement>(null);
-  const [differentPhotos, setDifferentPhotos] = useState<[string, string, string]>([
-    "/tour-prepirinees.jpg",
-    "/tour-beach.jpg",
-    "/tour-camironda.jpg",
-  ]);
-  const [differentPhotoToEdit, setDifferentPhotoToEdit] = useState<{ src: string; idx: number } | null>(null);
+  const [differentPhotos, setDifferentPhotos] = useState<
+    [string, string, string]
+  >(["/tour-prepirinees.jpg", "/tour-beach.jpg", "/tour-camironda.jpg"]);
+  const [differentPhotoToEdit, setDifferentPhotoToEdit] = useState<{
+    src: string;
+    idx: number;
+  } | null>(null);
 
   useEffect(() => {
     // E2E Test Bypass: import.meta.env.DEV is compiled to `false` by Vite at
@@ -4397,7 +4876,10 @@ export default function AdminApp() {
 
     // Check session + verify admin authorization via server-side RPC
     const verifyAndSetSession = async (session: unknown) => {
-      if (!session) { setIsLoggedIn(false); return; }
+      if (!session) {
+        setIsLoggedIn(false);
+        return;
+      }
       const { data: isAdmin } = await supabase!.rpc("is_authorized_admin");
       if (isAdmin) {
         setIsLoggedIn(true);
@@ -4520,7 +5002,12 @@ export default function AdminApp() {
             maxCapacity: t.max_capacity ?? 8,
             price: t.price,
             image: t.image,
-            images: (t.images && t.images.length > 0) ? t.images : (t.image ? [t.image] : []),
+            images:
+              t.images && t.images.length > 0
+                ? t.images
+                : t.image
+                  ? [t.image]
+                  : [],
             category: t.category,
             highlights: t.highlights,
             highlights_en: t.highlights_en,
@@ -4584,7 +5071,8 @@ export default function AdminApp() {
           if (val.bio_es) setGuideBioEs(val.bio_es);
 
           if ((val as Record<string, unknown>).different_photos) {
-            const dp = (val as Record<string, unknown>).different_photos as string[];
+            const dp = (val as Record<string, unknown>)
+              .different_photos as string[];
             setDifferentPhotos([
               dp[0] || "/tour-prepirinees.jpg",
               dp[1] || "/tour-beach.jpg",
@@ -4642,12 +5130,19 @@ export default function AdminApp() {
     reader.readAsDataURL(blob);
   };
 
-  const handleDifferentPhotoUpload = (idx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDifferentPhotoUpload = (
+    idx: number,
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { toast.error("Image trop volumineuse (max 5MB)"); return; }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image trop volumineuse (max 5MB)");
+      return;
+    }
     const reader = new FileReader();
-    reader.onload = () => setDifferentPhotoToEdit({ src: reader.result as string, idx });
+    reader.onload = () =>
+      setDifferentPhotoToEdit({ src: reader.result as string, idx });
     reader.readAsDataURL(file);
   };
 
@@ -4656,7 +5151,7 @@ export default function AdminApp() {
     const reader = new FileReader();
     reader.onloadend = () => {
       const url = reader.result as string;
-      setDifferentPhotos(prev => {
+      setDifferentPhotos((prev) => {
         const next = [...prev] as [string, string, string];
         next[differentPhotoToEdit.idx] = url;
         return next;
@@ -4696,11 +5191,18 @@ export default function AdminApp() {
 
   if (!isLoggedIn) return <Login />;
 
-  const pendingCount = reservations.filter((r) => r.status === "pending").length;
+  const pendingCount = reservations.filter(
+    (r) => r.status === "pending",
+  ).length;
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, badge: 0 },
-    { id: "reservations", label: "Réservations", icon: Calendar, badge: pendingCount },
+    {
+      id: "reservations",
+      label: "Réservations",
+      icon: Calendar,
+      badge: pendingCount,
+    },
     { id: "customers", label: "Clients", icon: Users, badge: 0 },
     { id: "suivi", label: "Suivi", icon: Activity, badge: 0 },
     { id: "tours", label: "Catalogue", icon: MapPin, badge: 0 },
@@ -4965,15 +5467,28 @@ export default function AdminApp() {
                                 className="h-6 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[9px]"
                                 onClick={async () => {
                                   if (!guideBio) return;
-                                  const loadingTranslate = toast.loading("Traduction bio...");
+                                  const loadingTranslate =
+                                    toast.loading("Traduction bio...");
                                   try {
-                                    const bioEn = await translateText(guideBio, "fr", "en");
-                                    const bioEs = await translateText(guideBio, "fr", "es");
+                                    const bioEn = await translateText(
+                                      guideBio,
+                                      "fr",
+                                      "en",
+                                    );
+                                    const bioEs = await translateText(
+                                      guideBio,
+                                      "fr",
+                                      "es",
+                                    );
                                     setGuideBioEn(bioEn);
                                     setGuideBioEs(bioEs);
-                                    toast.success("Bio traduite !", { id: loadingTranslate });
+                                    toast.success("Bio traduite !", {
+                                      id: loadingTranslate,
+                                    });
                                   } catch {
-                                    toast.error("Erreur traduction", { id: loadingTranslate });
+                                    toast.error("Erreur traduction", {
+                                      id: loadingTranslate,
+                                    });
                                   }
                                 }}
                               >
@@ -5002,15 +5517,28 @@ export default function AdminApp() {
                                 className="h-6 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[9px]"
                                 onClick={async () => {
                                   if (!guideBioEn) return;
-                                  const loadingTranslate = toast.loading("Bio translation...");
+                                  const loadingTranslate =
+                                    toast.loading("Bio translation...");
                                   try {
-                                    const bioFr = await translateText(guideBioEn, "en", "fr");
-                                    const bioEs = await translateText(guideBioEn, "en", "es");
+                                    const bioFr = await translateText(
+                                      guideBioEn,
+                                      "en",
+                                      "fr",
+                                    );
+                                    const bioEs = await translateText(
+                                      guideBioEn,
+                                      "en",
+                                      "es",
+                                    );
                                     setGuideBio(bioFr);
                                     setGuideBioEs(bioEs);
-                                    toast.success("Bio translated !", { id: loadingTranslate });
+                                    toast.success("Bio translated !", {
+                                      id: loadingTranslate,
+                                    });
                                   } catch {
-                                    toast.error("Translation error", { id: loadingTranslate });
+                                    toast.error("Translation error", {
+                                      id: loadingTranslate,
+                                    });
                                   }
                                 }}
                               >
@@ -5039,15 +5567,28 @@ export default function AdminApp() {
                                 className="h-6 text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1 text-[9px]"
                                 onClick={async () => {
                                   if (!guideBioEs) return;
-                                  const loadingTranslate = toast.loading("Traducción bio...");
+                                  const loadingTranslate =
+                                    toast.loading("Traducción bio...");
                                   try {
-                                    const bioFr = await translateText(guideBioEs, "es", "fr");
-                                    const bioEn = await translateText(guideBioEs, "es", "en");
+                                    const bioFr = await translateText(
+                                      guideBioEs,
+                                      "es",
+                                      "fr",
+                                    );
+                                    const bioEn = await translateText(
+                                      guideBioEs,
+                                      "es",
+                                      "en",
+                                    );
                                     setGuideBio(bioFr);
                                     setGuideBioEn(bioEn);
-                                    toast.success("Bio traducida !", { id: loadingTranslate });
+                                    toast.success("Bio traducida !", {
+                                      id: loadingTranslate,
+                                    });
                                   } catch {
-                                    toast.error("Error traducción", { id: loadingTranslate });
+                                    toast.error("Error traducción", {
+                                      id: loadingTranslate,
+                                    });
                                   }
                                 }}
                               >
@@ -5066,30 +5607,50 @@ export default function AdminApp() {
                         </div>
                       </div>
 
-                      {/* Photos "Ce qui nous rend différent" */}
+                      {/* Photos for the "What makes us different" section */}
                       <div className="space-y-4 pt-4">
                         <h4 className="font-bold text-gray-900 border-b pb-2">
                           Photos — "Ce qui nous rend différent"
                         </h4>
-                        <p className="text-xs text-gray-400">3 photos affichées en collage sur la page À propos.</p>
+                        <p className="text-xs text-gray-400">
+                          3 photos affichées en collage sur la page À propos.
+                        </p>
                         <div className="grid grid-cols-3 gap-3">
                           {differentPhotos.map((src, idx) => (
                             <div key={idx} className="space-y-2">
                               <div
                                 className="relative group h-28 rounded-xl overflow-hidden border border-gray-200 cursor-pointer bg-gray-50"
-                                onClick={() => [differentPhoto1Ref, differentPhoto2Ref, differentPhoto3Ref][idx].current?.click()}
+                                onClick={() =>
+                                  [
+                                    differentPhoto1Ref,
+                                    differentPhoto2Ref,
+                                    differentPhoto3Ref,
+                                  ][idx].current?.click()
+                                }
                               >
-                                <img src={src} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
+                                <img
+                                  src={src}
+                                  alt={`Photo ${idx + 1}`}
+                                  className="w-full h-full object-cover"
+                                />
                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                   <ImageIcon className="w-6 h-6 text-white" />
                                 </div>
                               </div>
                               <input
                                 type="file"
-                                ref={[differentPhoto1Ref, differentPhoto2Ref, differentPhoto3Ref][idx]}
+                                ref={
+                                  [
+                                    differentPhoto1Ref,
+                                    differentPhoto2Ref,
+                                    differentPhoto3Ref,
+                                  ][idx]
+                                }
                                 className="hidden"
                                 accept="image/*"
-                                onChange={(e) => handleDifferentPhotoUpload(idx, e)}
+                                onChange={(e) =>
+                                  handleDifferentPhotoUpload(idx, e)
+                                }
                               />
                             </div>
                           ))}

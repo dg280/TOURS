@@ -1,95 +1,95 @@
 # SEO Roadmap — Tours & Détours Barcelona
 
-**Objectif** : Top 1 des guides privés sur Barcelone et sa région.
-**Branche** : `v2` (ne pas toucher `main`)
-**Dernière mise à jour** : 2026-04-12
+**Goal:** Be the top-ranked private guide in Barcelona and the surrounding region.
+**Branch:** `v2` (do not touch `main`)
+**Last updated:** 2026-04-12
 
 ---
 
-## Phase 1 — Fondations techniques
+## Phase 1 - Technical Foundations
 
-| # | Action | Impact | Statut | Branche | Notes |
-|---|---|---|---|---|---|
-| 1 | `robots.txt` | Fondation | **FAIT** | v2 | Allow all, block /admin et /api |
-| 1 | `sitemap.xml` (bon domaine, hreflang, 7 tours) | Fondation | **FAIT** | v2 | toursandetours.com, FR/EN/ES alternates |
-| 2 | `og-image.jpg` (1200x630) | Partage social | **FAIT** | v2 | Généré depuis hero-barcelona.jpg |
-| 2 | `favicon.svg` | Crédibilité | **FAIT** | v2 | T&D en brand colors |
-| 5 | hreflang + canonical dans `index.html` | International | **FAIT** | v2 | EN/FR/ES + x-default |
-| 6 | Compression images (3.7MB → 961KB) | Performance | **FAIT** | v2 | tour-camironda.jpg |
-| 6 | `loading="lazy"` sur images sous le fold | Performance | **FAIT** | v2 | TourCard, carousels, Guide, TourDialog |
-| 7 | Meta tags complets dans `index.html` | Indexabilité | **FAIT** | v2 | OG, Twitter Card, JSON-LD TravelAgency |
-| 4 | Structured data `TouristTrip` par tour | Rich snippets | **FAIT** | v2 | Prix, durée, itinéraire dans Google |
-
----
-
-## Phase 2 — Architecture URL (gros chantier)
-
-| # | Action | Impact | Statut | Notes |
-|---|---|---|---|---|
-| 3 | Clean URL routing (`/tours/:slug`, `/about`) | **ENORME** | **FAIT** | react-router, slugs lisibles, TourPage |
-| 3 | Préfixes langue (`/en/`, `/fr/`, `/es/`) | International | À FAIRE | Couplé au routing |
-| 3 | SEO component dynamique par tour | Indexabilité | **FAIT** | Titre/description/structured data uniques |
-| 3 | Redirection `?tour=X` → `/tours/:slug` | Migration | **FAIT** | + `#about` → `/about`, numeric → slug |
-
-**Risques** : régression booking flow, casse des URLs existantes, tests e2e à adapter.
-**Pré-requis** : aucune autre feature en cours sur les mêmes fichiers.
+| #   | Action                                                | Impact         | Status   | Branch | Notes                                   |
+| --- | ----------------------------------------------------- | -------------- | -------- | ------ | --------------------------------------- |
+| 1   | `robots.txt`                                          | Foundation     | **DONE** | v2     | Allow all, block /admin and /api        |
+| 1   | `sitemap.xml` (correct domain, hreflang, seven tours) | Foundation     | **DONE** | v2     | toursandetours.com, FR/EN/ES alternates |
+| 2   | `og-image.jpg` (1200x630)                             | Social sharing | **DONE** | v2     | Generated from hero-barcelona.jpg       |
+| 2   | `favicon.svg`                                         | Credibility    | **DONE** | v2     | T&D in brand colors                     |
+| 5   | hreflang and canonical in `index.html`                | International  | **DONE** | v2     | EN/FR/ES + x-default                    |
+| 6   | Image compression (3.7 MB -> 961 KB)                  | Performance    | **DONE** | v2     | tour-camironda.jpg                      |
+| 6   | `loading="lazy"` on below-the-fold images             | Performance    | **DONE** | v2     | TourCard, carousels, Guide, TourDialog  |
+| 7   | Complete meta tags in `index.html`                    | Indexability   | **DONE** | v2     | OG, Twitter Card, JSON-LD TravelAgency  |
+| 4   | `TouristTrip` structured data per tour                | Rich snippets  | **DONE** | v2     | Price, duration, itinerary in Google    |
 
 ---
 
-## Phase 3 — Contenu (le plus rentable long terme)
+## Phase 2 - URL Architecture (major work)
 
-| # | Action | Impact | Statut | Notes |
-|---|---|---|---|---|
-| 8 | FAQ Schema sur chaque tour (8 Q&R FR/EN/ES) | Rich snippets FAQ | **FAIT** | FAQPage JSON-LD + section visible dans TourDialog |
-| 9 | Section blog / guides de voyage | Long-tail keywords | À FAIRE | Articles : Girona day trip, hidden gems BCN, etc. |
-| 10 | Témoignages avec `@type: Review` schema | Étoiles Google | **FAIT** | AggregateRating + Review[] dans Testimonials |
-| 11 | Page 404 personnalisée | UX / SEO | **FAIT** | Route catch-all `*` → NotFoundPage |
-| 12 | Descriptions longues par tour (1500+ mots) | SEO contenu | À FAIRE | Dans la page tour dédiée (après #3) |
+| #   | Action                                       | Impact        | Status   | Notes                                          |
+| --- | -------------------------------------------- | ------------- | -------- | ---------------------------------------------- |
+| 3   | Clean URL routing (`/tours/:slug`, `/about`) | **VERY HIGH** | **DONE** | react-router, readable slugs, TourPage         |
+| 3   | Language prefixes (`/en/`, `/fr/`, `/es/`)   | International | TODO     | Coupled to routing                             |
+| 3   | Dynamic SEO component per tour               | Indexability  | **DONE** | Unique title, description, and structured data |
+| 3   | Redirect `?tour=X` -> `/tours/:slug`         | Migration     | **DONE** | Also `#about` -> `/about`, numeric -> slug     |
 
----
-
-## Phase 4 — Autorité & Liens
-
-| # | Action | Impact | Statut | Notes |
-|---|---|---|---|---|
-| 13 | Google Business Profile | SEO local #1 | À FAIRE | Fiche "Tours & Detours Barcelona" |
-| 14 | TripAdvisor / Yelp / AllTrails | Backlinks | À FAIRE | Fiches avec lien retour |
-| 15 | Guest posts blogs voyage | Backlinks | À FAIRE | Proposer articles invités |
-| 16 | Partenariats hôtels/hostels BCN | Backlinks locaux | À FAIRE | Lien depuis leur site |
+**Risks:** booking-flow regressions, broken existing URLs, and E2E tests needing updates.
+**Prerequisite:** no other feature in progress in the same files.
 
 ---
 
-## Phase 5 — Technique avancée
+## Phase 3 - Content (best long-term return)
 
-| # | Action | Impact | Statut | Notes |
-|---|---|---|---|---|
-| 17 | Prerender.io ou SSG (Vite plugin) | Indexabilité SPA | À FAIRE | Les bots voient le HTML rendu |
-| 18 | Service Worker / PWA | Perf mobile | À FAIRE | Offline, install prompt |
-| 19 | Image WebP automatique | Performance | À FAIRE | Plugin Vite ou Vercel image optimization |
-| 20 | Cache-Control headers (vercel.json) | Performance | À FAIRE | Assets statiques = long cache |
-
----
-
-## Articles blog prioritaires (Phase 3 — #9)
-
-| Titre | Mots-clés ciblés | Volume estimé |
-|---|---|---|
-| "15 Hidden Gems in Barcelona Locals Don't Want You to Know" | hidden gems barcelona | 12K/mois |
-| "Girona Day Trip from Barcelona: Complete 2026 Guide" | girona day trip | 8K/mois |
-| "Costa Brava Best Beaches & Villages: Local's Guide" | costa brava beaches | 6K/mois |
-| "Gothic Quarter Barcelona Walking Tour: Self-Guided" | gothic quarter barcelona | 15K/mois |
-| "Montserrat from Barcelona: Hiking & Monastery Guide" | montserrat barcelona | 10K/mois |
-| "Best Kayaking in Costa Brava: Caves & Hidden Coves" | kayak costa brava | 4K/mois |
-| "Catalan Food Guide: What to Eat in Barcelona & Beyond" | catalan food | 7K/mois |
-| "Pre-Pyrenees Day Trip: Medieval Villages Near Barcelona" | pre pyrenees | 2K/mois |
+| #   | Action                                        | Impact             | Status   | Notes                                             |
+| --- | --------------------------------------------- | ------------------ | -------- | ------------------------------------------------- |
+| 8   | FAQ schema on each tour (eight FR/EN/ES Q&As) | FAQ rich snippets  | **DONE** | FAQPage JSON-LD plus a visible TourDialog section |
+| 9   | Blog / travel-guides section                  | Long-tail keywords | TODO     | Girona day trip, BCN hidden gems, and more        |
+| 10  | Testimonials with `@type: Review` schema      | Google stars       | **DONE** | AggregateRating + Review[] in Testimonials        |
+| 11  | Custom 404 page                               | UX / SEO           | **DONE** | Catch-all `*` route -> NotFoundPage               |
+| 12  | Long-form tour descriptions (1,500+ words)    | Content SEO        | TODO     | In the dedicated tour page, after #3              |
 
 ---
 
-## Résultat attendu (timeline)
+## Phase 4 - Authority and Links
 
-| Horizon | Objectif |
-|---|---|
-| 0-3 mois | Indexation correcte, rich snippets visibles |
-| 3-6 mois | Page 1 pour les requêtes long-tail |
-| 6-12 mois | Top 3 pour "private tour guide barcelona" |
-| 12-18 mois | Top 1 (avec blog régulier + 50+ avis Google) |
+| #   | Action                               | Impact          | Status | Notes                               |
+| --- | ------------------------------------ | --------------- | ------ | ----------------------------------- |
+| 13  | Google Business Profile              | Local SEO #1    | TODO   | "Tours & Detours Barcelona" listing |
+| 14  | TripAdvisor / Yelp / AllTrails       | Backlinks       | TODO   | Listings with a return link         |
+| 15  | Guest posts on travel blogs          | Backlinks       | TODO   | Pitch guest articles                |
+| 16  | Partnerships with BCN hotels/hostels | Local backlinks | TODO   | Link from their sites               |
+
+---
+
+## Phase 5 - Advanced Technology
+
+| #   | Action                                | Impact             | Status | Notes                                    |
+| --- | ------------------------------------- | ------------------ | ------ | ---------------------------------------- |
+| 17  | Prerender.io or SSG (Vite plugin)     | SPA indexability   | TODO   | Bots see rendered HTML                   |
+| 18  | Service Worker / PWA                  | Mobile performance | TODO   | Offline support and install prompt       |
+| 19  | Automatic WebP images                 | Performance        | TODO   | Vite plugin or Vercel image optimization |
+| 20  | Cache-Control headers (`vercel.json`) | Performance        | TODO   | Static assets get a long cache           |
+
+---
+
+## Priority Blog Articles (Phase 3 - #9)
+
+| Title                                                       | Target keywords          | Estimated volume |
+| ----------------------------------------------------------- | ------------------------ | ---------------- |
+| "15 Hidden Gems in Barcelona Locals Don't Want You to Know" | hidden gems barcelona    | 12K/mois         |
+| "Girona Day Trip from Barcelona: Complete 2026 Guide"       | girona day trip          | 8K/mois          |
+| "Costa Brava Best Beaches & Villages: Local's Guide"        | costa brava beaches      | 6K/mois          |
+| "Gothic Quarter Barcelona Walking Tour: Self-Guided"        | gothic quarter barcelona | 15K/mois         |
+| "Montserrat from Barcelona: Hiking & Monastery Guide"       | montserrat barcelona     | 10K/mois         |
+| "Best Kayaking in Costa Brava: Caves & Hidden Coves"        | kayak costa brava        | 4K/mois          |
+| "Catalan Food Guide: What to Eat in Barcelona & Beyond"     | catalan food             | 7K/mois          |
+| "Pre-Pyrenees Day Trip: Medieval Villages Near Barcelona"   | pre pyrenees             | 2K/mois          |
+
+---
+
+## Expected Results (Timeline)
+
+| Timeline     | Goal                                               |
+| ------------ | -------------------------------------------------- |
+| 0-3 months   | Correct indexing and visible rich snippets         |
+| 3-6 months   | Page one for long-tail queries                     |
+| 6-12 months  | Top three for "private tour guide barcelona"       |
+| 12-18 months | Top one with a regular blog and 50+ Google reviews |

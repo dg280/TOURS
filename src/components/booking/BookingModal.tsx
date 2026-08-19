@@ -24,10 +24,17 @@ import { toast } from "sonner";
 import type { Tour } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 
-const STRIPE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || (import.meta as unknown as { env: Record<string, string> }).env?.test_stripe_PK || "";
-const isValidStripeKey = STRIPE_KEY.startsWith("pk_test_") || STRIPE_KEY.startsWith("pk_live_");
+const STRIPE_KEY =
+  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ||
+  (import.meta as unknown as { env: Record<string, string> }).env
+    ?.test_stripe_PK ||
+  "";
+const isValidStripeKey =
+  STRIPE_KEY.startsWith("pk_test_") || STRIPE_KEY.startsWith("pk_live_");
 
-const stripePromise = isValidStripeKey ? loadStripe(STRIPE_KEY) : Promise.resolve(null);
+const stripePromise = isValidStripeKey
+  ? loadStripe(STRIPE_KEY)
+  : Promise.resolve(null);
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -64,13 +71,15 @@ function AvailabilityCalendar({
   lang,
 }: AvailabilityCalendarProps) {
   const dayLabels =
-    lang === "en" ? ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
-    : lang === "es" ? ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"]
-    : ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"];
+    lang === "en"
+      ? ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
+      : lang === "es"
+        ? ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"]
+        : ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"];
 
   const monthLabel = month.toLocaleDateString(
     lang === "en" ? "en-US" : lang === "es" ? "es-ES" : "fr-FR",
-    { month: "long", year: "numeric" }
+    { month: "long", year: "numeric" },
   );
 
   // Build 6-week grid starting from the Monday before the 1st
@@ -107,29 +116,62 @@ function AvailabilityCalendar({
       <div className="flex items-center justify-between mb-3">
         <button
           type="button"
-          onClick={() => { const d = new Date(month); d.setMonth(d.getMonth() - 1); onMonthChange(d); }}
+          onClick={() => {
+            const d = new Date(month);
+            d.setMonth(d.getMonth() - 1);
+            onMonthChange(d);
+          }}
           disabled={isPrevDisabled}
           className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6" /></svg>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+          >
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
         </button>
         <span className="text-sm font-bold capitalize text-gray-800 flex items-center gap-2">
           {monthLabel}
-          {loading && <span className="inline-block w-3 h-3 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />}
+          {loading && (
+            <span className="inline-block w-3 h-3 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+          )}
         </span>
         <button
           type="button"
-          onClick={() => { const d = new Date(month); d.setMonth(d.getMonth() + 1); onMonthChange(d); }}
+          onClick={() => {
+            const d = new Date(month);
+            d.setMonth(d.getMonth() + 1);
+            onMonthChange(d);
+          }}
           className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
         </button>
       </div>
 
       {/* Day headers */}
       <div className="grid grid-cols-7 mb-1">
         {dayLabels.map((d) => (
-          <div key={d} className="text-center text-[10px] font-bold uppercase text-gray-400 py-1">{d}</div>
+          <div
+            key={d}
+            className="text-center text-[10px] font-bold uppercase text-gray-400 py-1"
+          >
+            {d}
+          </div>
         ))}
       </div>
 
@@ -148,22 +190,40 @@ function AvailabilityCalendar({
           const remaining = cap - booked;
 
           let dotColor = "";
-          if (isCurrentMonth && !isPast && !isFull && !isBlocked && booked > 0) {
+          if (
+            isCurrentMonth &&
+            !isPast &&
+            !isFull &&
+            !isBlocked &&
+            booked > 0
+          ) {
             dotColor = fillRatio >= 0.75 ? "bg-orange-400" : "bg-green-500";
           }
 
           let tooltip = "";
           if (isCurrentMonth && !isPast && isBlocked) {
-            tooltip = lang === "en" ? "Unavailable"
-              : lang === "es" ? "No disponible"
-              : "Indisponible";
-          } else if (isCurrentMonth && !isPast && fillRatio >= 0.75 && fillRatio < 1) {
-            tooltip = lang === "en" ? `${remaining} spot${remaining > 1 ? "s" : ""} left`
-              : lang === "es" ? `${remaining} plaza${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""}`
-              : `${remaining} place${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""}`;
+            tooltip =
+              lang === "en"
+                ? "Unavailable"
+                : lang === "es"
+                  ? "No disponible"
+                  : "Indisponible";
+          } else if (
+            isCurrentMonth &&
+            !isPast &&
+            fillRatio >= 0.75 &&
+            fillRatio < 1
+          ) {
+            tooltip =
+              lang === "en"
+                ? `${remaining} spot${remaining > 1 ? "s" : ""} left`
+                : lang === "es"
+                  ? `${remaining} plaza${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""}`
+                  : `${remaining} place${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""}`;
           }
 
-          const isClickable = isCurrentMonth && !isPast && !isFull && !isBlocked;
+          const isClickable =
+            isCurrentMonth && !isPast && !isFull && !isBlocked;
 
           return (
             <div key={dateStr} className="flex justify-center">
@@ -174,16 +234,32 @@ function AvailabilityCalendar({
                 title={tooltip || undefined}
                 className={[
                   "relative w-9 h-9 rounded-xl text-sm font-medium transition-all duration-150 flex flex-col items-center justify-center gap-0.5",
-                  !isCurrentMonth ? "opacity-20 pointer-events-none text-gray-400" : "",
-                  isCurrentMonth && isPast ? "text-gray-300 cursor-not-allowed" : "",
-                  isCurrentMonth && !isPast && isBlocked ? "bg-gray-100 text-gray-300 cursor-not-allowed" : "",
-                  isCurrentMonth && !isPast && !isBlocked && isFull ? "bg-red-100 text-red-400 line-through cursor-not-allowed" : "",
-                  isSelected && !isFull ? "bg-amber-500 text-white shadow-md shadow-amber-200 scale-105" : "",
-                  isClickable && !isSelected ? "hover:bg-amber-50 hover:text-amber-700 cursor-pointer text-gray-700" : "",
-                ].filter(Boolean).join(" ")}
+                  !isCurrentMonth
+                    ? "opacity-20 pointer-events-none text-gray-400"
+                    : "",
+                  isCurrentMonth && isPast
+                    ? "text-gray-300 cursor-not-allowed"
+                    : "",
+                  isCurrentMonth && !isPast && isBlocked
+                    ? "bg-gray-100 text-gray-300 cursor-not-allowed"
+                    : "",
+                  isCurrentMonth && !isPast && !isBlocked && isFull
+                    ? "bg-red-100 text-red-400 line-through cursor-not-allowed"
+                    : "",
+                  isSelected && !isFull
+                    ? "bg-amber-500 text-white shadow-md shadow-amber-200 scale-105"
+                    : "",
+                  isClickable && !isSelected
+                    ? "hover:bg-amber-50 hover:text-amber-700 cursor-pointer text-gray-700"
+                    : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
               >
                 <span className="leading-none text-xs">{cell.getDate()}</span>
-                {dotColor && <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />}
+                {dotColor && (
+                  <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+                )}
               </button>
             </div>
           );
@@ -194,11 +270,19 @@ function AvailabilityCalendar({
       <div className="flex items-center gap-4 mt-3 px-1">
         <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
           <span className="w-2 h-2 rounded-full bg-green-500" />
-          {lang === "en" ? "Available" : lang === "es" ? "Disponible" : "Disponible"}
+          {lang === "en"
+            ? "Available"
+            : lang === "es"
+              ? "Disponible"
+              : "Disponible"}
         </div>
         <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
           <span className="w-2 h-2 rounded-full bg-orange-400" />
-          {lang === "en" ? "Filling up" : lang === "es" ? "Casi lleno" : "Presque plein"}
+          {lang === "en"
+            ? "Filling up"
+            : lang === "es"
+              ? "Casi lleno"
+              : "Presque plein"}
         </div>
         <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
           <span className="w-2 h-2 rounded-full bg-red-400" />
@@ -341,7 +425,9 @@ export const BookingModal = ({
     };
 
     fetchAvailability();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [isOpen, tour]);
 
   useEffect(() => {
@@ -381,7 +467,9 @@ export const BookingModal = ({
         }
 
         if (!res.ok) {
-          throw new Error(data.error || `${t.booking.server_error} (${res.status})`);
+          throw new Error(
+            data.error || `${t.booking.server_error} (${res.status})`,
+          );
         }
         return data;
       })
@@ -406,8 +494,22 @@ export const BookingModal = ({
         setClientSecret("");
       });
 
-    return () => { cancelled = true; };
-  }, [tour, step, clientSecret, paymentError, participants, date, lang, t.booking.payment_error, t.booking.server_error, t.booking.missing_client_secret, t.booking.loading_error]);
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    tour,
+    step,
+    clientSecret,
+    paymentError,
+    participants,
+    date,
+    lang,
+    t.booking.payment_error,
+    t.booking.server_error,
+    t.booking.missing_client_secret,
+    t.booking.loading_error,
+  ]);
 
   const calculateSubtotal = () => {
     if (!tour) return 0;
@@ -424,12 +526,10 @@ export const BookingModal = ({
   const calculateTotal = () => {
     const subtotal = calculateSubtotal();
     if (subtotal === 0) return 0;
-    // Formule : (Prix tour + 0.30) / 0.956
+    // Formula: (tour price + 0.30) / 0.956
     const total = (subtotal + 0.3) / 0.956;
     return Number(total.toFixed(2));
   };
-
-
 
   const nextStep = () => {
     if (step === 1) {
@@ -440,9 +540,11 @@ export const BookingModal = ({
       // Guard: check if selected date is blocked or full
       if (blockedDates.has(date)) {
         toast.error(
-          lang === "en" ? "This date is unavailable. Please select another date."
-          : lang === "es" ? "Esta fecha no está disponible. Por favor elige otra fecha."
-          : "Cette date est indisponible. Veuillez en choisir une autre."
+          lang === "en"
+            ? "This date is unavailable. Please select another date."
+            : lang === "es"
+              ? "Esta fecha no está disponible. Por favor elige otra fecha."
+              : "Cette date est indisponible. Veuillez en choisir une autre.",
         );
         return;
       }
@@ -450,9 +552,11 @@ export const BookingModal = ({
       const cap = tour?.maxCapacity ?? 8;
       if (booked >= cap) {
         toast.error(
-          lang === "en" ? "This date is fully booked. Please select another date."
-          : lang === "es" ? "Esta fecha está completa. Por favor elige otra fecha."
-          : "Cette date est complète. Veuillez en choisir une autre."
+          lang === "en"
+            ? "This date is fully booked. Please select another date."
+            : lang === "es"
+              ? "Esta fecha está completa. Por favor elige otra fecha."
+              : "Cette date est complète. Veuillez en choisir une autre.",
         );
         return;
       }
@@ -517,7 +621,10 @@ export const BookingModal = ({
       // CRITICAL: payment was captured by Stripe but the DB insert failed.
       // Do NOT show the success screen — the user must contact us so we can
       // reconcile manually (audit React #3). Allow them to retry too.
-      console.error("Reservation insert failed after successful payment:", error);
+      console.error(
+        "Reservation insert failed after successful payment:",
+        error,
+      );
       toast.error(t.booking.email_send_failed);
       handleSuccessRunningRef.current = false;
       return;
@@ -585,7 +692,7 @@ export const BookingModal = ({
             </div>
           </div>
 
-          <div 
+          <div
             ref={scrollContainerRef}
             className="flex-1 overflow-y-auto p-6 sm:p-8 no-scrollbar scroll-smooth"
           >
@@ -597,19 +704,23 @@ export const BookingModal = ({
                   const itinerary = tour.itinerary ?? [];
                   const included = tour.included ?? [];
                   const notIncluded = tour.notIncluded ?? [];
-                  if (itinerary.length === 0 && included.length === 0) return null;
+                  if (itinerary.length === 0 && included.length === 0)
+                    return null;
                   return (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {itinerary.length > 0 && (
                         <div className="space-y-3 bg-gray-50 p-4 rounded-2xl border border-gray-100">
                           <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-amber-600 flex items-center gap-2">
-                            <ChevronRight className="w-3 h-3" /> {t.booking.itinerary}
+                            <ChevronRight className="w-3 h-3" />{" "}
+                            {t.booking.itinerary}
                           </h4>
                           <div className="relative pl-3 border-l-2 border-amber-100 space-y-3">
                             {itinerary.slice(0, 5).map((item, i) => (
                               <div key={i} className="relative">
                                 <div className="absolute -left-[17px] top-1 w-2 h-2 rounded-full bg-amber-400" />
-                                <p className="text-[11px] text-gray-700 leading-tight">{item}</p>
+                                <p className="text-[11px] text-gray-700 leading-tight">
+                                  {item}
+                                </p>
                               </div>
                             ))}
                           </div>
@@ -619,22 +730,34 @@ export const BookingModal = ({
                         <div className="space-y-3 p-4 rounded-2xl border border-gray-100 bg-gray-50/50">
                           <div className="space-y-2">
                             <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-green-700 flex items-center gap-1.5">
-                              <Check className="w-3 h-3" /> {t.booking.included_label}
+                              <Check className="w-3 h-3" />{" "}
+                              {t.booking.included_label}
                             </h4>
                             <ul className="space-y-1">
                               {included.slice(0, 3).map((item, i) => (
-                                <li key={i} className="text-[11px] text-gray-700 leading-tight">• {item}</li>
+                                <li
+                                  key={i}
+                                  className="text-[11px] text-gray-700 leading-tight"
+                                >
+                                  • {item}
+                                </li>
                               ))}
                             </ul>
                           </div>
                           {notIncluded.length > 0 && (
                             <div className="space-y-2 pt-2 border-t border-gray-100">
                               <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-red-500 flex items-center gap-1.5">
-                                <X className="w-3 h-3" /> {t.booking.not_included_label}
+                                <X className="w-3 h-3" />{" "}
+                                {t.booking.not_included_label}
                               </h4>
                               <ul className="space-y-1">
                                 {notIncluded.slice(0, 3).map((item, i) => (
-                                  <li key={i} className="text-[11px] text-gray-500 leading-tight">• {item}</li>
+                                  <li
+                                    key={i}
+                                    className="text-[11px] text-gray-500 leading-tight"
+                                  >
+                                    • {item}
+                                  </li>
                                 ))}
                               </ul>
                             </div>
@@ -652,8 +775,13 @@ export const BookingModal = ({
                       {t.booking.date_title}
                     </h3>
                     <div className="grid gap-2">
-                      <Label className="text-xs uppercase tracking-wider text-gray-500">{t.booking.date_label}</Label>
-                      <div className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm" data-testid="availability-calendar">
+                      <Label className="text-xs uppercase tracking-wider text-gray-500">
+                        {t.booking.date_label}
+                      </Label>
+                      <div
+                        className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm"
+                        data-testid="availability-calendar"
+                      >
                         <AvailabilityCalendar
                           selectedDate={date}
                           onSelect={setDate}
@@ -669,8 +797,17 @@ export const BookingModal = ({
                       {date && (
                         <p className="text-xs text-amber-700 font-medium mt-1">
                           {new Date(date + "T00:00:00").toLocaleDateString(
-                            lang === "en" ? "en-US" : lang === "es" ? "es-ES" : "fr-FR",
-                            { weekday: "long", year: "numeric", month: "long", day: "numeric" }
+                            lang === "en"
+                              ? "en-US"
+                              : lang === "es"
+                                ? "es-ES"
+                                : "fr-FR",
+                            {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            },
                           )}
                         </p>
                       )}
@@ -692,7 +829,9 @@ export const BookingModal = ({
                           {t.booking.estimated_duration}
                         </Label>
                         <div className="h-10 flex items-center text-sm text-gray-700">
-                          {(t.tours.duration_labels as Record<string, string>)[tour.estimatedDuration] || tour.estimatedDuration}
+                          {(t.tours.duration_labels as Record<string, string>)[
+                            tour.estimatedDuration
+                          ] || tour.estimatedDuration}
                         </div>
                       </div>
                     )}
@@ -707,14 +846,18 @@ export const BookingModal = ({
                       <span className="font-bold text-lg">
                         {participants}{" "}
                         <span className="text-sm font-normal text-gray-500 uppercase tracking-tighter">
-                          {participants > 1 ? t.booking.travelers : t.booking.traveler}
+                          {participants > 1
+                            ? t.booking.travelers
+                            : t.booking.traveler}
                         </span>
                       </span>
                       <div className="flex items-center gap-2">
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => setParticipants(Math.max(1, participants - 1))}
+                          onClick={() =>
+                            setParticipants(Math.max(1, participants - 1))
+                          }
                           className="rounded-full w-8 h-8 bg-white shadow-sm border border-gray-100"
                         >
                           <Minus className="w-3 h-3" />
@@ -722,7 +865,11 @@ export const BookingModal = ({
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => setParticipants(Math.min(tour.maxCapacity ?? 8, participants + 1))}
+                          onClick={() =>
+                            setParticipants(
+                              Math.min(tour.maxCapacity ?? 8, participants + 1),
+                            )
+                          }
                           className="rounded-full w-8 h-8 bg-white shadow-sm border border-gray-100"
                         >
                           <Plus className="w-3 h-3" />
@@ -737,64 +884,177 @@ export const BookingModal = ({
             {step === 2 && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-2">
-                   <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
                     <Info className="w-5 h-5 text-amber-600" />
-                   </div>
-                   <h3 className="text-xl font-sans font-bold text-gray-900">
+                  </div>
+                  <h3 className="text-xl font-sans font-bold text-gray-900">
                     {t.booking.info_title}
                   </h3>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="booking-name" className="text-xs uppercase tracking-wider text-gray-500 font-bold">{t.contact.name}*</Label>
-                    <Input id="booking-name" placeholder={t.booking.name_placeholder} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="h-12 rounded-xl" />
+                    <Label
+                      htmlFor="booking-name"
+                      className="text-xs uppercase tracking-wider text-gray-500 font-bold"
+                    >
+                      {t.contact.name}*
+                    </Label>
+                    <Input
+                      id="booking-name"
+                      placeholder={t.booking.name_placeholder}
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                      className="h-12 rounded-xl"
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="booking-email" className="text-xs uppercase tracking-wider text-gray-500 font-bold">{t.contact.email}*</Label>
-                    <Input id="booking-email" type="email" placeholder={t.booking.email_placeholder} value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="h-12 rounded-xl" />
+                    <Label
+                      htmlFor="booking-email"
+                      className="text-xs uppercase tracking-wider text-gray-500 font-bold"
+                    >
+                      {t.contact.email}*
+                    </Label>
+                    <Input
+                      id="booking-email"
+                      type="email"
+                      placeholder={t.booking.email_placeholder}
+                      value={formData.email}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
+                      className="h-12 rounded-xl"
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="booking-phone" className="text-xs uppercase tracking-wider text-gray-500 font-bold">{t.booking.phone}</Label>
-                    <Input id="booking-phone" placeholder={t.booking.phone_placeholder} value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="h-12 rounded-xl" />
+                    <Label
+                      htmlFor="booking-phone"
+                      className="text-xs uppercase tracking-wider text-gray-500 font-bold"
+                    >
+                      {t.booking.phone}
+                    </Label>
+                    <Input
+                      id="booking-phone"
+                      placeholder={t.booking.phone_placeholder}
+                      value={formData.phone}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
+                      className="h-12 rounded-xl"
+                    />
                   </div>
-                   <div className="space-y-2">
-                    <Label htmlFor="booking-pickup" className="text-xs uppercase tracking-wider text-gray-500 font-bold">{t.booking.pickup_address}</Label>
-                    <Input id="booking-pickup" placeholder={t.booking.pickup_placeholder} value={formData.pickupAddress} onChange={(e) => setFormData({ ...formData, pickupAddress: e.target.value })} className="h-12 rounded-xl" />
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="booking-pickup"
+                      className="text-xs uppercase tracking-wider text-gray-500 font-bold"
+                    >
+                      {t.booking.pickup_address}
+                    </Label>
+                    <Input
+                      id="booking-pickup"
+                      placeholder={t.booking.pickup_placeholder}
+                      value={formData.pickupAddress}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          pickupAddress: e.target.value,
+                        })
+                      }
+                      className="h-12 rounded-xl"
+                    />
                   </div>
                 </div>
 
                 <div className="space-y-4 pt-4 border-t border-gray-100">
-                  <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400">{t.booking.billing_address} {t.common.optional}</h4>
+                  <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400">
+                    {t.booking.billing_address} {t.common.optional}
+                  </h4>
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="billing-address" className="text-xs uppercase tracking-wider text-gray-500">{t.booking.billing_address}</Label>
-                      <Input id="billing-address" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className="h-12 rounded-xl" />
+                      <Label
+                        htmlFor="billing-address"
+                        className="text-xs uppercase tracking-wider text-gray-500"
+                      >
+                        {t.booking.billing_address}
+                      </Label>
+                      <Input
+                        id="billing-address"
+                        value={formData.address}
+                        onChange={(e) =>
+                          setFormData({ ...formData, address: e.target.value })
+                        }
+                        className="h-12 rounded-xl"
+                      />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="billing-city" className="text-xs uppercase tracking-wider text-gray-500">{t.booking.city}</Label>
-                        <Input id="billing-city" value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} className="h-12 rounded-xl" />
+                        <Label
+                          htmlFor="billing-city"
+                          className="text-xs uppercase tracking-wider text-gray-500"
+                        >
+                          {t.booking.city}
+                        </Label>
+                        <Input
+                          id="billing-city"
+                          value={formData.city}
+                          onChange={(e) =>
+                            setFormData({ ...formData, city: e.target.value })
+                          }
+                          className="h-12 rounded-xl"
+                        />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="billing-zip" className="text-xs uppercase tracking-wider text-gray-500">{t.booking.zip}</Label>
-                        <Input id="billing-zip" value={formData.zip} onChange={(e) => setFormData({ ...formData, zip: e.target.value })} className="h-12 rounded-xl" />
+                        <Label
+                          htmlFor="billing-zip"
+                          className="text-xs uppercase tracking-wider text-gray-500"
+                        >
+                          {t.booking.zip}
+                        </Label>
+                        <Input
+                          id="billing-zip"
+                          value={formData.zip}
+                          onChange={(e) =>
+                            setFormData({ ...formData, zip: e.target.value })
+                          }
+                          className="h-12 rounded-xl"
+                        />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="billing-country" className="text-xs uppercase tracking-wider text-gray-500">{t.booking.country}</Label>
-                      <Input id="billing-country" value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} className="h-12 rounded-xl" />
+                      <Label
+                        htmlFor="billing-country"
+                        className="text-xs uppercase tracking-wider text-gray-500"
+                      >
+                        {t.booking.country}
+                      </Label>
+                      <Input
+                        id="billing-country"
+                        value={formData.country}
+                        onChange={(e) =>
+                          setFormData({ ...formData, country: e.target.value })
+                        }
+                        className="h-12 rounded-xl"
+                      />
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-2 pt-4">
-                  <Label htmlFor="booking-comment" className="text-xs uppercase tracking-wider text-gray-500 font-bold">{t.booking.comment_label}</Label>
+                  <Label
+                    htmlFor="booking-comment"
+                    className="text-xs uppercase tracking-wider text-gray-500 font-bold"
+                  >
+                    {t.booking.comment_label}
+                  </Label>
                   <textarea
                     id="booking-comment"
                     placeholder={t.booking.comment_placeholder}
                     value={formData.comment}
-                    onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, comment: e.target.value })
+                    }
                     className="flex min-h-[60px] w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                 </div>
@@ -804,52 +1064,90 @@ export const BookingModal = ({
             {step === 3 && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-2">
-                   <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
                     <CheckCircle2 className="w-5 h-5 text-amber-600" />
-                   </div>
-                   <h3 className="text-xl font-sans font-bold text-gray-900">
+                  </div>
+                  <h3 className="text-xl font-sans font-bold text-gray-900">
                     {t.booking.summary_title}
                   </h3>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 border-b pb-2">{t.booking.tour_details}</h4>
+                    <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 border-b pb-2">
+                      {t.booking.tour_details}
+                    </h4>
                     <div className="space-y-2 text-sm text-gray-700">
                       <p className="font-bold text-gray-900">{tour.title}</p>
-                      <p className="flex justify-between"><span>{t.booking.date_label} :</span> <span className="font-bold">{date}</span></p>
+                      <p className="flex justify-between">
+                        <span>{t.booking.date_label} :</span>{" "}
+                        <span className="font-bold">{date}</span>
+                      </p>
                       <p className="flex justify-between">
                         <span>{t.booking.pickup_time} :</span>
                         <span className="font-bold">{pickupTime || "—"}</span>
                       </p>
                       <p className="flex justify-between">
                         <span>{t.booking.est_duration_short} :</span>
-                        <span className="font-bold">{(t.tours.duration_labels as Record<string, string>)[tour.duration] || tour.duration}</span>
+                        <span className="font-bold">
+                          {(t.tours.duration_labels as Record<string, string>)[
+                            tour.duration
+                          ] || tour.duration}
+                        </span>
                       </p>
                       <p className="flex justify-between">
                         <span>{t.booking.travelers_label} :</span>
                         <span className="font-bold">{participants}</span>
                       </p>
                       <p className="flex flex-col gap-1 mt-2 p-2 bg-gray-50 rounded-lg">
-                        <span className="text-[10px] uppercase font-bold text-amber-600">{t.booking.pickup_address}</span>
-                        <span className="font-medium">{formData.pickupAddress || t.booking.to_confirm}</span>
+                        <span className="text-[10px] uppercase font-bold text-amber-600">
+                          {t.booking.pickup_address}
+                        </span>
+                        <span className="font-medium">
+                          {formData.pickupAddress || t.booking.to_confirm}
+                        </span>
                       </p>
                     </div>
                   </div>
 
                   <div className="space-y-4">
-                    <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 border-b pb-2">{t.booking.personal_info}</h4>
+                    <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 border-b pb-2">
+                      {t.booking.personal_info}
+                    </h4>
                     <div className="space-y-2 text-sm text-gray-700">
-                      <p className="flex justify-between"><span>{t.contact.name} :</span> <span className="font-bold">{formData.name}</span></p>
-                      <p className="flex justify-between"><span>{t.contact.email} :</span> <span className="font-bold">{formData.email}</span></p>
-                      <p className="flex justify-between"><span>{t.booking.phone} :</span> <span className="font-bold">{formData.phone || "—"}</span></p>
+                      <p className="flex justify-between">
+                        <span>{t.contact.name} :</span>{" "}
+                        <span className="font-bold">{formData.name}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span>{t.contact.email} :</span>{" "}
+                        <span className="font-bold">{formData.email}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span>{t.booking.phone} :</span>{" "}
+                        <span className="font-bold">
+                          {formData.phone || "—"}
+                        </span>
+                      </p>
                       {formData.pickupAddress && (
-                        <p className="flex justify-between"><span>{t.booking.pickup_time} :</span> <span className="font-bold text-right max-w-[60%]">{formData.pickupAddress}</span></p>
+                        <p className="flex justify-between">
+                          <span>{t.booking.pickup_time} :</span>{" "}
+                          <span className="font-bold text-right max-w-[60%]">
+                            {formData.pickupAddress}
+                          </span>
+                        </p>
                       )}
                       {formData.address && (
                         <p className="flex flex-col gap-0.5 mt-2 p-2 bg-gray-50 rounded-lg text-xs">
-                          <span className="text-[10px] uppercase font-bold text-gray-400">{t.booking.billing_address}</span>
-                          <span>{formData.address}{formData.city ? `, ${formData.city}` : ""}{formData.zip ? ` ${formData.zip}` : ""}{formData.country ? `, ${formData.country}` : ""}</span>
+                          <span className="text-[10px] uppercase font-bold text-gray-400">
+                            {t.booking.billing_address}
+                          </span>
+                          <span>
+                            {formData.address}
+                            {formData.city ? `, ${formData.city}` : ""}
+                            {formData.zip ? ` ${formData.zip}` : ""}
+                            {formData.country ? `, ${formData.country}` : ""}
+                          </span>
                         </p>
                       )}
                     </div>
@@ -863,16 +1161,23 @@ export const BookingModal = ({
                   </div>
                   <div className="flex justify-between text-sm text-amber-700/80">
                     <span>{t.booking.processing_fees}</span>
-                    <span>{(calculateTotal() - calculateSubtotal()).toFixed(2)}€</span>
+                    <span>
+                      {(calculateTotal() - calculateSubtotal()).toFixed(2)}€
+                    </span>
                   </div>
                   <div className="flex justify-between items-baseline pt-2 border-t border-amber-200">
                     <div>
-                      <p className="text-xs text-amber-800 font-bold uppercase tracking-wider">{t.booking.total_paid}</p>
-                      <p className="text-3xl font-serif font-bold text-amber-900">{calculateTotal()}€</p>
+                      <p className="text-xs text-amber-800 font-bold uppercase tracking-wider">
+                        {t.booking.total_paid}
+                      </p>
+                      <p className="text-3xl font-serif font-bold text-amber-900">
+                        {calculateTotal()}€
+                      </p>
                     </div>
                     <div className="text-right text-[10px] text-amber-700/60 leading-tight italic">
-                      {t.booking.per_person_incl_fees}<br/>
-                      ({(calculateTotal() / participants).toFixed(2)}€ /pers)
+                      {t.booking.per_person_incl_fees}
+                      <br />({(calculateTotal() / participants).toFixed(2)}€
+                      /pers)
                     </div>
                   </div>
                 </div>
@@ -883,14 +1188,55 @@ export const BookingModal = ({
               <div className="space-y-6">
                 {/* Booking summary ribbon */}
                 <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 text-sm text-gray-700 grid grid-cols-2 gap-x-6 gap-y-1.5">
-                  <p className="col-span-2 font-bold text-gray-900 text-base mb-1">{tour.title}</p>
-                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{t.contact.name}</span>{formData.name}</p>
-                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{t.booking.travelers_label}</span>{participants}</p>
-                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{t.booking.date_label}</span>{date}</p>
-                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{t.booking.pickup_time}</span>{pickupTime || "—"}</p>
-                  <p className="col-span-2"><span className="text-[10px] uppercase font-bold text-amber-600 block">{t.booking.pickup_address}</span>{formData.pickupAddress || t.booking.to_confirm}</p>
-                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{t.booking.est_duration_short}</span>{(t.tours.duration_labels as Record<string, string>)[tour.duration] || tour.duration}</p>
-                  <p><span className="text-[10px] uppercase font-bold text-gray-400 block">{t.booking.total}</span><span className="font-bold text-amber-700">{calculateTotal()}€</span></p>
+                  <p className="col-span-2 font-bold text-gray-900 text-base mb-1">
+                    {tour.title}
+                  </p>
+                  <p>
+                    <span className="text-[10px] uppercase font-bold text-gray-400 block">
+                      {t.contact.name}
+                    </span>
+                    {formData.name}
+                  </p>
+                  <p>
+                    <span className="text-[10px] uppercase font-bold text-gray-400 block">
+                      {t.booking.travelers_label}
+                    </span>
+                    {participants}
+                  </p>
+                  <p>
+                    <span className="text-[10px] uppercase font-bold text-gray-400 block">
+                      {t.booking.date_label}
+                    </span>
+                    {date}
+                  </p>
+                  <p>
+                    <span className="text-[10px] uppercase font-bold text-gray-400 block">
+                      {t.booking.pickup_time}
+                    </span>
+                    {pickupTime || "—"}
+                  </p>
+                  <p className="col-span-2">
+                    <span className="text-[10px] uppercase font-bold text-amber-600 block">
+                      {t.booking.pickup_address}
+                    </span>
+                    {formData.pickupAddress || t.booking.to_confirm}
+                  </p>
+                  <p>
+                    <span className="text-[10px] uppercase font-bold text-gray-400 block">
+                      {t.booking.est_duration_short}
+                    </span>
+                    {(t.tours.duration_labels as Record<string, string>)[
+                      tour.duration
+                    ] || tour.duration}
+                  </p>
+                  <p>
+                    <span className="text-[10px] uppercase font-bold text-gray-400 block">
+                      {t.booking.total}
+                    </span>
+                    <span className="font-bold text-amber-700">
+                      {calculateTotal()}€
+                    </span>
+                  </p>
                 </div>
 
                 <div className="flex justify-between items-center">
@@ -898,8 +1244,12 @@ export const BookingModal = ({
                     <CreditCard className="w-5 h-5 text-amber-600" />
                     {t.booking.payment_title}
                   </h3>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${STRIPE_KEY.startsWith('pk_test_') ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>
-                    {STRIPE_KEY.startsWith('pk_test_') ? 'Mode Test' : 'Mode Live'}
+                  <span
+                    className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${STRIPE_KEY.startsWith("pk_test_") ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"}`}
+                  >
+                    {STRIPE_KEY.startsWith("pk_test_")
+                      ? "Mode Test"
+                      : "Mode Live"}
                   </span>
                 </div>
                 {clientSecret ? (
@@ -930,8 +1280,7 @@ export const BookingModal = ({
                     <p className="text-sm opacity-80 mb-4">
                       {!isValidStripeKey
                         ? t.booking.invalid_stripe_key
-                        : `${t.booking.payment_error} : ${paymentError}`
-                      }
+                        : `${t.booking.payment_error} : ${paymentError}`}
                     </p>
                     <div className="flex flex-col gap-2 w-full">
                       <Button
@@ -966,22 +1315,55 @@ export const BookingModal = ({
                   </h3>
                   <p className="text-gray-600 max-w-sm mx-auto">
                     {t.booking.success_message
-                      .replace('{name}', formData.name)
-                      .replace('{email}', formData.email)}
+                      .replace("{name}", formData.name)
+                      .replace("{email}", formData.email)}
                   </p>
                 </div>
 
                 <div className="bg-amber-50 p-6 rounded-2xl w-full border border-amber-100 text-left space-y-4">
-                  <h4 className="text-amber-800 font-bold uppercase tracking-widest text-xs border-b border-amber-200 pb-2">{t.booking.summary}</h4>
-                  
+                  <h4 className="text-amber-800 font-bold uppercase tracking-widest text-xs border-b border-amber-200 pb-2">
+                    {t.booking.summary}
+                  </h4>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-amber-900/80">
                     <div className="space-y-2">
-                      <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">{t.booking.tour_details}</span> <span className="font-bold text-amber-900">{tour.title}</span></p>
-                      <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">{t.booking.date_time_label}</span> <span className="font-bold text-amber-900">{date} • {(t.tours.duration_labels as Record<string, string>)[tour.duration] || tour.duration}</span></p>
+                      <p className="flex flex-col">
+                        <span className="text-[10px] uppercase font-bold opacity-50">
+                          {t.booking.tour_details}
+                        </span>{" "}
+                        <span className="font-bold text-amber-900">
+                          {tour.title}
+                        </span>
+                      </p>
+                      <p className="flex flex-col">
+                        <span className="text-[10px] uppercase font-bold opacity-50">
+                          {t.booking.date_time_label}
+                        </span>{" "}
+                        <span className="font-bold text-amber-900">
+                          {date} •{" "}
+                          {(t.tours.duration_labels as Record<string, string>)[
+                            tour.duration
+                          ] || tour.duration}
+                        </span>
+                      </p>
                     </div>
                     <div className="space-y-2">
-                      <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">{t.booking.client_label}</span> <span className="font-bold text-amber-900">{formData.name}</span></p>
-                      <p className="flex flex-col"><span className="text-[10px] uppercase font-bold opacity-50">{t.booking.pickup_address}</span> <span className="font-bold text-amber-900">{formData.pickupAddress || t.booking.to_confirm}</span></p>
+                      <p className="flex flex-col">
+                        <span className="text-[10px] uppercase font-bold opacity-50">
+                          {t.booking.client_label}
+                        </span>{" "}
+                        <span className="font-bold text-amber-900">
+                          {formData.name}
+                        </span>
+                      </p>
+                      <p className="flex flex-col">
+                        <span className="text-[10px] uppercase font-bold opacity-50">
+                          {t.booking.pickup_address}
+                        </span>{" "}
+                        <span className="font-bold text-amber-900">
+                          {formData.pickupAddress || t.booking.to_confirm}
+                        </span>
+                      </p>
                     </div>
                   </div>
 
@@ -992,7 +1374,9 @@ export const BookingModal = ({
                     </p>
                     <p className="flex justify-between text-sm text-amber-700/70">
                       <span>{t.booking.processing_fees}</span>
-                      <span>{(calculateTotal() - calculateSubtotal()).toFixed(2)}€</span>
+                      <span>
+                        {(calculateTotal() - calculateSubtotal()).toFixed(2)}€
+                      </span>
                     </p>
                     <p className="flex justify-between text-base font-bold text-amber-900 pt-1">
                       <span>{t.booking.total_paid}</span>
@@ -1017,17 +1401,31 @@ export const BookingModal = ({
                 <div className="flex flex-col">
                   <div className="flex items-baseline gap-3">
                     <div>
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none">Total</p>
-                      <p className="text-xl font-bold text-gray-900">{calculateTotal()}€</p>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none">
+                        Total
+                      </p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {calculateTotal()}€
+                      </p>
                     </div>
                     <div className="text-[10px] text-gray-400 leading-tight">
-                      <span>{lang === 'en' ? 'Tour' : lang === 'es' ? 'Tour' : 'Tour'}: {calculateSubtotal().toFixed(2)}€</span>
-                      <br/>
-                      <span>{t.booking.processing_fees}: +{(calculateTotal() - calculateSubtotal()).toFixed(2)}€</span>
+                      <span>
+                        {lang === "en"
+                          ? "Tour"
+                          : lang === "es"
+                            ? "Tour"
+                            : "Tour"}
+                        : {calculateSubtotal().toFixed(2)}€
+                      </span>
+                      <br />
+                      <span>
+                        {t.booking.processing_fees}: +
+                        {(calculateTotal() - calculateSubtotal()).toFixed(2)}€
+                      </span>
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex w-full sm:w-auto gap-3">
                   {step > 1 && (
                     <Button

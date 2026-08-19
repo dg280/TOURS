@@ -1,37 +1,40 @@
-# 🧪 Rapport de Recette - [NOM DE LA FEATURE]
+# 🧪 Acceptance Report - [FEATURE NAME]
 
-**Branche :** `nom-de-la-branche`  
-**Environnement :** [Vercel Preview / Local]  
-**Date :** [AAAA-MM-JJ]  
-
----
-
-## 📋 1. Statut des Tests Automatisés
-- [ ] **Lint & Type Check** : ✅ Passed / ❌ Failed
-- [ ] **E2E Non-Regression (Playwright)** : ✅ 4/4 Passed / ❌ Failed
+**Branch:** `branch-name`
+**Environment:** [Vercel Preview / Local]
+**Date:** [YYYY-MM-DD]
 
 ---
 
-## 🔍 2. Validation Manuelle
+## 📋 1. Automated Test Status
 
-| Secteur | Critère | Résultat | Note |
-| :--- | :--- | :--- | :--- |
-| **Visuel** | Rendu conforme au design | [ ] | |
-| **Mobile** | Pas de débordement (Horizontal) | [ ] | |
-| **Langues** | FR/EN/ES complets | [ ] | |
-| **Admin** | Sauvegarde Supabase OK | [ ] | |
-| **Live** | Session active détectée | [ ] | |
+- [ ] **Lint and Type Check:** ✅ Passed / ❌ Failed
+- [ ] **E2E Regression Tests (Playwright):** ✅ 4/4 Passed / ❌ Failed
 
 ---
 
-## 🚩 3. Observations & Régressions
-*Notez ici tout comportement inattendu ou bug graphique découvert.*
+## 🔍 2. Manual Validation
 
-- 
-- 
+| Area          | Criterion                    | Result | Notes |
+| :------------ | :--------------------------- | :----- | :---- |
+| **Visual**    | Rendering matches the design | [ ]    |       |
+| **Mobile**    | No horizontal overflow       | [ ]    |       |
+| **Languages** | Complete FR/EN/ES support    | [ ]    |       |
+| **Admin**     | Supabase save succeeds       | [ ]    |       |
+| **Live**      | Active session is detected   | [ ]    |       |
 
 ---
 
-## 🚀 4. Décision Finale
-- [ ] **GO** (Prêt pour mise en prod)
-- [ ] **NO-GO** (Corrections nécessaires)
+## 🚩 3. Observations and Regressions
+
+_Record every unexpected behavior or visual defect found here._
+
+-
+-
+
+---
+
+## 🚀 4. Final Decision
+
+- [ ] **GO** (Ready for production)
+- [ ] **NO-GO** (Fixes required)

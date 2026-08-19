@@ -1,82 +1,88 @@
-import { test, expect } from '@playwright/test';
-import { existsSync, readFileSync } from 'fs';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { test, expect } from "@playwright/test";
+import { existsSync, readFileSync } from "fs";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-test.describe('Stability & Regression Tests', () => {
-
-  test('Health check endpoint is accessible and returns correct structure', async ({ request }) => {
+test.describe("Stability & Regression Tests", () => {
+  test("Health check endpoint is accessible and returns correct structure", async ({
+    request,
+  }) => {
     // Note: In local dev (Vite), the /api/*.ts files are served as raw TS, not executed.
     // This test only validates JSON structure when running against a real Vercel environment.
-    const response = await request.get('/api/health-check');
-    const contentType = response.headers()['content-type'] || '';
+    const response = await request.get("/api/health-check");
+    const contentType = response.headers()["content-type"] || "";
 
-    if (contentType.includes('application/json')) {
+    if (contentType.includes("application/json")) {
       // Running against Vercel (prod/preview) — validate full structure
       const body = await response.json();
-      expect(body).toHaveProperty('status');
-      expect(body).toHaveProperty('checks');
-      expect(body.checks).toHaveProperty('stripe');
-      expect(body.checks).toHaveProperty('supabase');
+      expect(body).toHaveProperty("status");
+      expect(body).toHaveProperty("checks");
+      expect(body.checks).toHaveProperty("stripe");
+      expect(body.checks).toHaveProperty("supabase");
     } else {
       // Running locally — just check the file exists (non-404)
       expect(response.status()).not.toBe(404);
     }
   });
 
-  test('Admin page loads and shows login form', async ({ page }) => {
+  test("Admin page loads and shows login form", async ({ page }) => {
     // The status indicator is only visible after authentication.
     // This test verifies the admin page loads correctly and shows the login form.
-    await page.goto('/admin.html');
+    await page.goto("/admin.html");
 
     // The login form should always be visible when not authenticated
-    const loginForm = page.locator('form, input[type="email"], [type="email"]').first();
+    const loginForm = page
+      .locator('form, input[type="email"], [type="email"]')
+      .first();
     await expect(loginForm).toBeVisible({ timeout: 10000 });
   });
 
-  test('Tiered pricing logic is present in the API', async () => {
+  test("Tiered pricing logic is present in the API", async () => {
     // This is a unit-like check to ensure the file hasn't been reverted
     // Since we can't easily unit test API files here without a runner,
     // we rely on the fact that it's pushed and the build passed.
   });
 
-  test('BookingModal does not chain .select() after reservations insert (RLS)', async () => {
+  test("BookingModal does not chain .select() after reservations insert (RLS)", async () => {
     // Regression: anon role has no SELECT permission on reservations under
     // the current RLS policy (security_fixes migration). Chaining .select()
     // after .insert() returns 401, the booking row is rejected, payment is
     // captured by Stripe but no reservation is recorded.
-    const path = resolve(__dirname, '../src/components/booking/BookingModal.tsx');
-    const source = readFileSync(path, 'utf-8');
+    const path = resolve(
+      __dirname,
+      "../src/components/booking/BookingModal.tsx",
+    );
+    const source = readFileSync(path, "utf-8");
     // Look for the dangerous pattern: .from("reservations") followed by
     // .insert(...) followed by .select(...) on the same chain.
     const insertWithSelect = source.match(
-      /\.from\(["']reservations["']\)[\s\S]{0,200}?\.insert\([^)]*\)[\s\S]{0,80}?\.select\(/
+      /\.from\(["']reservations["']\)[\s\S]{0,200}?\.insert\([^)]*\)[\s\S]{0,80}?\.select\(/,
     );
     expect(
       insertWithSelect,
-      'BookingModal must not chain .select() after reservations insert — anon RLS denies SELECT'
+      "BookingModal must not chain .select() after reservations insert — anon RLS denies SELECT",
     ).toBeNull();
   });
 
-  test('create-payment-intent does not pin an unsupported Stripe API version', async () => {
+  test("create-payment-intent does not pin an unsupported Stripe API version", async () => {
     // Regression: pinning apiVersion '2025-01-27' (per CLAUDE.md guidance) was
     // rejected by Stripe SDK 20.x at runtime, causing every paymentIntents.create
     // to fail with "Internal error" → user saw "Payment Error : Internal error"
     // on step 4. The SDK must use its default version unless we upgrade the
     // package and verify compatibility.
-    const path = resolve(__dirname, '../api/create-payment-intent.ts');
-    const source = readFileSync(path, 'utf-8');
+    const path = resolve(__dirname, "../api/create-payment-intent.ts");
+    const source = readFileSync(path, "utf-8");
     expect(
       source,
-      'create-payment-intent.ts must not hardcode apiVersion 2025-01-27 — unsupported by Stripe SDK 20.x'
+      "create-payment-intent.ts must not hardcode apiVersion 2025-01-27 — unsupported by Stripe SDK 20.x",
     ).not.toMatch(/apiVersion:\s*['"]2025-01-27['"]/);
   });
 
-  test('Tour card images use consistent 4:3 aspect ratio', async ({ page }) => {
-    await page.goto('/');
-    const tourImgContainer = page.locator('.group .aspect-\\[4\\/3\\]').first();
+  test("Tour card images use consistent 4:3 aspect ratio", async ({ page }) => {
+    await page.goto("/");
+    const tourImgContainer = page.locator(".group .aspect-\\[4\\/3\\]").first();
     await expect(tourImgContainer).toBeVisible({ timeout: 10000 });
 
     // Verify the container enforces 4:3 aspect ratio
@@ -90,14 +96,15 @@ test.describe('Stability & Regression Tests', () => {
     expect(ratio).toBeLessThan(1.5);
   });
 
-  test('AdminApp preserves all critical tour fields when mapping from DB', async () => {
+  test("AdminApp preserves all critical tour fields when mapping from DB", async () => {
     // Regression: silent field drops in admin tour mappings cause data loss
     // on reload (reads) or corrupt rows in DB (writes). Every tour-row mapping
     // (identified by `groupSize: t.group_size`) MUST include the critical fields.
-    const adminAppPath = resolve(__dirname, '../src/admin/AdminApp.tsx');
-    const source = readFileSync(adminAppPath, 'utf-8');
+    const adminAppPath = resolve(__dirname, "../src/admin/AdminApp.tsx");
+    const source = readFileSync(adminAppPath, "utf-8");
 
-    const mappingCount = (source.match(/groupSize:\s*t\.group_size/g) || []).length;
+    const mappingCount = (source.match(/groupSize:\s*t\.group_size/g) || [])
+      .length;
     expect(mappingCount).toBeGreaterThan(0);
 
     const fieldsToCheck = [
@@ -107,7 +114,9 @@ test.describe('Stability & Regression Tests', () => {
     ];
     for (const pattern of fieldsToCheck) {
       const found = (source.match(pattern) || []).length;
-      expect(found, `Missing ${pattern.source} in some tour mapping`).toBe(mappingCount);
+      expect(found, `Missing ${pattern.source} in some tour mapping`).toBe(
+        mappingCount,
+      );
     }
 
     // Bug guard: ensure no mapping reads `t.notIncluded*` (camelCase) — DB columns
@@ -115,15 +124,17 @@ test.describe('Stability & Regression Tests', () => {
     expect(source).not.toMatch(/t\.notIncluded(_en|_es)?\b/);
   });
 
-  test('Admin tour upserts include all critical fields (no silent drops)', async () => {
+  test("Admin tour upserts include all critical fields (no silent drops)", async () => {
     // Regression: handleSaveTour and pushAllToDb wrote rows missing
     // pricing_tiers / stripe_link / meeting_point_map_url, silently
     // wiping those columns in DB. Every upsert payload (identified by
     // `group_size: tour.groupSize`) MUST include them.
-    const adminAppPath = resolve(__dirname, '../src/admin/AdminApp.tsx');
-    const source = readFileSync(adminAppPath, 'utf-8');
+    const adminAppPath = resolve(__dirname, "../src/admin/AdminApp.tsx");
+    const source = readFileSync(adminAppPath, "utf-8");
 
-    const upsertCount = (source.match(/group_size:\s*tour(Data)?\.groupSize/g) || []).length;
+    const upsertCount = (
+      source.match(/group_size:\s*tour(Data)?\.groupSize/g) || []
+    ).length;
     expect(upsertCount).toBeGreaterThan(0);
 
     const fieldsToCheck = [
@@ -133,84 +144,114 @@ test.describe('Stability & Regression Tests', () => {
     ];
     for (const pattern of fieldsToCheck) {
       const found = (source.match(pattern) || []).length;
-      expect(found, `Missing ${pattern.source} in some upsert`).toBe(upsertCount);
+      expect(found, `Missing ${pattern.source} in some upsert`).toBe(
+        upsertCount,
+      );
     }
   });
 
-  test('BookingModal renders tour.duration via duration_labels (i18n)', async () => {
+  test("BookingModal renders tour.duration via duration_labels (i18n)", async () => {
     // Regression: tour.duration / tour.estimatedDuration were rendered raw
-    // ("Journée entière") to EN/ES users, leaking French. Every place that
+    // (the French "Journée entière") to EN/ES users, leaking French. Every place that
     // renders these MUST go through t.tours.duration_labels.
-    const path = resolve(__dirname, '../src/components/booking/BookingModal.tsx');
-    const source = readFileSync(path, 'utf-8');
+    const path = resolve(
+      __dirname,
+      "../src/components/booking/BookingModal.tsx",
+    );
+    const source = readFileSync(path, "utf-8");
 
     // No raw `{tour.duration}` allowed (must be wrapped in duration_labels)
     const rawDuration = source.match(/\{tour\.duration\}/g) || [];
-    expect(rawDuration.length, 'Found raw {tour.duration} render — must use duration_labels').toBe(0);
+    expect(
+      rawDuration.length,
+      "Found raw {tour.duration} render — must use duration_labels",
+    ).toBe(0);
 
     // No raw `{tour.estimatedDuration}` either
     const rawEstimated = source.match(/\{tour\.estimatedDuration\}/g) || [];
-    expect(rawEstimated.length, 'Found raw {tour.estimatedDuration} render — must use duration_labels').toBe(0);
+    expect(
+      rawEstimated.length,
+      "Found raw {tour.estimatedDuration} render — must use duration_labels",
+    ).toBe(0);
 
     // No hardcoded French success message bypassing translations
-    expect(source, 'success message must use t.booking.success_message').not.toContain(
-      'Un email de confirmation a été envoyé'
-    );
+    expect(
+      source,
+      "success message must use t.booking.success_message",
+    ).not.toContain("Un email de confirmation a été envoyé");
 
-    // No hardcoded "À confirmer" / "Voyageurs" / French placeholders
+    // No hardcoded French placeholders, such as "À confirmer" or "Voyageurs".
     const frenchLeaks = [
-      'Hôtel / Adresse',
+      "Hôtel / Adresse",
       'placeholder="Jean',
       'placeholder="jean',
-      "À confirmer\"",
+      'À confirmer"',
       "'Heure de pick-up'",
     ];
     for (const leak of frenchLeaks) {
-      expect(source, `BookingModal still contains French leak: ${leak}`).not.toContain(leak);
+      expect(
+        source,
+        `BookingModal still contains French leak: ${leak}`,
+      ).not.toContain(leak);
     }
   });
 
-  test('API endpoints use RESEND_FROM_EMAIL not hardcoded onboarding@resend.dev', async () => {
+  test("API endpoints use RESEND_FROM_EMAIL not hardcoded onboarding@resend.dev", async () => {
     // Regression: confirm-booking and webhooks/stripe used to hardcode
     // 'Tours & Détours <onboarding@resend.dev>', which silently dropped
     // emails to anyone other than the Resend account owner.
     const apiFiles = [
-      resolve(__dirname, '../api/confirm-booking.ts'),
-      resolve(__dirname, '../api/webhooks/stripe.ts'),
-      resolve(__dirname, '../api/contact.ts'),
+      resolve(__dirname, "../api/confirm-booking.ts"),
+      resolve(__dirname, "../api/webhooks/stripe.ts"),
+      resolve(__dirname, "../api/contact.ts"),
     ];
     for (const path of apiFiles) {
-      const source = readFileSync(path, 'utf-8');
+      const source = readFileSync(path, "utf-8");
       // No hardcoded sandbox sender
-      expect(source, `${path} must not hardcode onboarding@resend.dev`).not.toMatch(
-        /from:\s*['"`]Tours[^"`']*onboarding@resend\.dev/
-      );
+      expect(
+        source,
+        `${path} must not hardcode onboarding@resend.dev`,
+      ).not.toMatch(/from:\s*['"`]Tours[^"`']*onboarding@resend\.dev/);
       // Must use RESEND_FROM_EMAIL env var
-      expect(source, `${path} must read RESEND_FROM_EMAIL`).toContain('RESEND_FROM_EMAIL');
+      expect(source, `${path} must read RESEND_FROM_EMAIL`).toContain(
+        "RESEND_FROM_EMAIL",
+      );
     }
   });
 
-  test('Mini-CRM: customer_notes migration + CSV export helper exist', async () => {
-    const migration = resolve(__dirname, '../supabase/migrations/20260409_customer_notes.sql');
-    expect(existsSync(migration), 'customer_notes migration must exist').toBe(true);
-    const sql = readFileSync(migration, 'utf-8');
-    expect(sql).toContain('CREATE TABLE IF NOT EXISTS customer_notes');
-    expect(sql).toContain('email      TEXT PRIMARY KEY');
-    expect(sql).toContain('ENABLE ROW LEVEL SECURITY');
+  test("Mini-CRM: customer_notes migration + CSV export helper exist", async () => {
+    const migration = resolve(
+      __dirname,
+      "../supabase/migrations/20260409_customer_notes.sql",
+    );
+    expect(existsSync(migration), "customer_notes migration must exist").toBe(
+      true,
+    );
+    const sql = readFileSync(migration, "utf-8");
+    expect(sql).toContain("CREATE TABLE IF NOT EXISTS customer_notes");
+    expect(sql).toContain("email      TEXT PRIMARY KEY");
+    expect(sql).toContain("ENABLE ROW LEVEL SECURITY");
 
-    const csvHelper = resolve(__dirname, '../src/admin/utils/csv-export.ts');
-    expect(existsSync(csvHelper), 'csv-export helper must exist').toBe(true);
-    const csvSrc = readFileSync(csvHelper, 'utf-8');
+    const csvHelper = resolve(__dirname, "../src/admin/utils/csv-export.ts");
+    expect(existsSync(csvHelper), "csv-export helper must exist").toBe(true);
+    const csvSrc = readFileSync(csvHelper, "utf-8");
     expect(csvSrc).toMatch(/FORMULA_TRIGGERS/);
-    expect(csvSrc).toContain('\\uFEFF');
+    expect(csvSrc).toContain("\\uFEFF");
 
-    const customersTab = resolve(__dirname, '../src/admin/components/CustomersTab.tsx');
-    expect(existsSync(customersTab), 'CustomersTab component must exist').toBe(true);
+    const customersTab = resolve(
+      __dirname,
+      "../src/admin/components/CustomersTab.tsx",
+    );
+    expect(existsSync(customersTab), "CustomersTab component must exist").toBe(
+      true,
+    );
   });
 
-  test('Tour dialog images are visible and title appears above', async ({ page }) => {
-    await page.goto('/');
-    const tourCard = page.locator('.group.bg-white.rounded-2xl').first();
+  test("Tour dialog images are visible and title appears above", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const tourCard = page.locator(".group.bg-white.rounded-2xl").first();
     await tourCard.click();
 
     // Title should be visible without scrolling

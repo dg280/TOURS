@@ -1,23 +1,23 @@
 ---
-description: Procédure de vérification avant recette
+description: Pre-release deployment verification procedure
 ---
-1. Vérifier le statut du dernier commit Git :
-// turbo
-`git log -1 --format="%h %cd %s"`
 
-2. Vérifier le statut du déploiement sur Vercel :
-// turbo
-`npx vercel list tours-five-olive --limit 1`
+1. Check the latest Git commit:
+   // turbo
+   `git log -1 --format="%h %cd %s"`
 
-**ATTENTION** : Le statut doit être "READY" et le commit hash doit correspondre au dernier commit local (Action 1) avant de procéder à la recette.
+2. Check the Vercel deployment status:
+   // turbo
+   `npx vercel list tours-five-olive --limit 1`
 
-3. Si le déploiement est prêt, ouvrir l'URL de production :
-`https://tours-five-olive.vercel.app/`
+**IMPORTANT**: The status must be `READY`, and the commit hash must match the latest local commit from step 1 before pre-release testing.
 
-4. **Lancer les tests de non-régression** :
-// turbo
-`npm run test`
-*Note : Cela garantit que les correctifs passés (Cookies, WhatsApp, etc.) sont toujours fonctionnels.*
+3. If the deployment is ready, open the production URL:
+   `https://tours-five-olive.vercel.app/`
 
-5. Valider les points spécifiques demandés par l'utilisateur en suivant le [Plan de Recette](file:///Users/dgenevois/.gemini/antigravity/scratch/TOURS/docs/QA_STRATEGY.md).
+4. **Run regression tests**:
+   // turbo
+   `npm run test`
+   _Note: This confirms that previous fixes, such as cookie and WhatsApp behavior, still work._
 
+5. Validate the user-requested checks with the [QA Strategy](../../docs/QA_STRATEGY.md).

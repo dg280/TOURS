@@ -1,27 +1,31 @@
 # 🛡️ Project Safety & Stability
 
-Ce document répertorie les points critiques du projet pour éviter toute régression malencontreuse des fonctionnalités de paiement et de configuration.
+This document lists the critical project areas that prevent accidental regressions in payment and configuration features.
 
-## 💸 Système de Paiement (Stripe)
+## 💸 Payment System (Stripe)
 
-Le fichier `api/create-payment-intent.ts` est critique. Tout changement doit être validé par :
-1.  **Vérification de la version d'API** : Elle doit rester sur une version stable (actuellement `2025-01-27`).
-2.  **Logique de prix par paliers** : Ne pas modifier la gestion de la colonne `pricing_tiers` sans tester tous les scénarios de réservation (individuel vs groupe).
+The `api/create-payment-intent.ts` file is critical. Validate every change with:
 
-## 📊 Surveillance du Système (Health Check)
+1. **API version check**: it must remain on a stable version (currently `2025-01-27`).
+2. **Tiered-pricing logic**: do not modify handling of the `pricing_tiers` column without testing every booking scenario, including individual and group bookings.
 
-Nous avons mis en place une surveillance en temps réel :
--   **Endpoint** : `/api/health-check` (vérifie Stripe & Supabase).
--   **Dashboard Admin** : Affiche un indicateur de statut. Si le badge passe au rouge, vérifiez immédiatement vos clés API sur Vercel.
+## 📊 System Monitoring (Health Check)
 
-## 🧪 Tests de Non-Régression
+The project provides real-time monitoring:
 
-Avant tout déploiement majeur, exécutez les tests de stabilité :
+- **Endpoint**: `/api/health-check` checks Stripe and Supabase.
+- **Admin dashboard**: displays a status indicator. If it turns red, immediately verify API credentials in Vercel.
+
+## 🧪 Regression Tests
+
+Before every major deployment, run the stability tests:
+
 ```bash
 npx playwright test tests/stability.test.ts
 ```
 
-Ces tests vérifient que le système de surveillance est toujours opérationnel et que les endpoints critiques répondent correctement.
+These tests verify that monitoring remains operational and that critical endpoints respond correctly.
 
 ---
-*Maintenez ce système opérationnel pour éviter les échecs de paiement silencieux en production.*
+
+_Keep this system operational to prevent silent payment failures in production._

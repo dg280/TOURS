@@ -1,24 +1,24 @@
 ---
-description: Aide Antoine à créer une branche et corriger un bug en sécurité
+description: Help Antoine create a branch and safely fix a bug
 ---
 
 # Workflow Contribution (Antoine)
 
-Ce workflow aide un contributeur non-développeur à modifier le code sans casser le site.
+This workflow helps a non-developer contributor change code without breaking the site.
 
-1. **Isolation** : Toujours créer une branche séparée.
-   - Demande au user : "Quel est le nom du bug ?"
-   - Execute : `git checkout -b antoine/fix-[nom-du-bug]`
-2. **Développement** :
-   - Analyse le problème décrit.
-   - Applique les modifications dans les fichiers concernés.
-3. **Sécurité (Anti-Regression)** :
+1. **Isolation**: Always create a separate branch.
+   - Ask the user: "What is the bug name?"
+   - Run: `git checkout -b antoine/fix-[bug-name]`
+2. **Development**:
+   - Analyze the reported problem.
+   - Apply changes in the relevant files.
+3. **Safety (regression prevention)**:
    // turbo
-   - Execute : `npm run test`
-   - Si les tests échouent : Corrige les erreurs jusqu'à obtenir un succès ✅.
-4. **Publication** :
-   - Execute : `git add .`
-   - Execute : `git commit -m "fix(antoine): [description du bug]"`
-   - Execute : `git push origin antoine/fix-[nom-du-bug]`
-5. **Finalisation** : 
-   - Demande à l'admin (Dorian) de vérifier la Pull Request sur GitHub.
+   - Run: `npm run test`
+   - If tests fail, fix errors until they pass.
+4. **Publication**:
+   - Run: `git add .`
+   - Run: `git commit -m "fix(antoine): [bug description]"`
+   - Run: `git push origin antoine/fix-[bug-name]`
+5. **Completion**:
+   - Ask the administrator, Dorian, to review the GitHub pull request.
