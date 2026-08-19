@@ -559,7 +559,7 @@ function Dashboard({
   );
 }
 
-// Suivi Opérationnel Component
+// Operational tracking component
 function OperationalTracking({ reservations }: { reservations: Reservation[] }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -1177,7 +1177,7 @@ function Reservations({
                   <InfoRow label="Téléphone" value={selectedRes.phone} />
                 </div>
 
-                {/* RÉSERVATION */}
+                {/* BOOKING */}
                 <div className="rounded-lg border border-gray-200 p-4 space-y-1">
                   <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Réservation</p>
                   <InfoRow label="Date" value={selectedRes.date} />
@@ -5066,7 +5066,7 @@ export default function AdminApp() {
                         </div>
                       </div>
 
-                      {/* Photos "Ce qui nous rend différent" */}
+                      {/* Photos for the "What makes us different" section */}
                       <div className="space-y-4 pt-4">
                         <h4 className="font-bold text-gray-900 border-b pb-2">
                           Photos — "Ce qui nous rend différent"

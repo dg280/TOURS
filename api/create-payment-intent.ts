@@ -7,7 +7,7 @@
 import Stripe from 'stripe';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-// Initialisation lazy pour éviter les crashs au démarrage si les variables sont absentes
+// Lazy initialization prevents startup crashes when required variables are absent.
 let stripe: Stripe | null = null;
 let supabase: SupabaseClient | null = null;
 
@@ -112,7 +112,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
             }
         }
 
-        // Formule : (Prix tour + 0.30) / 0.956
+        // Formula: (tour price + 0.30) / 0.956
         const totalAmount = (baseAmount + 0.30) / 0.956;
         const amountInCents = Math.round(totalAmount * 100);
 

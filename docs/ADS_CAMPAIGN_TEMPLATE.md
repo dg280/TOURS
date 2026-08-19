@@ -1,56 +1,56 @@
-# 🎯 Campagne Google Ads : Template Optimisé
+# 🎯 Google Ads Campaign: Optimized Template
 ## Tours & Detours Barcelona
 
-Voici les éléments pour configurer votre première campagne Google Ads avec un maximum d'efficacité.
+Use the following elements to configure your first Google Ads campaign effectively.
 
 ---
 
-### 1. Configuration de la Campagne
-- **Type de campagne** : Réseau de Recherche (Search)
-- **Objectif** : Prospects / Ventes
-- **Ciblage géographique** : France, Belgique, Suisse, Québec (ou Barcelone pour les touristes déjà sur place).
-- **Langue** : Français
-- **Budget suggéré** : 10€ / jour
+### 1. Campaign Setup
+- **Campaign type**: Search Network
+- **Goal**: Leads / sales
+- **Geographic targeting**: United Kingdom, United States, Canada, Australia, or Barcelona for visitors already there.
+- **Language**: English
+- **Suggested budget**: EUR 10 per day
 
 ---
 
-### 2. Annonce : Structure (Annonce Textuelle Grand Format)
+### 2. Ad Structure (Responsive Search Ad)
 
-#### Titres (Headlines) - *30 caractères max chacun*
-*Note : Google fait tourner jusqu'à 15 titres pour trouver la meilleure combinaison.*
+#### Headlines: *30 characters maximum each*
+*Google rotates up to 15 headlines to find the best combination.*
 
-1. **Guide Privé Barcelone Français**
-2. **Découvrez la Catalogne Secrète**
-3. **Tours Sur Mesure à Barcelone**
-4. **Évitez les Foules à Barcelone**
-5. **Antoine : Votre Guide Local**
-6. **Réservez votre Tour Privé**
+1. **Private Barcelona Guide**
+2. **Discover Secret Catalonia**
+3. **Tailor-Made Barcelona Tours**
+4. **Avoid Barcelona Crowds**
+5. **Antoine: Your Local Guide**
+6. **Book Your Private Tour**
 
-#### Descriptions - *90 caractères max chacune*
-1. **Explorez Barcelone et la Catalogne avec un guide local passionné. Tours 100% privés.**
-2. **Sortez des sentiers battus. Villages médiévaux, Costa Brava et secrets de Barcelone.**
-3. **Expérience authentique en petit groupe ou privé. Réponse rapide via WhatsApp.**
-
----
-
-### 3. Mots-clés (Keywords) - *Le secret du ROI*
-Utilisez ces types de correspondance pour éviter les clics inutiles.
-
-- `[guide privé barcelone]` (Correspondance exacte)
-- `"guide français barcelone"` (Expression exacte)
-- `"excursion montserrat privé"`
-- `"tour costa brava français"`
+#### Descriptions: *90 characters maximum each*
+1. **Explore Barcelona and Catalonia with a passionate local guide. Fully private tours.**
+2. **Go beyond the usual sights. Medieval villages, Costa Brava, and Barcelona secrets.**
+3. **Authentic small-group or private experiences. Fast replies on WhatsApp.**
 
 ---
 
-### 4. Extensions d'Annonce (À ne pas négliger !)
-- **Sitelinks** : "Tour Montserrat", "Costa Brava", "Avis Clients".
-- **Accroches** : "Annulation gratuite", "Guide local certifié", "Photos pro offertes".
-- **Extension de message** : Liez votre numéro WhatsApp directement.
+### 3. Keywords: *the key to ROI*
+Use these match types to avoid irrelevant clicks.
+
+- `[private barcelona guide]` (exact match)
+- `"english guide barcelona"` (phrase match)
+- `"private montserrat tour"`
+- `"private costa brava tour"`
 
 ---
 
-### 5. URL Finale (Landing Page)
+### 4. Ad Assets (do not overlook these)
+- **Sitelinks**: "Montserrat Tour", "Costa Brava", "Customer Reviews".
+- **Callouts**: "Free Cancellation", "Certified Local Guide", "Professional Photos Included".
+- **Message asset**: Link the WhatsApp number directly.
+
+---
+
+### 5. Final URL (Landing Page)
 `https://tours-five-olive.vercel.app/`
 
-*Astuce : Ajoutez `?source=google-ads` à la fin de l'URL pour suivre vos performances dans Umami.*
+*Tip: Append `?source=google-ads` to the URL to track performance in Umami.*

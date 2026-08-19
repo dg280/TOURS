@@ -1,165 +1,165 @@
-# CLAUDE.md — Tours & Détours Barcelona
+# CLAUDE.md - Tours & Détours Barcelona
 
-Ce fichier est chargé automatiquement par Claude Code à chaque session. Il fournit le contexte complet du projet.
-
----
-
-## Projet
-
-Site web de tours guidés à Barcelone. Clients anglophones, francophones et hispanophones.
-
-**URL de production** : https://tours-five-olive.vercel.app/
-**Repo GitHub** : https://github.com/dg280/TOURS
-**Admin** : Dorian (dg280)
+This file is loaded automatically by Claude Code in every session. It provides complete project context.
 
 ---
 
-## Stack Technique
+## Project
 
-| Couche | Technologie |
+Guided-tour website for Barcelona. Customers speak English, French, and Spanish.
+
+**Production URL**: https://tours-five-olive.vercel.app/
+**GitHub repository**: https://github.com/dg280/TOURS
+**Administrator**: Dorian (dg280)
+
+---
+
+## Technical Stack
+
+| Layer | Technology |
 |---|---|
 | Frontend | React 19 + TypeScript + Vite |
 | Styling | Tailwind CSS + shadcn/ui (Radix) |
 | Backend | Vercel Serverless Functions (`/api/*.ts`) |
-| Base de données | Supabase (PostgreSQL) |
-| Paiements | Stripe |
+| Database | Supabase (PostgreSQL) |
+| Payments | Stripe |
 | Tests | Playwright |
-| Déploiement | Vercel (auto via GitHub push) |
-| i18n | Fichier `src/lib/translations.ts` (FR/EN/ES) |
+| Deployment | Vercel (automatic through GitHub push) |
+| i18n | `src/lib/translations.ts` file (FR/EN/ES) |
 
 ---
 
-## Architecture du Projet
+## Project Architecture
 
 ```
 /
 ├── src/
-│   ├── App.tsx              # App principale (état global, routing SPA)
-│   ├── admin/               # Interface d'administration
+│   ├── App.tsx              # Main app (global state and SPA routing)
+│   ├── admin/               # Administration interface
 │   ├── components/
-│   │   ├── booking/         # Modale de réservation + Stripe
+│   │   ├── booking/         # Booking modal and Stripe integration
 │   │   ├── layout/          # Navbar, Footer
 │   │   ├── live/            # Live tour experience
-│   │   ├── sections/        # Hero, Tours, Testimonials, Contact…
-│   │   └── ui/              # Composants shadcn/ui (NE PAS MODIFIER)
+│   │   ├── sections/        # Hero, tours, testimonials, contact, and more
+│   │   └── ui/              # Generated shadcn/ui components (DO NOT MODIFY)
 │   ├── hooks/               # Custom React hooks
 │   ├── lib/
-│   │   ├── types.ts         # Types TypeScript centraux
-│   │   ├── translations.ts  # i18n FR/EN/ES
-│   │   ├── supabase.ts      # Client Supabase
-│   │   └── utils.ts         # Utilitaires
-│   ├── pages/               # Pages secondaires (About…)
-│   └── live/                # App live tour séparée
+│   │   ├── types.ts         # Central TypeScript types
+│   │   ├── translations.ts  # FR/EN/ES i18n
+│   │   ├── supabase.ts      # Supabase client
+│   │   └── utils.ts         # Utilities
+│   ├── pages/               # Secondary pages (About, and more)
+│   └── live/                # Separate live-tour app
 ├── api/                     # Vercel serverless functions
-│   ├── create-payment-intent.ts  # ⚠️ CRITIQUE — Stripe
-│   ├── confirm-booking.ts        # ⚠️ CRITIQUE — Supabase
-│   ├── health-check.ts           # Monitoring Stripe + Supabase
-│   └── cron/                     # Tâches planifiées
-├── supabase/                # Schémas SQL et migrations
-├── tests/                   # Tests Playwright
-├── docs/                    # Stratégie, QA, SEO
-├── .agent/workflows/        # Workflows pour agents
-├── index.html               # Entrée principale
-├── admin.html               # Entrée admin
-└── live.html                # Entrée live tour
+│   ├── create-payment-intent.ts  # CRITICAL: Stripe
+│   ├── confirm-booking.ts        # CRITICAL: Supabase
+│   ├── health-check.ts           # Stripe and Supabase monitoring
+│   └── cron/                     # Scheduled tasks
+├── supabase/                # SQL schemas and migrations
+├── tests/                   # Playwright tests
+├── docs/                    # Strategy, QA, and SEO
+├── .agent/workflows/        # Agent workflows
+├── index.html               # Main entry point
+├── admin.html               # Admin entry point
+└── live.html                # Live-tour entry point
 ```
 
 ---
 
-## ⚠️ Règles de Sécurité (LIRE AVANT TOUT CHANGEMENT)
+## Security Rules (READ BEFORE MAKING CHANGES)
 
-### Fichiers CRITIQUES — ne pas modifier sans tests
-- `api/create-payment-intent.ts` — version Stripe API : `2025-01-27`, logique prix par paliers
-- `api/confirm-booking.ts` — écriture Supabase, envoi email
-- `src/lib/types.ts` — tout changement casse le typage partout
-- `src/lib/translations.ts` — toujours maintenir les 3 langues (FR/EN/ES)
+### CRITICAL files: do not modify without tests
+- `api/create-payment-intent.ts`: Stripe API version `2025-01-27` and tiered pricing logic
+- `api/confirm-booking.ts`: Supabase writes and email delivery
+- `src/lib/types.ts`: changes can break typing throughout the project
+- `src/lib/translations.ts`: always keep all three languages (FR/EN/ES) aligned
 
-### Composants shadcn/ui
-Les fichiers dans `src/components/ui/` sont **générés automatiquement**. Ne pas modifier sauf en cas de besoin explicite.
+### shadcn/ui components
+Files under `src/components/ui/` are **generated automatically**. Do not modify them unless explicitly required.
 
-### Variables d'environnement
-Voir `.env.example`. Les clés réelles sont dans Vercel (Settings > Environment Variables). Ne jamais committer de vraies clés.
+### Environment variables
+See `.env.example`. Real credentials are stored in Vercel under Settings > Environment Variables. Never commit real credentials.
 
 ---
 
-## Workflow de Développement
+## Development Workflow
 
-### Règle fondamentale
-**Ne jamais committer directement sur `main`.** Toujours travailler sur une branche `feature/<nom-court>`.
+### Fundamental rule
+**Never commit directly to `main`.** Always work in a `feature/<short-name>` branch.
 
-### Convention de nommage
+### Naming convention
 ```
-feature/nom-de-la-feature
-fix/description-du-bug
-chore/tache-technique
+feature/feature-name
+fix/bug-description
+chore/technical-task
 refacto/scope
 ```
 
-### Avant chaque commit
+### Before every commit
 ```bash
-npm run lint        # Vérification ESLint
-npm run build       # Vérification TypeScript + build
-npm run test        # Tests Playwright (non-régression)
+npm run lint        # ESLint check
+npm run build       # TypeScript check and build
+npm run test        # Playwright regression tests
 ```
 
-### Tests de non-régression obligatoires
+### Required regression test
 ```bash
 npx playwright test tests/stability.test.ts
 ```
 
 ---
 
-## Commandes Utiles
+## Useful Commands
 
 ```bash
-npm run dev          # Serveur de dev (localhost:5173)
-npm run build        # Build production
-npm run test         # Tous les tests Playwright
-npm run test:fast    # Tests sans build préalable
-npm run test:ui      # Interface graphique Playwright
+npm run dev          # Development server (localhost:5173)
+npm run build        # Production build
+npm run test         # All Playwright tests
+npm run test:fast    # Tests without a preceding build
+npm run test:ui      # Playwright graphical interface
 npm run lint         # ESLint
 ```
 
 ---
 
-## Gestion Multi-Agents (Isolation)
+## Multi-Agent Isolation
 
-Quand plusieurs agents Claude Code travaillent en parallèle, chacun **doit** utiliser un git worktree séparé :
+When multiple Claude Code agents work in parallel, each **must** use a separate Git worktree:
 
 ```bash
-# Créer un worktree pour un agent
-./scripts/new-agent-worktree.sh nom-de-la-feature
+# Create an agent worktree
+./scripts/new-agent-worktree.sh feature-name
 
-# Le worktree sera créé dans : .worktrees/nom-de-la-feature/
-# Sur la branche : agent/nom-de-la-feature
+# The worktree is created at: .worktrees/feature-name/
+# On branch: agent/feature-name
 ```
 
-**Règles d'isolation :**
-1. Chaque agent travaille dans son propre worktree (répertoire séparé, branche séparée)
-2. Aucun agent ne touche à `main` directement
-3. Merge uniquement via Pull Request sur GitHub après review
+**Isolation rules:**
+1. Each agent works in its own worktree, directory, and branch.
+2. No agent touches `main` directly.
+3. Merge only through a reviewed GitHub pull request.
 
 ---
 
-## Déploiement
+## Deployment
 
-Vercel déploie automatiquement :
-- `main` → production (https://tours-five-olive.vercel.app/)
-- Toute autre branche → preview URL
+Vercel deploys automatically:
+- `main` -> production (https://tours-five-olive.vercel.app/)
+- Any other branch -> preview URL
 
-Pour vérifier avant recette : voir `.agent/workflows/check-deploy.md`
-
----
-
-## Base de Données (Supabase)
-
-Schéma principal : `supabase/supabase_schema.sql`
-Migrations : `supabase/migrations/`
-
-Tables clés : `tours`, `bookings`, `testimonials`, `live_sessions`, `newsletter_subscribers`
+For pre-release verification, see `.agent/workflows/check-deploy.md`.
 
 ---
 
-## Points d'Attention i18n
+## Database (Supabase)
 
-Chaque texte affiché à l'utilisateur doit avoir une version FR, EN et ES dans `src/lib/translations.ts`. Ne jamais hardcoder du texte en dur dans les composants.
+Main schema: `supabase/supabase_schema.sql`
+Migrations: `supabase/migrations/`
+
+Key tables: `tours`, `bookings`, `testimonials`, `live_sessions`, `newsletter_subscribers`
+
+---
+
+## i18n Requirements
+
+Every user-facing string must have FR, EN, and ES versions in `src/lib/translations.ts`. Never hardcode user-facing text in components.

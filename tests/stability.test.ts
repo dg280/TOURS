@@ -139,7 +139,7 @@ test.describe('Stability & Regression Tests', () => {
 
   test('BookingModal renders tour.duration via duration_labels (i18n)', async () => {
     // Regression: tour.duration / tour.estimatedDuration were rendered raw
-    // ("Journée entière") to EN/ES users, leaking French. Every place that
+    // (the French "Journée entière") to EN/ES users, leaking French. Every place that
     // renders these MUST go through t.tours.duration_labels.
     const path = resolve(__dirname, '../src/components/booking/BookingModal.tsx');
     const source = readFileSync(path, 'utf-8');
@@ -157,7 +157,7 @@ test.describe('Stability & Regression Tests', () => {
       'Un email de confirmation a été envoyé'
     );
 
-    // No hardcoded "À confirmer" / "Voyageurs" / French placeholders
+    // No hardcoded French placeholders, such as "À confirmer" or "Voyageurs".
     const frenchLeaks = [
       'Hôtel / Adresse',
       'placeholder="Jean',

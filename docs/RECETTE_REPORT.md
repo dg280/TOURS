@@ -1,105 +1,79 @@
-# 🧪 Rapport de Recette & Plan de Remédiation
-**Date :** 15 Février 2026 - 12:00
-**Statut Global :** 🟠 EN COURS DE CORRECTION
+# 🧪 Acceptance Report and Remediation Plan
 
----
+**Date:** February 15, 2026 - 12:00
+**Overall status:** 🟠 FIXES IN PROGRESS
 
-## 📋 1. État de la Recette (Audit Détallé)
+> Historical record: this report reflects the application at the date above. Verify every finding against the current code before acting on it.
 
-| Élément | Test effectué | Résultat | Gravité |
+## 1. Acceptance Status
+
+| Item | Test performed | Result | Severity |
 | :--- | :--- | :--- | :--- |
-| **Bannière Cookies** | Clic sur "Accepter" | ❌ ÉCHEC (Ne se ferme pas) | BLOQUANT |
-| **Langues (EN/ES)** | Switch vers Anglais | ❌ PARTIEL (Tours non traduits) | MAJEUR |
-| **WhatsApp Button** | Visibilité sur mobile/desktop | ❌ ÉCHEC (Invisible) | MAJEUR |
-| **Dashboard Admin** | Accès via `/admin` | ❌ ÉCHEC (404) | MINEUR |
-| **Performance** | Temps de chargement | ✅ OK (Filtre Vercel < 2s) | - |
-| **SEO** | Balises méta | ✅ OK | - |
+| Cookie banner | Click "Accept" | ❌ Failed: did not close | Blocking |
+| Languages (EN/ES) | Switch to English | ❌ Partial: tours untranslated | Major |
+| WhatsApp button | Visibility on mobile/desktop | ❌ Failed: not visible | Major |
+| Admin dashboard | Access through `/admin` | ❌ Failed: 404 | Minor |
+| Performance | Load time | ✅ OK: Vercel filter under 2 s | - |
+| SEO | Meta tags | ✅ OK | - |
 
----
+## 2. Remediation Actions Recorded
 
-## 🛠️ 2. Plan de Remédiation (Actions Entreprises)
+### A. Cookie Banner
+- **Diagnosis:** React persistence and state-update issue.
+- **Remedy:** Added `try/catch` around `localStorage` and secured the `onAccept` trigger.
+- **Status:** Deployed.
 
-### ✅ Action A : Déblocage de la Bannière Cookies
-- **Diagnostic** : Problème de persistance et de mise à jour d'état React.
-- **Remède** : Ajout de blocs `try/catch` sur le `localStorage` et sécurisation du trigger `onAccept`.
-- **Statut** : DÉPLOYÉ.
+### B. Tour-Language Alignment
+- **Diagnosis:** Database mapping overwrote local translations without checking for translated database data.
+- **Remedy:** Reworked `App.tsx` merge priority to `Custom > DB Translation > Hardcoded Translation`.
+- **Status:** Deployed.
 
-### ✅ Action B : Harmonisation Multilingue des Tours
-- **Diagnostic** : Le mapping DB écrasait les traductions locales sans vérifier si la DB contenait des données traduites.
-- **Remède** : Refonte de la logique de fusion dans `App.tsx` pour prioriser : `Custom > DB Translation > Hardcoded Translation`.
-- **Statut** : DÉPLOYÉ.
+### C. WhatsApp Button
+- **Diagnosis:** A low `z-index` hid the button behind cookies, and its DOM entry point was absent.
+- **Remedy:** Changed it to `z-[110]` and verified its `App.tsx` entry point.
+- **Status:** Deployed.
 
-### ✅ Action C : Activation du Bouton WhatsApp Premium
-- **Diagnostic** : `z-index` trop faible (caché par les cookies) et absence du DOM.
-- **Remède** : Passage au `z-[110]` et vérification du point d'entrée dans `App.tsx`.
-- **Statut** : DÉPLOYÉ.
+### D. Vercel Build Dependencies
+- **Diagnosis:** `react-helmet-async` conflicted with `react@19` during Vercel deployment.
+- **Remedy:** Added `.npmrc` with `legacy-peer-deps=true`.
+- **Status:** Deployed.
 
-### ✅ Action D : Résolution du Conflit de Dépendances (Build Vercel)
-- **Diagnostic** : Conflit entre `react-helmet-async` et `react@19` bloquant le déploiement sur Vercel.
-- **Remède** : Ajout d'un fichier `.npmrc` avec `legacy-peer-deps=true`.
-- **Statut** : DÉPLOYÉ.
+### E. Overlap and Test Reset
+- **Diagnosis:** The WhatsApp button (`z-110`) could overlap cookie buttons (`z-100`); state was difficult to reset for testing.
+- **Remedy:** Moved WhatsApp to `bottom-32` and added `?reset=true` to force the banner to display.
+- **Status:** Deployed.
 
-### ✅ Action E : Correction de Superposition & Debugging
-- **Diagnostic** : Risque de superposition entre le bouton WhatsApp (z-110) et les boutons de cookies (z-100). Difficulté à réinitialiser l'état pour les tests.
-- **Remède** : Déplacement du bouton WhatsApp à `bottom-32` et ajout du paramètre `?reset=true` pour forcer l'affichage de la bannière.
-- **Statut** : DÉPLOYÉ.
+### F. iOS Improvements and Cleanup
+- **Diagnosis:** Cookie-button interaction issues on iOS, persistent `V3` debug text from cache/build state, and footer overlap.
+- **Remedy:** Removed `V3` references and debug logs; added `type="button"` and `preventDefault` to cookie buttons; hid WhatsApp during booking; improved the one-column mobile footer.
+- **Status:** Deployed, pending validation.
 
-### ✅ Action F : Optimisations iPhone (iOS) & Cleanup
-- **Diagnostic** : Problèmes d'interaction sur iOS (boutons de cookies), texte de debug "V3" persistant (cache/build), et superposition footer.
-- **Remède** : 
-    - Suppression radicale de toute mention "V3" ou log de debug.
-    - Ajout de `type="button"` et `preventDefault` sur les boutons de cookies pour assurer la compatibilité mobile/iOS.
-    - Désactivation du bouton WhatsApp pendant la phase de réservation (`isBookingOpen`).
-    - Amélioration de la grille du Footer pour le rendu 1-colonne sur mobile.
-- **Statut** : DÉPLOYÉ / EN ATTENTE DE VALIDATION.
-25: 
-26: ### ✅ Action G : Harmonisation Typo & Fix Modales (Overflow)
-27: - **Diagnostic** : Texte de réservation "RÉSERVER MAINTENANT" trop gros pour le bouton sur MacBook Air, et mélange de Serif/Sans inconsistant sur les sous-titres techniques.
-28: - **Remède** : 
-29:     - Réduction de la taille de police (`xs/sm`) et du padding du bouton de réservation.
-30:     - Forçage de la police `font-sans` (Inter) sur tous les headers techniques (`h3`/`h4`) des modales pour harmonisation.
-31:     - Réduction de l'espacement interne (padding) du bloc tarifaire pour libérer de la largeur.
-32: - **Statut** : DÉPLOYÉ.
+### G. Typography and Modal Overflow
+- **Diagnosis:** Booking text was too large on a MacBook Air, and technical subtitles mixed serif and sans-serif styles.
+- **Remedy:** Reduced booking-button typography and padding, enforced `font-sans` on modal technical headings, and reduced price-block spacing.
+- **Status:** Deployed.
 
----
+### H. Top-Bar Redesign
+- **Diagnosis:** The original bar was too narrow, lacked visual presence, and included redundant CTAs.
+- **Remedy:** Increased vertical padding, removed Book and WhatsApp buttons from the navigation bar, and retained the floating WhatsApp button.
+- **Status:** Deployed.
 
-## 📝 Résultat Final (Simulation Browser)
-- **WhatsApp** : ✅ Visible, Pulse OK, Badge OK. Se cache pendant la réservation.
-- **Cookies** : ✅ Texte propre, interaction renforcée pour iOS. Paramètre `?reset=true` disponible.
-- **Footer** : ✅ Alignement mobile corrigé (flex-col).
-- **Traductions** : ✅ Tous les détails des tours (Supabase + Local) sont traduits en FR, EN, ES.
+### I. Monitoring Cloud Sync
+- **Diagnosis:** GitHub and Vercel keys were only in `localStorage`, so they had to be re-entered on every computer.
+- **Remedy:** Migrated them to Supabase (`site_config.infra_config`) with authenticated-admin RLS and dashboard-load synchronization.
+- **Status:** Deployed.
 
-- **Statut** : DÉPLOYÉ.
+## 3. Recorded Browser-Simulation Result
 
-### ✅ Action H : Redesign "Luxury" du Bandeau Supérieur
-- **Diagnostic** : Bandeau initialement trop étroit, manquant de prestige, et surcharge de CTAs redondants.
-- **Remède** : 
-    - Augmentation de la hauteur (padding vertical +40%) pour un rendu plus aéré.
-    - Suppression des boutons "Réserver" et "WhatsApp" de la Navbar (Desktop & Mobile) pour épurer le design.
-    - Conservation du bouton WhatsApp flottant pour maintenir le canal de conversion direct.
-- **Statut** : DÉPLOYÉ.
+- Navigation bar: ✅ Cleaner, taller layout and smooth navigation.
+- WhatsApp: ✅ Floating button retained; navigation bar cleaned up.
+- Typography: ✅ Serif for emotional content and sans-serif for technical information.
+- Monitoring: ✅ Cloud persistence enabled for GitHub and Vercel.
+- Tests: ✅ Text-overflow protection enabled.
+- Catalog: ✅ Image upload added.
+- Guide: ✅ Biography can be edited dynamically.
 
----
+## 4. Next Steps
 
-### ✅ Action I : Persistance du Monitoring (Cloud Sync)
-- **Diagnostic** : Les clefs GitHub et Vercel étaient stockées uniquement dans le `localStorage`, obligeant à les ressaisir sur chaque nouvel ordinateur.
-- **Remède** : 
-    - Migration du stockage vers Supabase (table `site_config`, clef `infra_config`).
-    - Sécurisation via RLS (Row Level Security) : seule l'administration authentifiée peut lire ces clefs.
-    - Synchronisation automatique au chargement du dashboard.
-- **Statut** : DÉPLOYÉ.
-
----
-
-## 📝 Résultat Final (Simulation Browser)
-- **Navbar** : ✅ Épurée, hauteur premium, navigation fluide.
-- **WhatsApp** : ✅ Bouton flottant conservé, navbar nettoyée.
-- **Fonts** : ✅ Serif pour l'émotion, Sans pour l'information technique.
-- **Monitoring** : ✅ Persistance cloud activée (GitHub / Vercel).
-- **Tests** : ✅ Protection contre le débordement de texte activée.
-- **Catalogue** : ✅ Upload d'images ajouté.
-- **Guide** : ✅ Biographie éditable dynamiquement.
-
-## 🚀 Prochaines Étapes
-1. Validation finale par l'utilisateur.
-2. Nettoyage des fichiers temporaires.
+1. Perform final user validation.
+2. Clean up temporary files.

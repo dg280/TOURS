@@ -424,7 +424,7 @@ export const BookingModal = ({
   const calculateTotal = () => {
     const subtotal = calculateSubtotal();
     if (subtotal === 0) return 0;
-    // Formule : (Prix tour + 0.30) / 0.956
+    // Formula: (tour price + 0.30) / 0.956
     const total = (subtotal + 0.3) / 0.956;
     return Number(total.toFixed(2));
   };

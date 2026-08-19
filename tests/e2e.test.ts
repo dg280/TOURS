@@ -226,7 +226,7 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         const tourCard = page.locator('#top-tours h3, section#tours h3').first();
         await tourCard.click({ force: true });
 
-        // Click the "Bon à savoir / Meet" tab
+        // Click the "Good to know / Meet" tab
         await page.locator('div[role="dialog"] [role="tab"]').filter({ hasText: /Savoir|Know|Útil/i }).first().click();
 
         // The active tab panel should be visible
@@ -334,7 +334,7 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         await expect(dialogTitle).toBeVisible();
 
         // Check Duration Translation in Dialog
-        // "Journée entière" should become "Full Day"
+        // The French "Journée entière" value should become "Full Day".
         const durationText = page.locator('div[role="dialog"] span:has-text("Day")');
         await expect(durationText).toBeVisible();
 
@@ -519,7 +519,7 @@ test.describe('Full Site Verification - Tours & Detours', () => {
         await page.getByRole('button', { name: /Suivi/i }).first().click();
         await page.waitForTimeout(500);
 
-        // Suivi section shows "Suivi Opérationnel" heading and pick-up/planning cards
+        // The operational tracking section shows its heading and pick-up/planning cards.
         await expect(page.locator('text=/Suivi Opérationnel|Pick-ups|Planning/i').first()).toBeVisible({ timeout: 10000 });
     });
 

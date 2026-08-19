@@ -107,7 +107,7 @@ const mockTours = [
 async function init() {
     console.log('--- Initializing Database ---')
 
-    // 1. Initialiser le profil
+    // 1. Initialize the profile
     console.log('Syncing site config...')
     const { error: configError } = await supabase.from('site_config').upsert({
         key: 'guide_profile',
@@ -123,7 +123,7 @@ async function init() {
         console.log('✓ Site config synced.')
     }
 
-    // 2. Initialiser les tours
+    // 2. Initialize tours
     console.log('Syncing tours catalog...')
     for (const tour of mockTours) {
         const { error: tourError } = await supabase.from('tours').upsert(tour)
@@ -134,7 +134,7 @@ async function init() {
         }
     }
 
-    // 3. Initialiser les tours par défaut (Master Data)
+    // 3. Initialize default tours (master data)
     console.log('Syncing default_tours (Master Data)...')
     for (const tour of mockTours) {
         const { error: defaultTourError } = await supabase.from('default_tours').upsert(tour)
