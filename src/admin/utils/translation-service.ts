@@ -1,101 +1,89 @@
 /**
- * Translation service using Google Translate unofficial client endpoint.
- * No API key required. Suitable for moderate internal usage.
+ * Translation service — thin client over /api/translate.
+ *
+ * All the work happens server-side (see api/translate.ts). This file only
+ * shapes the request and surfaces a readable error.
+ *
+ * History worth keeping in mind before "simplifying" this back into a direct
+ * browser fetch: the admin previously called MyMemory, then Google's
+ * unofficial `gtx` endpoint, straight from the page. Both were free, keyless
+ * services with no quota contract, and both eventually started refusing us.
+ * Google's refusal is an HTML 429 with no CORS headers, which the browser
+ * turns into an opaque "Failed to fetch" before any of our error handling
+ * runs. Keep the provider behind our own origin.
  */
+
+import { supabase } from "@/lib/supabase";
 
 export type SupportedLanguage = "fr" | "en" | "es";
 
-const LANG_MAP: Record<SupportedLanguage, string> = {
-  fr: "fr",
-  en: "en",
-  es: "es",
-};
-
 /**
- * Translates a single chunk of text via Google Translate client endpoint.
+ * Translate a batch of strings in one round trip.
+ * Returns translations in the same order, with blanks preserved.
  */
-async function translateSingleChunk(
-  text: string,
+async function requestTranslation(
+  texts: string[],
   from: SupportedLanguage,
-  to: SupportedLanguage
-): Promise<string> {
-  const url =
-    `https://translate.googleapis.com/translate_a/single` +
-    `?client=gtx&sl=${LANG_MAP[from]}&tl=${LANG_MAP[to]}&dt=t` +
-    `&q=${encodeURIComponent(text)}`;
-
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error(`Erreur réseau Google Translate (${response.status})`);
+  to: SupportedLanguage,
+): Promise<string[]> {
+  if (!supabase) {
+    throw new Error("Session admin indisponible");
   }
 
-  // Response shape: [[[translatedText, originalText, ...], ...], null, sourceLang, ...]
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error("Session expirée — reconnecte-toi à l'admin");
+  }
+
+  const response = await fetch("/api/translate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify({ texts, from, to }),
+  });
+
+  // Same origin, so a non-2xx always carries a readable body — unlike the
+  // cross-origin setup this replaced.
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.error || `Échec de la traduction (${response.status})`);
+  }
+
   const data = await response.json();
 
-  if (!Array.isArray(data) || !Array.isArray(data[0])) {
-    throw new Error("Réponse inattendue de Google Translate");
+  if (!Array.isArray(data.translations)) {
+    throw new Error("Réponse inattendue du service de traduction");
   }
 
-  // Join all translation segments
-  const translated: string = (data[0] as [string, string][])
-    .map((segment) => segment[0] ?? "")
-    .join("");
-
-  if (!translated) {
-    throw new Error("Google Translate a renvoyé une traduction vide");
-  }
-
-  return translated;
-}
-
-/**
- * Splits text into chunks ≤ maxLen, respecting sentence boundaries.
- */
-function splitTextIntoChunks(text: string, maxLen: number): string[] {
-  const chunks: string[] = [];
-  let current = text;
-
-  while (current.length > 0) {
-    if (current.length <= maxLen) {
-      chunks.push(current);
-      break;
-    }
-    const area = current.substring(0, maxLen);
-    let idx = area.lastIndexOf(". ");
-    if (idx === -1) idx = area.lastIndexOf("! ");
-    if (idx === -1) idx = area.lastIndexOf("? ");
-    if (idx === -1) idx = area.lastIndexOf("\n");
-    if (idx === -1) idx = area.lastIndexOf(" ");
-    if (idx === -1 || idx < maxLen * 0.5) idx = maxLen;
-    else idx += 1;
-    chunks.push(current.substring(0, idx));
-    current = current.substring(idx);
-  }
-
-  return chunks;
+  return data.translations;
 }
 
 export const translateText = async (
   text: string,
   from: SupportedLanguage,
-  to: SupportedLanguage
+  to: SupportedLanguage,
 ): Promise<string> => {
   if (!text.trim()) return "";
   if (from === to) return text;
 
-  const chunks = splitTextIntoChunks(text, 1000);
-  const translated = await Promise.all(
-    chunks.map((chunk) => translateSingleChunk(chunk, from, to))
-  );
-  return translated.join("");
+  const [translated] = await requestTranslation([text], from, to);
+  return translated ?? "";
 };
 
 export const translateArray = async (
   items: string[],
   from: SupportedLanguage,
-  to: SupportedLanguage
+  to: SupportedLanguage,
 ): Promise<string[]> => {
   if (!items || items.length === 0) return [];
-  return Promise.all(items.map((item) => translateText(item, from, to)));
+  if (from === to) return items;
+
+  // One request for the whole array — the old version fired a parallel
+  // fetch per item, which is exactly the burst pattern that got us blocked.
+  return requestTranslation(items, from, to);
 };
