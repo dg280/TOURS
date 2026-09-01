@@ -175,8 +175,8 @@ Every user-facing string must have FR, EN, and ES versions in `src/lib/translati
 
 ### Admin translation ("Traduire" buttons)
 
-Tour content is translated through `/api/translate` (Claude API), called from
-`src/admin/utils/translation-service.ts`. Requires `ANTHROPIC_API_KEY` in Vercel.
+Tour content is translated through `/api/translate` (DeepL), called from
+`src/admin/utils/translation-service.ts`. Requires `DEEPL_API_KEY` in Vercel.
 
 **Do not move this call back into the browser, and do not swap it for a
 keyless free service.** That path has failed twice: MyMemory (Feb 2026, daily
@@ -185,3 +185,7 @@ Google's 429 is an HTML page with no CORS headers, so the browser rejected it
 before any error handling ran and the admin only saw "Failed to fetch". A
 provider with a key and a published quota is the requirement here, not an
 optimisation.
+
+DeepL translates literally and has no way to be told "keep Camí de Ronda in
+Catalan". If place names come back anglicised, the fix is a DeepL glossary
+(FR/EN/ES entries for the recurring proper nouns), not a provider swap.
