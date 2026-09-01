@@ -157,7 +157,15 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         .join('\n\n');
 
     try {
-        const client = new Anthropic();
+        // An identity-linked API key must name the workspace it acts in, or the
+        // API rejects the call with a 400. A plain workspace-scoped key must not
+        // send the header at all — so only set it when it is configured.
+        const workspaceId = process.env.ANTHROPIC_WORKSPACE_ID;
+        const client = new Anthropic(
+            workspaceId
+                ? { defaultHeaders: { 'anthropic-workspace-id': workspaceId } }
+                : {},
+        );
 
         const response = await client.messages.parse({
             model: 'claude-opus-5',
@@ -204,9 +212,17 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
                 .json({ error: 'Quota de traduction atteint — réessaie dans un instant' });
         }
         if (err instanceof Anthropic.APIError) {
-            return res
-                .status(502)
-                .json({ error: `Moteur de traduction indisponible (${err.status})` });
+            // Surface what the API actually said. A bare status code sends the
+            // reader to the Vercel logs for something the toast could have told
+            // them — and this endpoint is admin-only, so there is no one else to
+            // leak it to.
+            const upstream = (err as { error?: { error?: { message?: string } } })?.error?.error
+                ?.message;
+            return res.status(502).json({
+                error: upstream
+                    ? `Moteur de traduction (${err.status}) : ${upstream}`
+                    : `Moteur de traduction indisponible (${err.status})`,
+            });
         }
         return res.status(500).json({ error: (err as Error).message || 'Échec de la traduction' });
     }
