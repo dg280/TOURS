@@ -46,6 +46,17 @@ export const translations = {
                 itin: 'Itinéraire',
                 incl: 'Inclus / Non Inclus',
                 meet: 'Point de Rencontre'
+            },
+            quick_question: {
+                title: 'Encore un doute ?',
+                subtitle: 'Posez-nous votre question, on répond vite !',
+                name_placeholder: 'Votre prénom (facultatif)',
+                email_placeholder: 'Votre email',
+                question_placeholder: 'Écrivez votre question ici...',
+                cta: 'Envoyer ma demande',
+                sending: 'Envoi en cours...',
+                success: 'Merci ! Votre question a bien été envoyée.',
+                error: 'Oups, une erreur est survenue. Réessayez.'
             }
         },
         guide: {
@@ -277,6 +288,17 @@ export const translations = {
                 itin: 'Itinerary',
                 incl: 'Included / Not Included',
                 meet: 'Meeting Point'
+            },
+            quick_question: {
+                title: 'Still have questions?',
+                subtitle: 'Ask away, we reply fast!',
+                name_placeholder: 'Your first name (optional)',
+                email_placeholder: 'Your email',
+                question_placeholder: 'Type your question here...',
+                cta: 'Send Request',
+                sending: 'Sending...',
+                success: 'Thanks! Your question has been sent.',
+                error: 'Oops, something went wrong. Please try again.'
             }
         },
         guide: {
@@ -494,6 +516,17 @@ export const translations = {
                 itin: 'Itinerario',
                 incl: 'Incluido / No Incluido',
                 meet: 'Punto de Encuentro'
+            },
+            quick_question: {
+                title: '¿Aún tienes dudas?',
+                subtitle: '¡Pregúntanos, respondemos rápido!',
+                name_placeholder: 'Tu nombre (opcional)',
+                email_placeholder: 'Tu email',
+                question_placeholder: 'Escribe tu pregunta aquí...',
+                cta: 'Enviar Solicitud',
+                sending: 'Enviando...',
+                success: '¡Gracias! Tu pregunta ha sido enviada.',
+                error: 'Ups, algo salió mal. Inténtalo de nuevo.'
             }
         },
         guide: {

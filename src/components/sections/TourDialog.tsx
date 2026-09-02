@@ -1,5 +1,8 @@
-import { MapPin, X, Check, CheckCircle2 } from 'lucide-react';
+import { useState } from 'react';
+import { MapPin, X, Check, CheckCircle2, MessageCircleQuestion } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
     Dialog,
     DialogContent,
@@ -23,7 +26,38 @@ interface TourDialogProps {
 }
 
 export const TourDialog = ({ tour, isOpen, onOpenChange, t, onBookNow }: TourDialogProps) => {
+    const [questionName, setQuestionName] = useState('');
+    const [questionEmail, setQuestionEmail] = useState('');
+    const [questionText, setQuestionText] = useState('');
+    const [questionStatus, setQuestionStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+
     if (!tour) return null;
+
+    const qq = t.tours.quick_question;
+
+    const handleSendQuestion = async () => {
+        if (!questionEmail.trim() || !questionText.trim() || questionStatus === 'sending') return;
+        setQuestionStatus('sending');
+        try {
+            const response = await fetch('/api/send-question', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: questionName.trim(),
+                    email: questionEmail.trim(),
+                    tourName: tour.title,
+                    message: questionText.trim(),
+                }),
+            });
+            if (!response.ok) throw new Error('Request failed');
+            setQuestionStatus('success');
+            setQuestionName('');
+            setQuestionEmail('');
+            setQuestionText('');
+        } catch {
+            setQuestionStatus('error');
+        }
+    };
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -186,6 +220,50 @@ export const TourDialog = ({ tour, isOpen, onOpenChange, t, onBookNow }: TourDia
                                             <span>Annulation flexible (24h)</span>
                                         </div>
                                     </div>
+                                </div>
+
+                                <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <MessageCircleQuestion className="w-5 h-5 text-amber-600 shrink-0" />
+                                        <h4 className="font-sans font-bold text-gray-900 text-sm">{qq.title}</h4>
+                                    </div>
+                                    <p className="text-xs text-gray-500 -mt-2">{qq.subtitle}</p>
+                                    {questionStatus === 'success' ? (
+                                        <p className="text-sm text-green-700 font-medium py-2">{qq.success}</p>
+                                    ) : (
+                                        <>
+                                            <Input
+                                                value={questionName}
+                                                onChange={(e) => setQuestionName(e.target.value)}
+                                                placeholder={qq.name_placeholder}
+                                                className="bg-white border-gray-200 focus:border-amber-600 h-10 text-sm"
+                                            />
+                                            <Input
+                                                type="email"
+                                                value={questionEmail}
+                                                onChange={(e) => setQuestionEmail(e.target.value)}
+                                                placeholder={qq.email_placeholder}
+                                                className="bg-white border-gray-200 focus:border-amber-600 h-10 text-sm"
+                                            />
+                                            <Textarea
+                                                value={questionText}
+                                                onChange={(e) => setQuestionText(e.target.value)}
+                                                placeholder={qq.question_placeholder}
+                                                rows={2}
+                                                className="bg-white border-gray-200 focus:border-amber-600 rounded-xl text-sm resize-none"
+                                            />
+                                            {questionStatus === 'error' && (
+                                                <p className="text-xs text-red-600">{qq.error}</p>
+                                            )}
+                                            <Button
+                                                onClick={handleSendQuestion}
+                                                disabled={!questionEmail.trim() || !questionText.trim() || questionStatus === 'sending'}
+                                                className="w-full bg-gray-900 hover:bg-amber-600 text-white font-semibold h-10 rounded-xl text-sm transition-all active:scale-95 disabled:opacity-40"
+                                            >
+                                                {questionStatus === 'sending' ? qq.sending : qq.cta}
+                                            </Button>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </div>
