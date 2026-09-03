@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { CookieConsent } from "./components/CookieConsent";
+import { ConsentedAnalytics } from "./components/ConsentedAnalytics";
 import { Navbar } from "./components/layout/Navbar";
 import { Hero } from "./components/sections/Hero";
 import { Footer } from "./components/layout/Footer";
@@ -261,6 +262,7 @@ function App() {
           onAccept={() => setShowCookieConsent(false)}
         />
       )}
+      <ConsentedAnalytics key={showCookieConsent ? "pending" : "answered"} />
       <Toaster position="top-center" richColors />
     </div>
   );
