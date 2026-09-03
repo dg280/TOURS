@@ -70,8 +70,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
             return;
         }
 
-        if (file.length > 10 * 1024 * 1024) {
-            res.writeHead(400).end(JSON.stringify({ error: 'File too large (max 10 MB)' }));
+        // The advertised 10 MB was never reachable: the client sends the file
+        // base64-encoded in a JSON body (+33%) and Vercel rejects a serverless
+        // request body over 4.5 MB, so anything past ~3.3 MB was refused by the
+        // platform before this handler ever ran. State the real limit instead.
+        if (file.length > 3.3 * 1024 * 1024) {
+            res.writeHead(400).end(JSON.stringify({ error: 'File too large (max 3.3 MB after compression)' }));
             return;
         }
 
