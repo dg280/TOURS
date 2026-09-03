@@ -6,14 +6,28 @@
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-export default async function handler(req: { method?: string }, res: { status: (code: number) => { json: (data: unknown) => void } }) {
-    const health = {
+/** Résultat d'une sonde. `message` et `mode` sont facultatifs : une sonde
+ *  qui passe n'a rien à signaler, et seul Stripe expose un mode. */
+interface Check {
+    status: string;
+    message?: string;
+    mode?: string;
+}
+
+interface Health {
+    timestamp: string;
+    status: string;
+    checks: { stripe: Check; supabase: Check; resend: Check };
+}
+
+export default async function handler(_req: { method?: string }, res: { status: (code: number) => { json: (data: unknown) => void } }) {
+    const health: Health = {
         timestamp: new Date().toISOString(),
         status: 'ok',
         checks: {
-            stripe: { status: 'unknown' as string, message: undefined as string | undefined, mode: undefined as string | undefined },
-            supabase: { status: 'unknown' as string, message: undefined as string | undefined },
-            resend: { status: 'unknown' as string, message: undefined as string | undefined }
+            stripe: { status: 'unknown' },
+            supabase: { status: 'unknown' },
+            resend: { status: 'unknown' }
         }
     };
 
@@ -35,7 +49,7 @@ export default async function handler(req: { method?: string }, res: { status: (
             health.status = 'error';
         }
     } catch (err) {
-        health.checks.stripe = { status: 'error', message: (err as Error).message, mode: undefined };
+        health.checks.stripe = { status: 'error', message: (err as Error).message };
         health.status = 'error';
     }
 
