@@ -1796,6 +1796,11 @@ function ToursManagement({
         const fileExt = file.name.split(".").pop() || "jpg";
         const fileName = `tours/${editingTour.id}/${Date.now()}-${Math.random().toString(36).substr(2, 5)}.${fileExt}`;
         const result = await uploadImage(fileName, file, file.type);
+        if (result.source !== "vercel-blob") {
+          toast.warning(
+            "Image envoyée sur Supabase, pas sur Vercel Blob — vérifier BLOB_READ_WRITE_TOKEN.",
+          );
+        }
         uploadedUrls.push(result.url);
         URL.revokeObjectURL(previewUrl);
       }
@@ -1835,6 +1840,11 @@ function ToursManagement({
       }
 
       const result = await uploadImage(fileName, blob, "image/jpeg");
+      if (result.source !== "vercel-blob") {
+        toast.warning(
+          "Image envoyée sur Supabase, pas sur Vercel Blob — vérifier BLOB_READ_WRITE_TOKEN.",
+        );
+      }
 
       const newImages = [...(editingTour.images || [])];
 
@@ -3700,6 +3710,14 @@ function ToursManagement({
                                                 file,
                                                 file.type,
                                               );
+                                            if (
+                                              uploadResult.source !==
+                                              "vercel-blob"
+                                            ) {
+                                              toast.warning(
+                                                "Image envoyée sur Supabase, pas sur Vercel Blob — vérifier BLOB_READ_WRITE_TOKEN.",
+                                              );
+                                            }
                                             const newStops = [
                                               ...(editingTour.stops || []),
                                             ];
