@@ -107,6 +107,17 @@ export const translations = {
             },
             no_tours_found: 'Aucun tour trouvé dans cette catégorie.'
         },
+        quick_question: {
+            title: 'Encore un doute ?',
+            subtitle: 'Posez-nous votre question, on répond vite !',
+            name_placeholder: 'Votre prénom (facultatif)',
+            email_placeholder: 'Votre email',
+            question_placeholder: 'Écrivez votre question ici...',
+            cta: 'Envoyer ma demande',
+            sending: 'Envoi en cours...',
+            success: 'Merci ! Votre question a bien été envoyée.',
+            error: 'Oups, une erreur est survenue. Réessayez.'
+        },
         guide: {
             section_tag: 'VOTRE GUIDE',
             title: 'Bonjour, je suis Antoine Pilard',
@@ -550,6 +561,17 @@ export const translations = {
             },
             no_tours_found: 'No tours found in this category.'
         },
+        quick_question: {
+            title: 'Still have a doubt?',
+            subtitle: 'Ask us your question, we reply fast!',
+            name_placeholder: 'Your first name (optional)',
+            email_placeholder: 'Your email',
+            question_placeholder: 'Write your question here...',
+            cta: 'Send my request',
+            sending: 'Sending...',
+            success: 'Thank you! Your question has been sent.',
+            error: 'Oops, an error occurred. Please try again.'
+        },
         guide: {
             section_tag: 'YOUR GUIDE',
             title: 'Hello, I am Antoine Pilard',
@@ -992,6 +1014,17 @@ export const translations = {
                 outside: 'Fuera de Barcelona'
             },
             no_tours_found: 'No se han encontrado tours en esta categoría.'
+        },
+        quick_question: {
+            title: '¿Todavía tienes una duda?',
+            subtitle: 'Haznos tu pregunta, respondemos rápido!',
+            name_placeholder: 'Tu nombre (opcional)',
+            email_placeholder: 'Tu email',
+            question_placeholder: 'Escribe tu pregunta aquí...',
+            cta: 'Enviar mi solicitud',
+            sending: 'Enviando...',
+            success: '¡Gracias! Tu pregunta ha sido enviada.',
+            error: 'Ups, ha ocurrido un error. Inténtalo de nuevo.'
         },
         guide: {
             section_tag: 'TU GUÍA',
