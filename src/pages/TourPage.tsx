@@ -18,16 +18,23 @@ import type { Tour } from "@/lib/types";
 export function TourPage() {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate();
-    const { tours, lang, t } = useAppContext();
+    const { tours, toursSettled, lang, t } = useAppContext();
 
     const tour = slug ? tourForSlug(slug, tours) : undefined;
 
-    // If tour not found and tours are loaded, redirect to home
+    // If the tour is unknown once the data has settled, redirect home.
+    //
+    // The guard must be toursSettled, not tours.length: the list is seeded
+    // from the static catalogue in translations.ts, so it is non-empty on the
+    // very first render. Slugs come from the database titles, which the admin
+    // edits, so a deep link matched nothing on that first pass and every
+    // shared or indexed tour URL bounced to the home page before Supabase
+    // had answered.
     useEffect(() => {
-        if (slug && tours.length > 0 && !tour) {
+        if (slug && toursSettled && !tour) {
             navigate("/", { replace: true });
         }
-    }, [slug, tours, tour, navigate]);
+    }, [slug, toursSettled, tour, navigate]);
 
     // If slug doesn't match the canonical slug, redirect to the real one
     // (handles numeric IDs like /tours/1 and legacy aliases)

@@ -8,6 +8,15 @@ import { test, expect } from "@playwright/test";
  * translations.ts, so it is non-empty on the first render, while the slugs the
  * site links to come from the database titles. TourPage concluded the tour did
  * not exist and redirected home before Supabase had answered.
+ *
+ * Scope, honestly: this test does NOT reproduce that bug. CI runs without
+ * Supabase credentials — VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are
+ * empty there — so the site falls back to the static catalogue alone, whose
+ * titles generate exactly the slugs being requested. The divergence that
+ * causes the bug cannot arise. Verified: this test passes without the fix too.
+ * What it does cover is the weaker but real invariant that /tours/:slug
+ * survives a reload at all. Reproducing the real bug would mean giving CI
+ * credentials, or stubbing the Supabase response in the browser.
  */
 
 test.describe("Tour deep links", () => {
