@@ -26,6 +26,16 @@ export interface AppContextValue {
   setLang: (lang: Language) => void;
   t: Translations;
   tours: Tour[];
+  /**
+   * True once the remote tour fetch has settled — or immediately when there is
+   * no Supabase client to wait for.
+   *
+   * `tours` is never empty: it is seeded from the static tour_data in
+   * translations.ts and only later merged with the database. So "is the list
+   * non-empty" says nothing about whether the real data has arrived, and code
+   * that decides a tour does not exist must wait on this instead.
+   */
+  toursSettled: boolean;
   testimonials: Testimonial[];
   guide: GuideProfile;
   legalModal: "legal" | "privacy" | null;
@@ -98,6 +108,7 @@ function mapDbTour(t: Record<string, unknown>): Tour {
 export function AppProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Language>("en");
   const [dbTours, setDbTours] = useState<Tour[]>([]);
+  const [toursSettled, setToursSettled] = useState(false);
   const [dbReviews, setDbReviews] = useState<Testimonial[]>([]);
   const [guide, setGuide] = useState<GuideProfile>(DEFAULT_GUIDE);
   const [legalModal, setLegalModal] = useState<"legal" | "privacy" | null>(
@@ -127,7 +138,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Fetch all remote data — guarded against late writes when lang/unmount
   // changes mid-flight (audit React #4: out-of-order responses corrupting bio)
   useEffect(() => {
-    if (!supabase) return;
+    // Nothing remote to wait for: the static catalogue is all there will be.
+    if (!supabase) {
+      setToursSettled(true);
+      return;
+    }
     const client = supabase;
     let cancelled = false;
 
@@ -144,6 +159,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
             toursData.map((t) => mapDbTour(t as Record<string, unknown>)),
           );
         }
+        // Settled either way: a failed fetch is an answer too, and callers
+        // must not wait forever before concluding a slug is unknown.
+        setToursSettled(true);
 
         // Reviews
         const { data: reviewsData, error: reviewsError } = await client
@@ -217,6 +235,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       } catch (err) {
         if (!cancelled) console.error("Fetch error:", err);
+      } finally {
+        // A thrown fetch is still an answer: without this, an unknown slug
+        // would wait forever instead of redirecting home.
+        if (!cancelled) setToursSettled(true);
       }
     };
 
@@ -428,6 +450,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setLang,
         t,
         tours,
+        toursSettled,
         testimonials,
         guide,
         legalModal,
