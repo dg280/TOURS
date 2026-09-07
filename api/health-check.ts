@@ -5,6 +5,7 @@
  */
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { Resend } from 'resend';
 
 /** Résultat d'une sonde. `message` et `mode` sont facultatifs : une sonde
  *  qui passe n'a rien à signaler, et seul Stripe expose un mode. */
@@ -73,11 +74,24 @@ export default async function handler(_req: { method?: string }, res: { status: 
     }
 
     // 3. Check Resend
+    //
+    // This used to report ok as soon as RESEND_API_KEY existed, which proved
+    // nothing: a revoked or mistyped key passed the check while every message
+    // silently failed to send. And this is the light people look at when a
+    // client says they never received anything. Authenticate against the API
+    // instead — listing domains is a read, so nothing is sent.
     if (!process.env.RESEND_API_KEY) {
         health.checks.resend = { status: 'error', message: 'Missing RESEND_API_KEY' };
         health.status = 'error';
     } else {
-        health.checks.resend = { status: 'ok' };
+        try {
+            const { error } = await new Resend(process.env.RESEND_API_KEY).domains.list();
+            if (error) throw new Error(error.message);
+            health.checks.resend = { status: 'ok' };
+        } catch (err) {
+            health.checks.resend = { status: 'error', message: (err as Error).message };
+            health.status = 'error';
+        }
     }
 
     return res.status(health.status === 'ok' ? 200 : 500).json(health);
