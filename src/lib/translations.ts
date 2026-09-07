@@ -562,7 +562,7 @@ export const translations = {
             no_tours_found: 'No tours found in this category.'
         },
         quick_question: {
-            title: 'Still have a doubt?',
+            title: 'Still have questions?',
             subtitle: 'Ask us your question, we reply fast!',
             name_placeholder: 'Your first name (optional)',
             email_placeholder: 'Your email',
@@ -1016,7 +1016,7 @@ export const translations = {
             no_tours_found: 'No se han encontrado tours en esta categoría.'
         },
         quick_question: {
-            title: '¿Todavía tienes una duda?',
+            title: '¿Aún tienes dudas?',
             subtitle: 'Haznos tu pregunta, respondemos rápido!',
             name_placeholder: 'Tu nombre (opcional)',
             email_placeholder: 'Tu email',
