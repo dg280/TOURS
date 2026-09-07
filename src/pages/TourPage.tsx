@@ -37,15 +37,22 @@ export function TourPage() {
     }, [slug, toursSettled, tour, navigate]);
 
     // If slug doesn't match the canonical slug, redirect to the real one
-    // (handles numeric IDs like /tours/1 and legacy aliases)
+    // (handles numeric IDs like /tours/1 and legacy aliases).
+    //
+    // Also gated on toursSettled, and for the same reason as above. A legacy
+    // alias resolves against the static catalogue on the first render, so this
+    // used to redirect to the slug of the *static* title — which the database
+    // no longer matches. The visitor was then bounced home by the effect above
+    // once the real data landed. Every previously indexed Google URL died that
+    // way, which is precisely what LEGACY_ALIASES exists to prevent.
     useEffect(() => {
-        if (tour && slug) {
+        if (tour && slug && toursSettled) {
             const canonical = slugForTour(tour);
             if (canonical !== slug) {
                 navigate(`/tours/${canonical}`, { replace: true });
             }
         }
-    }, [slug, tour, navigate]);
+    }, [slug, tour, toursSettled, navigate]);
 
     if (!tour) return null;
 

@@ -1,5 +1,6 @@
 import { Instagram, Mail } from "lucide-react";
 import type { Translations } from "@/lib/translations";
+import { useAppContext } from "@/contexts/useAppContext";
 
 interface FooterProps {
   t: Translations;
@@ -14,6 +15,12 @@ export const Footer = ({
   onLegalClick,
   onPrivacyClick,
 }: FooterProps) => {
+  // Le catalogue statique de translations.ts ne sert que d'amorce avant la
+  // reponse de Supabase : ses titres sont figes et divergent de ceux que
+  // l'admin edite. Afficher t.tour_data ici donnait deux noms differents pour
+  // le meme tour selon qu'on lisait le footer ou la fiche.
+  const { tours } = useAppContext();
+
   return (
     <footer className="text-gray-800 pt-16 pb-10 border-t border-gray-200 bg-gray-50">
       <div className="container-custom">
@@ -74,7 +81,7 @@ export const Footer = ({
               {t.nav.tours}
             </h4>
             <ul className="space-y-6">
-              {t.tour_data.slice(0, 4).map((tour) => (
+              {tours.slice(0, 4).map((tour) => (
                 <li key={tour.id}>
                   <span className="text-gray-500 hover:text-amber-600 transition-all cursor-pointer text-base font-medium block leading-snug">
                     {tour.title}
