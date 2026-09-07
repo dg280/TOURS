@@ -1,4 +1,4 @@
-import { MapPin, Menu, X, Activity } from "lucide-react";
+import { Menu, X, Activity } from "lucide-react";
 import { type Language, type Translations } from "@/lib/translations";
 import { cn } from "@/lib/utils";
 
@@ -64,16 +64,14 @@ export const Navbar = ({
             setView("home");
             window.scrollTo(0, 0);
           }}
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          className="flex items-center hover:opacity-80 transition-opacity"
+          aria-label="Tours & Detours - Home"
         >
-          <MapPin
-            className={`w-6 h-6 ${isScrolled || view === "about" ? "text-amber-600" : "text-white"}`}
+          <img
+            src={isScrolled ? "/greenLogo.png" : "/whiteLogo.png"}
+            alt="Tours & Detours"
+            className="h-11 w-11 object-contain"
           />
-          <span
-            className={`text-xl font-bold font-serif ${isScrolled || view === "about" ? "text-gray-900" : "text-white"}`}
-          >
-            Tours<span className="text-amber-500">&</span>Detours
-          </span>
         </button>
 
         {/* Desktop Navigation */}
@@ -95,7 +93,7 @@ export const Navbar = ({
               }}
               className={cn(
                 "relative text-xs font-bold uppercase tracking-widest transition-all px-2 py-1 h-full flex flex-col items-center justify-center group",
-                isScrolled || view === "about"
+                isScrolled
                   ? "text-gray-600 hover:text-amber-600"
                   : "text-white/80 hover:text-white",
                 (view === "about" && activeSection === item) ||
@@ -119,7 +117,7 @@ export const Navbar = ({
           <button
             onClick={onLiveClick}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all text-[10px] font-black uppercase tracking-wider ${
-              isScrolled || view === "about"
+              isScrolled
                 ? "border-amber-600 text-amber-600 hover:bg-amber-50"
                 : "border-white/30 text-white hover:bg-white/10"
             }`}
@@ -130,7 +128,7 @@ export const Navbar = ({
 
           {/* Language Switcher */}
           <div
-            className={`flex items-center gap-3 ml-2 border-l pl-5 h-6 ${isScrolled || view === "about" ? "border-gray-200" : "border-white/20"}`}
+            className={`flex items-center gap-3 ml-2 border-l pl-5 h-6 ${isScrolled ? "border-gray-200" : "border-white/20"}`}
           >
             {(["fr", "en", "es"] as Language[]).map((l) => (
               <button
@@ -138,10 +136,10 @@ export const Navbar = ({
                 onClick={() => setLang(l)}
                 className={`text-xs font-bold uppercase transition-all ${
                   lang === l
-                    ? "text-amber-600 border border-amber-600/30 bg-amber-50/50 px-2 py-0.5 rounded"
-                    : isScrolled || view === "about"
-                      ? "text-gray-500 hover:text-gray-900"
-                      : "text-white/70 hover:text-white"
+                    ? "text-amber-600"
+                    : isScrolled
+                      ? "text-gray-600 hover:text-amber-600"
+                      : "text-white/80 hover:text-white"
                 }`}
               >
                 {l}
