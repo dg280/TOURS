@@ -9,14 +9,11 @@ import { test, expect } from "@playwright/test";
  * site links to come from the database titles. TourPage concluded the tour did
  * not exist and redirected home before Supabase had answered.
  *
- * Scope, honestly: this test does NOT reproduce that bug. CI runs without
- * Supabase credentials — VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are
- * empty there — so the site falls back to the static catalogue alone, whose
- * titles generate exactly the slugs being requested. The divergence that
- * causes the bug cannot arise. Verified: this test passes without the fix too.
- * What it does cover is the weaker but real invariant that /tours/:slug
- * survives a reload at all. Reproducing the real bug would mean giving CI
- * credentials, or stubbing the Supabase response in the browser.
+ * CI now runs with Supabase credentials (VITE_SUPABASE_URL and
+ * VITE_SUPABASE_ANON_KEY are set as repository secrets), so the divergence
+ * between the database titles and the static catalogue — the thing that
+ * caused the bug — is present here and these tests can actually see it.
+ * Before those secrets existed, this file passed with or without the fix.
  */
 
 test.describe("Tour deep links", () => {
@@ -42,5 +39,28 @@ test.describe("Tour deep links", () => {
       page.locator('[data-testid="tour-dialog"]').first(),
     ).toBeVisible({ timeout: 20000 });
     expect(page.url()).toBe(url);
+  });
+
+  test("a legacy alias resolves to its tour instead of the home page", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem("cookie-consent", "accepted");
+      localStorage.setItem(
+        "cookie-preferences",
+        JSON.stringify({ essential: true, analytics: false, marketing: false }),
+      );
+    });
+
+    // From LEGACY_ALIASES in src/lib/tour-slugs.ts — a URL Google indexed
+    // before the slugs were generated from titles. The comment there says
+    // "Never remove an entry from here"; these must keep resolving.
+    await page.goto("/tours/costa-brava-girona");
+
+    await expect(
+      page.locator('[data-testid="tour-dialog"]').first(),
+    ).toBeVisible({ timeout: 20000 });
+    // It may land on the canonical slug, but it must stay on a tour page.
+    expect(page.url()).toContain("/tours/");
   });
 });
