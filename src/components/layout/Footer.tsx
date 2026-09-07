@@ -1,4 +1,4 @@
-import { MapPin, Instagram, Mail } from "lucide-react";
+import { Instagram, Mail } from "lucide-react";
 import type { Translations } from "@/lib/translations";
 
 interface FooterProps {
@@ -19,14 +19,11 @@ export const Footer = ({
       <div className="container-custom">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 mb-12">
           <div className="lg:col-span-5 space-y-10">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
-                <MapPin className="w-6 h-6 text-amber-500" />
-              </div>
-              <span className="text-3xl font-bold font-serif tracking-tight">
-                Tours<span className="text-amber-500">&</span>Detours
-              </span>
-            </div>
+            <img
+              src="/greenLogo.png"
+              alt="Tours & Detours"
+              className="h-16 w-16 object-contain"
+            />
             <p className="text-gray-600 leading-relaxed text-lg max-w-md font-light">
               {t.hero.tagline}. {t.hero.description}
             </p>
