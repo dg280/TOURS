@@ -14,6 +14,7 @@
  */
 
 import type { Tour } from './types';
+import { translations } from './translations';
 
 // Legacy aliases: old hardcoded slugs that Google may have indexed.
 // Maps old slug → tour ID. Never remove an entry from here.
@@ -64,10 +65,36 @@ export function slugForTourId(id: string | number, titleEn: string | undefined, 
 }
 
 /**
- * Find a tour by its slug. Checks:
- * 1. Generated slug match (from title_en)
- * 2. Legacy alias match
- * 3. Numeric ID fallback
+ * Slugs generated from the *static* catalogue in translations.ts, mapped to
+ * their tour id — in all three languages.
+ *
+ * That catalogue seeds the tour list before Supabase answers, and its titles
+ * are frozen while the admin edits the database ones. So a visitor who clicks
+ * a card in that first second navigates to a slug built from a stale title:
+ * "…medieval-paths…" where the database now says "…medieval-trails…". A second
+ * later the real data lands, the slug matches nothing, and they are bounced to
+ * the home page. Treating those slugs as aliases makes the two eras of a title
+ * resolve to the same tour.
+ */
+const STATIC_SLUGS: Record<string, string> = (() => {
+    const map: Record<string, string> = {};
+    for (const lang of Object.keys(translations) as (keyof typeof translations)[]) {
+        const data = translations[lang].tour_data as { id: string | number; title?: string }[];
+        for (const entry of data ?? []) {
+            if (!entry?.title) continue;
+            const s = toSlug(entry.title);
+            if (s) map[s] = String(entry.id);
+        }
+    }
+    return map;
+})();
+
+/**
+ * Find a tour by its slug. Checks, in order:
+ * 1. Generated slug match (from the current title)
+ * 2. Legacy alias match (URLs Google indexed under the old hardcoded map)
+ * 3. Static-catalogue slug match (a title that has since been edited)
+ * 4. Numeric ID fallback
  */
 export function tourForSlug(slug: string, tours: Tour[]): Tour | undefined {
     // 1. Match by generated slug
@@ -81,7 +108,14 @@ export function tourForSlug(slug: string, tours: Tour[]): Tour | undefined {
         if (byLegacy) return byLegacy;
     }
 
-    // 3. Numeric ID fallback (for /tours/8 style URLs)
+    // 3. Match by a slug the static catalogue would have produced
+    const staticId = STATIC_SLUGS[slug];
+    if (staticId !== undefined) {
+        const byStatic = tours.find((t) => String(t.id) === staticId);
+        if (byStatic) return byStatic;
+    }
+
+    // 4. Numeric ID fallback (for /tours/8 style URLs)
     const asNum = Number(slug);
     if (Number.isFinite(asNum) && asNum > 0) {
         return tours.find((t) => Number(t.id) === asNum);
