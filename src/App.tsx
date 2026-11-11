@@ -12,7 +12,6 @@ import { Contact } from "./components/sections/Contact";
 import { LiveJoinDialog } from "./components/live/LiveJoinDialog";
 import { BookingModal } from "./components/booking/BookingModal";
 import { SEO } from "./components/SEO";
-import { WhatsAppButton } from "./components/WhatsAppButton";
 import { AboutPage } from "./pages/AboutPage";
 import { TourPage } from "./pages/TourPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
@@ -62,14 +61,14 @@ function HomePage() {
         onTourClick={handleTourClick}
       />
 
-      <section className="py-20 bg-amber-600 text-white overflow-hidden relative">
+      <section className="py-20 bg-gold text-ink overflow-hidden relative">
         <div className="container-custom relative z-10 text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-8 max-w-4xl mx-auto leading-tight">
             {t.about_hook.title}
           </h2>
           <Button
             onClick={() => navigate("/about")}
-            className="bg-white text-amber-600 hover:bg-gray-100 rounded-full h-16 px-10 text-lg font-bold transition-all shadow-xl"
+            className="bg-ink text-white hover:bg-gray-800 rounded-full h-16 px-10 text-lg font-bold transition-all shadow-xl"
           >
             {t.about_hook.cta}
           </Button>
@@ -79,7 +78,12 @@ function HomePage() {
       </section>
 
       <Testimonials t={t} testimonials={testimonials} />
-      <Contact t={t} instagramUrl={guide.instagramUrl} />
+      <Contact
+        t={t}
+        tours={tours}
+        lang={lang}
+        instagramUrl={guide.instagramUrl}
+      />
     </>
   );
 }
@@ -255,7 +259,6 @@ function App() {
         t={t}
       />
 
-      {!isBookingOpen && !isLiveJoinOpen && <WhatsAppButton lang={lang} />}
       {showCookieConsent && (
         <CookieConsent
           lang={lang}

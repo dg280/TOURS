@@ -9,6 +9,15 @@ module.exports = {
           ...require("tailwindcss/colors").amber,
           600: "rgb(var(--primary-color-rgb) / <alpha-value>)",
         },
+        // Gold split in two tokens (WCAG AA):
+        //  - gold: decoration only (icons, rules, fills behind dark text)
+        //  - gold-text: labels and links on light backgrounds (6.02:1 on white)
+        gold: {
+          DEFAULT: "#c9a961",
+          hover: "#b8944e",
+          text: "#7a5f24",
+        },
+        ink: "#1f2937",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

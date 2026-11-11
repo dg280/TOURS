@@ -18,7 +18,9 @@ import {
   X,
 } from "lucide-react";
 import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+// "/pure" does not inject Stripe.js on import; it loads only when loadStripe() is called.
+import { loadStripe } from "@stripe/stripe-js/pure";
+import type { Stripe } from "@stripe/stripe-js";
 import { CheckoutForm } from "../CheckoutForm";
 import { toast } from "sonner";
 import type { Tour } from "@/lib/types";
@@ -32,9 +34,16 @@ const STRIPE_KEY =
 const isValidStripeKey =
   STRIPE_KEY.startsWith("pk_test_") || STRIPE_KEY.startsWith("pk_live_");
 
-const stripePromise = isValidStripeKey
-  ? loadStripe(STRIPE_KEY)
-  : Promise.resolve(null);
+// Loaded lazily: only when the payment step renders, never on the homepage.
+let stripePromise: Promise<Stripe | null> | undefined;
+const getStripe = (): Promise<Stripe | null> => {
+  if (!stripePromise) {
+    stripePromise = isValidStripeKey
+      ? loadStripe(STRIPE_KEY)
+      : Promise.resolve(null);
+  }
+  return stripePromise;
+};
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -710,7 +719,7 @@ export const BookingModal = ({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {itinerary.length > 0 && (
                         <div className="space-y-3 bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                          <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-amber-600 flex items-center gap-2">
+                          <h4 className="font-sans text-[10px] font-bold uppercase tracking-widest text-gold-text flex items-center gap-2">
                             <ChevronRight className="w-3 h-3" />{" "}
                             {t.booking.itinerary}
                           </h4>
@@ -771,7 +780,7 @@ export const BookingModal = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <h3 className="text-lg font-sans font-bold flex items-center gap-2 text-gray-900">
-                      <CalendarIcon className="w-5 h-5 text-amber-600" />
+                      <CalendarIcon className="w-5 h-5 text-gold-text" />
                       {t.booking.date_title}
                     </h3>
                     <div className="grid gap-2">
@@ -839,7 +848,7 @@ export const BookingModal = ({
 
                   <div className="space-y-4">
                     <h3 className="text-lg font-sans font-bold flex items-center gap-2 text-gray-900">
-                      <Users className="w-5 h-5 text-amber-600" />
+                      <Users className="w-5 h-5 text-gold-text" />
                       {t.booking.participants}
                     </h3>
                     <div className="flex items-center justify-between bg-gray-50 p-3 rounded-xl border border-gray-100">
@@ -885,7 +894,7 @@ export const BookingModal = ({
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
-                    <Info className="w-5 h-5 text-amber-600" />
+                    <Info className="w-5 h-5 text-gold-text" />
                   </div>
                   <h3 className="text-xl font-sans font-bold text-gray-900">
                     {t.booking.info_title}
@@ -1065,7 +1074,7 @@ export const BookingModal = ({
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
-                    <CheckCircle2 className="w-5 h-5 text-amber-600" />
+                    <CheckCircle2 className="w-5 h-5 text-gold-text" />
                   </div>
                   <h3 className="text-xl font-sans font-bold text-gray-900">
                     {t.booking.summary_title}
@@ -1100,7 +1109,7 @@ export const BookingModal = ({
                         <span className="font-bold">{participants}</span>
                       </p>
                       <p className="flex flex-col gap-1 mt-2 p-2 bg-gray-50 rounded-lg">
-                        <span className="text-[10px] uppercase font-bold text-amber-600">
+                        <span className="text-[10px] uppercase font-bold text-gold-text">
                           {t.booking.pickup_address}
                         </span>
                         <span className="font-medium">
@@ -1216,7 +1225,7 @@ export const BookingModal = ({
                     {pickupTime || "—"}
                   </p>
                   <p className="col-span-2">
-                    <span className="text-[10px] uppercase font-bold text-amber-600 block">
+                    <span className="text-[10px] uppercase font-bold text-gold-text block">
                       {t.booking.pickup_address}
                     </span>
                     {formData.pickupAddress || t.booking.to_confirm}
@@ -1241,7 +1250,7 @@ export const BookingModal = ({
 
                 <div className="flex justify-between items-center">
                   <h3 className="text-xl font-sans font-bold flex items-center gap-2 text-gray-900">
-                    <CreditCard className="w-5 h-5 text-amber-600" />
+                    <CreditCard className="w-5 h-5 text-gold-text" />
                     {t.booking.payment_title}
                   </h3>
                   <span
@@ -1259,7 +1268,7 @@ export const BookingModal = ({
                   // state and confirmPayment fails with "An unexpected error".
                   <Elements
                     key={clientSecret}
-                    stripe={stripePromise}
+                    stripe={getStripe()}
                     options={{
                       clientSecret,
                       appearance: { theme: "stripe" },
@@ -1297,7 +1306,7 @@ export const BookingModal = ({
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-                    <Loader2 className="w-10 h-10 animate-spin mb-4 text-amber-600" />
+                    <Loader2 className="w-10 h-10 animate-spin mb-4 text-gold-text" />
                     <p className="font-bold">{t.booking.initialization}</p>
                   </div>
                 )}
@@ -1387,7 +1396,7 @@ export const BookingModal = ({
 
                 <Button
                   onClick={() => onOpenChange(false)}
-                  className="w-full bg-[#c9a961] hover:bg-[#b8944e] h-14 text-base font-bold rounded-xl shadow-xl shadow-[#c9a961]/30 transition-all active:scale-95"
+                  className="w-full text-ink bg-gold hover:bg-gold-hover h-14 text-base font-bold rounded-xl shadow-xl shadow-[#c9a961]/30 transition-all active:scale-95"
                 >
                   {t.booking.finish}
                 </Button>
@@ -1440,7 +1449,7 @@ export const BookingModal = ({
                     <Button
                       onClick={nextStep}
                       data-testid="next-step-button"
-                      className="flex-1 sm:flex-none bg-[#c9a961] hover:bg-[#b8944e] text-white px-8 h-12 font-bold rounded-xl shadow-lg shadow-[#c9a961]/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+                      className="flex-1 sm:flex-none bg-gold hover:bg-gold-hover text-ink px-8 h-12 font-bold rounded-xl shadow-lg shadow-[#c9a961]/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                     >
                       {step === 3 ? t.booking.pay : t.booking.next}
                       <ChevronRight className="w-4 h-4" />

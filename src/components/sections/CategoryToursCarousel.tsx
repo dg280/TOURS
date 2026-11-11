@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Tour } from "@/lib/types";
 import type { Language, Translations } from "@/lib/translations";
+import { responsiveImage, CARD_IMAGE_SIZES } from "@/lib/image";
 
 interface CategoryToursCarouselProps {
   tours: Tour[];
@@ -59,6 +60,15 @@ export const CategoryToursCarousel = ({
       );
     });
   }, [tours, activeCategory]);
+
+  // Two stacked rows: each carousel slide holds a column of 2 tours
+  const tourPairs = useMemo(() => {
+    const pairs: Tour[][] = [];
+    for (let i = 0; i < filteredTours.length; i += 2) {
+      pairs.push(filteredTours.slice(i, i + 2));
+    }
+    return pairs;
+  }, [filteredTours]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: false,
@@ -103,8 +113,8 @@ export const CategoryToursCarousel = ({
                   className={cn(
                     "flex items-center gap-2 px-6 py-3 rounded-full border-2 transition-all font-bold",
                     activeCategory === cat.id
-                      ? "bg-[#c9a961] border-[#c9a961] text-white shadow-lg scale-105"
-                      : "bg-white border-gray-100 text-gray-500 hover:border-amber-200 hover:text-amber-600",
+                      ? "bg-gold border-gold text-ink shadow-lg scale-105"
+                      : "bg-white border-gray-100 text-gray-500 hover:border-amber-200 hover:text-gold-text",
                   )}
                 >
                   <Icon className="w-5 h-5" />
@@ -120,56 +130,74 @@ export const CategoryToursCarousel = ({
           <div className="embla overflow-hidden" ref={emblaRef}>
             <div className="embla__container flex -ml-4 md:-ml-6">
               {filteredTours.length > 0 ? (
-                filteredTours.map((tour) => (
+                tourPairs.map((pair, pairIndex) => (
                   <div
-                    key={tour.id}
-                    className="embla__slide flex-[0_0_85%] md:flex-[0_0_33.333%] pl-4 md:pl-6"
+                    key={pairIndex}
+                    className="embla__slide flex-[0_0_85%] md:flex-[0_0_33.333%] lg:flex-[0_0_25%] pl-4 md:pl-6"
                   >
-                    <div
-                      onClick={() => onTourClick(tour)}
-                      className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col h-full cursor-pointer"
-                    >
-                      <div className="relative aspect-[4/3] overflow-hidden">
-                        <img
-                          src={tour.image}
-                          alt={tour.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          loading="lazy"
-                        />
-                        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md">
-                          <span className="text-sm font-bold text-gray-900">
-                            {t.tours.from_price}{" "}
-                            {tour.pricing_tiers && Object.keys(tour.pricing_tiers).length > 0
-                              ? (() => {
-                                  const maxKey = Math.max(...Object.keys(tour.pricing_tiers).map(Number));
-                                  return Math.round(tour.pricing_tiers[maxKey] / maxKey);
-                                })()
-                              : tour.price}€
-                          </span>
+                    {pair.map((tour) => (
+                      <div
+                        key={tour.id}
+                        onClick={() => onTourClick(tour)}
+                        className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col flex-1 cursor-pointer"
+                      >
+                        <div className="relative aspect-[4/3] overflow-hidden">
+                          <img
+                            {...responsiveImage(tour.image)}
+                            sizes={CARD_IMAGE_SIZES}
+                            decoding="async"
+                            loading="lazy"
+                            alt={tour.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.removeAttribute("srcset");
+                              e.currentTarget.src = "/hero-barcelona.jpg";
+                            }}
+                          />
+                          <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md">
+                            <span className="text-xs font-bold text-gray-900">
+                              {t.tours.from_price}{" "}
+                              {tour.pricing_tiers &&
+                              Object.keys(tour.pricing_tiers).length > 0
+                                ? (() => {
+                                    const maxKey = Math.max(
+                                      ...Object.keys(tour.pricing_tiers).map(
+                                        Number,
+                                      ),
+                                    );
+                                    return Math.round(
+                                      tour.pricing_tiers[maxKey] / maxKey,
+                                    );
+                                  })()
+                                : tour.price}
+                              €
+                            </span>
+                          </div>
+                        </div>
+                        <div className="p-4 flex-1 flex flex-col">
+                          <h3 className="text-base font-bold text-gray-900 mb-1 line-clamp-1">
+                            {lang === "en"
+                              ? tour.title_en || tour.title
+                              : lang === "es"
+                                ? tour.title_es || tour.title
+                                : tour.title}
+                          </h3>
+                          <p className="text-xs text-gray-500 mb-3">
+                            {(
+                              t.tours.duration_labels as Record<string, string>
+                            )[tour.duration] || tour.duration}
+                          </p>
+
+                          <Button
+                            variant="outline"
+                            className="w-full mt-auto h-9 text-sm border-gray-200 hover:border-amber-600 hover:text-gold-text rounded-xl transition-all"
+                          >
+                            {t.tours.learn_more}
+                          </Button>
                         </div>
                       </div>
-                      <div className="p-5 flex-1 flex flex-col">
-                        <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-1">
-                          {lang === "en"
-                            ? tour.title_en || tour.title
-                            : lang === "es"
-                              ? tour.title_es || tour.title
-                              : tour.title}
-                        </h3>
-                        <p className="text-sm text-gray-500 mb-4">
-                          {(t.tours.duration_labels as Record<string, string>)[
-                            tour.duration
-                          ] || tour.duration}
-                        </p>
-
-                        <Button
-                          variant="outline"
-                          className="w-full mt-auto border-gray-200 hover:border-amber-600 hover:text-amber-600 rounded-xl transition-all"
-                        >
-                          {t.tours.learn_more}
-                        </Button>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 ))
               ) : (
@@ -184,13 +212,13 @@ export const CategoryToursCarousel = ({
             <>
               <button
                 onClick={scrollPrev}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-8 w-12 h-12 md:w-16 md:h-16 bg-white shadow-2xl rounded-full flex items-center justify-center border border-gray-100 text-gray-600 hover:text-amber-600 z-10 transition-all hover:scale-110 active:scale-95 group/btn"
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-8 w-12 h-12 md:w-16 md:h-16 bg-white shadow-2xl rounded-full flex items-center justify-center border border-gray-100 text-gray-600 hover:text-gold-text z-10 transition-all hover:scale-110 active:scale-95 group/btn"
               >
                 <ChevronLeft className="w-6 h-6 md:w-8 md:h-8 group-hover/btn:-translate-x-0.5 transition-transform" />
               </button>
               <button
                 onClick={scrollNext}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-8 w-12 h-12 md:w-16 md:h-16 bg-white shadow-2xl rounded-full flex items-center justify-center border border-gray-100 text-gray-600 hover:text-amber-600 z-10 transition-all hover:scale-110 active:scale-95 group/btn"
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-8 w-12 h-12 md:w-16 md:h-16 bg-white shadow-2xl rounded-full flex items-center justify-center border border-gray-100 text-gray-600 hover:text-gold-text z-10 transition-all hover:scale-110 active:scale-95 group/btn"
               >
                 <ChevronRight className="w-6 h-6 md:w-8 md:h-8 group-hover/btn:translate-x-0.5 transition-transform" />
               </button>

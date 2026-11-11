@@ -22,10 +22,23 @@
             "destination": "/live.html"
         },
         {
+            "source": "/tours/:slug",
+            "destination": "/api/tour-meta?slug=:slug"
+        },
+        {
             "source": "/(.*)",
             "destination": "/index.html"
         }
     ],
+    "images": {
+        "sizes": [400, 800, 1200, 1600],
+        "formats": ["image/avif", "image/webp"],
+        "minimumCacheTTL": 31536000,
+        "remotePatterns": [
+            { "protocol": "https", "hostname": "*.public.blob.vercel-storage.com" },
+            { "protocol": "https", "hostname": "*.supabase.co", "pathname": "/storage/v1/object/public/**" }
+        ]
+    },
     "crons": [
         {
             "path": "/api/cron/reminders",

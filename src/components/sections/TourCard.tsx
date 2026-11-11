@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 
 import type { Tour } from "@/lib/types";
 import type { Language, Translations } from "@/lib/translations";
+import { responsiveImage, CARD_IMAGE_SIZES } from "@/lib/image";
 
 interface TourCardProps {
   tour: Tour;
@@ -21,7 +22,9 @@ export const TourCard = ({ tour, index, lang, t, onClick }: TourCardProps) => {
     >
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
-          src={tour.image}
+          {...responsiveImage(tour.image)}
+          sizes={CARD_IMAGE_SIZES}
+          decoding="async"
           alt={
             lang === "en"
               ? tour.title_en || tour.title
@@ -37,15 +40,22 @@ export const TourCard = ({ tour, index, lang, t, onClick }: TourCardProps) => {
             {t.tours.from_price}{" "}
             {tour.pricing_tiers && Object.keys(tour.pricing_tiers).length > 0
               ? (() => {
-                  const maxKey = Math.max(...Object.keys(tour.pricing_tiers).map(Number));
+                  const maxKey = Math.max(
+                    ...Object.keys(tour.pricing_tiers).map(Number),
+                  );
                   return Math.round(tour.pricing_tiers[maxKey] / maxKey);
                 })()
-              : tour.price}€
+              : tour.price}
+            €
+          </span>
+          <span className="text-xs font-medium text-gray-500">
+            {" "}
+            / {t.tours.per_person}
           </span>
         </div>
       </div>
       <div className="p-5 flex-1 flex flex-col">
-        <p className="text-xs text-amber-600 font-medium uppercase tracking-wide mb-1">
+        <p className="text-xs text-gold-text font-medium uppercase tracking-wide mb-1">
           {lang === "en"
             ? tour.subtitle_en || tour.subtitle
             : lang === "es"
@@ -103,15 +113,18 @@ export const TourCard = ({ tour, index, lang, t, onClick }: TourCardProps) => {
             {t.tours.from_price}{" "}
             {tour.pricing_tiers && Object.keys(tour.pricing_tiers).length > 0
               ? (() => {
-                  const maxKey = Math.max(...Object.keys(tour.pricing_tiers).map(Number));
+                  const maxKey = Math.max(
+                    ...Object.keys(tour.pricing_tiers).map(Number),
+                  );
                   return Math.round(tour.pricing_tiers[maxKey] / maxKey);
                 })()
-              : tour.price}€
+              : tour.price}
+            €
           </span>
           <span className="text-sm text-gray-500">/{t.tours.per_person}</span>
         </div>
 
-        <Button className="w-full mt-auto bg-[#c9a961] hover:bg-[#b8944e] text-white rounded-2xl h-14 font-bold transition-all active:scale-95 shadow-lg shadow-[#c9a961]/20">
+        <Button className="w-full mt-auto bg-gold hover:bg-gold-hover text-ink rounded-2xl h-14 font-bold transition-all active:scale-95 shadow-lg shadow-[#c9a961]/20">
           {t.tours.learn_more}
         </Button>
       </div>

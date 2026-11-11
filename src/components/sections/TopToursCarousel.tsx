@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 
 import type { Tour } from "@/lib/types";
 import type { Language, Translations } from "@/lib/translations";
+import { responsiveImage, CARD_IMAGE_SIZES } from "@/lib/image";
 
 interface TopToursCarouselProps {
   tours: Tour[];
@@ -22,7 +23,6 @@ export const TopToursCarousel = ({
   // For now, we take the first 3 tours as "top"
   // In a real scenario, this could be filtered by an 'isFeatured' flag
   const topTours = tours;
-
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     align: "start",
@@ -76,7 +76,7 @@ export const TopToursCarousel = ({
       <div id="top-tours" className="container-custom">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div className="max-w-3xl">
-            <p className="text-amber-600 font-medium mb-2 uppercase tracking-wider text-sm">
+            <p className="text-gold-text font-medium mb-2 uppercase tracking-wider text-sm">
               {t.tours.selection_tag}
             </p>
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -102,7 +102,10 @@ export const TopToursCarousel = ({
                   >
                     <div className="relative aspect-[4/3] overflow-hidden">
                       <img
-                        src={tour.image}
+                        {...responsiveImage(tour.image)}
+                        sizes={CARD_IMAGE_SIZES}
+                        decoding="async"
+                        loading="lazy"
                         alt={
                           lang === "en"
                             ? tour.title_en || tour.title
@@ -111,23 +114,35 @@ export const TopToursCarousel = ({
                               : tour.title
                         }
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.removeAttribute("srcset");
+                          e.currentTarget.src = "/hero-barcelona.jpg";
+                        }}
                       />
                       <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md">
-                        <span className="text-sm font-bold text-gray-900">
+                        <span className="text-xs font-bold text-gray-900">
                           {t.tours.from_price}{" "}
-                          {tour.pricing_tiers && Object.keys(tour.pricing_tiers).length > 0
+                          {tour.pricing_tiers &&
+                          Object.keys(tour.pricing_tiers).length > 0
                             ? (() => {
-                                const maxKey = Math.max(...Object.keys(tour.pricing_tiers).map(Number));
-                                return Math.round(tour.pricing_tiers[maxKey] / maxKey);
+                                const maxKey = Math.max(
+                                  ...Object.keys(tour.pricing_tiers).map(
+                                    Number,
+                                  ),
+                                );
+                                return Math.round(
+                                  tour.pricing_tiers[maxKey] / maxKey,
+                                );
                               })()
-                            : tour.price}€
+                            : tour.price}
+                          €
                         </span>
                       </div>
                     </div>
 
-                    <div className="p-6 flex-1 flex flex-col">
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    <div className="p-4 flex-1 flex flex-col">
+                      <h3 className="text-base font-bold text-gray-900 mb-2">
                         {lang === "en"
                           ? tour.title_en || tour.title
                           : lang === "es"
@@ -135,16 +150,16 @@ export const TopToursCarousel = ({
                             : tour.title}
                       </h3>
 
-                      <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                      <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
                         <span className="flex items-center gap-1">
-                          <Clock className="w-4 h-4 text-amber-600" />
+                          <Clock className="w-4 h-4 text-gold-text" />
                           {(t.tours.duration_labels as Record<string, string>)[
                             tour.duration
                           ] || tour.duration}
                         </span>
                       </div>
 
-                      <div className="flex flex-wrap gap-1 mb-6">
+                      <div className="flex flex-wrap gap-1 mb-4">
                         {(lang === "en"
                           ? tour.highlights_en || tour.highlights
                           : lang === "es"
@@ -155,14 +170,14 @@ export const TopToursCarousel = ({
                           .map((h, i) => (
                             <span
                               key={i}
-                              className="text-[10px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded uppercase font-bold tracking-tight"
+                              className="text-[9px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded uppercase font-bold tracking-tight"
                             >
                               {h}
                             </span>
                           ))}
                       </div>
 
-                      <Button className="w-full mt-auto bg-[#c9a961] hover:bg-[#b8944e] text-white rounded-xl h-12 font-bold transition-all shadow-lg shadow-[#c9a961]/20">
+                      <Button className="w-full mt-auto bg-gold hover:bg-gold-hover text-ink rounded-xl h-10 text-sm font-bold transition-all shadow-lg shadow-[#c9a961]/20">
                         {t.tours.learn_more}
                       </Button>
                     </div>
@@ -175,13 +190,13 @@ export const TopToursCarousel = ({
           {/* Navigation Arrows */}
           <button
             onClick={scrollPrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-8 w-12 h-12 md:w-16 md:h-16 bg-white shadow-2xl rounded-full flex items-center justify-center border border-gray-100 text-gray-600 hover:text-amber-600 z-10 transition-all hover:scale-110 active:scale-95 group/btn opacity-0 group-hover/carousel:opacity-100"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-8 w-12 h-12 md:w-16 md:h-16 bg-white shadow-2xl rounded-full flex items-center justify-center border border-gray-100 text-gray-600 hover:text-gold-text z-10 transition-all hover:scale-110 active:scale-95 group/btn"
           >
             <ChevronLeft className="w-6 h-6 md:w-8 md:h-8 group-hover/btn:-translate-x-0.5 transition-transform" />
           </button>
           <button
             onClick={scrollNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-8 w-12 h-12 md:w-16 md:h-16 bg-white shadow-2xl rounded-full flex items-center justify-center border border-gray-100 text-gray-600 hover:text-amber-600 z-10 transition-all hover:scale-110 active:scale-95 group/btn opacity-0 group-hover/carousel:opacity-100"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-8 w-12 h-12 md:w-16 md:h-16 bg-white shadow-2xl rounded-full flex items-center justify-center border border-gray-100 text-gray-600 hover:text-gold-text z-10 transition-all hover:scale-110 active:scale-95 group/btn"
           >
             <ChevronRight className="w-6 h-6 md:w-8 md:h-8 group-hover/btn:translate-x-0.5 transition-transform" />
           </button>

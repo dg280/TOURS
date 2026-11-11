@@ -113,7 +113,7 @@ export const TourDialog = ({
                     ? tour.title_es || tour.title
                     : tour.title}
               </DialogTitle>
-              <p className="text-amber-600 font-bold uppercase tracking-widest text-sm">
+              <p className="text-gold-text font-bold uppercase tracking-widest text-sm">
                 {lang === "en"
                   ? tour.subtitle_en || tour.subtitle
                   : lang === "es"
@@ -318,7 +318,7 @@ export const TourDialog = ({
                                 className="flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-100 shadow-sm group hover:border-amber-200 transition-colors"
                               >
                                 <div className="w-5 h-5 rounded-full bg-amber-50 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-amber-100">
-                                  <Info className="w-3 h-3 text-amber-600" />
+                                  <Info className="w-3 h-3 text-gold-text" />
                                 </div>
                                 <p className="text-sm text-gray-600 leading-relaxed">
                                   {item}
@@ -371,7 +371,7 @@ export const TourDialog = ({
                         onBookNow(tour);
                       }}
                       data-testid="book-now-button"
-                      className="w-full bg-[#c9a961] hover:bg-[#b8944e] text-white min-h-[64px] py-4 px-2 text-[11px] sm:text-xs font-bold rounded-2xl shadow-xl shadow-[#c9a961]/30 transition-all active:scale-95 flex items-center justify-center text-center leading-tight overflow-hidden uppercase tracking-tighter"
+                      className="w-full bg-gold hover:bg-gold-hover text-ink min-h-[64px] py-4 px-2 text-[11px] sm:text-xs font-bold rounded-2xl shadow-xl shadow-[#c9a961]/30 transition-all active:scale-95 flex items-center justify-center text-center leading-tight overflow-hidden uppercase tracking-tighter"
                     >
                       {t.tours.book_now}
                     </Button>
@@ -384,7 +384,7 @@ export const TourDialog = ({
                     <div className="grid gap-3">
                       <div className="flex items-center gap-3 text-gray-600">
                         <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                          <CheckCircle2 className="w-4 h-4 text-amber-600" />
+                          <CheckCircle2 className="w-4 h-4 text-gold-text" />
                         </div>
                         <span className="font-medium">
                           {(t.tours.duration_labels as Record<string, string>)[
@@ -394,13 +394,13 @@ export const TourDialog = ({
                       </div>
                       <div className="flex items-center gap-3 text-gray-600">
                         <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                          <CheckCircle2 className="w-4 h-4 text-amber-600" />
+                          <CheckCircle2 className="w-4 h-4 text-gold-text" />
                         </div>
                         <span>{t.tour_dialog.instant_confirmation}</span>
                       </div>
                       <div className="flex items-center gap-3 text-gray-600">
                         <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                          <CheckCircle2 className="w-4 h-4 text-amber-600" />
+                          <CheckCircle2 className="w-4 h-4 text-gold-text" />
                         </div>
                         <span>{t.tour_dialog.flexible_cancellation}</span>
                       </div>
@@ -409,7 +409,7 @@ export const TourDialog = ({
 
                   <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 space-y-3">
                     <div className="flex items-center gap-2">
-                      <MessageCircleQuestion className="w-5 h-5 text-amber-600 shrink-0" />
+                      <MessageCircleQuestion className="w-5 h-5 text-gold-text shrink-0" />
                       <h4 className="font-sans font-bold text-gray-900 text-sm">
                         {qq.title}
                       </h4>

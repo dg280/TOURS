@@ -60,6 +60,7 @@ const DEFAULT_GUIDE: GuideProfile = {
 function mapDbTour(t: Record<string, unknown>): Tour {
   return prepareTourForEditing({
     id: Number(t.id) || t.id,
+    slug: (t.slug as string | null) || undefined,
     title: t.title as string,
     title_en: t.title_en as string | undefined,
     title_es: t.title_es as string | undefined,
@@ -284,6 +285,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const tour: Tour = {
         ...(effectiveBase as Tour),
         id,
+        slug: dObj.slug || cObj.slug || bObj.slug || undefined,
         title: getVal(bObj.title, dObj.title, cObj.title) || "",
         subtitle: getVal(bObj.subtitle, dObj.subtitle, cObj.subtitle) || "",
         description:

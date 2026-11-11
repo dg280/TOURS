@@ -7,13 +7,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import type { Translations } from "@/lib/translations";
 import type { Tour } from "@/lib/types";
+import type { Language } from "@/lib/translations";
 
 interface ContactProps {
   t: Translations;
+  /** Same merged, localized list the tour cards render, so names match. */
+  tours: Tour[];
+  lang: Language;
   instagramUrl: string;
 }
 
-export const Contact = ({ t, instagramUrl }: ContactProps) => {
+export const Contact = ({ t, tours, lang, instagramUrl }: ContactProps) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [tour, setTour] = useState("");
@@ -51,7 +55,7 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
           <div className="grid lg:grid-cols-2 gap-16">
             <div className="space-y-8">
               <div>
-                <p className="text-amber-600 font-medium mb-2">
+                <p className="text-gold-text font-medium mb-2">
                   {t.contact.tag}
                 </p>
                 <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
@@ -73,7 +77,7 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                       href={`https://wa.me/${t.contact.whatsapp.replace(/\s+/g, "")}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xl font-bold hover:text-amber-600 transition-colors"
+                      className="text-xl font-bold hover:text-gold-text transition-colors"
                     >
                       {t.contact.whatsapp}
                     </a>
@@ -81,7 +85,7 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                 </div>
 
                 <div className="flex items-center gap-4 group">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-all duration-300">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-gold-text group-hover:bg-gold group-hover:text-ink transition-all duration-300">
                     <Mail className="w-6 h-6" />
                   </div>
                   <div>
@@ -90,7 +94,7 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                     </p>
                     <a
                       href="mailto:info@toursandetours.com"
-                      className="text-xl font-bold hover:text-amber-600 transition-colors"
+                      className="text-xl font-bold hover:text-gold-text transition-colors"
                     >
                       info@toursandetours.com
                     </a>
@@ -109,7 +113,7 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                       href={instagramUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xl font-bold hover:text-amber-600 transition-colors"
+                      className="text-xl font-bold hover:text-gold-text transition-colors"
                     >
                       @tours_and_detours_bcn
                     </a>
@@ -162,11 +166,21 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                     className="w-full h-14 px-5 rounded-2xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-600 focus:border-transparent text-base transition-all appearance-none cursor-pointer"
                   >
                     <option value="">{t.contact.select_tour}</option>
-                    {t.tour_data.map((tourItem: Tour) => (
-                      <option key={tourItem.id} value={tourItem.title}>
-                        {tourItem.title}
-                      </option>
-                    ))}
+                    {tours
+                      .filter((tourItem) => tourItem.isActive !== false)
+                      .map((tourItem) => {
+                        const label =
+                          (lang === "en"
+                            ? tourItem.title_en
+                            : lang === "es"
+                              ? tourItem.title_es
+                              : "") || tourItem.title;
+                        return (
+                          <option key={tourItem.id} value={label}>
+                            {label}
+                          </option>
+                        );
+                      })}
                   </select>
                 </div>
                 <div className="space-y-2">
@@ -203,7 +217,7 @@ export const Contact = ({ t, instagramUrl }: ContactProps) => {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-[#c9a961] hover:bg-[#b8944e] text-white font-bold h-16 rounded-2xl shadow-xl shadow-[#c9a961]/30 transition-all active:scale-95 text-lg uppercase tracking-wide disabled:opacity-60"
+                  className="w-full bg-gold hover:bg-gold-hover text-ink font-bold h-16 rounded-2xl shadow-xl shadow-[#c9a961]/30 transition-all active:scale-95 text-lg uppercase tracking-wide disabled:opacity-60"
                 >
                   {isSubmitting ? t.contact.submitting : t.contact.cta}
                 </Button>

@@ -21,7 +21,7 @@ export function NotFoundPage() {
                 Tours & Detours Barcelona
             </p>
             <Link to="/">
-                <Button className="bg-[#c9a961] hover:bg-[#b8944e] text-white rounded-xl h-14 px-8 font-bold text-lg shadow-lg shadow-[#c9a961]/20">
+                <Button className="bg-gold hover:bg-gold-hover text-ink rounded-xl h-14 px-8 font-bold text-lg shadow-lg shadow-[#c9a961]/20">
                     {t.nav.home || "Home"} →
                 </Button>
             </Link>

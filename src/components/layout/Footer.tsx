@@ -44,7 +44,7 @@ export const Footer = ({
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-xl bg-black/5 border border-gray-200 flex items-center justify-center hover:bg-[#c9a961] hover:text-white hover:border-[#c9a961] transition-all duration-500 group"
+                  className="w-10 h-10 rounded-xl bg-black/5 border border-gray-200 flex items-center justify-center hover:bg-[#c9a961] hover:text-ink hover:border-[#c9a961] transition-all duration-500 group"
                 >
                   <social.icon className="w-6 h-6 transform group-hover:scale-110 transition-transform" />
                 </a>
@@ -66,7 +66,7 @@ export const Footer = ({
                 <li key={link.href}>
                   <a
                     href={link.href}
-                    className="text-gray-500 hover:text-amber-600 transition-all font-medium text-base flex items-center gap-2 group"
+                    className="text-gray-500 hover:text-gold-text transition-all font-medium text-base flex items-center gap-2 group"
                   >
                     <span className="w-0 h-[1px] bg-amber-600 group-hover:w-4 transition-all duration-300"></span>
                     {link.label}
@@ -83,7 +83,7 @@ export const Footer = ({
             <ul className="space-y-6">
               {tours.slice(0, 4).map((tour) => (
                 <li key={tour.id}>
-                  <span className="text-gray-500 hover:text-amber-600 transition-all cursor-pointer text-base font-medium block leading-snug">
+                  <span className="text-gray-500 hover:text-gold-text transition-all cursor-pointer text-base font-medium block leading-snug">
                     {tour.title}
                   </span>
                 </li>
