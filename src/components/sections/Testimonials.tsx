@@ -60,7 +60,7 @@ export const Testimonials = ({ t, testimonials }: TestimonialsProps) => {
       <div className="container-custom flex justify-center">
         <div className="w-full max-w-4xl bg-gray-50 border border-gray-100 rounded-3xl p-8 shadow-sm">
           <div className="text-center mb-8">
-            <p className="text-amber-600 font-medium mb-2 uppercase tracking-widest text-xs">
+            <p className="text-gold-text font-medium mb-2 uppercase tracking-widest text-xs">
               {t.testimonials.tag}
             </p>
             <h2 className="text-2xl font-bold text-gray-900">
@@ -69,6 +69,9 @@ export const Testimonials = ({ t, testimonials }: TestimonialsProps) => {
           </div>
 
           <Carousel
+            // Reviews arrive from the database after first render: remount so
+            // Embla measures the real slides instead of the static fallback.
+            key={testimonials.length}
             opts={{
               align: "start",
               loop: true,
@@ -79,7 +82,7 @@ export const Testimonials = ({ t, testimonials }: TestimonialsProps) => {
               {testimonials.map((testimonial) => (
                 <CarouselItem
                   key={testimonial.id}
-                  className="pl-4 md:basis-1/2 lg:basis-1/3"
+                  className="pl-4 md:basis-1/2"
                 >
                   <div className="bg-white/70 backdrop-blur-sm p-8 rounded-3xl border border-gray-200 h-full flex flex-col justify-between hover:bg-white/90 transition-colors shadow-sm">
                     <div>
@@ -96,7 +99,7 @@ export const Testimonials = ({ t, testimonials }: TestimonialsProps) => {
                       </p>
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-amber-600 flex items-center justify-center font-bold text-lg">
+                      <div className="w-12 h-12 rounded-full bg-gold text-ink flex items-center justify-center font-bold text-lg">
                         {testimonial.avatar}
                       </div>
                       <div>

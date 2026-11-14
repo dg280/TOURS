@@ -38,7 +38,7 @@ export const Guide = ({
 
             <div className="flex-1 space-y-6">
               <div>
-                <p className="text-amber-600 font-medium mb-2 uppercase tracking-widest text-sm">
+                <p className="text-gold-text font-medium mb-2 uppercase tracking-widest text-sm">
                   {t.guide.section_tag}
                 </p>
                 <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6 font-serif">
@@ -79,7 +79,7 @@ export const Guide = ({
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8 pt-8 border-t border-gray-200">
             <Button
               onClick={() => scrollToSection("contact")}
-              className="bg-[#c9a961] hover:bg-[#b8944e] text-white px-12 py-7 h-auto text-lg font-bold rounded-2xl shadow-xl shadow-[#c9a961]/20 transition-all active:scale-95"
+              className="bg-gold hover:bg-gold-hover text-ink px-12 py-7 h-auto text-lg font-bold rounded-2xl shadow-xl shadow-[#c9a961]/20 transition-all active:scale-95"
             >
               {t.guide.cta_contact}
             </Button>
@@ -88,13 +88,13 @@ export const Guide = ({
                 href={instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-14 h-14 rounded-2xl border border-gray-200 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all text-gray-700 hover:text-amber-600"
+                className="w-14 h-14 rounded-2xl border border-gray-200 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all text-gray-700 hover:text-gold-text"
               >
                 <Instagram className="w-6 h-6" />
               </a>
               <a
                 href={`mailto:info@toursandetours.com`}
-                className="w-14 h-14 rounded-2xl border border-gray-200 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all text-gray-700 hover:text-amber-600"
+                className="w-14 h-14 rounded-2xl border border-gray-200 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all text-gray-700 hover:text-gold-text"
               >
                 <Mail className="w-6 h-6" />
               </a>
@@ -102,7 +102,7 @@ export const Guide = ({
                 href={`https://wa.me/${t.contact.whatsapp.replace(/\s+/g, "")}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-14 h-14 rounded-2xl border border-gray-200 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all text-gray-700 hover:text-amber-600"
+                className="w-14 h-14 rounded-2xl border border-gray-200 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all text-gray-700 hover:text-gold-text"
               >
                 <Phone className="w-6 h-6" />
               </a>

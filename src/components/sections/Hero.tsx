@@ -10,21 +10,16 @@ interface HeroProps {
 export const Hero = ({ t, scrollToSection }: HeroProps) => {
   return (
     <section className="relative hero-mobile-height flex items-center justify-center overflow-hidden">
-      {/* Background Video or Image */}
+      {/* Background still (compressed). If video returns: self-hosted footage
+          from a real tour, muted, < 2 MB, no autoplay on mobile data. */}
       <div className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
+        <img
+          src="/hero-camironda.jpg"
+          alt=""
+          fetchPriority="high"
+          decoding="async"
           className="w-full h-full object-cover object-[center_65%]"
-          poster="/tour-camironda.jpg"
-        >
-          <source
-            src="https://assets.mixkit.co/videos/preview/mixkit-tossa-de-mar-coastal-scenery-41957-large.mp4"
-            type="video/mp4"
-          />
-        </video>
+        />
       </div>
       <div className="absolute inset-0 hero-gradient z-1" />
 
@@ -43,7 +38,7 @@ export const Hero = ({ t, scrollToSection }: HeroProps) => {
             <Button
               size="lg"
               onClick={() => scrollToSection("tours")}
-              className="btn-hover bg-[#c9a961] hover:bg-[#b8944e] text-white rounded-2xl h-14 md:h-16 text-lg sm:text-xl font-bold px-10 md:px-12 shadow-2xl shadow-[#c9a961]/30 transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-wide"
+              className="btn-hover bg-gold hover:bg-gold-hover text-ink rounded-2xl h-14 md:h-16 text-lg sm:text-xl font-bold px-10 md:px-12 shadow-2xl shadow-[#c9a961]/30 transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-wide"
             >
               {t.hero.cta_discover}
               <ChevronRight className="w-6 h-6" />

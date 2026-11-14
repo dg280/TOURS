@@ -59,7 +59,7 @@ export function CookieConsent({ lang, onAccept }: CookieConsentProps) {
           <div className="p-6 space-y-4">
             <div className="flex items-center gap-3">
               <div className="bg-amber-100 p-2 rounded-xl">
-                <Cookie className="w-6 h-6 text-amber-600" />
+                <Cookie className="w-6 h-6 text-gold-text" />
               </div>
               <h3 className="text-lg font-bold text-gray-900">{t.title}</h3>
             </div>
@@ -70,7 +70,7 @@ export function CookieConsent({ lang, onAccept }: CookieConsentProps) {
                 onClick={() => {
                   handleAcceptAll();
                 }}
-                className="w-full h-12 bg-[#c9a961] hover:bg-[#b8944e] text-white font-bold rounded-xl shadow-lg shadow-[#c9a961]/20 transition-all active:scale-95 cursor-pointer"
+                className="w-full h-12 bg-gold hover:bg-gold-hover text-ink font-bold rounded-xl shadow-lg shadow-[#c9a961]/20 transition-all active:scale-95 cursor-pointer"
               >
                 {t.accept}
               </button>
@@ -88,7 +88,7 @@ export function CookieConsent({ lang, onAccept }: CookieConsentProps) {
         ) : (
           <div className="p-6 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <header className="flex items-center gap-3">
-              <ShieldCheck className="w-5 h-5 text-amber-600" />
+              <ShieldCheck className="w-5 h-5 text-gold-text" />
               <h3 className="text-lg font-bold text-gray-900">{t.manage}</h3>
             </header>
 
@@ -140,7 +140,7 @@ export function CookieConsent({ lang, onAccept }: CookieConsentProps) {
                 onClick={() => {
                   handleSave();
                 }}
-                className="w-full h-12 bg-[#c9a961] hover:bg-[#b8944e] text-white font-bold rounded-xl transition-all active:scale-95 cursor-pointer"
+                className="w-full h-12 bg-gold hover:bg-gold-hover text-ink font-bold rounded-xl transition-all active:scale-95 cursor-pointer"
               >
                 {t.save}
               </button>

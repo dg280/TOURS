@@ -76,7 +76,7 @@ export function CheckoutForm({ onSuccess, amount, t }: CheckoutFormProps) {
             </div>
             
             {(!stripe || !elements) && (
-                <div className="text-amber-600 text-sm mt-2 bg-amber-50 p-3 rounded-lg border border-amber-200">
+                <div className="text-gold-text text-sm mt-2 bg-amber-50 p-3 rounded-lg border border-amber-200">
                     {t.booking.waiting_stripe}
                 </div>
             )}

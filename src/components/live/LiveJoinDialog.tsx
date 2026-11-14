@@ -74,7 +74,7 @@ export const LiveJoinDialog = ({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Activity className="w-5 h-5 text-amber-600" />
+            <Activity className="w-5 h-5 text-gold-text" />
             {t.nav.live}
           </DialogTitle>
           <DialogDescription>
@@ -85,7 +85,7 @@ export const LiveJoinDialog = ({
         <div className="space-y-6 pt-4">
           {loading ? (
             <div className="flex justify-center p-4">
-              <Loader2 className="w-6 h-6 animate-spin text-amber-600" />
+              <Loader2 className="w-6 h-6 animate-spin text-gold-text" />
             </div>
           ) : (
             <>
@@ -109,7 +109,7 @@ export const LiveJoinDialog = ({
                           Code: {session.session_code}
                         </p>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-amber-600 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="w-4 h-4 text-gold-text group-hover:translate-x-1 transition-transform" />
                     </button>
                   ))}
                 </div>
@@ -132,7 +132,7 @@ export const LiveJoinDialog = ({
                   <Button
                     onClick={() => handleJoin()}
                     disabled={!sessionCode.trim()}
-                    className="bg-[#c9a961] hover:bg-[#b8944e]"
+                    className="text-ink bg-gold hover:bg-gold-hover"
                   >
                     Join
                   </Button>

@@ -4,6 +4,8 @@ export type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed";
 
 export interface Tour {
   id: string | number;
+  /** Stable public URL segment (/tours/<slug>). Set once, never derived from the title once present. */
+  slug?: string;
   title: string;
   title_en?: string;
   title_es?: string;

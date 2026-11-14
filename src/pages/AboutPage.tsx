@@ -82,7 +82,7 @@ export const AboutPage = ({
 
                 {/* Floating Stats - Subtle Apple style */}
                 <div className="absolute -bottom-6 -right-6 glass-card px-8 py-6 rounded-3xl hidden md:block border-white/40 ring-1 ring-black/5 animate-fade-in delay-300">
-                  <p className="text-premium-tight text-5xl text-amber-600">
+                  <p className="text-premium-tight text-5xl text-gold-text">
                     15+
                   </p>
                   <p className="text-[10px] font-black uppercase tracking-[0.3em] mt-2 text-gray-500 opacity-80">
@@ -103,7 +103,7 @@ export const AboutPage = ({
         <div className="container-custom">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-8">
-              <p className="text-amber-600 font-black uppercase tracking-[0.4em] text-[10px] mb-3">
+              <p className="text-gold-text font-black uppercase tracking-[0.4em] text-[10px] mb-3">
                 {at.philosophy.tag}
               </p>
               <h2 className="text-[2rem] font-bold text-gray-900 mb-4">
@@ -120,7 +120,7 @@ export const AboutPage = ({
                   key={i}
                   className="glass-card group p-6 rounded-2xl transition-all duration-500 hover:shadow-lg hover:-translate-y-1 border-white/80"
                 >
-                  <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 mb-4 group-hover:bg-amber-600 group-hover:text-white transition-all duration-500">
+                  <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center text-gold-text mb-4 group-hover:bg-gold group-hover:text-ink transition-all duration-500">
                     <Icon className="w-5 h-5" />
                   </div>
                   <h3 className="font-black text-base mb-1 tracking-tight text-gray-900">
@@ -145,7 +145,7 @@ export const AboutPage = ({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div className="space-y-6">
               <div>
-                <p className="text-amber-600 font-black uppercase tracking-[0.4em] text-[10px] mb-2">
+                <p className="text-gold-text font-black uppercase tracking-[0.4em] text-[10px] mb-2">
                   {at.different.tag}
                 </p>
                 <h2 className="text-[2rem] font-bold text-gray-900 leading-tight">
@@ -252,7 +252,7 @@ export const AboutPage = ({
 
             <Button
               onClick={onBackToHome}
-              className="bg-white hover:bg-[#c9a961] text-black hover:text-white rounded-full px-8 py-3 h-auto font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg"
+              className="bg-white hover:bg-[#c9a961] text-black hover:text-ink rounded-full px-8 py-3 h-auto font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg"
             >
               {at.why.back}
             </Button>

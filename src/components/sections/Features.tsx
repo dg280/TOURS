@@ -9,7 +9,7 @@ export const Features = ({ t }: FeaturesProps) => {
         <section className="section-padding bg-white">
             <div className="container-custom">
                 <div className="text-center mb-16">
-                    <p className="text-amber-600 font-medium mb-2">{t.features.tag}</p>
+                    <p className="text-gold-text font-medium mb-2">{t.features.tag}</p>
                     <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
                         {t.features.title}
                     </h2>

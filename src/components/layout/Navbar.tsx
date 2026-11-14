@@ -1,4 +1,4 @@
-import { Menu, X, Activity } from "lucide-react";
+import { Menu, X, Activity, MessageCircle } from "lucide-react";
 import { type Language, type Translations } from "@/lib/translations";
 import { cn } from "@/lib/utils";
 
@@ -50,6 +50,9 @@ export const Navbar = ({
     }
   };
 
+  const phoneNumber = t.contact.whatsapp.replace(/\s+/g, "").replace("+", "");
+  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(t.whatsapp.message_prefix)}`;
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 pointer-events-none ${
@@ -94,11 +97,11 @@ export const Navbar = ({
               className={cn(
                 "relative text-xs font-bold uppercase tracking-widest transition-all px-2 py-1 h-full flex flex-col items-center justify-center group",
                 isScrolled
-                  ? "text-gray-600 hover:text-amber-600"
+                  ? "text-gray-600 hover:text-gold-text"
                   : "text-white/80 hover:text-white",
                 (view === "about" && activeSection === item) ||
                   (view === "home" && item === "about" && false)
-                  ? "text-amber-600"
+                  ? "text-gold-text"
                   : "",
               )}
             >
@@ -118,7 +121,7 @@ export const Navbar = ({
             onClick={onLiveClick}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all text-[10px] font-black uppercase tracking-wider ${
               isScrolled
-                ? "border-amber-600 text-amber-600 hover:bg-amber-50"
+                ? "border-amber-600 text-gold-text hover:bg-amber-50"
                 : "border-white/30 text-white hover:bg-white/10"
             }`}
           >
@@ -136,9 +139,9 @@ export const Navbar = ({
                 onClick={() => setLang(l)}
                 className={`text-xs font-bold uppercase transition-all ${
                   lang === l
-                    ? "text-amber-600"
+                    ? "text-gold-text"
                     : isScrolled
-                      ? "text-gray-600 hover:text-amber-600"
+                      ? "text-gray-600 hover:text-gold-text"
                       : "text-white/80 hover:text-white"
                 }`}
               >
@@ -148,25 +151,38 @@ export const Navbar = ({
           </div>
         </div>
 
-        <div className="hidden md:flex items-center gap-3">
-          {/* CTAs removed per UI Expert recommendation for cleaner aesthetic */}
-        </div>
+        <div className="flex items-center gap-2">
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Chat on WhatsApp"
+            title={t.whatsapp.floating_text}
+            className="relative flex items-center justify-center w-10 h-10 bg-[#25D366] text-white rounded-full shadow-md hover:scale-110 active:scale-95 hover:rotate-6 transition-all duration-300"
+          >
+            <MessageCircle className="w-5 h-5" />
 
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden p-2 rounded-lg"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? (
-            <X
-              className={`w-6 h-6 ${isScrolled ? "text-gray-900" : "text-white"}`}
-            />
-          ) : (
-            <Menu
-              className={`w-6 h-6 ${isScrolled ? "text-gray-900" : "text-white"}`}
-            />
-          )}
-        </button>
+            {/* Animated pulse effect */}
+            <span className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-20 pointer-events-none"></span>
+          </a>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden p-2 rounded-lg"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Menu"
+          >
+            {isMobileMenuOpen ? (
+              <X
+                className={`w-6 h-6 ${isScrolled ? "text-gray-900" : "text-white"}`}
+              />
+            ) : (
+              <Menu
+                className={`w-6 h-6 ${isScrolled ? "text-gray-900" : "text-white"}`}
+              />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
@@ -182,7 +198,7 @@ export const Navbar = ({
                     setLang(l);
                     setIsMobileMenuOpen(false);
                   }}
-                  className={`text-sm font-bold uppercase ${lang === l ? "text-amber-600" : "text-gray-400"}`}
+                  className={`text-sm font-bold uppercase ${lang === l ? "text-gold-text" : "text-gray-400"}`}
                 >
                   {l}
                 </button>
@@ -207,7 +223,7 @@ export const Navbar = ({
                 }}
                 className={cn(
                   "text-left py-3 font-bold uppercase text-xs tracking-widest transition-colors",
-                  activeSection === item ? "text-amber-600" : "text-gray-700",
+                  activeSection === item ? "text-gold-text" : "text-gray-700",
                 )}
               >
                 {getLabel(item)}
@@ -218,7 +234,7 @@ export const Navbar = ({
                 onLiveClick();
                 setIsMobileMenuOpen(false);
               }}
-              className="flex items-center gap-2 text-amber-600 py-2 font-bold uppercase text-left"
+              className="flex items-center gap-2 text-gold-text py-2 font-bold uppercase text-left"
             >
               <Activity className="w-4 h-4" />
               {t.nav.live}

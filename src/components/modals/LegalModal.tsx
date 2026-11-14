@@ -23,7 +23,7 @@ export const LegalModal = ({ type, onClose }: LegalModalProps) => {
                 Le site <strong>toursandetours.com</strong> est édité par :<br />
                 <strong>Tours & Détours</strong><br />
                 Guide indépendant — Barcelone, Espagne<br />
-                Email : <a href="mailto:info@toursandetours.com" className="text-amber-600 hover:underline">info@toursandetours.com</a>
+                Email : <a href="mailto:info@toursandetours.com" className="text-gold-text hover:underline">info@toursandetours.com</a>
               </p>
             </section>
 
@@ -33,7 +33,7 @@ export const LegalModal = ({ type, onClose }: LegalModalProps) => {
                 Ce site est hébergé par :<br />
                 <strong>Vercel Inc.</strong><br />
                 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis<br />
-                <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">vercel.com</a>
+                <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="text-gold-text hover:underline">vercel.com</a>
               </p>
             </section>
 
@@ -69,7 +69,7 @@ export const LegalModal = ({ type, onClose }: LegalModalProps) => {
               <h3 className="text-base font-bold text-gray-800 mb-2">Responsable du traitement</h3>
               <p>
                 <strong>Tours & Détours</strong> — Barcelone, Espagne<br />
-                Contact : <a href="mailto:info@toursandetours.com" className="text-amber-600 hover:underline">info@toursandetours.com</a>
+                Contact : <a href="mailto:info@toursandetours.com" className="text-gold-text hover:underline">info@toursandetours.com</a>
               </p>
             </section>
 
@@ -118,7 +118,7 @@ export const LegalModal = ({ type, onClose }: LegalModalProps) => {
                 <li>Droit d'opposition au traitement</li>
               </ul>
               <p className="mt-2">
-                Pour exercer ces droits, contactez-nous à : <a href="mailto:info@toursandetours.com" className="text-amber-600 hover:underline">info@toursandetours.com</a>
+                Pour exercer ces droits, contactez-nous à : <a href="mailto:info@toursandetours.com" className="text-gold-text hover:underline">info@toursandetours.com</a>
               </p>
             </section>
 

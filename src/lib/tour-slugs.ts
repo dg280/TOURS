@@ -48,7 +48,8 @@ export function toSlug(text: string): string {
  * Generate the canonical slug for a tour.
  * Uses title_en (preferred), falls back to title.
  */
-export function slugForTour(tour: Tour | { id: string | number; title: string; title_en?: string }): string {
+export function slugForTour(tour: Tour | { id: string | number; title: string; title_en?: string; slug?: string }): string {
+    if (tour.slug) return tour.slug;
     const title = tour.title_en || tour.title || '';
     if (!title) return String(tour.id);
     return toSlug(title);
@@ -91,15 +92,20 @@ const STATIC_SLUGS: Record<string, string> = (() => {
 
 /**
  * Find a tour by its slug. Checks, in order:
- * 1. Generated slug match (from the current title)
+ * 1. Stored slug, else the slug generated from the current title
  * 2. Legacy alias match (URLs Google indexed under the old hardcoded map)
  * 3. Static-catalogue slug match (a title that has since been edited)
  * 4. Numeric ID fallback
  */
 export function tourForSlug(slug: string, tours: Tour[]): Tour | undefined {
-    // 1. Match by generated slug
+    // 1. Match by canonical slug (stored, else generated from the current title)
     const bySlug = tours.find((t) => slugForTour(t) === slug);
     if (bySlug) return bySlug;
+
+    // 1b. A tour with a stored slug is still reachable by its title-derived URL,
+    //     which is what the site (and Google) used before slugs were stored.
+    const byTitle = tours.find((t) => slugForTour({ ...t, slug: undefined }) === slug);
+    if (byTitle) return byTitle;
 
     // 2. Match by legacy alias
     const legacyId = LEGACY_ALIASES[slug];
