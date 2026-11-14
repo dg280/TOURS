@@ -65,26 +65,49 @@ export default async function getCroppedImg(
   // draw rotated image
   ctx.drawImage(image, 0, 0);
 
-  // croppedAreaPixels values are bounding box relative
-  // extract the cropped image using these values
-  const data = ctx.getImageData(
-    pixelCrop.x,
-    pixelCrop.y,
-    pixelCrop.width,
-    pixelCrop.height
-  );
+  // croppedAreaPixels values are bounding box relative. When the user zooms
+  // out below 1x to keep the whole photo, the crop area is larger than the
+  // image and its x/y are negative: getImageData would return transparent
+  // pixels there (black once encoded as JPEG). Instead, paint the output
+  // canvas ourselves: a blurred, cover-scaled copy of the photo as backdrop,
+  // then the photo at the exact offset the editor showed.
+  const out = document.createElement("canvas");
+  const outCtx = out.getContext("2d");
+  if (!outCtx) {
+    return null;
+  }
+  out.width = Math.max(1, Math.round(pixelCrop.width));
+  out.height = Math.max(1, Math.round(pixelCrop.height));
 
-  // set canvas width to final desired crop size - this will clear existing context
-  canvas.width = pixelCrop.width;
-  canvas.height = pixelCrop.height;
+  const coversFrame =
+    pixelCrop.x >= 0 &&
+    pixelCrop.y >= 0 &&
+    pixelCrop.x + pixelCrop.width <= bBoxWidth &&
+    pixelCrop.y + pixelCrop.height <= bBoxHeight;
 
-  // paste generated rotate image with the correct offsets for x,y crop values.
-  ctx.putImageData(data, 0, 0);
+  if (!coversFrame) {
+    outCtx.fillStyle = "#ffffff";
+    outCtx.fillRect(0, 0, out.width, out.height);
+    const cover = Math.max(out.width / bBoxWidth, out.height / bBoxHeight);
+    const w = bBoxWidth * cover;
+    const h = bBoxHeight * cover;
+    outCtx.save();
+    // Canvas filter: Chrome/Edge/Firefox/Safari 18+. Older Safari ignores it
+    // and draws the backdrop unblurred, which is still better than black bands.
+    outCtx.filter = `blur(${Math.round(Math.max(out.width, out.height) / 40)}px)`;
+    outCtx.drawImage(canvas, (out.width - w) / 2, (out.height - h) / 2, w, h);
+    outCtx.restore();
+  }
 
-  // As a blob
+  outCtx.drawImage(canvas, -pixelCrop.x, -pixelCrop.y);
+
   return new Promise((resolve) => {
-    canvas.toBlob((file) => {
-      resolve(file);
-    }, "image/jpeg");
+    out.toBlob(
+      (file) => {
+        resolve(file);
+      },
+      "image/jpeg",
+      0.9,
+    );
   });
 }
