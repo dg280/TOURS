@@ -185,7 +185,9 @@ export const TourDialog = ({
                   </TabsList>
 
                   <TabsContent value="desc" className="mt-4 prose prose-amber">
-                    <p className="text-gray-600 leading-relaxed text-lg">
+                    {/* whitespace-pre-line : garde les retours à la ligne et les
+                        paragraphes saisis dans l'admin (sinon le HTML les écrase). */}
+                    <p className="text-gray-600 leading-relaxed text-lg whitespace-pre-line">
                       {lang === "en"
                         ? tour.description_en || tour.description
                         : lang === "es"
