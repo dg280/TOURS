@@ -20,7 +20,7 @@ export const LegalModal = ({ type, onClose }: LegalModalProps) => {
             <section>
               <h3 className="text-base font-bold text-gray-800 mb-2">Éditeur du site</h3>
               <p>
-                Le site <strong>toursandetours.com</strong> est édité par :<br />
+                Le site <strong>toursandetours.eu</strong> est édité par :<br />
                 <strong>Tours & Détours</strong><br />
                 Guide indépendant — Barcelone, Espagne<br />
                 Email : <a href="mailto:info@toursandetours.com" className="text-gold-text hover:underline">info@toursandetours.com</a>

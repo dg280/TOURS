@@ -28,7 +28,7 @@ export const Testimonials = ({ t, testimonials }: TestimonialsProps) => {
       "@context": "https://schema.org",
       "@type": "TravelAgency",
       name: "Tours & Detours Barcelona",
-      url: "https://toursandetours.com",
+      url: "https://toursandetours.eu",
       aggregateRating: {
         "@type": "AggregateRating",
         ratingValue: avgRating.toFixed(1),

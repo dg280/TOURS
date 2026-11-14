@@ -18,7 +18,7 @@
  */
 import { createClient } from '@supabase/supabase-js';
 
-const SITE = 'https://toursandetours.com';
+const SITE = 'https://toursandetours.eu';
 
 type Lang = 'en' | 'fr' | 'es';
 

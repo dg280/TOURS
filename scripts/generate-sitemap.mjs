@@ -12,7 +12,7 @@ import { createClient } from '@supabase/supabase-js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-const SITE = 'https://toursandetours.com';
+const SITE = 'https://toursandetours.eu';
 const OUT = fileURLToPath(new URL('../public/sitemap.xml', import.meta.url));
 
 export function toSlug(text) {
