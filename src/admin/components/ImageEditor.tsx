@@ -125,12 +125,18 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
               onZoomChange={setZoom}
               minZoom={0.5}
               maxZoom={5}
+              // Below 1x the photo is smaller than the frame. With the default
+              // restrictPosition, react-easy-crop clamps the crop area to the
+              // photo, so the saved image no longer matched the preview (and
+              // was then re-zoomed by object-cover on the site). Unclamped, the
+              // empty part of the frame is filled by getCroppedImg.
+              restrictPosition={zoom >= 1}
               style={cropperStyle}
             />
           </div>
 
           <p className="text-xs text-gray-400 text-center mt-2 flex items-center justify-center gap-1">
-            <Move className="w-3 h-3" /> Glissez pour repositionner, pincez ou scrollez pour zoomer
+            <Move className="w-3 h-3" /> Glissez pour repositionner, pincez ou scrollez pour zoomer — dézoomez sous 1x pour garder la photo entière
           </p>
 
           <div className="p-6 pt-4 space-y-5">
