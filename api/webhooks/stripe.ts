@@ -280,21 +280,29 @@ ${includedList ? `<tr><td style="padding:0 40px 24px;"><div style="background:#e
         const adminTourNameSafe = sanitizeHeader(reservation.tour_name);
         const customerNameSafe = sanitizeHeader(reservation.name);
 
-        await resend.emails.send({
+        // The sender domain (.eu) has no business inbox: replies go to the admin address.
+        // send() returns { error } instead of throwing — log it so a refusal is visible.
+        const { error: customerErr } = await resend.emails.send({
             from: fromAddress,
             to: reservation.email,
+            replyTo: adminEmail,
             subject: `${L.subject_customer} : ${localizedTitleSafe} — ${dateFormatted}`,
             html: customerHtml,
         });
 
-        await resend.emails.send({
+        const { error: adminErr } = await resend.emails.send({
             from: fromAddress,
             to: adminEmail,
+            replyTo: reservation.email,
             subject: `${L.subject_admin_webhook} : ${adminTourNameSafe} · ${customerNameSafe} · ${dateFormatted}`,
             html: adminHtml,
         });
 
-        console.log('[Webhook] Confirmation emails sent for reservation:', reservation.id);
+        if (customerErr || adminErr) {
+            console.error('[Webhook] Email refused by Resend for reservation:', reservation.id, { customerErr, adminErr });
+        } else {
+            console.log('[Webhook] Confirmation emails sent for reservation:', reservation.id);
+        }
     } catch (emailErr) {
         // Don't fail the webhook on email error — reservation is already confirmed
         console.error('[Webhook] Email send failed:', emailErr);

@@ -89,12 +89,16 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
                     <p>À très bientôt,<br/>Antoine Pilard</p>
                 `;
 
-                await resend.emails.send({
-                    from: 'Tours & Detours <info@toursandetours.com>',
+                // Same verified sender as the other mails; replies go to the business inbox.
+                const { error: sendErr } = await resend.emails.send({
+                    from: `Tours & Détours <${process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'}>`,
                     to: reservation.email,
+                    replyTo: process.env.ADMIN_EMAIL || 'info@toursandetours.com',
                     subject: `Rappel : Votre excursion ${reservation.tour_name} arrive bientôt !`,
                     html: emailContent,
                 });
+                // send() returns { error } instead of throwing: don't mark a refused mail as sent.
+                if (sendErr) throw new Error(`Resend refused: ${sendErr.message}`);
 
                 // Mark as sent
                 await supabase

@@ -336,19 +336,28 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         const adminTourNameSafe = sanitizeHeader(reservation.tour_name);
         const customerNameSafe = sanitizeHeader(reservation.name);
 
-        await resend.emails.send({
+        // The sender domain (.eu) has no business inbox: replies go to the admin address.
+        // send() returns { error } instead of throwing — log it so a refusal is visible.
+        const { error: customerErr } = await resend.emails.send({
             from: fromAddress,
             to: reservation.email,
+            replyTo: adminTo,
             subject: `${L.subject_customer} : ${localizedTitleSafe} — ${dateFormatted}`,
             html: customerEmail,
         });
 
-        await resend.emails.send({
+        const { error: adminErr } = await resend.emails.send({
             from: fromAddress,
             to: adminTo,
+            replyTo: reservation.email,
             subject: `${L.subject_admin} : ${adminTourNameSafe} · ${customerNameSafe} · ${dateFormatted}`,
             html: adminEmail,
         });
+
+        // The reservation is already confirmed: don't fail the request, but make the refusal visible.
+        if (customerErr || adminErr) {
+            console.error('Confirm email refused by Resend:', reservation.id, { customerErr, adminErr });
+        }
 
         return res.status(200).json({ success: true });
     } catch (err: unknown) {
