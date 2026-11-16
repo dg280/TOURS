@@ -55,19 +55,24 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
 </table>
 <p style="margin-top:16px;font-size:12px;color:#6b7280;">Répondre directement à : <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>`;
 
-    // RESEND_FROM_EMAIL must use a verified domain (e.g. noreply@toursandetours.com).
-    // Without a verified domain, Resend can only send to the account owner's email.
+    // RESEND_FROM_EMAIL must use a domain verified in Resend — today only
+    // toursandetours.eu. A .com sender is rejected (403) without throwing.
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
     const fromAddress = `Tours & Détours <${fromEmail}>`;
 
     try {
-        await resend.emails.send({
+        // resend.emails.send() does not throw on an API refusal: it returns { error }.
+        const { error } = await resend.emails.send({
             from: fromAddress,
             to: process.env.ADMIN_EMAIL || 'info@toursandetours.com',
             replyTo: email,
             subject: `Contact : ${escapeHtml(name)}${tour ? ` — ${escapeHtml(tour)}` : ''}`,
             html: adminEmail,
         });
+        if (error) {
+            console.error('Contact email refused by Resend:', error);
+            return res.status(502).json({ error: 'Erreur lors de l\'envoi du message' });
+        }
 
         return res.status(200).json({ success: true });
     } catch (err) {
